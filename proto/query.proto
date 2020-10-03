@@ -1,0 +1,22 @@
+syntax = "proto3";
+package cosmos.liquidity;
+
+import "gogoproto/gogo.proto";
+import "liquidity.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/tendermint/liquidity/types";
+
+service Query {
+    rpc LiquidityPool (QueryLiquidityPoolRequest) returns (QueryLiquidityPoolResponse) {
+        option (google.api.http).get = "/liquidity/{pool_id}";
+    }
+}
+
+message QueryLiquidityPoolRequest {
+    uint64 pool_id = 1 [(gogoproto.customname) = "PoolID"];
+}
+
+message QueryLiquidityPoolResponse {
+    LiquidityPool liquidity_pool = 1 [(gogoproto.nullable) = false];
+}

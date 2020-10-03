@@ -1,0 +1,12 @@
+syntax = "proto3";
+package cosmos.liquidity;
+
+import "liquidity.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/tendermint/liquidity/types";
+
+// GenesisState defines the nft module's genesis state.
+message GenesisState {
+    Params params = 1 [(gogoproto.nullable) = false];
+}
