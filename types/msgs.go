@@ -19,22 +19,22 @@ const (
 )
 
 type MsgCreateLiquidityPoolLegacy struct {
-	PoolCreator         sdk.AccAddress // account address of the origin of this message
-	PoolTypeIndex       uint32         // index of the liquidity pool type of this new liquidity pool
-	ReserveTokenDenoms  []string       // list of reserve token denoms for this new liquidity pool, store alphabetical
-	DepositTokensAmount sdk.Coins      // deposit token for initial pool deposit into this new liquidity pool
+	PoolCreator        sdk.AccAddress // account address of the origin of this message
+	PoolTypeIndex      uint32         // index of the liquidity pool type of this new liquidity pool
+	ReserveCoinDenoms  []string       // list of reserve coin denoms for this new liquidity pool, store alphabetical
+	DepositCoinsAmount sdk.Coins      // deposit coin for initial pool deposit into this new liquidity pool
 }
 
 type MsgDepositToLiquidityPoolLegacy struct {
-	Depositor           sdk.AccAddress // account address of the origin of this message
-	PoolID              uint64         // id of the liquidity pool where this message is belong to
-	DepositTokensAmount sdk.Coins      // deposit token of this pool deposit message
+	Depositor          sdk.AccAddress // account address of the origin of this message
+	PoolID             uint64         // id of the liquidity pool where this message is belong to
+	DepositCoinsAmount sdk.Coins      // deposit coin of this pool deposit message
 }
 
 type MsgWithdrawFromLiquidityPoolLegacy struct {
-	Withdrawer      sdk.AccAddress // account address of the origin of this message
-	PoolID          uint64         // id of the liquidity pool where this message is belong to
-	PoolTokenAmount sdk.Coins      // pool token sent for reserve token withdraw
+	Withdrawer     sdk.AccAddress // account address of the origin of this message
+	PoolID         uint64         // id of the liquidity pool where this message is belong to
+	PoolCoinAmount sdk.Coins      // pool coin sent for reserve coin withdraw
 }
 
 type MsgSwapLegacy struct {
@@ -42,8 +42,8 @@ type MsgSwapLegacy struct {
 	PoolID        uint64         // id of the liquidity pool where this message is belong to
 	PoolTypeIndex uint32         // index of the liquidity pool type where this message is belong to
 	SwapType      uint32         // swap type of this swap message, default 1: InstantSwap, requesting instant swap
-	OfferToken    sdk.Coin       // offer token of this swap message
-	DemandToken   sdk.Coin       // denom of demand token of this swap message
+	OfferCoin     sdk.Coin       // offer coin of this swap message
+	DemandCoin    sdk.Coin       // denom of demand coin of this swap message
 	OrderPrice    sdk.Dec        // order price of this swap message
 }
 
@@ -55,14 +55,14 @@ type MsgSwapLegacy struct {
 func NewMsgCreateLiquidityPool(
 	poolCreator sdk.AccAddress,
 	poolTypeIndex uint32,
-	reserveTokenDenoms []string,
-	depositTokensAmount sdk.Coins,
+	reserveCoinDenoms []string,
+	depositCoinsAmount sdk.Coins,
 ) *MsgCreateLiquidityPool {
 	return &MsgCreateLiquidityPool{
-		PoolCreator:         poolCreator,
-		PoolTypeIndex:       poolTypeIndex,
-		ReserveTokenDenoms:  reserveTokenDenoms,
-		DepositTokensAmount: depositTokensAmount,
+		PoolCreator:        poolCreator,
+		PoolTypeIndex:      poolTypeIndex,
+		ReserveCoinDenoms:  reserveCoinDenoms,
+		DepositCoinsAmount: depositCoinsAmount,
 	}
 }
 
@@ -96,12 +96,12 @@ func (msg MsgCreateLiquidityPool) GetSigners() []sdk.AccAddress {
 func NewMsgDepositToLiquidityPool(
 	depositor sdk.AccAddress,
 	poolID uint64,
-	depositTokensAmount sdk.Coins,
+	depositCoinsAmount sdk.Coins,
 ) *MsgDepositToLiquidityPool {
 	return &MsgDepositToLiquidityPool{
-		Depositor:           depositor,
-		PoolID:              poolID,
-		DepositTokensAmount: depositTokensAmount,
+		Depositor:          depositor,
+		PoolID:             poolID,
+		DepositCoinsAmount: depositCoinsAmount,
 	}
 }
 
@@ -135,12 +135,12 @@ func (msg MsgDepositToLiquidityPool) GetSigners() []sdk.AccAddress {
 func NewMsgWithdrawFromLiquidityPool(
 	withdrawer sdk.AccAddress,
 	poolID uint64,
-	poolTokenAmount sdk.Coins,
+	poolCoinAmount sdk.Coins,
 ) *MsgWithdrawFromLiquidityPool {
 	return &MsgWithdrawFromLiquidityPool{
-		Withdrawer:      withdrawer,
-		PoolID:          poolID,
-		PoolTokenAmount: poolTokenAmount,
+		Withdrawer:     withdrawer,
+		PoolID:         poolID,
+		PoolCoinAmount: poolCoinAmount,
 	}
 }
 
@@ -176,8 +176,8 @@ func NewMsgSwap(
 	poolID uint64,
 	poolTypeIndex uint32,
 	swapType uint32,
-	offerToken sdk.Coin,
-	demandToken sdk.Coin,
+	offerCoin sdk.Coin,
+	demandCoin sdk.Coin,
 	orderPrice sdk.Dec,
 ) *MsgSwap {
 	return &MsgSwap{
@@ -185,8 +185,8 @@ func NewMsgSwap(
 		PoolID:        poolID,
 		PoolTypeIndex: poolTypeIndex,
 		SwapType:      swapType,
-		OfferToken:    offerToken,
-		DemandToken:   demandToken,
+		OfferCoin:     offerCoin,
+		DemandCoin:    demandCoin,
 		OrderPrice:    orderPrice,
 	}
 }

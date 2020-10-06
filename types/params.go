@@ -12,36 +12,36 @@ const DefaultBatchSize uint32 = 1
 
 // Parameter store keys
 var (
-	KeyLiquidityPoolTypes      = []byte("LiquidityPoolTypes")
-	KeyMinInitDepositToPool    = []byte("MinInitDepositToPool")
-	KeyInitPoolTokenMintAmount = []byte("InitPoolTokenMintAmount")
-	KeySwapFeeRate             = []byte("SwapFeeRate")
-	KeyLiquidityPoolFeeRate    = []byte("LiquidityPoolFeeRate")
+	KeyLiquidityPoolTypes     = []byte("LiquidityPoolTypes")
+	KeyMinInitDepositToPool   = []byte("MinInitDepositToPool")
+	KeyInitPoolCoinMintAmount = []byte("InitPoolCoinMintAmount")
+	KeySwapFeeRate            = []byte("SwapFeeRate")
+	KeyLiquidityPoolFeeRate   = []byte("LiquidityPoolFeeRate")
 
 	LiquidityPoolTypeConstantProduct = LiquidityPoolType{
 		PoolTypeIndex:         0,
-		NumOfReserveTokens:    2,
+		NumOfReserveCoins:     2,
 		SwapPriceFunctionName: ConstantProductFunctionName,
 		Description:           "Default Constant Product Liquidity Pool",
 	}
 )
 
 type ParamsLegacy struct {
-	LiquidityPoolTypes      []LiquidityPoolType
-	MinInitDepositToPool    sdk.Int
-	InitPoolTokenMintAmount sdk.Int
-	SwapFeeRate             sdk.Dec
-	LiquidityPoolFeeRate    sdk.Dec
+	LiquidityPoolTypes     []LiquidityPoolType
+	MinInitDepositToPool   sdk.Int
+	InitPoolCoinMintAmount sdk.Int
+	SwapFeeRate            sdk.Dec
+	LiquidityPoolFeeRate   sdk.Dec
 }
 
 // NewParams liquidity paramtypes constructor
-func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolTokenMint sdk.Int, swapFeeRate, poolFeeRate sdk.Dec) Params {
+func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint sdk.Int, swapFeeRate, poolFeeRate sdk.Dec) Params {
 	return Params{
-		LiquidityPoolTypes:      liquidityPoolTypes,
-		MinInitDepositToPool:    minInitDeposit,
-		InitPoolTokenMintAmount: initPoolTokenMint,
-		SwapFeeRate:             swapFeeRate,
-		LiquidityPoolFeeRate:    poolFeeRate,
+		LiquidityPoolTypes:     liquidityPoolTypes,
+		MinInitDepositToPool:   minInitDeposit,
+		InitPoolCoinMintAmount: initPoolCoinMint,
+		SwapFeeRate:            swapFeeRate,
+		LiquidityPoolFeeRate:   poolFeeRate,
 	}
 }
 
@@ -56,7 +56,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyLiquidityPoolTypes, &p.LiquidityPoolTypes, validateLiquidityPoolTypes),
 		paramtypes.NewParamSetPair(KeyMinInitDepositToPool, &p.MinInitDepositToPool, validateMinInitDepositToPool),
-		paramtypes.NewParamSetPair(KeyInitPoolTokenMintAmount, &p.InitPoolTokenMintAmount, validateInitPoolTokenMintAmount),
+		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
 		paramtypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
 		paramtypes.NewParamSetPair(KeyLiquidityPoolFeeRate, &p.LiquidityPoolFeeRate, validateLiquidityPoolFeeRate),
 	}
@@ -68,11 +68,11 @@ func DefaultParams() Params {
 	defaultLiquidityPoolTypes = append(defaultLiquidityPoolTypes, LiquidityPoolTypeConstantProduct)
 
 	return Params{
-		LiquidityPoolTypes:      defaultLiquidityPoolTypes,
-		MinInitDepositToPool:    sdk.NewInt(1000000),
-		InitPoolTokenMintAmount: sdk.NewInt(1000000),
-		SwapFeeRate:             sdk.NewDecWithPrec(1, 3), // "0.001000000000000000"
-		LiquidityPoolFeeRate:    sdk.NewDecWithPrec(1, 3), // "0.001000000000000000"
+		LiquidityPoolTypes:     defaultLiquidityPoolTypes,
+		MinInitDepositToPool:   sdk.NewInt(1000000),
+		InitPoolCoinMintAmount: sdk.NewInt(1000000),
+		SwapFeeRate:            sdk.NewDecWithPrec(1, 3), // "0.001000000000000000"
+		LiquidityPoolFeeRate:   sdk.NewDecWithPrec(1, 3), // "0.001000000000000000"
 
 	}
 }
@@ -115,14 +115,14 @@ func validateMinInitDepositToPool(i interface{}) error {
 	return nil
 }
 
-func validateInitPoolTokenMintAmount(i interface{}) error {
+func validateInitPoolCoinMintAmount(i interface{}) error {
 	v, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	if v == 0 {
-		return fmt.Errorf("InitPoolTokenMintAmount must be positive: %d", v)
+		return fmt.Errorf("InitPoolCoinMintAmount must be positive: %d", v)
 	}
 
 	return nil
