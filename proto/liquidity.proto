@@ -59,15 +59,4 @@ message LiquidityPool {
     repeated string ReserveCoinDenoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\""];
     bytes ReserveAccount = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress", (gogoproto.moretags) = "yaml:\"reserve_account\""];
     string PoolCoinDenom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\""];
-    bytes SwapFeeRate = 6 [
-        (gogoproto.moretags)   = "yaml:\"swap_fee_rate\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-        (gogoproto.nullable)   = false
-    ];
-    bytes PoolFeeRate = 7 [
-        (gogoproto.moretags)   = "yaml:\"pool_fee_rate\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-        (gogoproto.nullable)   = false
-    ];
-    uint32 BatchSize = 8 [(gogoproto.moretags) = "yaml:\"batch_size\""];
 }

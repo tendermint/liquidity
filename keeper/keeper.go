@@ -108,10 +108,6 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 		ReserveCoinDenoms: reserveCoinDenoms,
 		ReserveAccount:    reserveAcc,
 		PoolCoinDenom:     PoolCoinDenom,
-		SwapFeeRate:       params.SwapFeeRate,
-		PoolFeeRate:       params.LiquidityPoolFeeRate,
-		BatchSize:         types.DefaultBatchSize,
-		//LastBatchIndex:     0,
 	}
 
 	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(liquidityPool.PoolCoinDenom, params.InitPoolCoinMintAmount))
