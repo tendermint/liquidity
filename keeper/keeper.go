@@ -71,12 +71,12 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 		return types.ErrPoolTypeNotExists
 	}
 
-	if len(msg.ReserveCoinDenoms) != int(poolType.NumOfReserveCoins) {
-		return types.ErrNumOfReserveCoin
+	if poolType.MinReserveCoinNum != 2 && poolType.MaxReserveCoinNum != 2 {
+		return types.ErrNotImplementedYet
 	}
 
-	if poolType.NumOfReserveCoins != 2 {
-		return types.ErrNotImplementedYet
+	if len(msg.ReserveCoinDenoms) > int(poolType.MaxReserveCoinNum) && int(poolType.MinReserveCoinNum) > len(msg.ReserveCoinDenoms) {
+		return types.ErrNumOfReserveCoin
 	}
 
 	poolKey := types.GetPoolKey(msg.ReserveCoinDenoms, msg.PoolTypeIndex)

@@ -19,20 +19,12 @@ var (
 	KeyLiquidityPoolFeeRate   = []byte("LiquidityPoolFeeRate")
 
 	LiquidityPoolTypeConstantProduct = LiquidityPoolType{
-		PoolTypeIndex:         0,
-		NumOfReserveCoins:     2,
-		SwapPriceFunctionName: ConstantProductFunctionName,
-		Description:           "Default Constant Product Liquidity Pool",
+		PoolTypeIndex:     0,
+		Name:              "ConstantProductLiquidityPool",
+		MinReserveCoinNum: 2,
+		MaxReserveCoinNum: 2,
 	}
 )
-
-type ParamsLegacy struct {
-	LiquidityPoolTypes     []LiquidityPoolType
-	MinInitDepositToPool   sdk.Int
-	InitPoolCoinMintAmount sdk.Int
-	SwapFeeRate            sdk.Dec
-	LiquidityPoolFeeRate   sdk.Dec
-}
 
 // NewParams liquidity paramtypes constructor
 func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint sdk.Int, swapFeeRate, poolFeeRate sdk.Dec) Params {
