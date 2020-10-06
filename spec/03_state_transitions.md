@@ -4,35 +4,35 @@ order: 3
 
 # State Transitions
 
-## Token Escrow for Liquidity Module Messages
+## Coin Escrow for Liquidity Module Messages
 
-Three messages on the liquidity module need prior token escrow before confirmation, which causes state transition on `Bank` module. Below lists are describing token escrow processes for each given message type.
+Three messages on the liquidity module need prior coin escrow before confirmation, which causes state transition on `Bank` module. Below lists are describing coin escrow processes for each given message type.
 
 ### MsgDepositToLiquidityPool
 
-To deposit tokens into existing `LiquidityPool`, the depositor needs to escrow `DepositTokensAmount` into `LiquidityModuleEscrowAccount`.
+To deposit coins into existing `LiquidityPool`, the depositor needs to escrow `DepositCoins` into `LiquidityModuleEscrowAccount`.
 
 ### MsgWithdrawFromLiquidityPool
 
-To withdraw tokens from `LiquidityPool`, the withdrawer needs to escrow `PoolTokenAmount` into `LiquidityModuleEscrowAccount`.
+To withdraw coins from `LiquidityPool`, the withdrawer needs to escrow `PoolCoin` into `LiquidityModuleEscrowAccount`.
 
 ### MsgSwap
 
-To request token swap, swap requestor needs to escrow `OfferToken` into `LiquidityModuleEscrowAccount`.
+To request coin swap, swap requestor needs to escrow `OfferCoin` into `LiquidityModuleEscrowAccount`.
 
 ## LiquidityPoolBatch Execution
 
 Batch execution causes state transitions on `Bank` module. Below categories describes state transition executed by each process in `LiquidityPoolBatch` execution.
 
-### Token Swap
+### Coin Swap
 
-After successful token swap, tokens accumulated in `LiquidityModuleEscrowAccount` for token swaps are sent to other swap requestors(self-swap) or to the `LiquidityPool`(pool-swap). Also fees are sent to the `LiquidityPool`.
+After successful coin swap, coins accumulated in `LiquidityModuleEscrowAccount` for coin swaps are sent to other swap requestors(self-swap) or to the `LiquidityPool`(pool-swap). Also fees are sent to the `LiquidityPool`.
 
 ### LiquidityPool Deposit and Withdraw
 
-For deposit, after successful deposit, escrowed tokens are sent to the `ReserveAccount` of targeted `LiquidityPool`, and new pool tokens are minted and sent to the depositor.
+For deposit, after successful deposit, escrowed coins are sent to the `ReserveAccount` of targeted `LiquidityPool`, and new pool coins are minted and sent to the depositor.
 
-For withdrawal, after successful withdraw, escrowed pool tokens are burnt, and corresponding amount of reserve tokens are sent to the withdrawer from the `LiquidityPool`.
+For withdrawal, after successful withdraw, escrowed pool coins are burnt, and corresponding amount of reserve coins are sent to the withdrawer from the `LiquidityPool`.
 
 ### Pseudo Algorithm for LiquidityPoolBatch Execution
 
@@ -44,15 +44,15 @@ For withdrawal, after successful withdraw, escrowed pool tokens are burnt, and c
     1) swap price delta
 
     - definitions
-        - all swap orders are seen as buy/sell limit orders from X token to Y token
-            - swap order sending X token to demand Y token : buy order (of Y token)
-            - swap order sending Y token to demand X token : sell order (of Y token)
-            - order price = unit price of Y token in X token
+        - all swap orders are seen as buy/sell limit orders from X coin to Y coin
+            - swap order sending X coin to demand Y coin : buy order (of Y coin)
+            - swap order sending Y coin to demand X coin : sell order (of Y coin)
+            - order price = unit price of Y coin in X coin
         - S = sum of sell order amount with order price equal or lower than current swap price
         - B = sum of buy order amount with order price equal or higher than current swap price
-        - NX = number of X token in the liquidity pool
-        - NY = number of X token in the liquidity pool
-        - P(t) = latest swap price from pool token ratio = NX / NY
+        - NX = number of X coin in the liquidity pool
+        - NY = number of X coin in the liquidity pool
+        - P(t) = latest swap price from pool coin ratio = NX / NY
         - SwapPrice(t+1) = swap price for this batch ( to find! )
             - P(t) is not equal to SwapPrice(t) !
             - P(t+1) is not equal to SwapPrice(t+1) !
@@ -68,9 +68,9 @@ For withdrawal, after successful withdraw, escrowed pool tokens are burnt, and c
         - SimP_i = order price of i-th swap request = the swap price for this simulation
             - SimP_i ≥ P(t) : price non-decreasing case only
                 - ignore SimP_i with SimP_i < P(t)
-        - SX_i = sum of buy order amount with order price equal or higher than SimP_i, in X token, which sends X token and demands Y token
+        - SX_i = sum of buy order amount with order price equal or higher than SimP_i, in X coin, which sends X coin and demands Y coin
             - self swap : swap requests which can be matchable without utilizing pool liquidity
-        - SY_i = sum of sell order amount with order price equal or lower than SimP_i, in Y token, which sends Y token and demands X token
+        - SY_i = sum of sell order amount with order price equal or lower than SimP_i, in Y coin, which sends Y coin and demands X coin
     - calculation process
         - find AdjP_i for each simulation
             - constant product equation
@@ -88,11 +88,11 @@ For withdrawal, after successful withdraw, escrowed pool tokens are burnt, and c
     (step2) actual swap simulation
 
     - definitions
-        - PY_i = available pool liquidity amount in Y token, to be provided for matching, based on constant product equation
-        - TY_i = available swap/pool amounts in Y token, to be provided for matching
-        - MX_i = total matched X token amount by self-swap or pool-swap
-        - MSX_i = self matched X token amount without utilizing pool liquidity
-        - MPX_i = pool matched X token amount via pool liquidity
+        - PY_i = available pool liquidity amount in Y coin, to be provided for matching, based on constant product equation
+        - TY_i = available swap/pool amounts in Y coin, to be provided for matching
+        - MX_i = total matched X coin amount by self-swap or pool-swap
+        - MSX_i = self matched X coin amount without utilizing pool liquidity
+        - MPX_i = pool matched X coin amount via pool liquidity
         - CPEDev_i = deviation of constant product value from NX*NY to the pool status after simulated swap
     - calculation process
         - calculate PY_i
@@ -106,7 +106,7 @@ For withdrawal, after successful withdraw, escrowed pool tokens are burnt, and c
         - calculate CPEDev_i = | NX*NY - (NX + MPX_i)*(NY - MPX_i/AdjP_i) |
         - finding optimized swap price from simulations
             - CPEDev_i should be zero : satisfying constant product equation
-            - maximize MX_i : maximum swap amount for token X
+            - maximize MX_i : maximum swap amount for coin X
                 - when there exists multiple simulation with maximum MX : choose one with minimal price impact ( |AdjP_i-P(t)| )
             - the chosen AdjP_max is assigned as SwapPrice(t+1)
             - the chosen simulation result is chosen to become the actual batch execution result

@@ -6,19 +6,15 @@ order: 2
 
 ## LiquidityPool
 
-`LiquidityPool` stores definition and status of a liquidity pool
+`LiquidityPool` stores static information of a liquidity pool
 
 ```go
 type LiquidityPool struct {
 	PoolID             uint64         // index of this liquidity pool
 	PoolTypeIndex      uint32         // pool type of this liquidity pool
-	ReserveTokenDenoms []string       // list of reserve token denoms for this liquidity pool
-	ReserveAccount     sdk.AccAddress // module account address for this liquidity pool to store reserve tokens
-	PoolTokenDenom     string         // denom of pool token for this liquidity pool
-	SwapFeeRate        sdk.Dec        // swap fee rate for every executed swap on this liquidity pool
-	PoolFeeRate        sdk.Dec        // liquidity pool fee rate for swaps consumed liquidity from this liquidity pool
-	BatchSize          uint32         // size of each batch as a number of block heights
-	LastBatchIndex     uint64         // index of the last batch of this liquidity pool
+	ReserveCoinDenoms  []string       // list of reserve coin denoms for this liquidity pool
+	ReserveAccount     sdk.AccAddress // module account address for this liquidity pool to store reserve coins
+	PoolCoinDenom      string         // denom of pool coin for this liquidity pool
 }
 ```
 
@@ -26,12 +22,13 @@ LiquidityPool: `0x11 | LiquidityPoolID -> amino(LiquidityPool)`
 
 LiquidityPoolByReserveAccIndex: `0x12 | ReserveAcc -> nil`
 
+
 ## LiquidityPoolBatch
 
 ```go
 type LiquidityPoolBatch struct {
-	BatchIndex              uint64                     // index of this batch
 	PoolID                  uint64                     // id of target liquidity pool
+	BatchIndex              uint64                     // index of this batch
 	BeginHeight             uint64                     // height where this batch is begun
 	SwapMessageList         []BatchSwapMessage         // list of swap messages stored in this batch
 	PoolDepositMessageList  []BatchPoolDepositMessage  // list of pool deposit messages stored in this batch
