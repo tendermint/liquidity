@@ -42,7 +42,7 @@ message Params {
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable)   = false
     ];
-    cosmos.base.v1beta1.Coin LiquidityPoolCreationFee = 6 [
+    repeated cosmos.base.v1beta1.Coin LiquidityPoolCreationFee = 6 [
         (gogoproto.moretags)   = "yaml:\"liquidity_pool_creation_fee\"",
         (gogoproto.nullable)   = false
     ];

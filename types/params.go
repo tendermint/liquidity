@@ -12,11 +12,13 @@ const DefaultBatchSize uint32 = 1
 
 // Parameter store keys
 var (
-	KeyLiquidityPoolTypes     = []byte("LiquidityPoolTypes")
-	KeyMinInitDepositToPool   = []byte("MinInitDepositToPool")
-	KeyInitPoolCoinMintAmount = []byte("InitPoolCoinMintAmount")
-	KeySwapFeeRate            = []byte("SwapFeeRate")
-	KeyLiquidityPoolFeeRate   = []byte("LiquidityPoolFeeRate")
+	KeyLiquidityPoolTypes       = []byte("LiquidityPoolTypes")
+	KeyMinInitDepositToPool     = []byte("MinInitDepositToPool")
+	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
+	KeySwapFeeRate              = []byte("SwapFeeRate")
+	KeyLiquidityPoolFeeRate     = []byte("LiquidityPoolFeeRate")
+	KeyLiquidityPoolCreationFee = []byte("LiquidityPoolCreationFee")
+	KeyUnitBatchSize            = []byte("UnitBatchSize")
 
 	LiquidityPoolTypeConstantProduct = LiquidityPoolType{
 		PoolTypeIndex:     0,
@@ -27,13 +29,15 @@ var (
 )
 
 // NewParams liquidity paramtypes constructor
-func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint sdk.Int, swapFeeRate, poolFeeRate sdk.Dec) Params {
+func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint sdk.Int, swapFeeRate, poolFeeRate sdk.Dec, creationFee sdk.Coins, unitBatchSize uint32) Params {
 	return Params{
-		LiquidityPoolTypes:     liquidityPoolTypes,
-		MinInitDepositToPool:   minInitDeposit,
-		InitPoolCoinMintAmount: initPoolCoinMint,
-		SwapFeeRate:            swapFeeRate,
-		LiquidityPoolFeeRate:   poolFeeRate,
+		LiquidityPoolTypes:       liquidityPoolTypes,
+		MinInitDepositToPool:     minInitDeposit,
+		InitPoolCoinMintAmount:   initPoolCoinMint,
+		SwapFeeRate:              swapFeeRate,
+		LiquidityPoolFeeRate:     poolFeeRate,
+		LiquidityPoolCreationFee: creationFee,
+		UnitBatchSize:            unitBatchSize,
 	}
 }
 
@@ -51,6 +55,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
 		paramtypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
 		paramtypes.NewParamSetPair(KeyLiquidityPoolFeeRate, &p.LiquidityPoolFeeRate, validateLiquidityPoolFeeRate),
+		paramtypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
+		paramtypes.NewParamSetPair(KeyUnitBatchSize, &p.UnitBatchSize, validateUnitBatchSize),
 	}
 }
 
@@ -60,12 +66,13 @@ func DefaultParams() Params {
 	defaultLiquidityPoolTypes = append(defaultLiquidityPoolTypes, LiquidityPoolTypeConstantProduct)
 
 	return Params{
-		LiquidityPoolTypes:     defaultLiquidityPoolTypes,
-		MinInitDepositToPool:   sdk.NewInt(1000000),
-		InitPoolCoinMintAmount: sdk.NewInt(1000000),
-		SwapFeeRate:            sdk.NewDecWithPrec(1, 3), // "0.001000000000000000"
-		LiquidityPoolFeeRate:   sdk.NewDecWithPrec(1, 3), // "0.001000000000000000"
-
+		LiquidityPoolTypes:       defaultLiquidityPoolTypes,
+		MinInitDepositToPool:     sdk.NewInt(1000000),
+		InitPoolCoinMintAmount:   sdk.NewInt(1000000),
+		SwapFeeRate:              sdk.NewDecWithPrec(1, 3), // "0.001000000000000000"
+		LiquidityPoolFeeRate:     sdk.NewDecWithPrec(1, 3), // "0.001000000000000000"
+		LiquidityPoolCreationFee: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100000000))),
+		UnitBatchSize:            1,
 	}
 }
 
@@ -149,6 +156,31 @@ func validateLiquidityPoolFeeRate(i interface{}) error {
 
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("LiquidityPoolFeeRate too large: %s", v)
+	}
+
+	return nil
+}
+
+func validateLiquidityPoolCreationFee(i interface{}) error {
+	v, ok := i.(sdk.Coins)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.Empty() {
+		return fmt.Errorf("LiquidityPoolCreationFee cannot be Empty: %s", v)
+	}
+	return nil
+}
+
+func validateUnitBatchSize(i interface{}) error {
+	v, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if 0 >= v {
+		return fmt.Errorf("UnitBatchSize cannot be negative: %s", v)
 	}
 
 	return nil
