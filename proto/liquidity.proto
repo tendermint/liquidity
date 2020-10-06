@@ -2,16 +2,16 @@ syntax = "proto3";
 package cosmos.liquidity;
 
 import "gogoproto/gogo.proto";
-//import "cosmos_proto/coin.proto";
+import "cosmos_proto/coin.proto";
 
 option go_package = "github.com/tendermint/liquidity/types";
 option (gogoproto.goproto_getters_all) = false;
 
 message LiquidityPoolType {
    uint32 poolTypeIndex = 1 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
-   uint32 NumOfReserveTokens = 2 [(gogoproto.moretags) = "yaml:\"num_of_reserve_tokens\""];
-   string SwapPriceFunctionName = 3 [(gogoproto.moretags) = "yaml:\"swap_price_function_name\""];
-   string Description = 4 [(gogoproto.moretags) = "yaml:\"description\""];
+   string Name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
+   uint32 MinReserveCoinNum = 3 [(gogoproto.moretags) = "yaml:\"min_reserve_coin_num\""];
+   uint32 MaxReserveCoinNum = 4 [(gogoproto.moretags) = "yaml:\"max_reserve_coin_num\""];
 }
 
 message Params {
@@ -27,8 +27,8 @@ message Params {
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
         (gogoproto.nullable)   = false
     ];
-    string InitPoolTokenMintAmount = 3 [
-        (gogoproto.moretags)   = "yaml:\"init_pool_token_mint_amount\"",
+    string InitPoolCoinMintAmount = 3 [
+        (gogoproto.moretags)   = "yaml:\"init_pool_coin_mint_amount\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
         (gogoproto.nullable)   = false
     ];
@@ -42,6 +42,12 @@ message Params {
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable)   = false
     ];
+    repeated cosmos.base.v1beta1.Coin LiquidityPoolCreationFee = 6 [
+        (gogoproto.moretags)   = "yaml:\"liquidity_pool_creation_fee\"",
+        (gogoproto.nullable)   = false
+    ];
+
+    uint32 UnitBatchSize = 7 [(gogoproto.moretags) = "yaml:\"unit_batch_size\""];
 }
 
 message LiquidityPool {
@@ -50,18 +56,7 @@ message LiquidityPool {
 
     uint64 PoolID = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
     uint32 poolTypeIndex = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
-    repeated string ReserveTokenDenoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_token_denoms\""];
+    repeated string ReserveCoinDenoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\""];
     bytes ReserveAccount = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress", (gogoproto.moretags) = "yaml:\"reserve_account\""];
-    string PoolTokenDenom = 5 [(gogoproto.moretags) = "yaml:\"pool_token_denom\""];
-    bytes SwapFeeRate = 6 [
-        (gogoproto.moretags)   = "yaml:\"swap_fee_rate\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-        (gogoproto.nullable)   = false
-    ];
-    bytes PoolFeeRate = 7 [
-        (gogoproto.moretags)   = "yaml:\"pool_fee_rate\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-        (gogoproto.nullable)   = false
-    ];
-    uint32 BatchSize = 8 [(gogoproto.moretags) = "yaml:\"batch_size\""];
+    string PoolCoinDenom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\""];
 }

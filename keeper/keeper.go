@@ -22,7 +22,7 @@ type Keeper struct {
 // NewKeeper returns a liquidity keeper. It handles:
 // - creating new ModuleAccounts for each pool ReserveAccount
 // - sending to and from ModuleAccounts
-// - minting, burning PoolTokens
+// - minting, burning PoolCoins
 func NewKeeper(cdc codec.Marshaler, key sdk.StoreKey, paramSpace paramstypes.Subspace, bankKeeper types.BankKeeper, accountKeeper types.AccountKeeper) Keeper {
 	// ensure liquidity module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -71,15 +71,15 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 		return types.ErrPoolTypeNotExists
 	}
 
-	if len(msg.ReserveTokenDenoms) != int(poolType.NumOfReserveTokens) {
-		return types.ErrNumOfReserveToken
-	}
-
-	if poolType.NumOfReserveTokens != 2 {
+	if poolType.MinReserveCoinNum != 2 && poolType.MaxReserveCoinNum != 2 {
 		return types.ErrNotImplementedYet
 	}
 
-	poolKey := types.GetPoolKey(msg.ReserveTokenDenoms, msg.PoolTypeIndex)
+	if len(msg.ReserveCoinDenoms) > int(poolType.MaxReserveCoinNum) && int(poolType.MinReserveCoinNum) > len(msg.ReserveCoinDenoms) {
+		return types.ErrNumOfReserveCoin
+	}
+
+	poolKey := types.GetPoolKey(msg.ReserveCoinDenoms, msg.PoolTypeIndex)
 	reserveAcc := types.GetPoolReserveAcc(poolKey)
 
 	if _, found := k.GetLiquidityPoolByReserveAccIndex(ctx, reserveAcc); found {
@@ -88,40 +88,36 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 
 	accPoolCreator := k.accountKeeper.GetAccount(ctx, msg.PoolCreator)
 	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, accPoolCreator.GetAddress())
-	if !poolCreatorBalances.IsAllGTE(msg.DepositTokensAmount) {
+	if !poolCreatorBalances.IsAllGTE(msg.DepositCoinsAmount) {
 		return types.ErrInsufficientBalance
 	}
 
-	for _, token := range msg.DepositTokensAmount {
-		if token.Amount.LT(params.MinInitDepositToPool) {
+	for _, coin := range msg.DepositCoinsAmount {
+		if coin.Amount.LT(params.MinInitDepositToPool) {
 			return types.ErrLessThanMinInitDeposit
 		}
 	}
 
-	denom1, denom2 := types.AlphabeticalDenomPair(msg.ReserveTokenDenoms[0], msg.ReserveTokenDenoms[1])
-	reserveTokenDenoms := []string{denom1, denom2}
+	denom1, denom2 := types.AlphabeticalDenomPair(msg.ReserveCoinDenoms[0], msg.ReserveCoinDenoms[1])
+	reserveCoinDenoms := []string{denom1, denom2}
 
-	PoolTokenDenom := types.GetPoolTokenDenom(reserveAcc)
+	PoolCoinDenom := types.GetPoolCoinDenom(reserveAcc)
 
 	liquidityPool := types.LiquidityPool{
-		PoolTypeIndex:      msg.PoolTypeIndex,
-		ReserveTokenDenoms: reserveTokenDenoms,
-		ReserveAccount:     reserveAcc,
-		PoolTokenDenom:     PoolTokenDenom,
-		SwapFeeRate:        params.SwapFeeRate,
-		PoolFeeRate:        params.LiquidityPoolFeeRate,
-		BatchSize:          types.DefaultBatchSize,
-		//LastBatchIndex:     0,
+		PoolTypeIndex:     msg.PoolTypeIndex,
+		ReserveCoinDenoms: reserveCoinDenoms,
+		ReserveAccount:    reserveAcc,
+		PoolCoinDenom:     PoolCoinDenom,
 	}
 
-	mintPoolToken := sdk.NewCoins(sdk.NewCoin(liquidityPool.PoolTokenDenom, params.InitPoolTokenMintAmount))
-	if err := k.bankKeeper.SendCoins(ctx, msg.PoolCreator, liquidityPool.ReserveAccount, msg.DepositTokensAmount); err != nil {
+	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(liquidityPool.PoolCoinDenom, params.InitPoolCoinMintAmount))
+	if err := k.bankKeeper.SendCoins(ctx, msg.PoolCreator, liquidityPool.ReserveAccount, msg.DepositCoinsAmount); err != nil {
 		return err
 	}
-	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolToken); err != nil {
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
 		return err
 	}
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, msg.PoolCreator, mintPoolToken); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, msg.PoolCreator, mintPoolCoin); err != nil {
 		return err
 	}
 
@@ -130,7 +126,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	// TODO: atomic transfer using like InputOutputCoins
 	//var MultiSendInput []bankTypes.Input
 	//var MultiSendOutput []bankTypes.Output
-	//MultiSendInput = append(MultiSendInput, bankTypes.NewInput(msg.PoolCreator, msg.DepositTokensAmount))
+	//MultiSendInput = append(MultiSendInput, bankTypes.NewInput(msg.PoolCreator, msg.DepositCoinsAmount))
 
 	// TODO: refactoring, LiquidityPoolCreationFee, check event on handler
 	return nil

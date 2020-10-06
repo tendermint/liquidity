@@ -41,7 +41,7 @@ const (
 
 type LiquidityPoolTypeLegacy struct {
 	PoolTypeIndex         uint16
-	NumOfReserveTokens    uint16
+	NumOfReserveCoins     uint16
 	SwapPriceFunctionName string
 	Description           string
 }

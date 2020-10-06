@@ -20,6 +20,6 @@ func GetPoolReserveAcc(poolKey string) sdk.AccAddress {
 }
 
 // tmp denom rule, TBD
-func GetPoolTokenDenom(reserveAcc sdk.AccAddress) string {
+func GetPoolCoinDenom(reserveAcc sdk.AccAddress) string {
 	return reserveAcc.String()
 }

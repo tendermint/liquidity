@@ -3,7 +3,6 @@ go 1.14
 module github.com/tendermint/liquidity
 
 require (
-	github.com/alecthomas/gometalinter v3.0.0+incompatible
 	github.com/cosmos/cosmos-sdk v0.34.4-0.20200914022129-c26ef79ed0a2
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.4.2

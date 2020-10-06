@@ -42,9 +42,9 @@ func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		depositToken, ok := sdk.NewIntFromString(req.DepositTokensAmount)
-		if !ok || !depositToken.IsPositive() {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, "token amount: "+req.DepositTokensAmount)
+		depositCoin, ok := sdk.NewIntFromString(req.DepositCoinsAmount)
+		if !ok || !depositCoin.IsPositive() {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "coin amount: "+req.DepositCoinsAmount)
 			return
 		}
 
@@ -112,27 +112,27 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 
 // WithdrawLiquidityPoolReq defines the properties of a Deposit from liquidity Pool request's body
 type CreateLiquidityPoolReq struct {
-	BaseReq             rest.BaseReq `json:"base_req" yaml:"base_req"`
-	PoolCreator         string       `json:"pool_creator" yaml:"pool_creator"`
-	PoolTypeIndex       string       `json:"pool_type_index" yaml:"pool_type_index"`
-	ReserveTokenDenoms  string       `json:"reserve_token_denoms" yaml:"reserve_token_denoms"`
-	DepositTokensAmount string       `json:"deposit_token_amount" yaml:"deposit_token_amount"`
+	BaseReq            rest.BaseReq `json:"base_req" yaml:"base_req"`
+	PoolCreator        string       `json:"pool_creator" yaml:"pool_creator"`
+	PoolTypeIndex      string       `json:"pool_type_index" yaml:"pool_type_index"`
+	ReserveCoinDenoms  string       `json:"reserve_coin_denoms" yaml:"reserve_coin_denoms"`
+	DepositCoinsAmount string       `json:"deposit_coin_amount" yaml:"deposit_coin_amount"`
 }
 
 // WithdrawLiquidityPoolReq defines the properties of a Deposit from liquidity Pool request's body
 type WithdrawLiquidityPoolReq struct {
-	BaseReq         rest.BaseReq `json:"base_req" yaml:"base_req"`
-	Withdrawer      string       `json:"withdrawer" yaml:"withdrawer"`
-	PoolID          string       `json:"pool_id" yaml:"pool_id"`
-	PoolTokenAmount string       `json:"pool_token_amount" yaml:"pool_token_amount"`
+	BaseReq        rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Withdrawer     string       `json:"withdrawer" yaml:"withdrawer"`
+	PoolID         string       `json:"pool_id" yaml:"pool_id"`
+	PoolCoinAmount string       `json:"pool_coin_amount" yaml:"pool_coin_amount"`
 }
 
 // DepositLiquidityPoolReq defines the properties of a Deposit liquidity request's body
 type DepositLiquidityPoolReq struct {
-	BaseReq             rest.BaseReq `json:"base_req" yaml:"base_req"`
-	Depositor           string       `json:"depositor" yaml:"depositor"`
-	PoolID              string       `json:"pool_id" yaml:"pool_id"`
-	DepositTokensAmount string       `json:"deposit_tokens_amount" yaml:"deposit_tokens_amount"`
+	BaseReq            rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Depositor          string       `json:"depositor" yaml:"depositor"`
+	PoolID             string       `json:"pool_id" yaml:"pool_id"`
+	DepositCoinsAmount string       `json:"deposit_coins_amount" yaml:"deposit_coins_amount"`
 }
 
 // DepositLiquidityPoolReq defines the properties of a Deposit liquidity request's body
@@ -142,7 +142,7 @@ type SwapReq struct {
 	PoolID        string       `json:"pool_id" yaml:"pool_id"`
 	PoolTypeIndex string       `json:"pool_type_index" yaml:"pool_type_index"`
 	SwapType      string       `json:"swap_type" yaml:"swap_type"`
-	OfferToken    string       `json:"offer_token" yaml:"offer_token"`
-	DemandToken   string       `json:"demand_token" yaml:"demand_token"`
+	OfferCoin     string       `json:"offer_coin" yaml:"offer_coin"`
+	DemandCoin    string       `json:"demand_coin" yaml:"demand_coin"`
 	OrderPrice    string       `json:"order_price" yaml:"order_price"`
 }
