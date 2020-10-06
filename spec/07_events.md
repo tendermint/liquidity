@@ -9,44 +9,44 @@ order: 7
 
 ### MsgCreateLiquidityPool
 
-|Type                 |Attribute Key            |Attribute Value      |
-|---------------------|-------------------------|---------------------|
-|create_liquidity_pool|liquidity_pool_id        |                     |
-|create_liquidity_pool|liquidity_pool_type_index|                     |
-|create_liquidity_pool|reserve_coin_denoms      |                     |
-|create_liquidity_pool|reserve_account          |                     |
-|create_liquidity_pool|pool_coin_denom          |                     |
-|message              |module                   |liquidity            |
-|message              |action                   |create_liquidity_pool|
-|message              |sender                   |{senderAddress}      |
+| Type                  | Attribute Key             | Attribute Value       |
+| --------------------- | ------------------------- | --------------------- |
+| create_liquidity_pool | liquidity_pool_id         |                       |
+| create_liquidity_pool | liquidity_pool_type_index |                       |
+| create_liquidity_pool | reserve_coin_denoms       |                       |
+| create_liquidity_pool | reserve_account           |                       |
+| create_liquidity_pool | pool_coin_denom           |                       |
+| message               | module                    | liquidity             |
+| message               | action                    | create_liquidity_pool |
+| message               | sender                    | {senderAddress}       |
 
 
 ### MsgDepositToLiquidityPool
 
-|Type                              |Attribute Key|Attribute Value          |
-|----------------------------------|-------------|-------------------------|
-|deposit_to_liquidity_pool_to_batch|batch_id     |                         |
-|message                           |module       |liquidity                |
-|message                           |action       |deposit_to_liquidity_pool|
-|message                           |sender       |{senderAddress}          |
+| Type                               | Attribute Key | Attribute Value           |
+| ---------------------------------- | ------------- | ------------------------- |
+| deposit_to_liquidity_pool_to_batch | batch_id      |                           |
+| message                            | module        | liquidity                 |
+| message                            | action        | deposit_to_liquidity_pool |
+| message                            | sender        | {senderAddress}           |
 
 ### MsgWithdrawFromLiquidityPool
 
-|Type                                 |Attribute Key|Attribute Value             |
-|-------------------------------------|-------------|----------------------------|
-|withdraw_from_liquidity_pool_to_batch|batch_id     |                            |
-|message                              |module       |liquidity                   |
-|message                              |action       |withdraw_from_liquidity_pool|
-|message                              |sender       |{senderAddress}             |
+| Type                                  | Attribute Key | Attribute Value              |
+| ------------------------------------- | ------------- | ---------------------------- |
+| withdraw_from_liquidity_pool_to_batch | batch_id      |                              |
+| message                               | module        | liquidity                    |
+| message                               | action        | withdraw_from_liquidity_pool |
+| message                               | sender        | {senderAddress}              |
 
 ### MsgSwap
 
-|Type         |Attribute Key|Attribute Value|
-|-------------|-------------|---------------|
-|swap_to_batch|batch_id     |               |
-|message      |module       |liquidity      |
-|message      |action       |swap           |
-|message      |sender       |{senderAddress}|
+| Type          | Attribute Key | Attribute Value |
+| ------------- | ------------- | --------------- |
+| swap_to_batch | batch_id      |                 |
+| message       | module        | liquidity       |
+| message       | action        | swap            |
+| message       | sender        | {senderAddress} |
 
 ## EndBlocker
 

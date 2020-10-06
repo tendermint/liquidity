@@ -8,15 +8,15 @@ order: 8
 
 The liquidity module contains the following parameters:
 
-|Key                                 |Type                |Example                                                                                                                                             |
-|------------------------------------|--------------------|----------------------------------------------------------------------------------------------------------------|
-|LiquidityPoolTypes                  |[]LiquidityPoolType |[{"pool_type_index":0,</br>"name":"ConstantProductLiquidityPool",</br>"range_of_reserve_coin_num":[2,2],</br>"description":""}]|
-|MinInitDepositToPool                |string (sdk.Int)    |"1000000"|
-|InitPoolTokenMintAmount             |string (sdk.Int)    |"1000000"|
-|SwapFeeRate                         |string (sdk.Dec)    |"0.001000000000000000"|
-|LiquidityPoolFeeRate                |string (sdk.Dec)    |"0.002000000000000000"|
-|LiquidityPoolCreationFee            |sdk.Coin            |100000000uatom|
-|UnitBatchSize  	             |string (sdk.Int)    |"1"|
+| Key                      | Type                | Example                                                      |
+| ------------------------ | ------------------- | ------------------------------------------------------------ |
+| LiquidityPoolTypes       | []LiquidityPoolType | [{"pool_type_index":0,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
+| MinInitDepositToPool     | string (sdk.Int)    | "1000000"                                                    |
+| InitPoolCoinMintAmount   | string (sdk.Int)    | "1000000"                                                    |
+| SwapFeeRate              | string (sdk.Dec)    | "0.001000000000000000"                                       |
+| LiquidityPoolFeeRate     | string (sdk.Dec)    | "0.002000000000000000"                                       |
+| LiquidityPoolCreationFee | sdk.Coins           | [{"denom":"uatom","amount":"100000000"}]                     |
+| UnitBatchSize            | uint32              | 1                                                            |
 
 ## LiquidityPoolTypes
 
@@ -25,19 +25,20 @@ List of available LiquidityPoolType
 ```go
 type LiquidityPoolType struct {
 	PoolTypeIndex         uint32
-	Name		      string
-	RangeOfReserveCoinNum []uint32
+	Name		          string
+	MinReserveCoinNum     uint32
+	MaxReserveCoinNum     uint32
 	Description           string
 }
 ```
 
 ## MinInitDepositToPool
 
-Minimum number of tokens to be deposited to the liquidity pool upon pool creation
+Minimum number of coins to be deposited to the liquidity pool upon pool creation
 
-## InitPoolTokenMintAmount
+## InitPoolCoinMintAmount
 
-Initial mint amount of pool token upon pool creation
+Initial mint amount of pool coin upon pool creation
 
 ## SwapFeeRate
 

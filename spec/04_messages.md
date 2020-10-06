@@ -22,7 +22,7 @@ type MsgCreateLiquidityPool struct {
   - there exists duplicated `LiquidityPool` with same `PoolTypeIndex` and `ReserveCoinDenoms`
   - if one or more coins in ReserveCoinDenoms do not exist in `bank` module
   - if the balance of `PoolCreator` does not have enough amount of coins for `DepositCoins`
-  - if the balance of `PoolCreator` does not have enough amount of coins for paying `LiquidityPoolCreationTax`
+  - if the balance of `PoolCreator` does not have enough amount of coins for paying `LiquidityPoolCreationFee`
 
 ## MsgDepositToLiquidityPool
 
@@ -47,7 +47,7 @@ type MsgDepositToLiquidityPool struct {
 type MsgWithdrawFromLiquidityPool struct {
 	Withdrawer      sdk.AccAddress // account address of the origin of this message
 	PoolID          uint64         // id of the liquidity pool where this message is belong to
-	PoolCoin  	sdk.Coin       // pool coin sent for reserve coin withdraw
+	PoolCoin        sdk.Coin       // pool coin sent for reserve coin withdraw
 }
 ```
 
