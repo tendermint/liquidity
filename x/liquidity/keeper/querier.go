@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/tendermint/liquidity/types"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 // NewQuerier creates a querier for liquidity REST endpoints

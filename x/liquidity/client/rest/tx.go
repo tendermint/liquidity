@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	"github.com/tendermint/liquidity/types"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 func registerTxRoutes(clientCtx client.Context, r *mux.Router) {

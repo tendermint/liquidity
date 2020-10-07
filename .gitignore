@@ -24,8 +24,8 @@ proto-tools-stamp
 buf-stamp
 
 # Data - ideally these don't exist
-baseapp/data/*
-client/lcd/keys/*
+app/data/*
+x/liquidity/client/lcd/keys/*
 mytestnet
 
 # Testing

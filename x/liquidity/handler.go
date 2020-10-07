@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/tendermint/liquidity/keeper"
-	"github.com/tendermint/liquidity/types"
+	"github.com/tendermint/liquidity/x/liquidity/keeper"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 // TODO: add detailed logic to each handle, check event output

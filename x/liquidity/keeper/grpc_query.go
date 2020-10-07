@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/tendermint/liquidity/types"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 var _ types.QueryServer = Keeper{}
