@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tendermint/liquidity/keeper"
-	"github.com/tendermint/liquidity/types"
+	"github.com/tendermint/liquidity/x/liquidity/keeper"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 // InitGenesis new liquidity genesis

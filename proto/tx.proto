@@ -17,7 +17,7 @@ message MsgCreateLiquidityPool {
   bytes pool_creator = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress", (gogoproto.moretags) = "yaml:\"pool_creator\""];
   uint32 pool_type_index = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
   repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\""];
-  repeated cosmos.base.v1beta1.Coin deposit_coins_amount = 4 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"deposit_coins_amount\""];
+  repeated cosmos.base.v1beta1.Coin deposit_coins = 4 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"deposit_coins\""];
 }
 
 message MsgDepositToLiquidityPool {
@@ -25,7 +25,7 @@ message MsgDepositToLiquidityPool {
 
   bytes depositor = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress", (gogoproto.moretags) = "yaml:\"depositor\""];
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id", (gogoproto.customname) = "PoolID"];
-  repeated cosmos.base.v1beta1.Coin deposit_coins_amount = 3 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"deposit_coins_amount\""];
+  repeated cosmos.base.v1beta1.Coin deposit_coins = 3 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"deposit_coins\""];
 }
 
 message MsgWithdrawFromLiquidityPool {

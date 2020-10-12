@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	"github.com/tendermint/liquidity/types"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
@@ -129,10 +129,10 @@ type WithdrawLiquidityPoolReq struct {
 
 // DepositLiquidityPoolReq defines the properties of a Deposit liquidity request's body
 type DepositLiquidityPoolReq struct {
-	BaseReq            rest.BaseReq `json:"base_req" yaml:"base_req"`
-	Depositor          string       `json:"depositor" yaml:"depositor"`
-	PoolID             string       `json:"pool_id" yaml:"pool_id"`
-	DepositCoinsAmount string       `json:"deposit_coins_amount" yaml:"deposit_coins_amount"`
+	BaseReq      rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Depositor    string       `json:"depositor" yaml:"depositor"`
+	PoolID       string       `json:"pool_id" yaml:"pool_id"`
+	DepositCoins string       `json:"deposit_coins_amount" yaml:"deposit_coins"`
 }
 
 // DepositLiquidityPoolReq defines the properties of a Deposit liquidity request's body
