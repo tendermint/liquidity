@@ -113,4 +113,9 @@ For withdrawal, after successful withdraw, escrowed pool coins are burnt, and co
 
     3) fee payment
 
-    - TBD
+    - Fee payment for each executed swap as a percentage of "receivable tokens"
+        - self-swap
+            - receivable_tokens * SwapFeeRate are sent to the liquidity pool
+        - pool-swap
+            - receivable_tokens * (SwapFeeRate + PoolFeeRate) are sent to the liquidity pool
+    - Fee payment is executed after batch execution token transfers
