@@ -24,7 +24,7 @@ type LiquidityPoolLegacy struct {
 // Denominations can be 3 ~ 128 characters long and support letters, followed by either
 // a letter, a number or a separator ('/').
 // reDnmString = `[a-zA-Z][a-zA-Z0-9/]{2,127}`
-func (lp LiquidityPool) getPoolKey() string {
+func (lp LiquidityPool) GetPoolKey() string {
 	return GetPoolKey(lp.ReserveCoinDenoms, lp.PoolTypeIndex)
 }
 

@@ -28,7 +28,7 @@ const (
 	AttributeValueRefundedCoinAmount   = "refunded_coin_amount"
 	AttributeValueSuccess              = "success"
 	AttributeValueWithdrawer           = "withdrawer"
-	AttributeValuePoolCoinAmount       = "pool_coin_amount"
+	AttributeValuePoolCoin             = "pool_coin"
 	AttributeValueWithdrawCoinAmount   = "withdraw_coin_amount"
 	AttributeValueSwapRequester        = "swap_requester"
 	AttributeValueSwapType             = "swap_type"
