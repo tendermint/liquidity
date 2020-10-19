@@ -1,6 +1,7 @@
 syntax = "proto3";
-package cosmos.liquidity;
+package tendermint.liquidity;
 
+import "tx.proto";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/coin.proto";
 
@@ -52,7 +53,7 @@ message Params {
 
 message LiquidityPool {
     option (gogoproto.equal) = true;
-    option (gogoproto.goproto_stringer) = false;
+    option (gogoproto.goproto_stringer) = true;
 
     uint64 PoolID = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
     uint32 poolTypeIndex = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
@@ -63,11 +64,42 @@ message LiquidityPool {
 
 message LiquidityPoolMetaData {
     option (gogoproto.equal) = true;
-    option (gogoproto.goproto_stringer) = false;
+    option (gogoproto.goproto_stringer) = true;
 
     uint64 PoolID = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
     cosmos.base.v1beta1.Coin PoolCoinTotalSupply = 2 [
         (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
         (gogoproto.nullable)   = false
     ];
+}
+
+message LiquidityPoolBatch {
+    option (gogoproto.equal) = true;
+    option (gogoproto.goproto_stringer) = true;
+
+    uint64 PoolID = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
+    uint64 BatchIndex = 2 [(gogoproto.moretags) = "yaml:\"batch_index\""];
+    uint64 BeginHeight = 3 [(gogoproto.moretags) = "yaml:\"begin_height\""];
+    uint64 DepositMsgIndex = 4 [(gogoproto.moretags) = "yaml:\"deposit_msg_index\""];
+    uint64 WithdrawMsgIndex = 5 [(gogoproto.moretags) = "yaml:\"withdraw_msg_index\""];
+    uint64 SwapMsgIndex = 6 [(gogoproto.moretags) = "yaml:\"swap_msg_index\""];
+    bool ExecutionStatus = 7 [(gogoproto.moretags) = "yaml:\"execution_status\""];
+}
+
+message BatchPoolDepositMsg {
+//    string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];
+    int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
+    MsgDepositToLiquidityPool Msg = 2 [(gogoproto.moretags) = "yaml:\"msg\""];
+}
+
+message BatchPoolWithdrawMsg {
+//    string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];
+    int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
+    MsgWithdrawFromLiquidityPool Msg = 2 [(gogoproto.moretags) = "yaml:\"msg\""];
+}
+
+message BatchPoolSwapMsg {
+//    string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];
+    int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
+    MsgSwap Msg = 2 [(gogoproto.moretags) = "yaml:\"msg\""];
 }

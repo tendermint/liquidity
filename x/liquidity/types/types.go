@@ -3,7 +3,7 @@ package types
 // -------------- Batch ----------------
 // TODO: to protobuf
 
-type LiquidityPoolBatch struct {
+type LiquidityPoolBatchLegacy struct {
 	BatchIndex              uint64                     // index of this batch
 	PoolID                  uint64                     // id of target liquidity pool
 	BeginHeight             uint64                     // height where this batch is begun

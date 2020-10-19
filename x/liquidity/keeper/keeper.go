@@ -57,10 +57,6 @@ func (k Keeper) Swap(ctx sdk.Context, msg *types.MsgSwap) error {
 	return nil
 }
 
-func (k Keeper) SwapToBatch(ctx sdk.Context, msg *types.MsgSwap) error {
-	return types.ErrNotImplementedYet
-}
-
 // GetParams gets the parameters for the liquidity module.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramSpace.GetParamSet(ctx, &params)
