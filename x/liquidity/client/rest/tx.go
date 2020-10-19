@@ -42,9 +42,9 @@ func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		depositCoin, ok := sdk.NewIntFromString(req.DepositCoinsAmount)
+		depositCoin, ok := sdk.NewIntFromString(req.DepositCoins)
 		if !ok || !depositCoin.IsPositive() {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, "coin amount: "+req.DepositCoinsAmount)
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "coin amount: "+req.DepositCoins)
 			return
 		}
 
@@ -112,19 +112,19 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 
 // WithdrawLiquidityPoolReq defines the properties of a Deposit from liquidity Pool request's body
 type CreateLiquidityPoolReq struct {
-	BaseReq            rest.BaseReq `json:"base_req" yaml:"base_req"`
-	PoolCreator        string       `json:"pool_creator" yaml:"pool_creator"`
-	PoolTypeIndex      string       `json:"pool_type_index" yaml:"pool_type_index"`
-	ReserveCoinDenoms  string       `json:"reserve_coin_denoms" yaml:"reserve_coin_denoms"`
-	DepositCoinsAmount string       `json:"deposit_coin_amount" yaml:"deposit_coin_amount"`
+	BaseReq           rest.BaseReq `json:"base_req" yaml:"base_req"`
+	PoolCreator       string       `json:"pool_creator" yaml:"pool_creator"`
+	PoolTypeIndex     string       `json:"pool_type_index" yaml:"pool_type_index"`
+	ReserveCoinDenoms string       `json:"reserve_coin_denoms" yaml:"reserve_coin_denoms"`
+	DepositCoins      string       `json:"deposit_coins" yaml:"deposit_coins"`
 }
 
 // WithdrawLiquidityPoolReq defines the properties of a Deposit from liquidity Pool request's body
 type WithdrawLiquidityPoolReq struct {
-	BaseReq        rest.BaseReq `json:"base_req" yaml:"base_req"`
-	Withdrawer     string       `json:"withdrawer" yaml:"withdrawer"`
-	PoolID         string       `json:"pool_id" yaml:"pool_id"`
-	PoolCoinAmount string       `json:"pool_coin_amount" yaml:"pool_coin_amount"`
+	BaseReq    rest.BaseReq `json:"base_req" yaml:"base_req"`
+	Withdrawer string       `json:"withdrawer" yaml:"withdrawer"`
+	PoolID     string       `json:"pool_id" yaml:"pool_id"`
+	PoolCoin   string       `json:"pool_coin_amount" yaml:"pool_coin"`
 }
 
 // DepositLiquidityPoolReq defines the properties of a Deposit liquidity request's body

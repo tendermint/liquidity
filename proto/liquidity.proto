@@ -60,3 +60,14 @@ message LiquidityPool {
     bytes ReserveAccount = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress", (gogoproto.moretags) = "yaml:\"reserve_account\""];
     string PoolCoinDenom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\""];
 }
+
+message LiquidityPoolMetaData {
+    option (gogoproto.equal) = true;
+    option (gogoproto.goproto_stringer) = false;
+
+    uint64 PoolID = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
+    cosmos.base.v1beta1.Coin PoolCoinTotalSupply = 2 [
+        (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
+        (gogoproto.nullable)   = false
+    ];
+}

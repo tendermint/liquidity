@@ -33,7 +33,7 @@ message MsgWithdrawFromLiquidityPool {
 
   bytes withdrawer = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress", (gogoproto.moretags) = "yaml:\"withdrawer\""];
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id", (gogoproto.customname) = "PoolID"];
-  repeated cosmos.base.v1beta1.Coin pool_coin_amount = 3 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"pool_coin_amount\""];
+  repeated cosmos.base.v1beta1.Coin pool_coin = 3 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"pool_coin\""];
 }
 
 message MsgSwap {
