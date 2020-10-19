@@ -9,10 +9,11 @@ option go_package = "github.com/tendermint/liquidity/types";
 option (gogoproto.goproto_getters_all) = false;
 
 message LiquidityPoolType {
-   uint32 poolTypeIndex = 1 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
-   string Name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
-   uint32 MinReserveCoinNum = 3 [(gogoproto.moretags) = "yaml:\"min_reserve_coin_num\""];
-   uint32 MaxReserveCoinNum = 4 [(gogoproto.moretags) = "yaml:\"max_reserve_coin_num\""];
+    option (gogoproto.equal) = true;
+    uint32 poolTypeIndex = 1 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
+    string Name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
+    uint32 MinReserveCoinNum = 3 [(gogoproto.moretags) = "yaml:\"min_reserve_coin_num\""];
+    uint32 MaxReserveCoinNum = 4 [(gogoproto.moretags) = "yaml:\"max_reserve_coin_num\""];
 }
 
 message Params {

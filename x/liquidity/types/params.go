@@ -102,12 +102,12 @@ func validateLiquidityPoolTypes(i interface{}) error {
 	return nil
 }
 func validateMinInitDepositToPool(i interface{}) error {
-	v, ok := i.(uint64)
+	v, ok := i.(sdk.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == 0 {
+	if v == sdk.ZeroInt() {
 		return fmt.Errorf("MinInitDepositToPool must be positive: %d", v)
 	}
 
@@ -115,12 +115,12 @@ func validateMinInitDepositToPool(i interface{}) error {
 }
 
 func validateInitPoolCoinMintAmount(i interface{}) error {
-	v, ok := i.(uint64)
+	v, ok := i.(sdk.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == 0 {
+	if v == sdk.ZeroInt() {
 		return fmt.Errorf("InitPoolCoinMintAmount must be positive: %d", v)
 	}
 
@@ -162,12 +162,12 @@ func validateLiquidityPoolFeeRate(i interface{}) error {
 }
 
 func validateLiquidityPoolCreationFee(i interface{}) error {
-	v, ok := i.(sdk.Coins)
+	v, ok := i.([]sdk.Coin)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
-	if v.Empty() {
+	coins := (sdk.Coins)(v)
+	if coins.Empty() {
 		return fmt.Errorf("LiquidityPoolCreationFee cannot be Empty: %s", v)
 	}
 	return nil
@@ -180,7 +180,7 @@ func validateUnitBatchSize(i interface{}) error {
 	}
 
 	if 0 >= v {
-		return fmt.Errorf("UnitBatchSize cannot be negative: %s", v)
+		return fmt.Errorf("UnitBatchSize cannot be negative: %d", v)
 	}
 
 	return nil

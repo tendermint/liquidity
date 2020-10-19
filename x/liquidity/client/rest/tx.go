@@ -5,12 +5,8 @@ import (
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-
-	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
@@ -22,7 +18,7 @@ func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
 	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/withdraw", RestPoolID), newWithdrawLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
 }
 
-// TODO: add detailed logic to each handler
+// TODO: WIP, add detailed logic to each handler
 
 func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -31,82 +27,82 @@ func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		baseReq := req.BaseReq.Sanitize()
-		if !baseReq.ValidateBasic(w) {
-			return
-		}
-
-		poolCreator, e := sdk.AccAddressFromBech32(req.PoolCreator)
-		if e != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, e.Error())
-			return
-		}
-
-		depositCoin, ok := sdk.NewIntFromString(req.DepositCoins)
-		if !ok || !depositCoin.IsPositive() {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, "coin amount: "+req.DepositCoins)
-			return
-		}
-
-		msg := types.NewMsgCreateLiquidityPool()
-		if err := msg.ValidateBasic(); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
+		//baseReq := req.BaseReq.Sanitize()
+		//if !baseReq.ValidateBasic(w) {
+		//	return
+		//}
+		//
+		//poolCreator, e := sdk.AccAddressFromBech32(req.PoolCreator)
+		//if e != nil {
+		//	rest.WriteErrorResponse(w, http.StatusBadRequest, e.Error())
+		//	return
+		//}
+		//
+		//depositCoin, ok := sdk.NewIntFromString(req.DepositCoins)
+		//if !ok || !depositCoin.IsPositive() {
+		//	rest.WriteErrorResponse(w, http.StatusBadRequest, "coin amount: "+req.DepositCoins)
+		//	return
+		//}
+		//
+		//msg := types.NewMsgCreateLiquidityPool()
+		//if err := msg.ValidateBasic(); err != nil {
+		//	rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		//	return
+		//}
+		//
+		//tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
 	}
 }
 
 // HTTP request handler to add liquidity.
 func newDepositLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		poolID := vars[RestPoolID]
-
-		var req DepositLiquidityPoolReq
-		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
-			return
-		}
-
-		baseReq := req.BaseReq.Sanitize()
-		if !baseReq.ValidateBasic(w) {
-			return
-		}
-
-		msg := types.NewMsgDepositToLiquidityPool()
-		if err := msg.ValidateBasic(); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
+		//vars := mux.Vars(r)
+		//poolID := vars[RestPoolID]
+		//
+		//var req DepositLiquidityPoolReq
+		//if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
+		//	return
+		//}
+		//
+		//baseReq := req.BaseReq.Sanitize()
+		//if !baseReq.ValidateBasic(w) {
+		//	return
+		//}
+		//
+		//msg := types.NewMsgDepositToLiquidityPool()
+		//if err := msg.ValidateBasic(); err != nil {
+		//	rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		//	return
+		//}
+		//
+		//tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
 	}
 }
 
 // HTTP request handler to remove liquidity.
 func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		poolID := vars[RestPoolID]
-
-		var req WithdrawLiquidityPoolReq
-		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
-			return
-		}
-
-		baseReq := req.BaseReq.Sanitize()
-		if !baseReq.ValidateBasic(w) {
-			return
-		}
-
-		msg := types.NewMsgWithdrawFromLiquidityPool()
-		if err := msg.ValidateBasic(); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
+		//vars := mux.Vars(r)
+		//poolID := vars[RestPoolID]
+		//
+		//var req WithdrawLiquidityPoolReq
+		//if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
+		//	return
+		//}
+		//
+		//baseReq := req.BaseReq.Sanitize()
+		//if !baseReq.ValidateBasic(w) {
+		//	return
+		//}
+		//
+		//msg := types.NewMsgWithdrawFromLiquidityPool()
+		//if err := msg.ValidateBasic(); err != nil {
+		//	rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		//	return
+		//}
+		//
+		//tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
 	}
 }
 

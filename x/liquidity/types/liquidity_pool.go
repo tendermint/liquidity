@@ -1,6 +1,7 @@
 package types
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -28,7 +29,7 @@ func (lp LiquidityPool) GetPoolKey() string {
 }
 
 func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
-	return strings.Join(append(reserveCoinDenoms, string(poolTypeIndex)), "-")
+	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeIndex), 10)), "-")
 }
 
 // NewLiquidityPool creates a new liquidityPool object

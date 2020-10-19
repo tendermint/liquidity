@@ -1,47 +1,30 @@
 package keeper_test
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/suite"
-	"github.com/tendermint/liquidity/app"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 	"testing"
 )
 
-type TestSuite struct {
-	suite.Suite
-
-	cdc codec.JSONMarshaler
-	ctx sdk.Context
-	app *app.SimApp
-}
-
-func (suite *TestSuite) SetupTest() {
-	isCheckTx := false
-	app := simapp.Setup(isCheckTx)
-
-	suite.cdc = codec.NewAminoCodec(app.LegacyAmino())
-	suite.ctx = app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
-	suite.app = app
-}
-
-func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(TestSuite))
-}
-
-func (suite *TestSuite) TestParams() {
-	cases := []struct {
-		params types.Params
-	}{
-		{types.DefaultParams()},
-		{types.NewParams(sdk.NewDecWithPrec(5, 10), denomStandard)},
+func TestLiquidityPool(t *testing.T) {
+	app, ctx := createTestInput()
+	lp := types.LiquidityPool{
+		PoolID:         1,
+		PoolTypeIndex:  1,
+		ReserveAccount: nil,
+		PoolCoinDenom:  "poolCoin",
 	}
-	for _, tc := range cases {
-		suite.app.CoinswapKeeper.SetParams(suite.ctx, tc.params)
+	lp.ReserveCoinDenoms = append(lp.ReserveCoinDenoms, "a")
+	lp.ReserveCoinDenoms = append(lp.ReserveCoinDenoms, "b")
+	app.LiquidityKeeper.SetLiquidityPool(ctx, lp)
 
-		feeParam := suite.app.CoinswapKeeper.GetParams(suite.ctx)
-		suite.Equal(tc.params.Fee, feeParam.Fee)
-	}
+	lpGet, found := app.LiquidityKeeper.GetLiquidityPool(ctx, 1)
+	require.True(t, found)
+	require.Equal(t, lp, lpGet)
 }
+
+// TODO: WIP
+//func TestCreateLiquidityPool(t *testing.T) {
+//	app, ctx := createTestInput()
+//
+//}
