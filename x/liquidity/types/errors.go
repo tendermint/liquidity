@@ -17,4 +17,5 @@ var (
 	ErrLessThanMinInitDeposit = sdkerrors.Register(ModuleName, 9, "deposit coin less than MinInitDepositToPool")
 	ErrNotImplementedYet      = sdkerrors.Register(ModuleName, 10, "not implemented yet")
 	ErrPoolAlreadyExists      = sdkerrors.Register(ModuleName, 11, "the pool already exists")
+	ErrPoolBatchNotExists     = sdkerrors.Register(ModuleName, 12, "pool batch not exists")
 )

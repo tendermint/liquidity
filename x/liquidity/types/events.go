@@ -3,13 +3,13 @@ package types
 
 // liquidity module event types
 const (
-	EventTypeCreateLiquidityPool               = "create_liquidity_pool"
-	EventTypeDepositToLiquidityPoolToBatch     = "deposit_to_liquidity_pool_to_batch"
-	EventTypeWithdrrawFromLiquidityPoolToBatch = "withdraw_from_liquidity_pool_to_batch"
-	EventTypeSwapToBatch                       = "swap_to_batch"
-	EventTypeDepositToLiquidityPool            = "deposit_to_liquidity_pool"
-	EventTypeWithdrrawFromLiquidityPool        = "withdraw_from_liquidity_pool"
-	EventTypeSwap                              = "swap"
+	EventTypeCreateLiquidityPool              = "create_liquidity_pool"
+	EventTypeDepositToLiquidityPoolToBatch    = "deposit_to_liquidity_pool_to_batch"
+	EventTypeWithdrawFromLiquidityPoolToBatch = "withdraw_from_liquidity_pool_to_batch"
+	EventTypeSwapToBatch                      = "swap_to_batch"
+	EventTypeDepositToLiquidityPool           = "deposit_to_liquidity_pool"
+	EventTypeWithdrawFromLiquidityPool        = "withdraw_from_liquidity_pool"
+	EventTypeSwap                             = "swap"
 
 	AttributeValueLiquidityPoolID        = "liquidity_pool_id"
 	AttributeValueLiquidityPoolTypeIndex = "liquidity_pool_type_index"

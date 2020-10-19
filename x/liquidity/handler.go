@@ -55,7 +55,7 @@ func handleMsgCreateLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *types.M
 }
 
 func handleMsgDepositToLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDepositToLiquidityPool) (*sdk.Result, error) {
-
+	k.DepositLiquidityPoolToBatch(ctx, msg)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			//types.EventTypeDepositToLiquidityPoolToBatch,
@@ -71,7 +71,7 @@ func handleMsgDepositToLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *type
 }
 
 func handleMsgWithdrawFromLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *types.MsgWithdrawFromLiquidityPool) (*sdk.Result, error) {
-
+	k.WithdrawLiquidityPoolFromBatch(ctx, msg)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			//types.EventTypeWithdrrawFromLiquidityPoolToBatch,
@@ -87,7 +87,7 @@ func handleMsgWithdrawFromLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *t
 }
 
 func handleMsgSwap(ctx sdk.Context, k keeper.Keeper, msg *types.MsgSwap) (*sdk.Result, error) {
-
+	k.SwapLiquidityPoolToBatch(ctx, msg)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			//types.EventTypeSwapToBatch,
