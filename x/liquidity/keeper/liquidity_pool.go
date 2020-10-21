@@ -140,10 +140,44 @@ func (k Keeper) GetLiquidityPoolBatch(ctx sdk.Context, poolID uint64) (liquidity
 	return liquidityPoolBatch, true
 }
 
+func (k Keeper) GetNextBatchIndex(ctx sdk.Context, poolID uint64) (batchIndex uint64) {
+	return k.GetLiquidityPoolBatchIndex(ctx, poolID) + 1
+}
+
+func (k Keeper) GetAllLiquidityPoolBatches(ctx sdk.Context) (liquidityPoolBatches []types.LiquidityPoolBatch) {
+	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
+		liquidityPoolBatches = append(liquidityPoolBatches, liquidityPoolBatch)
+		return false
+	})
+
+	return liquidityPoolBatches
+}
+
+// IterateAllLiquidityPoolBatches iterate through all of the liquidityPoolBatches
+func (k Keeper) IterateAllLiquidityPoolBatches(ctx sdk.Context, cb func(liquidityPoolBatch types.LiquidityPoolBatch) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+
+	iterator := sdk.KVStorePrefixIterator(store, types.LiquidityPoolBatchKeyPrefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		liquidityPoolBatch := types.MustUnmarshalLiquidityPoolBatch(k.cdc, iterator.Value())
+		if cb(liquidityPoolBatch) {
+			break
+		}
+	}
+}
+
+func (k Keeper) DeleteLiquidityPoolBatch(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) {
+	store := ctx.KVStore(k.storeKey)
+	batchKey := types.GetLiquidityPoolBatchKey(liquidityPoolBatch.PoolID, liquidityPoolBatch.BatchIndex)
+	store.Delete(batchKey)
+}
+
 func (k Keeper) SetLiquidityPoolBatch(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalLiquidityPoolBatch(k.cdc, liquidityPoolBatch)
-	store.Set(types.GetLiquidityPoolBatch(liquidityPoolBatch.PoolID, liquidityPoolBatch.BatchIndex), b)
+	store.Set(types.GetLiquidityPoolBatchKey(liquidityPoolBatch.PoolID, liquidityPoolBatch.BatchIndex), b)
 }
 
 //
@@ -428,6 +462,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg *types.MsgDepositToLiq
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		return err
 	}
+	// TODO: add events for batch result
 	return nil
 }
 
@@ -469,15 +504,18 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg *types.MsgWithdrawFro
 	}
 	// TODO: apply pool.GetPoolKey() as moduleName
 	k.bankKeeper.BurnCoins(ctx, pool.GetPoolKey(), poolCoins)
-
+	// TODO: add events for batch result
 	return nil
 }
 
-// TODO: deprecated TxHash on spec
 func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepositToLiquidityPool) error {
 	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID)
 	if !found {
 		return types.ErrPoolBatchNotExists
+	}
+	// TODO: add validate msg before executed on batch
+	if poolBatch.BeginHeight ==  0 {
+		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
 
 	batchPoolMsg := types.BatchPoolDepositMsg{
@@ -492,10 +530,14 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 	return nil
 }
 
-func (k Keeper) WithdrawLiquidityPoolFromBatch(ctx sdk.Context, msg *types.MsgWithdrawFromLiquidityPool) error {
+func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWithdrawFromLiquidityPool) error {
 	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID)
 	if !found {
 		return types.ErrPoolBatchNotExists
+	}
+	// TODO: add validate msg before executed on batch
+	if poolBatch.BeginHeight ==  0 {
+		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
 
 	batchPoolMsg := types.BatchPoolWithdrawMsg{
@@ -513,6 +555,10 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) er
 	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID)
 	if !found {
 		return types.ErrPoolBatchNotExists
+	}
+	// TODO: add validate msg before executed on batch
+	if poolBatch.BeginHeight ==  0 {
+		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
 
 	batchPoolMsg := types.BatchPoolSwapMsg{

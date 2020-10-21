@@ -72,7 +72,7 @@ func handleMsgDepositToLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *type
 }
 
 func handleMsgWithdrawFromLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *types.MsgWithdrawFromLiquidityPool) (*sdk.Result, error) {
-	k.WithdrawLiquidityPoolFromBatch(ctx, msg)
+	k.WithdrawLiquidityPoolToBatch(ctx, msg)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			//types.EventTypeWithdrrawFromLiquidityPoolToBatch,

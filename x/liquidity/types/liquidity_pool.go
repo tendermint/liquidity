@@ -33,8 +33,20 @@ func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
 }
 
 // NewLiquidityPool creates a new liquidityPool object
-func NewLiquidityPool() LiquidityPool {
-	return LiquidityPool{}
+//func NewLiquidityPool() LiquidityPool {
+//	return LiquidityPool{}
+//}
+
+func NewLiquidityPoolBatch(poolID, batchIndex uint64) LiquidityPoolBatch {
+	return LiquidityPoolBatch{
+		PoolID:           poolID,
+		BatchIndex:       batchIndex,
+		BeginHeight:      0,
+		DepositMsgIndex:  0,
+		WithdrawMsgIndex: 0,
+		SwapMsgIndex:     0,
+		ExecutionStatus:  false,
+	}
 }
 
 // MustMarshalLiquidityPool returns the liquidityPool bytes. Panics if fails

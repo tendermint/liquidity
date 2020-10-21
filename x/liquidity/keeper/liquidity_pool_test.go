@@ -24,7 +24,8 @@ func TestLiquidityPool(t *testing.T) {
 }
 
 // TODO: WIP
-//func TestCreateLiquidityPool(t *testing.T) {
-//	app, ctx := createTestInput()
-//
-//}
+func TestCreateLiquidityPool(t *testing.T) {
+	app, ctx := createTestInput()
+
+
+}
