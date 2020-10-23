@@ -109,7 +109,6 @@ var (
 		slashing.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
-
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		liquidity.AppModuleBasic{},
@@ -153,8 +152,7 @@ type SimApp struct {
 	memKeys map[string]*sdk.MemoryStoreKey
 
 	// keepers
-	AccountKeeper authkeeper.AccountKeeper
-
+	AccountKeeper    authkeeper.AccountKeeper
 	BankKeeper       bankkeeper.Keeper
 	CapabilityKeeper *capabilitykeeper.Keeper
 	StakingKeeper    stakingkeeper.Keeper
