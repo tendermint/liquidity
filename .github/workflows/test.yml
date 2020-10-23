@@ -5,7 +5,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - develop
 jobs:
   cleanup-runs:
     runs-on: ubuntu-latest
