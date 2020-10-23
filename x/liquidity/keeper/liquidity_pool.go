@@ -281,7 +281,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	var poolType types.LiquidityPoolType
 
 	// check poolType exist, get poolType from param
-	if int(msg.PoolTypeIndex) > len(params.LiquidityPoolTypes)-1 {
+	if len(params.LiquidityPoolTypes)-1 >= int(msg.PoolTypeIndex) {
 		poolType = params.LiquidityPoolTypes[msg.PoolTypeIndex]
 		if poolType.PoolTypeIndex != msg.PoolTypeIndex {
 			return types.ErrPoolTypeNotExists
@@ -334,10 +334,11 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 		return err
 	}
 	// TODO: fix module Name as poolKey or moduleName
-	if err := k.bankKeeper.MintCoins(ctx, poolKey, mintPoolCoin); err != nil {
+	// TODO: err occurred, poolKey->liquidityModAcc -> send to reserveAcc
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
 		return err
 	}
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, poolKey, msg.PoolCreator, mintPoolCoin); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, msg.PoolCreator, mintPoolCoin); err != nil {
 		return err
 	}
 
@@ -449,6 +450,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg *types.MsgDepositToLiq
 	poolCoinAmt := k.GetPoolCoinTotalSupply(ctx, pool).Mul(depositableCoinA).Quo(coinA.Amount)
 	poolCoin := sdk.NewCoins(sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt))
 	// mint pool token to Depositor
+	// TODO: mint on moduleAcc, then send
 	if err := k.bankKeeper.MintCoins(ctx, pool.GetPoolKey(), poolCoin); err != nil {
 		return err
 	}
@@ -462,7 +464,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg *types.MsgDepositToLiq
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		return err
 	}
-	// TODO: add events for batch result
+	// TODO: add events for batch result, each err cases
 	return nil
 }
 
@@ -504,7 +506,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg *types.MsgWithdrawFro
 	}
 	// TODO: apply pool.GetPoolKey() as moduleName
 	k.bankKeeper.BurnCoins(ctx, pool.GetPoolKey(), poolCoins)
-	// TODO: add events for batch result
+	// TODO: add events for batch result, each err cases
 	return nil
 }
 

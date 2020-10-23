@@ -28,18 +28,21 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 			// TODO: ordering policy
 			k.IterateAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolDepositMsg) bool {
 				if err := k.DepositLiquidityPool(ctx, batchMsg.Msg); err != nil {
-
+					// TODO: err handling
 				}
 				return false
 			})
 			k.IterateAllLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolWithdrawMsg) bool {
-				k.WithdrawLiquidityPool(ctx, batchMsg.Msg)
+				if err := k.WithdrawLiquidityPool(ctx, batchMsg.Msg); err != nil {
+					// TODO: err handling
+				}
 				return false
 			})
-			k.IterateAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolSwapMsg) bool {
-				k.SwapExecution(ctx, batchMsg.Msg)
-				return false
-			})
+
+			if err := k.SwapExecution(ctx, liquidityPoolBatch); err != nil {
+
+			}
+
 			liquidityPoolBatch.ExecutionStatus = true
 			k.SetLiquidityPoolBatch(ctx, liquidityPoolBatch)
 		}
