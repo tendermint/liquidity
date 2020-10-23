@@ -27,17 +27,8 @@ jobs:
           go-version: 1.15
       - name: Display go version
         run: go version
-      - uses: technote-space/get-diff-action@v4
-        id: git_diff
-        with:
-          PATTERNS: |
-            **/**.go
-            go.mod
-            go.sum
       - name: test & coverage report creation
         run: make test-cover
-        if: env.GIT_DIFF
       - uses: codecov/codecov-action@v1.0.14
         with:
           file: ./coverage.txt
-        if: env.GIT_DIFF
