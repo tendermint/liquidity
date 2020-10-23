@@ -1,10 +1,11 @@
 package app
 
 import (
-	"github.com/tendermint/liquidity/x/liquidity"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/tendermint/liquidity/x/liquidity"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
