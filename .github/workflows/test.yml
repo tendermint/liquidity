@@ -18,7 +18,6 @@ jobs:
 
   test-coverage:
     runs-on: ubuntu-latest
-    needs: cleanup-runs
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v2
