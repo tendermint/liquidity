@@ -55,7 +55,7 @@ func GetLiquidityPoolBatchIndex(poolID uint64) []byte {
 	return key
 }
 
-func GetLiquidityPoolBatch(poolID uint64, batchIndex uint64) []byte {
+func GetLiquidityPoolBatchKey(poolID uint64, batchIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchKeyPrefix[0]
 	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))

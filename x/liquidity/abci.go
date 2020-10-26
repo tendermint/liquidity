@@ -11,9 +11,11 @@ import (
 
 // TODO: Batch execution logic
 
-func BeginBlocker(ctx sdk.Context, keeper keeper.Keeper) {
+func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
+	k.DeleteAndInitPoolBatch(ctx)
 }
-func EndBlocker(ctx sdk.Context, keeper keeper.Keeper) {
+func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
+	k.ExecutePoolBatch(ctx)
 }

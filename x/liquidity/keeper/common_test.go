@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/tendermint/liquidity/app"
@@ -9,7 +10,6 @@ import (
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
-
 
 // createTestInput Returns a simapp with custom LiquidityKeeper
 // to avoid messing with the hooks.
@@ -83,4 +83,12 @@ func addTestAddrs(app *app.SimApp, ctx sdk.Context, accNum int, accAmt sdk.Int, 
 	}
 
 	return testAddrs
+}
+
+// generateAddresses generates numAddrs of normal AccAddrs and ValAddrs
+func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int) ([]sdk.AccAddress, []sdk.ValAddress) {
+	addrDels := simapp.AddTestAddrsIncremental(app, ctx, numAddrs, sdk.NewInt(10000))
+	addrVals := simapp.ConvertAddrsToValAddrs(addrDels)
+
+	return addrDels, addrVals
 }

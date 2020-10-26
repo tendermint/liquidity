@@ -80,7 +80,7 @@ message LiquidityPoolBatch {
 
     uint64 PoolID = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
     uint64 BatchIndex = 2 [(gogoproto.moretags) = "yaml:\"batch_index\""];
-    uint64 BeginHeight = 3 [(gogoproto.moretags) = "yaml:\"begin_height\""];
+    int64 BeginHeight = 3 [(gogoproto.moretags) = "yaml:\"begin_height\""];
     uint64 DepositMsgIndex = 4 [(gogoproto.moretags) = "yaml:\"deposit_msg_index\""];
     uint64 WithdrawMsgIndex = 5 [(gogoproto.moretags) = "yaml:\"withdraw_msg_index\""];
     uint64 SwapMsgIndex = 6 [(gogoproto.moretags) = "yaml:\"swap_msg_index\""];

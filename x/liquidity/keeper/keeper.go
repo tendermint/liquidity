@@ -48,15 +48,6 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", types.ModuleName)
 }
 
-func (k Keeper) Swap(ctx sdk.Context, msg *types.MsgSwap) error {
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeSwap,
-		),
-	)
-	return nil
-}
-
 // GetParams gets the parameters for the liquidity module.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramSpace.GetParamSet(ctx, &params)
