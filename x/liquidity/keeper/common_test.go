@@ -11,7 +11,6 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
-
 // createTestInput Returns a simapp with custom LiquidityKeeper
 // to avoid messing with the hooks.
 func createTestInput() (*app.SimApp, sdk.Context) {

@@ -25,7 +25,9 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
 		if liquidityPoolBatch.ExecutionStatus {
-			// TODO: ordering policy
+			if err := k.SwapExecution(ctx, liquidityPoolBatch); err != nil {
+				// TODO: WIP
+			}
 			k.IterateAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolDepositMsg) bool {
 				if err := k.DepositLiquidityPool(ctx, batchMsg.Msg); err != nil {
 					// TODO: err handling
@@ -38,19 +40,9 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 				}
 				return false
 			})
-
-			if err := k.SwapExecution(ctx, liquidityPoolBatch); err != nil {
-
-			}
-
 			liquidityPoolBatch.ExecutionStatus = true
 			k.SetLiquidityPoolBatch(ctx, liquidityPoolBatch)
 		}
 		return false
 	})
-
-	//k.IterateAllLiquidityPools(ctx, func(liquidityPool types.LiquidityPool) bool {
-	//	return false
-	//})
 }
-
