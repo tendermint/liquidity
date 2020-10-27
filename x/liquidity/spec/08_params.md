@@ -13,8 +13,7 @@ The liquidity module contains the following parameters:
 | LiquidityPoolTypes       | []LiquidityPoolType | [{"pool_type_index":0,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
 | MinInitDepositToPool     | string (sdk.Int)    | "1000000"                                                    |
 | InitPoolCoinMintAmount   | string (sdk.Int)    | "1000000"                                                    |
-| SwapFeeRate              | string (sdk.Dec)    | "0.001000000000000000"                                       |
-| LiquidityPoolFeeRate     | string (sdk.Dec)    | "0.002000000000000000"                                       |
+| SwapFeeRate              | string (sdk.Dec)    | "0.003000000000000000"                                       |
 | LiquidityPoolCreationFee | sdk.Coins           | [{"denom":"uatom","amount":"100000000"}]                     |
 | UnitBatchSize            | uint32              | 1                                                            |
 
@@ -43,10 +42,6 @@ Initial mint amount of pool coin upon pool creation
 ## SwapFeeRate
 
 Swap fee rate for every executed swap
-
-## LiquidityPoolFeeRate
-
-Liquidity pool fee rate only for swaps consumed pool liquidity
 
 ## LiquidityPoolCreationFee
 
