@@ -85,5 +85,4 @@ order: 7
 | swap | received_demand_coin    |                 |
 | swap | swap_price              |                 |
 | swap | paid_swap_fee           |                 |
-| swap | paid_liquidity_pool_fee |                 |
 | swap | success                 |                 |
