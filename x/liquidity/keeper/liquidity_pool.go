@@ -402,7 +402,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg *types.MsgDepositToLiq
 	//lastReserveRatio := coinA.Amount.Quo(coinB.Amount)
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	//lastReserveRatio := reserveCoins[0].Amount.Quo(reserveCoins[1].Amount)
-	// TODO: handle dec to Int error
+	// TODO: handle dec to Int error, roundInt, TruncateInt to using ToDec,  MulInt
 	depositableCoinA := coinA.Amount.Mul(lastReserveRatio.Ceil().RoundInt())
 	//depositableCoinB := coinB.Amount.Mul(lastReserveRatio.Ceil().RoundInt())
 	var inputs []banktypes.Input
@@ -424,7 +424,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg *types.MsgDepositToLiq
 			outputs = append(outputs, banktypes.NewOutput(msg.Depositor, sdk.NewCoins(sdk.NewCoin(coinB.Denom, refundAmtB))))
 		}
 	} else if coinB.Amount.LT(depositableCoinA) {
-		// TODO: handle dec to Int error
+		// TODO: handle dec to Int error, roundInt, TruncateInt to using ToDec,  MulInt
 		depositableCoinA = coinB.Amount.Quo(lastReserveRatio.RoundInt())
 		refundAmtA := coinA.Amount.Sub(depositableCoinA)
 		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(sdk.NewCoin(coinA.Denom, depositableCoinA))))
