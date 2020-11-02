@@ -18,35 +18,6 @@ const (
 	TypeMsgSwap                      = "swap"
 )
 
-type MsgCreateLiquidityPoolLegacy struct {
-	PoolCreator       sdk.AccAddress // account address of the origin of this message
-	PoolTypeIndex     uint32         // index of the liquidity pool type of this new liquidity pool
-	ReserveCoinDenoms []string       // list of reserve coin denoms for this new liquidity pool, store alphabetical
-	DepositCoins      sdk.Coins      // deposit coin for initial pool deposit into this new liquidity pool
-}
-
-type MsgDepositToLiquidityPoolLegacy struct {
-	Depositor    sdk.AccAddress // account address of the origin of this message
-	PoolID       uint64         // id of the liquidity pool where this message is belong to
-	DepositCoins sdk.Coins      // deposit coin of this pool deposit message
-}
-
-type MsgWithdrawFromLiquidityPoolLegacy struct {
-	Withdrawer sdk.AccAddress // account address of the origin of this message
-	PoolID     uint64         // id of the liquidity pool where this message is belong to
-	PoolCoin   sdk.Coins      // pool coin sent for reserve coin withdraw
-}
-
-type MsgSwapLegacy struct {
-	SwapRequester sdk.AccAddress // account address of the origin of this message
-	PoolID        uint64         // id of the liquidity pool where this message is belong to
-	PoolTypeIndex uint32         // index of the liquidity pool type where this message is belong to
-	SwapType      uint32         // swap type of this swap message, default 1: InstantSwap, requesting instant swap
-	OfferCoin     sdk.Coin       // offer coin of this swap message
-	DemandCoin    sdk.Coin       // denom of demand coin of this swap message
-	OrderPrice    sdk.Dec        // order price of this swap message
-}
-
 // ------------------------------------------------------------------------
 // MsgCreateLiquidityPool
 // ------------------------------------------------------------------------

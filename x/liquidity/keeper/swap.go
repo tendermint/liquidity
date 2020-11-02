@@ -2,6 +2,7 @@ package keeper
 
 import "C"
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 	"sort"
@@ -11,12 +12,15 @@ import (
 const (
 	// Price Directions
 	Increase = 1
-	Decrease = -1
-	Stay     = 0
+	Decrease = 2
+	Stay     = 3
 
 	// Match Types
 	ExactMatch      = 1
-	FractionalMatch = 0
+	NoMatch         = 2
+	FractionalMatch = 3
+
+	OrderLifeSpanHeight = 0
 )
 
 type OrderByPrice struct {
@@ -45,6 +49,22 @@ func (orderBook OrderBook) Reverse() {
 	sort.Reverse(orderBook)
 }
 
+func MinDec(a, b sdk.Dec) sdk.Dec {
+	if a.LTE(b) {
+		return a
+	} else {
+		return b
+	}
+}
+
+func MaxDec(a, b sdk.Dec) sdk.Dec {
+	if a.GTE(b) {
+		return a
+	} else {
+		return b
+	}
+}
+
 type OrderMap map[sdk.Dec]OrderByPrice
 
 // TODO: testcode
@@ -69,7 +89,165 @@ func (orderMap OrderMap) SortOrderBook() (orderBook OrderBook) {
 	return orderBook
 }
 
-// TODO: WIP https://repl.it/@HyungyeonLee/batchExecution#main.py
+type BatchResult struct {
+	MatchType   int
+	SwapPrice   sdk.Dec
+	EX          sdk.Dec
+	EY          sdk.Dec
+	OriginalEX  sdk.Int
+	OriginalEY  sdk.Int
+	PoolX       sdk.Dec
+	PoolY       sdk.Dec
+	TransactAmt sdk.Dec
+}
+
+type MatchResult struct {
+	OrderHeight       int64
+	OrderCancelHeight int64
+	OrderPrice        sdk.Dec
+	OrderAmt          sdk.Int
+	MatchedAmt        sdk.Int
+	RefundAmt         sdk.Int
+	ReceiveAmt        sdk.Int
+	FeeAmt            sdk.Int
+}
+
+func CompareTransactAmtX(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
+	orderBook.Sort() // TODO: verify
+	priceDirection := GetPriceDirection(currentPrice, orderBook)
+
+	if priceDirection == Stay {
+		return CalculateMatchStay(currentPrice, orderBook)
+	} else { // Increase, Decrease
+		return CalculateMatch(priceDirection, X, Y, currentPrice, orderBook)
+	}
+}
+
+func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
+	swapPrice := currentPrice
+	result.OriginalEX, result.OriginalEY = GetExecutableAmt(swapPrice, orderBook)
+	result.EX = result.OriginalEX.ToDec()
+	result.EY = result.OriginalEY.ToDec()
+
+	if result.EX.Add(result.PoolX).Equal(sdk.ZeroDec()) || result.EY.Add(result.PoolY).Equal(sdk.ZeroDec()) {
+		result.MatchType = NoMatch
+	} else if result.EX.Equal(swapPrice.Mul(result.EY)) {
+		result.MatchType = ExactMatch
+	} else {
+		result.MatchType = FractionalMatch
+		if result.EX.GT(swapPrice.Mul(result.EY)) {
+			result.EX = swapPrice.Mul(result.EY)
+		} else if result.EX.GT(swapPrice.Mul(result.EY)) {
+			result.EY = result.EX.Quo(swapPrice)
+		}
+	}
+	return
+}
+
+func FindOrderMatch(XtoY, YtoX []*types.MsgSwap, EX, EY, swapPrice sdk.Dec) {
+	sort.SliceStable(XtoY, func(i, j int) bool {
+		return XtoY[i].OrderPrice.GT(XtoY[j].OrderPrice)
+	})
+	sort.SliceStable(YtoX, func(i, j int) bool {
+		return YtoX[i].OrderPrice.LT(YtoX[j].OrderPrice)
+	})
+
+}
+
+func CalculateSwap(direction int, X, Y, orderPrice, lastOrderPrice sdk.Dec, orderBook OrderBook) (r BatchResult) {
+	r.OriginalEX, r.OriginalEY = GetExecutableAmt(lastOrderPrice.Add(orderPrice).Quo(sdk.NewDec(2)), orderBook)
+	r.EX = r.OriginalEX.ToDec()
+	r.EY = r.OriginalEY.ToDec()
+
+	r.SwapPrice = X.Add(r.EX).Sub(Y.Add(r.EY))
+	if direction == Increase {
+		r.PoolY = Y.Sub(X.Quo(r.SwapPrice))
+		if lastOrderPrice.LT(r.SwapPrice) && r.SwapPrice.LT(orderPrice) && !r.PoolY.IsNegative() {
+			if r.EX.IsZero() && r.EY.IsZero() {
+				r.MatchType = NoMatch
+			} else {
+				r.MatchType = ExactMatch
+			}
+		}
+	} else if direction == Decrease {
+		r.PoolX = X.Sub(Y.Mul(r.SwapPrice))
+		if orderPrice.LT(r.SwapPrice) && r.SwapPrice.LT(lastOrderPrice) && !r.PoolX.IsNegative() {
+			if r.EX.IsZero() && r.EY.IsZero() {
+				r.MatchType = NoMatch
+			} else {
+				r.MatchType = ExactMatch
+			}
+		}
+	}
+
+	if r.MatchType != 0 {
+		return
+	}
+
+	r.OriginalEX, r.OriginalEY = GetExecutableAmt(lastOrderPrice.Add(orderPrice).Quo(sdk.NewDec(2)), orderBook)
+	r.EX = r.OriginalEX.ToDec()
+	r.EY = r.OriginalEY.ToDec()
+	r.SwapPrice = orderPrice
+	if direction == Increase {
+		r.PoolY = Y.Sub(X.Quo(r.SwapPrice))
+		r.EX = MinDec(r.EX, r.EY.Add(r.PoolY).Mul(r.SwapPrice))
+		r.EY = MaxDec(MinDec(r.EY, r.EX.Quo(r.SwapPrice).Sub(r.PoolY)), sdk.ZeroDec())
+
+	} else if direction == Decrease {
+		r.PoolX = X.Sub(Y.Mul(r.SwapPrice))
+		r.EX = MinDec(r.EY, r.EX.Add(r.PoolX).Quo(r.SwapPrice))
+		r.EY = MaxDec(MinDec(r.EX, r.EY.Mul(r.SwapPrice).Sub(r.PoolX)), sdk.ZeroDec())
+	}
+	r.MatchType = FractionalMatch
+	return
+}
+
+func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
+	lastOrderPrice := currentPrice
+	var matchScenarioList []BatchResult
+	for _, order := range orderBook {
+		if order.OrderPrice.LT(currentPrice) {
+			continue
+		} else {
+			orderPrice := order.OrderPrice
+			var t BatchResult
+
+			// simulation process
+			EX, EY := GetExecutableAmt(orderPrice, orderBook)
+			t.EX = EX.ToDec()
+			t.EY = EY.ToDec()
+			t.SwapPrice = orderPrice
+			if direction == Increase {
+				t.PoolY = Y.Sub(X.Quo(t.SwapPrice))
+				if t.SwapPrice.LT(X.Quo(Y)) || t.PoolY.IsNegative() {
+					t.TransactAmt = sdk.ZeroDec()
+				} else {
+					t.TransactAmt = MinDec(t.EX, t.EY.Add(t.PoolY).Mul(t.SwapPrice))
+				}
+			} else if direction == Decrease {
+				t.PoolX = X.Sub(Y.Mul(t.SwapPrice))
+				if t.SwapPrice.GT(X.Quo(Y)) || t.PoolX.IsNegative() {
+					t.TransactAmt = sdk.ZeroDec()
+				} else {
+					t.TransactAmt = MinDec(t.EY, t.EX.Add(t.PoolX).Quo(t.SwapPrice))
+				}
+			}
+			r := CalculateSwap(direction, X, Y, orderPrice, lastOrderPrice, orderBook)
+			r.TransactAmt = t.TransactAmt
+			matchScenarioList = append(matchScenarioList, r)
+			lastOrderPrice = orderPrice
+		}
+	}
+	var maxScenario BatchResult
+	maxScenario.TransactAmt = sdk.ZeroDec()
+	for _, s := range matchScenarioList {
+		if s.TransactAmt.GT(maxScenario.TransactAmt) {
+			maxScenario = s
+		}
+	}
+	return maxScenario
+}
+
 // TODO: testcode
 func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) error {
 	pool, found := k.GetLiquidityPool(ctx, liquidityPoolBatch.PoolID)
@@ -123,230 +301,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	// make orderbook to sort orderMap
 	orderBook := orderMap.SortOrderBook()
 
-	//orderPriceList := make([]sdk.Dec, 0, len(orderMap))
-	//for k := range orderMap {
-	//	orderPriceList = append(orderPriceList, k)
-	//}
-	//
-	//// TODO: verify sort
-	//sort.Slice(orderPriceList, func(i, j int) bool {
-	//	return orderPriceList[i].LT(orderPriceList[j])
-	//})
-	//
-	//for _, k := range orderPriceList {
-	//	orderBook = append(orderBook, OrderByPrice{
-	//		OrderPrice:   k,
-	//		BuyOrderAmt:  orderMap[k].BuyOrderAmt,
-	//		SellOrderAmt: orderMap[k].SellOrderAmt,
-	//	})
-	//}
-	// TODO: verify sorted by orderPrice
-	sort.SliceStable(XtoY, func(i, j int) bool {
-		return XtoY[i].OrderPrice.GT(XtoY[j].OrderPrice)
-	})
-	sort.SliceStable(YtoX, func(i, j int) bool {
-		return YtoX[i].OrderPrice.LT(YtoX[j].OrderPrice)
-	})
-
-	priceDirection := GetPriceDirection(currentYPriceOverX, orderBook)
-	if priceDirection == Decrease {
-		orderBook.Reverse()
-	}
-
-	var matchType int
-	var poolX, poolY, swapPrice, lastOrderPrice, decEX, decEY sdk.Dec
-	var EX, EY, originalEX, originalEY sdk.Int
-
-	// price does not change
-	if priceDirection == Stay {
-		swapPrice := currentYPriceOverX
-		originalEX, originalEY = GetExecutableAmt(swapPrice, orderBook)
-		poolY = sdk.ZeroDec()
-		EX := originalEX.ToDec()
-		EY := originalEY.ToDec()
-
-		// fractionalMatch
-		if EX.Equal(swapPrice.Mul(EY)) {
-			matchType = ExactMatch
-		} else {
-			matchType = FractionalMatch
-			if EX.GT(swapPrice.Mul(EY)) {
-				EX = swapPrice.Mul(EY)
-			} else if EX.GT(swapPrice.Mul(EY)) {
-				EY = EX.Quo(swapPrice)
-			}
-		}
-
-	// price increases or decrease
-	} else {
-		lastOrderPrice = currentYPriceOverX
-		var lastExecutableBuyAmtX, lastExecutableSellAmtY, executableBuyAmtX, executableSellAmtY sdk.Int
-		var swapPrice sdk.Dec
-
-		// iterate orderbook from current price to upwards(increase)/downwards(decrease)
-		for _, order := range orderBook {
-			orderPrice := order.OrderPrice
-
-			// calculate executable amounts in X coins
-			executableBuyAmtX, executableSellAmtY = GetExecutableAmt(orderPrice, orderBook)
-
-			// #### variables #####
-			// swapPrice : swap price for this batch
-			// PoolY : Y coins provided by the liquidity pool
-			// EX : X coins provided by users
-			// EY : Y coins provided by users
-
-			// #### equations for price increase #####
-			// 1) swap equation : EX = EY*SwapPrice + PoolY*SwapPrice --> PoolY = EX/SwapPrice - EY
-			// 2) constant product equation : X*Y = (X+SwapPrice*PoolY)*(Y-PoolY) --> PoolY = Y - X/SwapPrice
-			// 3) 1) & 2) : EX/SwapPrice - EY = Y - X/SwapPrice --> SwapPrice = (X + EX)/(Y + EY)
-			// 4) 1) & 3) : PoolY = (Y*EX - X*EY)/(X + EX)
-
-			// #### equations for price decrease #####
-			// 1) swap equation : EY = EX/SwapPrice + PoolX/SwapPrice --> PoolX = EY*SwapPrice - EX
-			// 2) constant product equation : X*Y = (X-PoolX)*(Y-PoolX/SwapPrice) --> PoolX = X - Y*SwapPrice
-			// 3) 1) & 2) : EY*SwapPrice - EX = X - Y*SwapPrice --> SwapPrice = (X + EX)/(Y + EY)
-			// 4) 1) & 3) : PoolX = (X*EY - Y*EX)/(Y + EY)
-
-			// simulation) check whether all executable EX/EY are matched
-
-			if priceDirection == Increase {
-				EX = executableBuyAmtX
-				EY = executableBuyAmtX
-				swapPrice = orderPrice
-				poolY = Y.Sub(X.Quo(swapPrice))
-
-				//check all EX are matched
-				if EX.ToDec().Sub(EY.ToDec().Mul(swapPrice)).Sub(poolY.Mul(swapPrice)).IsNegative() {
-					// check whether exactMatch is possible in last price range (lastOrderPrice ~ orderPrice)
-					EY = lastExecutableSellAmtY
-					swapPrice = X.Add(EX.ToDec()).Quo(Y.Add(EY.ToDec()))
-					poolY = Y.Mul(EX.ToDec()).Sub(X.Mul(EY.ToDec())).Quo(X.Add(EX.ToDec()))
-					if lastOrderPrice.LT(swapPrice) && swapPrice.LT(orderPrice) && poolY.GTE(sdk.ZeroDec()) {
-						matchType = ExactMatch
-						break
-					}
-				} else { // exactMatch is not found --> fractionalMatch
-					matchType = FractionalMatch
-					EX = lastExecutableBuyAmtX
-					EY = lastExecutableSellAmtY
-					swapPrice = lastOrderPrice
-					poolY = Y.Sub(X.Quo(swapPrice))
-					break
-				}
-			} else if priceDirection == Decrease {
-				EX = executableBuyAmtX
-				EY = executableBuyAmtX
-				swapPrice := orderPrice
-				poolX = X.Sub(Y.Quo(swapPrice))
-
-				// check all EY are matched
-				if EY.ToDec().Sub(EX.ToDec().Quo(swapPrice)).Sub(poolX.Quo(swapPrice)).IsNegative() {
-					// check whether exactMatch is possible in last price range (orderPrice ~ lastOrderPrice)
-					EX = lastExecutableBuyAmtX
-					swapPrice = X.Add(EX.ToDec()).Quo(Y.Add(EY.ToDec()))
-					poolX = X.Mul(EY.ToDec()).Sub(Y.Mul(EY.ToDec())).Quo(Y.Add(EY.ToDec()))
-					// check swapPrice within given price range
-					if orderPrice.LT(swapPrice) && swapPrice.LT(lastOrderPrice) && poolX.GTE(sdk.ZeroDec()) {
-						matchType = ExactMatch  // all orders are exactly matched
-						break
-					}
-				} else { // exactMatch is not found --> fractionalMatch
-					matchType = FractionalMatch
-					EX = lastExecutableBuyAmtX
-					EY = lastExecutableSellAmtY
-					swapPrice = lastOrderPrice
-					poolX = X.Sub(Y.Quo(swapPrice))
-					break
-				}
-			}
-
-			// update last variables
-			lastOrderPrice = orderPrice
-			lastExecutableBuyAmtX = executableBuyAmtX
-			lastExecutableSellAmtY = executableSellAmtY
-
-		}
-
-		originalEX = EX
-		originalEY = EY
-		// fractional match for EX
-		if matchType == FractionalMatch {
-			if priceDirection == Increase {
-				frac := EY.ToDec().Mul(swapPrice).Add(poolY.Mul(swapPrice))
-				if EX.ToDec().LT(frac) {
-					decEX = EX.ToDec()
-				} else {
-					decEX = frac
-				}
-			} else if priceDirection == Decrease {
-				frac := EX.ToDec().Mul(swapPrice).Add(poolX.Quo(swapPrice))
-				if EY.ToDec().LT(frac) {
-					decEY = EY.ToDec()
-				} else {
-					decEY = frac
-				}
-			}
-		}
-	}
-	var EXFractionalRatio, EYFractionalRatio sdk.Dec
-	if originalEX.IsZero() {
-		EXFractionalRatio = sdk.NewDec(1)
-	} else {
-		EXFractionalRatio = EX.ToDec().Quo(originalEX.ToDec())
-	}
-
-	if originalEY.IsZero() {
-		EYFractionalRatio = sdk.NewDec(1)
-	} else {
-		EYFractionalRatio = EY.ToDec().Quo(originalEY.ToDec())
-	}
-
-	ctx.Logger().Info("Swap Execution Result",
-		"priceDirection", priceDirection,
-		"currentYPriceOverX", currentYPriceOverX,
-		"swapPrice", swapPrice,
-		"priceChangeRatio", swapPrice.Quo(currentYPriceOverX.Sub(sdk.NewDec(1))),
-		"matchType", matchType,
-		"originEx", originalEX,
-		"EX", EX,
-		"decEX", decEX,
-		"EXFractionalRatio", EXFractionalRatio,
-		"originalEY", originalEY,
-		"EY", EY,
-		"decEY", decEY,
-		"EYFractionalRatio", EYFractionalRatio,
-		)
-
-	buySellAmtCheck := EX.ToDec().Sub(EY.ToDec().Mul(swapPrice)).Sub(poolY.Mul(swapPrice))
-	if priceDirection == Increase {
-		ctx.Logger().Info("Swap Direction Increase",
-			"PoolY", poolY,
-			"buy-sell amount check(should be zero): ", buySellAmtCheck,
-			"constant product check(should be zero): ", X.Mul(Y).Sub(X.Add(swapPrice.Mul(poolY)).Mul(Y.Sub(poolY))),
-			)
-	} else if priceDirection == Decrease {
-		ctx.Logger().Info("Swap Direction Decrease",
-			"PoolX", poolX,
-			"buy-sell amount check(should be zero): ", EY.ToDec().Sub(EX.ToDec().Quo(swapPrice)).Sub(poolX.Quo(swapPrice)),
-			"constant product check(should be zero): ", X.Mul(Y).Sub(X.Sub(poolX).Mul(Y.Add(poolX.Quo(swapPrice)))),
-			)
-	} else if priceDirection == Stay {
-		ctx.Logger().Info("Swap Direction Stay",
-			"Pool", nil,
-			"buy-sell amount check(should be zero): ", buySellAmtCheck,
-			"constant product check(should be zero): ", nil,
-		)
-	}
-
-	// finding orders to be matched
-	// TODO: WIP
-	//for _, order := range XtoY {
-	//	if order.OrderPrice == lastOrderPrice
-	//}
-
-
-
+	result := CompareTransactAmtX(X, Y, currentYPriceOverX, orderBook)
+	fmt.Println(result)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -357,28 +313,26 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 }
 
 // TODO: testcode
-func GetPriceDirection(currentYPriceOverX sdk.Dec, orderBook OrderBook) int {
+func GetPriceDirection(currentPrice sdk.Dec, orderBook OrderBook) int {
 	buyAmtOverCurrentPrice := sdk.ZeroInt()
 	buyAmtAtCurrentPrice := sdk.ZeroInt()
 	sellAmtUnderCurrentPrice := sdk.ZeroInt()
 	sellAmtAtCurrentPrice := sdk.ZeroInt()
 
 	for _, order := range orderBook {
-		if order.OrderPrice.GT(currentYPriceOverX) {
+		if order.OrderPrice.GT(currentPrice) {
 			buyAmtOverCurrentPrice = buyAmtOverCurrentPrice.Add(order.BuyOrderAmt)
-		} else if order.OrderPrice.Equal(currentYPriceOverX) {
+		} else if order.OrderPrice.Equal(currentPrice) {
 			buyAmtAtCurrentPrice = buyAmtAtCurrentPrice.Add(order.BuyOrderAmt)
 			sellAmtAtCurrentPrice = sellAmtAtCurrentPrice.Add(order.SellOrderAmt)
-		} else if order.OrderPrice.LT(currentYPriceOverX) {
+		} else if order.OrderPrice.LT(currentPrice) {
 			sellAmtUnderCurrentPrice = sellAmtUnderCurrentPrice.Add(order.SellOrderAmt)
-		} else {
-			// TODO: err
 		}
 	}
 	// TODO: verify Dec, Int math logic
-	if buyAmtOverCurrentPrice.ToDec().GT(currentYPriceOverX.MulInt(sellAmtUnderCurrentPrice.Add(sellAmtAtCurrentPrice))) {
+	if buyAmtOverCurrentPrice.ToDec().GT(currentPrice.MulInt(sellAmtUnderCurrentPrice.Add(sellAmtAtCurrentPrice))) {
 		return Increase
-	} else if currentYPriceOverX.MulInt(sellAmtAtCurrentPrice).GT(buyAmtOverCurrentPrice.Add(buyAmtAtCurrentPrice).ToDec()) {
+	} else if currentPrice.MulInt(sellAmtAtCurrentPrice).GT(buyAmtOverCurrentPrice.Add(buyAmtAtCurrentPrice).ToDec()) {
 		return Decrease
 	} else {
 		return Stay
