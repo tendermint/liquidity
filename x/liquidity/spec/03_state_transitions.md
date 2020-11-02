@@ -34,103 +34,131 @@ For deposit, after successful deposit, escrowed coins are sent to the `ReserveAc
 
 For withdrawal, after successful withdraw, escrowed pool coins are burnt, and corresponding amount of reserve coins are sent to the withdrawer from the `LiquidityPool`.
 
-### Pseudo Algorithm for LiquidityPoolBatch Execution
+### **Pseudo Algorithm for LiquidityPoolBatch Execution**
+
+simulation script (in python) : [https://github.com/b-harvest/Liquidity-Module-For-the-Hub/blob/master/pseudo-batch-execution-logic/batch.py](https://github.com/b-harvest/Liquidity-Module-For-the-Hub/blob/master/pseudo-batch-execution-logic/batch.py)
 
 **1) Swap Price Calculation**
 
 **Finding price direction**
 
 - Variables
-    - `X` : Reserve of X coin, `Y` : Reserve of Y coin (before this batch execution)
-    - `PoolSwapPrice` = `X`/`Y`
-    - `XOverLastPrice` : amount of orders which swap X for Y with order price higher than last `PoolSwapPrice`
-    - `XAtLastPrice` : amount of orders which swap X for Y with order price equal to last `PoolSwapPrice`
-    - `YUnderLastPrice` : amount of orders which swap Y for X with order price lower than last `PoolSwapPrice`
-    - `YAtLastPrice` : amount of orders which swap Y for X with order price equal to last `PoolSwapPrice`
-- **Increase** : swap price is increased from last `PoolSwapPrice`
-    - `XOverLastPrice` > (`YUnderLastPrice`+`YAtLastPrice`)*`PoolSwapPrice`
-- **Decrease** : swap price is decreased from last `PoolSwapPrice`
-    - `YUnderLastPrice` > (`XOverLastPrice`+`XAtLastPrice`)/`PoolSwapPrice`
-- **Stay** : swap price is not changed from last `PoolSwapPrice`
+    - `X` : Reserve of X coin, `Y` : Reserve of Y coin (before this batch execution)
+    - `PoolSwapPrice` = `X`/`Y`
+    - `XOverLastPrice` : amount of orders which swap X for Y with order price higher than last `PoolSwapPrice`
+    - `XAtLastPrice` : amount of orders which swap X for Y with order price equal to last `PoolSwapPrice`
+    - `YUnderLastPrice` : amount of orders which swap Y for X with order price lower than last `PoolSwapPrice`
+    - `YAtLastPrice` : amount of orders which swap Y for X with order price equal to last `PoolSwapPrice`
+
+- **Increase** : swap price is increased from last `PoolSwapPrice`
+    - `XOverLastPrice` > (`YUnderLastPrice`+`YAtLastPrice`)*`PoolSwapPrice`
+
+- **Decrease** : swap price is decreased from last `PoolSwapPrice`
+    - `YUnderLastPrice` > (`XOverLastPrice`+`XAtLastPrice`)/`PoolSwapPrice`
+
+- **Stay** : swap price is not changed from last `PoolSwapPrice`
     - when both above inequalities do not hold
 
 **Increase case**
 
-- Iteration
-    - `orderPrice(i)` : Iterate order prices of all swap orders from **low to high**
-    - `EX(i)` : All executable orders which swap X for Y with order price equal or higher than this `orderPrice(i)`
-    - `EY(i)` : All executable orders which swap Y for X with order price equal or lower than this `orderPrice(i)`
-    - `PoolY`(Y coins provided by the liquidity pool) = `Y` - `X`/`orderPrice(i)`
-- Find the `orderPrice(k)` where below value has the first negative number
-    - `EX(k)` - `EY(k)`*`orderPrice(k)` - `PoolY`*`orderPrice(k)`
-- **ExactMatch** : swapPrice is located between `orderPrice(k-1)` and `orderPrice(k)` ?
-    - `swapPrice` = (`X` + `EX(k)`)/(`Y` + `EY(k-1)`)
-        - `orderPrice(k-1)` < `swapPrice` < `orderPrice(k)`
-    - `adjPoolY` = (`Y`*`EX(k)` - `X`*`EY(k-1)`)/(`X` + `EX(k)`)
-        - `adjPoolY` >= 0
-    - If both conditions are met, `swapPrice` is the swap price for this batch
-        - Amount of X coins matched from swap orders = `EX(k)`
-        - Amount of Y coins matched from swap orders = `EY(k-1)`
-        - Amount of Y coins provided from liquidity pool = `adjPoolY`
-        - Three parts are perfectly matched without fractional match
-    - If one of above conditions doesn’t hold, go to next step : FractionalMatch
-- **FractionalMatch** : `swapPrice` = `orderPrice(k-1)`
-    - Amount of X coins matched from swap orders :
-        - `FracEX` = min(`EX(k-1)`, `EY(k-1)`*`swapPrice`+`PoolY`*`swapPrice`)
-    - Amount of Y coins matched from swap orders = `EY(k-1)`
-    - Amount of Y coins provided from liquidity pool = `PoolY`
-    - Swap orders which swap X for Y are fractionally matched
-        - `FractionalRatio` = `FracEX` / `EX(k-1)`
+- Iteration : iterate `orderPrice(i)` of all swap orders from low to high
+    - variables
+        - `EX(i)` : All executable orders which swap X for Y with order price equal or higher than this `orderPrice(i)`
+        - `EY(i)` : All executable orders which swap Y for X with order price equal or lower than this `orderPrice(i)`
+    - ExactMatch
+        - `swapPrice(i)` = (`X` + `EX(i)`)/(`Y` + `EY(i-1)`)
+            - condition1) `orderPrice(i-1)` < `swapPrice(i)` < `orderPrice(i)`
+        - `PoolY(i)` = `Y` - `X`/`swapPrice(i)`
+            - condition2) `PoolY(i)` >= 0
+        - If both above conditions are met, `swapPrice` is the swap price for this iteration
+            - Amount of X coins matched = `EX(i)`
+        - If one of above conditions doesn’t hold, go to FractionalMatch
+    - FractionalMatch :
+        - `swapPrice(i)` = `orderPrice(i)`
+        - `PoolY(i)` = `Y` - `X`/`swapPrice(i)`
+        - Amount of X coins matched :
+            - `EX(i)` ← min[ `EX(i)`, (`EY(i)`+`PoolY(i)`)*`swapPrice(i)` ]
+
+- Find optimized swapPrice :
+    - Find `swapPrice(k)` which has the largest amount of X coins matched
+        - this is our optimized swap price
+        - corresponding swap result variables
+            - `swapPrice(k)`, `EX(k)`, `EY(k)`, `PoolY(k)`
 
 **Decrease case**
 
-- Iteration
-    - `orderPrice(i)` : Iterate order prices of all swap orders from high to low
-    - `EX(i)` : All executable orders which swap X for Y with order price equal or higher than this `orderPrice(i)`
-    - `EY(i)` : All executable orders which swap Y for X with order price equal or lower than this `orderPrice(i)`
-    - `PoolX`(X coins provided by the liquidity pool) = `X` - `Y`*`orderPrice(i)`
-- Find the `orderPrice(k)` where below value has the first negative number
-    - `EY(k)` - `EX(k)`/`orderPrice(k)` - `PoolX`/`orderPrice(k)`
-- **ExactMatch** : `swapPrice` is located between `orderPrice(k-1)` and `orderPrice(k)` ?
-    - `swapPrice` = (`X` + `EX(k-1)`)/(`Y` + `EY(k)`)
-        - `orderPrice(k)` < `swapPrice` < `orderPrice(k-1)`
-    - `adjPoolX` = (`X`*`EY(k)` - `Y`*`EX(k-1)`)/(`Y` + `EY(k)`)
-        - `adjPoolX` >= 0
-    - If both conditions are met, swapPrice is the swap price for this batch
-        - Amount of X coins matched from swap orders = `EX(k-1)`
-        - Amount of Y coins matched from swap orders = `EY(k)`
-        - Amount of X coins provided from liquidity pool = `adjPoolX`
-        - Three parts are perfectly matched without fractional match
-    - If one of above conditions doesn’t hold, go to next step : FractionalMatch
-- **FractionalMatch** : `swapPrice` = `orderPrice(k-1)`
-    - Amount of Y coins matched from swap orders :
-        - `FracEY` = min(`EY(k-1)`, `EX(k-1)`/`swapPrice`+`PoolX`/`swapPrice`)
-    - Amount of X coins matched from swap orders = `EX(k-1)`
-    - Amount of X coins provided from liquidity pool = `PoolX`
-    - Swap orders which swap Y for X are fractionally matched
-        - `FractionalRatio` = `FracEY` / `EY(k-1)`
+- Iteration : iterate `orderPrice(i)` of all swap orders from high to low
+    - variables
+        - `EX(i)` : All executable orders which swap X for Y with order price equal or higher than this `orderPrice(i)`
+        - `EY(i)` : All executable orders which swap Y for X with order price equal or lower than this `orderPrice(i)`
+    - ExactMatch
+        - `swapPrice(i)` = (`X` + `EX(i)`)/(`Y` + `EY(i-1)`)
+            - condition1) `orderPrice(i)` < `swapPrice(i)` < `orderPrice(i-1)`
+        - `PoolX(i)` = `X` - `Y`*`swapPrice(i)`
+            - condition2) `PoolX(i)` >= 0
+        - If both above conditions are met, `swapPrice` is the swap price for this iteration
+            - Amount of Y coins matched = `EY(i)`
+        - If one of above conditions doesn’t hold, go to FractionalMatch
+    - FractionalMatch :
+        - `swapPrice(i)` = `orderPrice(i)`
+        - `PoolX(i)` = `X` - `Y`*`swapPrice(i)`
+        - Amount of Y coins matched :
+            - `EY(i)` ← min[ `EY(i)`, (`EX(i)`+`PoolX(i)`)/`swapPrice(i)` ]
+
+- Find optimized swapPrice
+    - Find `swapPrice(k)` which has the largest amount of Y coins matched
+        - this is our optimized swap price
+        - corresponding swap result variables
+            - `swapPrice(k)`, `EX(k)`, `EY(k)`, `PoolX(k)`
 
 **Stay case**
 
 - Variables
-    - `swapPrice` = last `PoolSwapPrice`
-    - `EX` : All executable orders which swap X for Y with order price equal or higher than last `PoolSwapPrice`
-    - `EY` : All executable orders which swap Y for X with order price equal or lower than last `PoolSwapPrice`
-- **ExactMatch** : If `EX` == `EY`*`swapPrice`
-    - Amount of X coins matched from swap orders = `EX`
-    - Amount of Y coins matched from swap orders = `EY`
-    - All two parts are perfectly matched without fractional match
+    - `swapPrice` = last `PoolSwapPrice`
+    - `EX` : All executable orders which swap X for Y with order price equal or higher than last `PoolSwapPrice`
+    - `EY` : All executable orders which swap Y for X with order price equal or lower than last `PoolSwapPrice`
+- **ExactMatch** : If `EX` == `EY`*`swapPrice`
+    - Amount of X coins matched from swap orders = `EX`
+    - Amount of Y coins matched from swap orders = `EY`
 - **FractionalMatch**
-    - If `EX` > `EY`*`swapPrice` : Residual X order amount remains
-        - Amount of X coins matched from swap orders = `EY`*`swapPrice`
-        - Amount of Y coins matched from swap orders = `EY`
-    - If `EY` > `EX`/`swapPrice` : Residual Y order amount remains
-        - Amount of X coins matched from swap orders = `EX`
-        - Amount of Y coins matched from swap orders = `EX`/`swapPrice`
+    - If `EX` > `EY`*`swapPrice` : Residual X order amount remains
+        - Amount of X coins matched from swap orders = `EY`*`swapPrice`
+        - Amount of Y coins matched from swap orders = `EY`
+    - If `EY` > `EX`/`swapPrice` : Residual Y order amount remains
+        - Amount of X coins matched from swap orders = `EX`
+        - Amount of Y coins matched from swap orders = `EX`/`swapPrice`
+
+**Calculate matching result**
+
+- for swap orders from X to Y
+    - Iteration : iterate `orderPrice(i)` of swap orders from X to Y
+        - sort by order price (high to low), sum all order amount with this `orderPrice(i)`
+        - variables
+            - `EX(i)` : All executable orders which swap X for Y with order price equal or higher than this `orderPrice(i)`
+        - if `EX(i)` ≤ `EX(k)`
+            - `fractionalRatio` = 1
+        - if `EX(i)` > `EX(k)`
+            - `fractionalRatio(i)` = (`EX(k)` - `EX(i-1)`) / (`EX(i)` - `EX(i-1)`)
+            - break the iteration
+        - matching amount for swap orders with this `orderPrice(i)` :
+            - `matchingAmt` = `orderAmt` * `fractionalRatio(i)`
+
+- for swap orders from Y to X
+    - Iteration : iterate `orderPrice(i)` of swap orders from Y to X
+        - sort by order price (low to high), sum all order amount with this `orderPrice(i)`
+        - variables
+            - `EY(i)` : All executable orders which swap Y for X with order price equal or lower than this `orderPrice(i)`
+        - if `EY(i)` ≤ `EY(k)`
+            - `fractionalRatio` = 1
+        - if `EY(i)` > `EY(k)`
+            - `fractionalRatio(i)` = (`EY(k)` - `EY(i-1)`) / (`EY(i)` - `EY(i-1)`)
+            - break the iteration
+        - matching amount for swap orders with this `orderPrice(i)` :
+            - `matchingAmt` = `orderAmt` * `fractionalRatio(i)`
 
 **2) Swap Fee Payment**
 
 - Swap fees are calculated after above calculation process
 - Swap fees are proportional to the coins received from matched swap orders
-    - `SwapFee` = `ReceivedMatchedCoin` * `SwapFeeRate`
+    - `SwapFee` = `ReceivedMatchedCoin` * `SwapFeeRate`
 - Swap fees are sent to the liquidity pool
