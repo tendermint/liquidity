@@ -1,6 +1,5 @@
 package keeper
 
-import "C"
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -21,6 +20,9 @@ const (
 	FractionalMatch = 3
 
 	OrderLifeSpanHeight = 0
+
+	DirectionXtoY = 1
+	DirectionYtoX = 2
 )
 
 type OrderByPrice struct {
@@ -108,6 +110,7 @@ type MatchResult struct {
 	OrderAmt          sdk.Int
 	MatchedAmt        sdk.Int
 	RefundAmt         sdk.Int
+	ResidualAmt         sdk.Int
 	ReceiveAmt        sdk.Int
 	FeeAmt            sdk.Int
 }
@@ -144,14 +147,92 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (result Batch
 	return
 }
 
-func FindOrderMatch(XtoY, YtoX []*types.MsgSwap, EX, EY, swapPrice sdk.Dec) {
-	sort.SliceStable(XtoY, func(i, j int) bool {
-		return XtoY[i].OrderPrice.GT(XtoY[j].OrderPrice)
-	})
-	sort.SliceStable(YtoX, func(i, j int) bool {
-		return YtoX[i].OrderPrice.LT(YtoX[j].OrderPrice)
-	})
+func FindOrderMatch(direction int, swapList []*types.MsgSwap, executableAmt, swapPrice, swapFeeRate sdk.Dec, height int64) (matchResultList []MatchResult, poolXdelta, poolYdelta sdk.Int){
+	if direction == DirectionXtoY {
+		sort.SliceStable(swapList, func(i, j int) bool {
+			return swapList[i].OrderPrice.GT(swapList[j].OrderPrice)
+		})
+	} else if direction == DirectionYtoX {
+		sort.SliceStable(swapList, func(i, j int) bool {
+			return swapList[i].OrderPrice.LT(swapList[j].OrderPrice)
+		})
+	}
 
+	var matchAmt, accumMatchAmt sdk.Int
+	var matchOrderList []*types.MsgSwap
+
+	lenSwapList := len(swapList)
+	for i, order := range swapList {
+		var breakFlag, appendFlag bool
+
+		// include the order in matchAmt, matchOrderList
+		if (direction == DirectionXtoY && order.OrderPrice.GTE(swapPrice)) ||
+			(direction == DirectionYtoX && order.OrderPrice.LTE(swapPrice)){
+			matchAmt = matchAmt.Add(order.OfferCoin.Amount)
+			matchOrderList = append(matchOrderList, order)
+		}
+
+		// case check
+		if lenSwapList > i { // check next order exist
+			if swapList[i+1].OrderPrice == order.OrderPrice {  // check next orderPrice is same
+				breakFlag = false
+				appendFlag = false
+			} else {  // next orderPrice is new
+				appendFlag = true
+				if (direction == DirectionXtoY && swapList[i+1].OrderPrice.GTE(swapPrice)) ||
+					(direction == DirectionYtoX && swapList[i+1].OrderPrice.LTE(swapPrice)){  // check next price is matchable
+					breakFlag = false
+				} else {  // next orderPrice is unmatchable
+					breakFlag = true
+				}
+			}
+		} else {  // next order does not exist
+			breakFlag = true
+			appendFlag = true
+		}
+
+		var fractionalMatchRatio sdk.Dec
+		if appendFlag {
+			if matchAmt.IsPositive() {
+				if accumMatchAmt.Add(matchAmt).ToDec().GTE(executableAmt) {
+					fractionalMatchRatio = executableAmt.Sub(accumMatchAmt.ToDec()).Quo(matchAmt.ToDec())
+				} else {
+					fractionalMatchRatio = sdk.OneDec()
+				}
+				for _, order := range matchOrderList {
+					orderAmt := order.OfferCoin.Amount.ToDec()
+					matchResult := MatchResult{
+						OrderHeight:       height,
+						OrderCancelHeight: height+OrderLifeSpanHeight,
+						OrderPrice:        order.OrderPrice,
+						OrderAmt:          order.OfferCoin.Amount,
+						MatchedAmt:        orderAmt.Mul(fractionalMatchRatio).TruncateInt(),
+						RefundAmt:         orderAmt.Mul(sdk.OneDec().Sub(fractionalMatchRatio)).TruncateInt(),
+						ReceiveAmt:        orderAmt.Mul(fractionalMatchRatio).Quo(swapPrice).TruncateInt(),
+						FeeAmt:            orderAmt.Mul(fractionalMatchRatio).Quo(swapPrice).Mul(swapFeeRate).TruncateInt(),
+					}
+					matchResult.ResidualAmt = matchResult.OrderAmt.Sub(matchResult.MatchedAmt).Sub(matchResult.RefundAmt)
+					matchResultList = append(matchResultList, matchResult)
+					if direction == DirectionXtoY {
+						poolXdelta = poolXdelta.Add(matchResult.MatchedAmt)
+						poolYdelta = poolYdelta.Sub(matchResult.ReceiveAmt)
+					} else if direction == DirectionYtoX {
+						poolXdelta = poolXdelta.Sub(matchResult.ReceiveAmt)
+						poolYdelta = poolYdelta.Add(matchResult.MatchedAmt)
+					}
+				}
+			}
+			// update accumMatchAmt and initiate matchAmt and matchOrderList
+			accumMatchAmt = accumMatchAmt.Add(matchAmt)
+			matchAmt = sdk.ZeroInt()
+			matchOrderList = matchOrderList[:0]
+		}
+
+		if breakFlag {
+			break
+		}
+	}
+	return
 }
 
 func CalculateSwap(direction int, X, Y, orderPrice, lastOrderPrice sdk.Dec, orderBook OrderBook) (r BatchResult) {
@@ -302,7 +383,15 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	orderBook := orderMap.SortOrderBook()
 
 	result := CompareTransactAmtX(X, Y, currentYPriceOverX, orderBook)
-	fmt.Println(result)
+	params := k.GetParams(ctx)
+	matchResultXtoY, poolXDeltaXtoY, poolYDeltaXtoY := FindOrderMatch(DirectionXtoY, XtoY, result.EX, result.SwapPrice, params.SwapFeeRate, ctx.BlockHeight())
+	matchResultYtoX, poolXDeltaYtoX, poolYDeltaYtoX := FindOrderMatch(DirectionYtoX, YtoX, result.EY, result.SwapPrice, params.SwapFeeRate, ctx.BlockHeight())
+	poolXdelta := poolXDeltaXtoY.Add(poolXDeltaYtoX)
+	poolYdelta := poolYDeltaXtoY.Add(poolYDeltaYtoX)
+	fmt.Println(result, matchResultXtoY, matchResultYtoX, poolXdelta, poolYdelta)
+
+
+	// TODO: updateState with escrow, emit event
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

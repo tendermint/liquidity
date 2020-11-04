@@ -8,18 +8,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type LiquidityPoolLegacy struct {
-	PoolID            uint64         // index of this liquidity pool
-	PoolTypeIndex     uint32         // pool type of this liquidity pool
-	ReserveCoinDenoms []string       // list of reserve coin denoms for this liquidity pool
-	ReserveAccount    sdk.AccAddress // module account address for this liquidity pool to store reserve coins
-	PoolCoinDenom     string         // denom of pool coin for this liquidity pool
-	SwapFeeRate       sdk.Dec        // swap fee rate for every executed swap on this liquidity pool
-	PoolFeeRate       sdk.Dec        // liquidity pool fee rate for swaps consumed liquidity from this liquidity pool
-	BatchSize         uint32         // size of each batch as a number of block heights  // TODO: set default Param
-	//LastBatchIndex     uint64         // index of the last batch of this liquidity pool  // TODO: separate
-}
-
 // need to validate alphabetical ordering of ReserveCoinDenoms when New() and Store
 // Denominations can be 3 ~ 128 characters long and support letters, followed by either
 // a letter, a number or a separator ('/').
