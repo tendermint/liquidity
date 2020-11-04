@@ -16,7 +16,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 
 	// Init empty batch
 	k.IterateAllLiquidityPools(ctx, func(liquidityPool types.LiquidityPool) bool {
-		batch := types.NewLiquidityPoolBatch(liquidityPool.PoolID, k.GetNextBatchIndex(ctx, liquidityPool.PoolID))
+		batch := types.NewLiquidityPoolBatch(liquidityPool.PoolID, k.GetNextBatchIndexWithUpdate(ctx, liquidityPool.PoolID))
 		k.SetLiquidityPoolBatch(ctx, batch)
 		return false
 	})

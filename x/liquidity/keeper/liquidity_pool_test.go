@@ -56,7 +56,7 @@ func TestCreateLiquidityPool(t *testing.T) {
 	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
 	require.Equal(t, 1, len(lpList))
 	require.Equal(t, uint64(0), lpList[0].PoolID)
-	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextLiquidityPoolID(ctx))
+	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextLiquidityPoolIDWithUpdate(ctx))
 	require.Equal(t, denomA, lpList[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomB, lpList[0].ReserveCoinDenoms[1])
 

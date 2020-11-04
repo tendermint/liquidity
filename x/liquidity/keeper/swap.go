@@ -116,6 +116,7 @@ type MatchResult struct {
 }
 
 func CompareTransactAmtX(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
+	// TODO: err on empty orderbook
 	orderBook.Sort() // TODO: verify
 	priceDirection := GetPriceDirection(currentPrice, orderBook)
 
