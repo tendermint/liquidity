@@ -12,11 +12,16 @@ import (
 )
 
 func getRandPoolAmt(r *rand.Rand) (X, Y sdk.Int){
-	X = sdk.NewInt(int64(r.Float32()*100000000))
-	Y = sdk.NewInt(int64(r.Float32()*100000000))
+	X = sdk.NewInt(int64(r.Float32()*100000000000))
+	Y = sdk.NewInt(int64(r.Float32()*100000000000))
 	return
 }
 
+func TestSimulationSwapExecution(t *testing.T){
+	for i:=0; i<100; i++ {
+		TestSwapExecution(t)
+	}
+}
 
 func TestSwapExecution(t *testing.T) {
 	s := rand.NewSource(time.Now().UnixNano())
@@ -29,14 +34,15 @@ func TestSwapExecution(t *testing.T) {
 	poolTypeIndex := uint32(0)
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 3, sdk.NewInt(10000))
 
-	denomX := "uXXX"
-	denomY := "uYYY"
+	denomX := "denomX"
+	denomY := "denomY"
 	denomX, denomY = types.AlphabeticalDenomPair(denomX, denomY)
 
 	denoms := []string{denomX, denomY}
 
 	X, Y := getRandPoolAmt(r)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
+	fmt.Println(deposit)
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
@@ -63,10 +69,32 @@ func TestSwapExecution(t *testing.T) {
 
 	var XtoY []*types.MsgSwap // buying Y from X
 	var YtoX []*types.MsgSwap // selling Y for X
-	// TODO: make random orders, set to batch
-	// GetRandomOrders()
 
-	// TODO: init SwapRequesterAcc list, set balance
+
+	// make random orders, set buyer, seller accounts for the orders
+	XtoY, YtoX = GetRandomOrders(denomX, denomY, X, Y, r)
+	buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
+	sellerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(YtoX), sdk.NewInt(0))
+
+	for i, msg := range XtoY {
+		app.SaveAccount(simapp, ctx, buyerAccs[i], sdk.NewCoins(msg.OfferCoin))
+		msg.SwapRequester = buyerAccs[i]
+		msg.PoolID = poolID
+		msg.PoolTypeIndex = poolTypeIndex
+		//msg.SwapType
+	}
+	for i, msg := range YtoX {
+		app.SaveAccount(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin))
+		msg.SwapRequester = sellerAccs[i]
+		msg.PoolID = poolID
+		msg.PoolTypeIndex = poolTypeIndex
+		//msg.SwapType
+	}
+
+	// begin block
+	simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
+
+	// handle msgs, set order msgs to batch
 	for _, msg := range XtoY {
 		simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg)
 	}
@@ -74,17 +102,14 @@ func TestSwapExecution(t *testing.T) {
 		simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg)
 	}
 
-	simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
 	batchIndex := simapp.LiquidityKeeper.GetLiquidityPoolBatchIndex(ctx, poolID)
 	liquidityPoolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolID, batchIndex)
 	require.True(t, found)
 	require.NotNil(t, liquidityPoolBatch)
 
-	// TODO: SwapExecution()
-	//err = simapp.LiquidityKeeper.SwapExecution(ctx, liquidityPoolBatch)
-	//require.NoError(t, err)
-
-	// TODO: invariant check
+	// end block
+	err = simapp.LiquidityKeeper.SwapExecution(ctx, liquidityPoolBatch)
+	require.NoError(t, err)
 }
 
 func randFloats(min, max float64) float64 {
@@ -95,10 +120,12 @@ func randRange(r *rand.Rand, min, max int) sdk.Int {
 	return sdk.NewInt(int64(r.Intn(max-min) + min))
 }
 
-func GetRandomOrders(X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []*types.MsgSwap){
+func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []*types.MsgSwap){
 	currentPrice := X.ToDec().Quo(Y.ToDec())
-	XtoYnewSize := int(r.Float32()*200)
-	YtoXnewSize := int(r.Float32()*200)
+
+	XtoYnewSize := int(r.Int31n(20))  // 0~19
+	YtoXnewSize := int(r.Int31n(20))  // 0~19
+	fmt.Println(XtoYnewSize, YtoXnewSize)
 
 	for i := 0; i < XtoYnewSize; i++ {
 		fmt.Println(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009),3), sdk.NewDecFromIntWithPrec(randRange(r, 1, 100),4))
@@ -108,13 +135,25 @@ func GetRandomOrders(X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []*types.MsgSwap){
 		randFloats(0.1, 0.9, )
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009),3))
 		orderAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100),4))
-		fmt.Println(orderPrice, orderAmt)
+		orderCoin := sdk.NewCoin(denomX, orderAmt.RoundInt())
+		fmt.Println(orderPrice, orderAmt, orderCoin)
+
+		XtoY = append(XtoY, &types.MsgSwap{
+			OfferCoin:     orderCoin,
+			OrderPrice:    orderPrice,
+		})
 	}
 
 	for i := 0; i < YtoXnewSize; i++ {
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009),3))
 		orderAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100),4))
-		fmt.Println(orderPrice, orderAmt)
+		orderCoin := sdk.NewCoin(denomY, orderAmt.RoundInt())
+		fmt.Println(orderPrice, orderAmt, orderCoin)
+
+		YtoX = append(YtoX, &types.MsgSwap{
+			OfferCoin:     orderCoin,
+			OrderPrice:    orderPrice,
+		})
 	}
 	return
 }
@@ -123,5 +162,6 @@ func TestGetRandomOrders(t *testing.T) {
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
 	X, Y := getRandPoolAmt(r)
-	GetRandomOrders(X, Y, r)
+	XtoY, YtoX := GetRandomOrders("denomX", "denomY", X, Y, r)
+	fmt.Println(XtoY, YtoX)
 }

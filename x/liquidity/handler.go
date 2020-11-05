@@ -88,7 +88,12 @@ func handleMsgWithdrawFromLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *t
 }
 
 func handleMsgSwap(ctx sdk.Context, k keeper.Keeper, msg *types.MsgSwap) (*sdk.Result, error) {
-	k.SwapLiquidityPoolToBatch(ctx, msg)
+	err := k.SwapLiquidityPoolToBatch(ctx, msg)
+	if err != nil {
+		return &sdk.Result{
+			Events: ctx.EventManager().ABCIEvents(),
+		}, err
+	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			//types.EventTypeSwapToBatch,
