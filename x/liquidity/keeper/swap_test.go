@@ -12,13 +12,14 @@ import (
 )
 
 func getRandPoolAmt(r *rand.Rand) (X, Y sdk.Int){
-	X = sdk.NewInt(int64(r.Float32()*100000000000))
-	Y = sdk.NewInt(int64(r.Float32()*100000000000))
+	// TODO: need to set range for avoid min deposit amt errors
+	X = sdk.NewInt(int64(r.Float32()*100000000))
+	Y = sdk.NewInt(int64(r.Float32()*100000000))
 	return
 }
 
 func TestSimulationSwapExecution(t *testing.T){
-	for i:=0; i<100; i++ {
+	for i:=0; i<10000; i++ {
 		TestSwapExecution(t)
 	}
 }
@@ -42,7 +43,9 @@ func TestSwapExecution(t *testing.T) {
 
 	X, Y := getRandPoolAmt(r)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
-	fmt.Println(deposit)
+	fmt.Println("-------------------------------------------------------")
+	fmt.Println("X/Y", X.ToDec().Quo(Y.ToDec()), "X", X, "Y", Y)
+	//fmt.Println(deposit)
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
@@ -123,20 +126,18 @@ func randRange(r *rand.Rand, min, max int) sdk.Int {
 func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []*types.MsgSwap){
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 
+	//XtoYnewSize := int(r.Float32()*200)
+	//YtoXnewSize := int(r.Float32()*200)
+	//XtoYnewSize := int(r.Int31n(2))  // 0, 1
+	//YtoXnewSize := int(r.Int31n(2))  // 0, 1
 	XtoYnewSize := int(r.Int31n(20))  // 0~19
 	YtoXnewSize := int(r.Int31n(20))  // 0~19
-	fmt.Println(XtoYnewSize, YtoXnewSize)
-
-	for i := 0; i < XtoYnewSize; i++ {
-		fmt.Println(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009),3), sdk.NewDecFromIntWithPrec(randRange(r, 1, 100),4))
-	}
 
 	for i := 0; i < XtoYnewSize; i++ {
 		randFloats(0.1, 0.9, )
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009),3))
 		orderAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100),4))
 		orderCoin := sdk.NewCoin(denomX, orderAmt.RoundInt())
-		fmt.Println(orderPrice, orderAmt, orderCoin)
 
 		XtoY = append(XtoY, &types.MsgSwap{
 			OfferCoin:     orderCoin,
@@ -148,7 +149,6 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, Y
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009),3))
 		orderAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100),4))
 		orderCoin := sdk.NewCoin(denomY, orderAmt.RoundInt())
-		fmt.Println(orderPrice, orderAmt, orderCoin)
 
 		YtoX = append(YtoX, &types.MsgSwap{
 			OfferCoin:     orderCoin,
@@ -164,4 +164,7 @@ func TestGetRandomOrders(t *testing.T) {
 	X, Y := getRandPoolAmt(r)
 	XtoY, YtoX := GetRandomOrders("denomX", "denomY", X, Y, r)
 	fmt.Println(XtoY, YtoX)
+	require.Equal(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2))
+	require.Equal(t, X.ToDec().MulInt64(2), X.MulRaw(2).ToDec())
+	require.NotEqual(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2).ToDec())
 }

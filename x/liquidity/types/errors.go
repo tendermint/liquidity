@@ -18,4 +18,5 @@ var (
 	ErrNotImplementedYet      = sdkerrors.Register(ModuleName, 10, "not implemented yet")
 	ErrPoolAlreadyExists      = sdkerrors.Register(ModuleName, 11, "the pool already exists")
 	ErrPoolBatchNotExists     = sdkerrors.Register(ModuleName, 12, "pool batch not exists")
+	ErrOrderBookInvalidity    = sdkerrors.Register(ModuleName, 13, "orderbook is not validity")
 )
