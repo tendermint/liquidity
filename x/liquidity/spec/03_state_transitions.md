@@ -75,7 +75,7 @@ simulation script (in python) : [https://github.com/b-harvest/Liquidity-Module-F
         - If one of above conditions doesn’t hold, go to FractionalMatch
     - FractionalMatch :
         - `swapPrice(i)` = `orderPrice(i)`
-        - `PoolY(i)` = `Y` - `X`/`swapPrice(i)`
+        - `PoolY(i)` = (`swapPrice(i)`*`Y` - `X`) / (2*`swapPrice(i)`)
         - Amount of X coins matched :
             - `EX(i)` ← min[ `EX(i)`, (`EY(i)`+`PoolY(i)`)*`swapPrice(i)` ]
 
@@ -94,7 +94,7 @@ simulation script (in python) : [https://github.com/b-harvest/Liquidity-Module-F
     - ExactMatch
         - `swapPrice(i)` = (`X` + 2*`EX(i)`)/(`Y` + 2*`EY(i-1)`)
             - condition1) `orderPrice(i)` < `swapPrice(i)` < `orderPrice(i-1)`
-        - `PoolX(i)` = `X` - `Y` * `swapPrice(i)`
+        - `PoolX(i)` = (`X` - `swapPrice(i)`*`Y`)/2
             - condition2) `PoolX(i)` >= 0
         - If both above conditions are met, `swapPrice` is the swap price for this iteration
             - Amount of Y coins matched = `EY(i)`
