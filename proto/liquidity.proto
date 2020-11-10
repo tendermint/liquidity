@@ -102,5 +102,7 @@ message BatchPoolWithdrawMsg {
 message BatchPoolSwapMsg {
 //    string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
-    MsgSwap Msg = 2 [(gogoproto.moretags) = "yaml:\"msg\""];
+    uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
+    uint64 FractionalCount = 3 [(gogoproto.moretags) = "yaml:\"fractional_count\""];
+    MsgSwap Msg = 4 [(gogoproto.moretags) = "yaml:\"msg\""];
 }

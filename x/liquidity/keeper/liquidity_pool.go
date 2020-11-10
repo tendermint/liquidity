@@ -55,7 +55,7 @@ func (k Keeper) GetAllLiquidityPools(ctx sdk.Context) (liquidityPools []types.Li
 
 // GetNextLiquidityID returns and increments the global Liquidity Pool ID counter.
 // If the global account number is not set, it initializes it with value 0.
-func (k Keeper) GetNextLiquidityPoolID(ctx sdk.Context) uint64 {
+func (k Keeper) GetNextLiquidityPoolIDWithUpdate(ctx sdk.Context) uint64 {
 	var poolID uint64
 	store := ctx.KVStore(k.storeKey)
 
@@ -101,15 +101,15 @@ func (k Keeper) SetLiquidityPoolByReserveAccIndex(ctx sdk.Context, liquidityPool
 }
 
 func (k Keeper) SetLiquidityPoolAtomic(ctx sdk.Context, liquidityPool types.LiquidityPool) {
-	liquidityPool.PoolID = k.GetNextLiquidityPoolID(ctx)
+	liquidityPool.PoolID = k.GetNextLiquidityPoolIDWithUpdate(ctx)
 	k.SetLiquidityPool(ctx, liquidityPool)
 	k.SetLiquidityPoolByReserveAccIndex(ctx, liquidityPool)
 }
 
-// return a specific GetLiquidityPoolBatchIndex
+// return a specific GetLiquidityPoolBatchIndexKey
 func (k Keeper) GetLiquidityPoolBatchIndex(ctx sdk.Context, poolID uint64) (liquidityPoolBatchIndex uint64) {
 	store := ctx.KVStore(k.storeKey)
-	key := types.GetLiquidityPoolBatchIndex(poolID)
+	key := types.GetLiquidityPoolBatchIndexKey(poolID)
 
 	bz := store.Get(key)
 	if bz == nil {
@@ -122,13 +122,13 @@ func (k Keeper) GetLiquidityPoolBatchIndex(ctx sdk.Context, poolID uint64) (liqu
 func (k Keeper) SetLiquidityPoolBatchIndex(ctx sdk.Context, poolID, batchIndex uint64) {
 	store := ctx.KVStore(k.storeKey)
 	b := sdk.Uint64ToBigEndian(batchIndex)
-	store.Set(types.GetLiquidityPoolBatchIndex(poolID), b)
+	store.Set(types.GetLiquidityPoolBatchIndexKey(poolID), b)
 }
 
 // return a specific liquidityPoolBatch
-func (k Keeper) GetLiquidityPoolBatch(ctx sdk.Context, poolID uint64) (liquidityPoolBatch types.LiquidityPoolBatch, found bool) {
+func (k Keeper) GetLiquidityPoolBatch(ctx sdk.Context, poolID, batchIndex uint64) (liquidityPoolBatch types.LiquidityPoolBatch, found bool) {
 	store := ctx.KVStore(k.storeKey)
-	key := types.GetLiquidityPoolKey(poolID)
+	key := types.GetLiquidityPoolBatchKey(poolID, batchIndex)
 
 	value := store.Get(key)
 	if value == nil {
@@ -140,8 +140,13 @@ func (k Keeper) GetLiquidityPoolBatch(ctx sdk.Context, poolID uint64) (liquidity
 	return liquidityPoolBatch, true
 }
 
-func (k Keeper) GetNextBatchIndex(ctx sdk.Context, poolID uint64) (batchIndex uint64) {
-	return k.GetLiquidityPoolBatchIndex(ctx, poolID) + 1
+func (k Keeper) GetNextBatchIndexWithUpdate(ctx sdk.Context, poolID uint64) (batchIndex uint64) {
+	batchIndex = k.GetLiquidityPoolBatchIndex(ctx, poolID)
+	if batchIndex > 0 {
+		batchIndex += 1
+	}
+	k.SetLiquidityPoolBatchIndex(ctx, poolID, batchIndex)
+	return
 }
 
 func (k Keeper) GetAllLiquidityPoolBatches(ctx sdk.Context) (liquidityPoolBatches []types.LiquidityPoolBatch) {
@@ -402,7 +407,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg *types.MsgDepositToLiq
 	//lastReserveRatio := coinA.Amount.Quo(coinB.Amount)
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	//lastReserveRatio := reserveCoins[0].Amount.Quo(reserveCoins[1].Amount)
-	// TODO: handle dec to Int error
+	// TODO: handle dec to Int error, roundInt, TruncateInt to using ToDec,  MulInt
 	depositableCoinA := coinA.Amount.Mul(lastReserveRatio.Ceil().RoundInt())
 	//depositableCoinB := coinB.Amount.Mul(lastReserveRatio.Ceil().RoundInt())
 	var inputs []banktypes.Input
@@ -424,7 +429,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg *types.MsgDepositToLiq
 			outputs = append(outputs, banktypes.NewOutput(msg.Depositor, sdk.NewCoins(sdk.NewCoin(coinB.Denom, refundAmtB))))
 		}
 	} else if coinB.Amount.LT(depositableCoinA) {
-		// TODO: handle dec to Int error
+		// TODO: handle dec to Int error, roundInt, TruncateInt to using ToDec,  MulInt
 		depositableCoinA = coinB.Amount.Quo(lastReserveRatio.RoundInt())
 		refundAmtA := coinA.Amount.Sub(depositableCoinA)
 		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(sdk.NewCoin(coinA.Denom, depositableCoinA))))
@@ -509,7 +514,8 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg *types.MsgWithdrawFro
 }
 
 func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepositToLiquidityPool) error {
-	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID)
+	batchIndex := k.GetLiquidityPoolBatchIndex(ctx, msg.PoolID)
+	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID, batchIndex)
 	if !found {
 		return types.ErrPoolBatchNotExists
 	}
@@ -531,7 +537,8 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 }
 
 func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWithdrawFromLiquidityPool) error {
-	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID)
+	batchIndex := k.GetLiquidityPoolBatchIndex(ctx, msg.PoolID)
+	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID, batchIndex)
 	if !found {
 		return types.ErrPoolBatchNotExists
 	}
@@ -550,9 +557,10 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 	k.SetLiquidityPoolBatchWithdrawMsg(ctx, poolBatch, poolBatch.WithdrawMsgIndex, batchPoolMsg)
 	return nil
 }
-
+// TODO: need to fix, not added msgs
 func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) error {
-	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID)
+	batchIndex := k.GetLiquidityPoolBatchIndex(ctx, msg.PoolID)
+	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID, batchIndex)
 	if !found {
 		return types.ErrPoolBatchNotExists
 	}
@@ -561,12 +569,14 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) er
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
 
+	poolBatch.WithdrawMsgIndex += 1
 	batchPoolMsg := types.BatchPoolSwapMsg{
 		MsgHeight: ctx.BlockHeight(),
+		MsgIndex: poolBatch.WithdrawMsgIndex,
+		FractionalCount: 0,
 		Msg:       msg,
 	}
 	// TODO: escrow
-	poolBatch.WithdrawMsgIndex += 1
 	k.SetLiquidityPoolBatch(ctx, poolBatch)
 	k.SetLiquidityPoolBatchSwapMsg(ctx, poolBatch, poolBatch.WithdrawMsgIndex, batchPoolMsg)
 	return nil

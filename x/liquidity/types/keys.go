@@ -48,7 +48,7 @@ func GetLiquidityPoolByReserveAccIndexKey(reserveAcc sdk.AccAddress) []byte {
 // TODO: check msgList struck is right? need to like UnbondingDelegations, need to sorted MessageList?
 //store.Delete(unbondingTimesliceIterator.Key())
 
-func GetLiquidityPoolBatchIndex(poolID uint64) []byte {
+func GetLiquidityPoolBatchIndexKey(poolID uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchIndexKeyPrefix[0]
 	copy(key[1:], sdk.Uint64ToBigEndian(poolID))
