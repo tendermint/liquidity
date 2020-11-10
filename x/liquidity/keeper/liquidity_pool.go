@@ -361,6 +361,7 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+// Get reserve Coin from the liquidity pool
 func (k Keeper) GetReserveCoins(ctx sdk.Context, lp types.LiquidityPool) (reserveCoins sdk.Coins) {
 	for _, denom := range lp.ReserveCoinDenoms {
 		reserveCoins = reserveCoins.Add(k.bankKeeper.GetBalance(ctx, lp.ReserveAccount, denom))
@@ -557,7 +558,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 	k.SetLiquidityPoolBatchWithdrawMsg(ctx, poolBatch, poolBatch.WithdrawMsgIndex, batchPoolMsg)
 	return nil
 }
-// TODO: need to fix, not added msgs
+
 func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) error {
 	batchIndex := k.GetLiquidityPoolBatchIndex(ctx, msg.PoolID)
 	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolID, batchIndex)

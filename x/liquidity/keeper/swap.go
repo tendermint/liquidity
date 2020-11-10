@@ -7,14 +7,17 @@ import (
 )
 
 func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) error {
+	params := k.GetParams(ctx)
 	pool, found := k.GetLiquidityPool(ctx, liquidityPoolBatch.PoolID)
 	if !found {
 		return types.ErrPoolNotExists
 	}
-	//totalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
+
+	// get reserve Coin from the liquidity pool
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 	reserveCoins.Sort()
 
+	// get current pool pair and price
 	X := reserveCoins[0].Amount.ToDec()
 	Y := reserveCoins[1].Amount.ToDec()
 	currentYPriceOverX := X.Quo(Y)
@@ -22,20 +25,20 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	denomX := reserveCoins[0].Denom
 	denomY := reserveCoins[1].Denom
 
+	// get All swap msgs from pool batch, and make orderMap
 	swapMsgs := k.GetAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
 	orderMap, XtoY, YtoX := types.GetOrderMap(swapMsgs, denomX, denomY)
 
-	// make orderbook to sort orderMap
+	// make orderbook by sort orderMap
 	orderBook := orderMap.SortOrderBook()
 
+	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
 	fmt.Println("orderbook before batch")
 	orderBookValidity := types.CheckValidityOrderBook(orderBook, currentYPriceOverX)
-
 	result := types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
-
 	fmt.Println("priceDirection: ", result)
 
-	params := k.GetParams(ctx)
+	// find order match, calculate pool delta with the total x, y amount for the invariant check
 	fmt.Println("before XtoY, YtoX", len(XtoY), len(YtoX))
 	matchResultXtoY, XtoY, poolXDeltaXtoY, poolYDeltaXtoY := types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX, result.SwapPrice, params.SwapFeeRate, ctx.BlockHeight())
 	matchResultYtoX, YtoX, poolXDeltaYtoX, poolYDeltaYtoX := types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY, result.SwapPrice, params.SwapFeeRate, ctx.BlockHeight())
@@ -52,7 +55,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		totalAmtX = totalAmtX.Sub(mr.MatchedAmt)
 		totalAmtY = totalAmtY.Add(mr.ReceiveAmt)
 	}
-	fmt.Println("totalAmtX, totalAmtY", totalAmtX, totalAmtY)
 
 	invariantCheckX := totalAmtX
 	invariantCheckY := totalAmtY
@@ -64,7 +66,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		totalAmtY = totalAmtY.Sub(mr.MatchedAmt)
 		totalAmtX = totalAmtX.Add(mr.ReceiveAmt)
 	}
-	fmt.Println("X, Y, poolXdelta, poolYdelta", totalAmtX, totalAmtY, poolXdelta, poolYdelta, invariantCheckX, invariantCheckY)
 
 	invariantCheckX = invariantCheckX.Add(totalAmtX)
 	invariantCheckY = invariantCheckY.Add(totalAmtY)
@@ -72,11 +73,26 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	invariantCheckX = invariantCheckX.Add(poolXdelta)
 	invariantCheckY = invariantCheckY.Add(poolYdelta)
 
+	// print the invariant check and validity with swap, match result
 	if invariantCheckX.IsZero() && invariantCheckY.IsZero() {
 		fmt.Println("swap execution invariant check: True")
 	} else {
 		fmt.Println("swap execution invariant check: False", invariantCheckX, invariantCheckY)
 	}
+
+	if result.MatchType == 1 {
+		fmt.Println("matchType: ", "ExactMatch")
+	} else if result.MatchType == 2 {
+		fmt.Println("matchType: ", "No Match")
+	} else if result.MatchType == 3 {
+		fmt.Println("matchType: ", "FractionalMatch")
+	}
+
+	fmt.Println("swapPrice: ", result.SwapPrice)
+	fmt.Println("matchResultXtoY: ", matchResultXtoY)
+	fmt.Println("matchResultYtoX: ", matchResultYtoX)
+	fmt.Println("matched totalAmtX, totalAmtY", totalAmtX, totalAmtY)
+	fmt.Println("poolXdelta, poolYdelta", poolXdelta, poolYdelta)
 
 	// TODO: updateState, cancelEndOfLifeSpanOrders
 	XtoY, YtoX = types.ClearOrders(XtoY, YtoX)

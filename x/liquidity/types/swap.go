@@ -75,6 +75,7 @@ func MaxDec(a, b sdk.Dec) sdk.Dec {
 
 type OrderMap map[sdk.Dec]OrderByPrice
 
+// make orderbook by sort orderMap, increased
 func (orderMap OrderMap) SortOrderBook() (orderBook OrderBook) {
 	orderPriceList := make([]sdk.Dec, 0, len(orderMap))
 	for k := range orderMap {
@@ -152,6 +153,7 @@ func ComputePriceDirection(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (res
 	}
 }
 
+// check orderbook validity
 func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 	orderBook.Reverse()
 	maxBuyOrderPrice := sdk.ZeroDec()
@@ -165,9 +167,7 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 		}
 		fmt.Println(order)
 	}
-	//if minSellOrderPrice.Equal(sdk.NewDec(1000000000000)){
-	//	minSellOrderPrice = sdk.ZeroDec()
-	//}
+
 	// TODO: fix naive error rate
 	oneOverWithErr, _ := sdk.NewDecFromStr("1.001")
 	oneUnderWithErr, _ := sdk.NewDecFromStr("0.999")
@@ -175,7 +175,6 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 	fmt.Println(maxBuyOrderPrice, minSellOrderPrice, currentPrice)
 	fmt.Println(maxBuyOrderPrice.Quo(currentPrice), minSellOrderPrice.Quo(currentPrice))
 	if maxBuyOrderPrice.GT(minSellOrderPrice) || maxBuyOrderPrice.Quo(currentPrice).GT(oneOverWithErr) || minSellOrderPrice.Quo(currentPrice).LT(oneUnderWithErr) {
-		//fmt.Println(maxBuyOrderPrice.TruncateInt().Quo(currentPrice.TruncateInt()), minSellOrderPrice.TruncateInt().Quo(currentPrice.TruncateInt()))
 		return false
 	} else {
 		return true
@@ -227,9 +226,8 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResul
 }
 
 // TODO: need to debugging
+//
 func FindOrderMatch(direction int, swapList []BatchPoolSwapMsg, executableAmt, swapPrice, swapFeeRate sdk.Dec, height int64) (matchResultList []MatchResult, swapListExecuted []BatchPoolSwapMsg, poolXdelta, poolYdelta sdk.Int) {
-	swapFeeRate = sdk.ZeroDec() // TODO: temporary zero for simulation
-	fmt.Println("FindOrderMatch", direction, executableAmt, swapPrice, swapFeeRate, height, swapList)
 
 	poolXdelta = sdk.ZeroInt()
 	poolYdelta = sdk.ZeroInt()
@@ -359,6 +357,7 @@ func FindOrderMatch(direction int, swapList []BatchPoolSwapMsg, executableAmt, s
 }
 
 // TODO: find and fix decimal errors
+// Calculates the batch results with the processing logic for each direction
 func CalculateSwap(direction int, X, Y, orderPrice, lastOrderPrice sdk.Dec, orderBook OrderBook) (r BatchResult) {
 	r = NewBatchResult()
 	r.OriginalEX, r.OriginalEY = GetExecutableAmt(lastOrderPrice.Add(orderPrice).Quo(sdk.NewDec(2)), orderBook)
@@ -429,6 +428,7 @@ func CalculateSwap(direction int, X, Y, orderPrice, lastOrderPrice sdk.Dec, orde
 	return
 }
 
+// Calculates the batch results with the logic for each direction
 func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
 	result = NewBatchResult()
 	lastOrderPrice := currentPrice
@@ -457,6 +457,7 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 	return maxScenario
 }
 
+// make orderMap key as swap price, value as Buy, Sell Amount from swap msgs,  with split as Buy XtoY, Sell YtoX msg list
 func GetOrderMap(swapMsgs []BatchPoolSwapMsg, denomX, denomY string) (OrderMap, []BatchPoolSwapMsg, []BatchPoolSwapMsg) {
 	orderMap := make(OrderMap)
 	var XtoY []BatchPoolSwapMsg // buying Y from X
@@ -489,6 +490,7 @@ func GetOrderMap(swapMsgs []BatchPoolSwapMsg, denomX, denomY string) (OrderMap, 
 	return orderMap, XtoY, YtoX
 }
 
+// Get Price direction of the orderbook with current Price
 func GetPriceDirection(currentPrice sdk.Dec, orderBook OrderBook) int {
 	buyAmtOverCurrentPrice := sdk.ZeroDec()
 	buyAmtAtCurrentPrice := sdk.ZeroDec()
@@ -515,6 +517,7 @@ func GetPriceDirection(currentPrice sdk.Dec, orderBook OrderBook) int {
 	}
 }
 
+// calculate the executable amount of the orderbook for each X, Y
 func GetExecutableAmt(swapPrice sdk.Dec, orderBook OrderBook) (executableBuyAmtX, executableSellAmtY sdk.Int) {
 	executableBuyAmtX = sdk.ZeroInt()
 	executableSellAmtY = sdk.ZeroInt()
