@@ -13,13 +13,13 @@ import (
 
 func getRandPoolAmt(r *rand.Rand) (X, Y sdk.Int){
 	// TODO: need to set range for avoid min deposit amt errors
-	X = sdk.NewInt(int64(r.Float32()*100000000))
-	Y = sdk.NewInt(int64(r.Float32()*100000000))
+	X = sdk.NewInt(int64(r.Float32()*100000000000))
+	Y = sdk.NewInt(int64(r.Float32()*100000000000))
 	return
 }
 
 func TestSimulationSwapExecution(t *testing.T){
-	for i:=0; i<10000; i++ {
+	for i:=0; i<1000; i++ {
 		TestSwapExecution(t)
 	}
 }
@@ -46,7 +46,7 @@ func TestSwapExecution(t *testing.T) {
 	fmt.Println("-------------------------------------------------------")
 	fmt.Println("X/Y", X.ToDec().Quo(Y.ToDec()), "X", X, "Y", Y)
 	//fmt.Println(deposit)
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	app.SaveAccount(simapp, ctx, addrs[0], deposit)  // pool creator
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
@@ -73,7 +73,6 @@ func TestSwapExecution(t *testing.T) {
 	var XtoY []*types.MsgSwap // buying Y from X
 	var YtoX []*types.MsgSwap // selling Y for X
 
-
 	// make random orders, set buyer, seller accounts for the orders
 	XtoY, YtoX = GetRandomOrders(denomX, denomY, X, Y, r)
 	buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
@@ -84,14 +83,12 @@ func TestSwapExecution(t *testing.T) {
 		msg.SwapRequester = buyerAccs[i]
 		msg.PoolID = poolID
 		msg.PoolTypeIndex = poolTypeIndex
-		//msg.SwapType
 	}
 	for i, msg := range YtoX {
 		app.SaveAccount(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin))
 		msg.SwapRequester = sellerAccs[i]
 		msg.PoolID = poolID
 		msg.PoolTypeIndex = poolTypeIndex
-		//msg.SwapType
 	}
 
 	// begin block
