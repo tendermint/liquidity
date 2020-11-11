@@ -34,7 +34,7 @@ For deposit, after successful deposit, escrowed coins are sent to the `ReserveAc
 
 For withdrawal, after successful withdraw, escrowed pool coins are burnt, and corresponding amount of reserve coins are sent to the withdrawer from the `LiquidityPool`.
 
-### **Pseudo Algorithm for LiquidityPoolBatch Execution**
+### Pseudo Algorithm for LiquidityPoolBatch Execution
 
 simulation script (in python) : [https://github.com/b-harvest/Liquidity-Module-For-the-Hub/blob/master/pseudo-batch-execution-logic/batch.py](https://github.com/b-harvest/Liquidity-Module-For-the-Hub/blob/master/pseudo-batch-execution-logic/batch.py)
 
