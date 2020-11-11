@@ -11,15 +11,15 @@ import (
 	"time"
 )
 
-func getRandPoolAmt(r *rand.Rand) (X, Y sdk.Int){
+func getRandPoolAmt(r *rand.Rand) (X, Y sdk.Int) {
 	// TODO: need to set range for avoid min deposit amt errors
-	X = sdk.NewInt(int64(r.Float32()*100000000000))
-	Y = sdk.NewInt(int64(r.Float32()*100000000000))
+	X = sdk.NewInt(int64(r.Float32() * 100000000000))
+	Y = sdk.NewInt(int64(r.Float32() * 100000000000))
 	return
 }
 
-func TestSimulationSwapExecution(t *testing.T){
-	for i:=0; i<100; i++ {
+func TestSimulationSwapExecution(t *testing.T) {
+	for i := 0; i < 100; i++ {
 		TestSwapExecution(t)
 	}
 }
@@ -45,7 +45,7 @@ func TestSwapExecution(t *testing.T) {
 
 	// set pool creator account, balance for deposit
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 3, sdk.NewInt(10000))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)  // pool creator
+	app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
 	depositBalance := sdk.NewCoins(depositA, depositB)
@@ -114,39 +114,41 @@ func TestSwapExecution(t *testing.T) {
 }
 
 func randFloats(min, max float64) float64 {
-	return min + rand.Float64() * (max - min)
+	return min + rand.Float64()*(max-min)
 }
 
 func randRange(r *rand.Rand, min, max int) sdk.Int {
 	return sdk.NewInt(int64(r.Intn(max-min) + min))
 }
 
-func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []*types.MsgSwap){
+func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []*types.MsgSwap) {
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 
-	XtoYnewSize := int(r.Int31n(20))  // 0~19
-	YtoXnewSize := int(r.Int31n(20))  // 0~19
+	XtoYnewSize := int(r.Int31n(20)) // 0~19
+	YtoXnewSize := int(r.Int31n(20)) // 0~19
 
 	for i := 0; i < XtoYnewSize; i++ {
-		randFloats(0.1, 0.9, )
-		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009),3))
-		orderAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100),4))
+		randFloats(0.1, 0.9)
+		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009), 3))
+		orderAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
 		orderCoin := sdk.NewCoin(denomX, orderAmt.RoundInt())
 
 		XtoY = append(XtoY, &types.MsgSwap{
-			OfferCoin:     orderCoin,
-			OrderPrice:    orderPrice,
+			OfferCoin:       orderCoin,
+			DemandCoinDenom: denomY,
+			OrderPrice:      orderPrice,
 		})
 	}
 
 	for i := 0; i < YtoXnewSize; i++ {
-		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009),3))
-		orderAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100),4))
+		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009), 3))
+		orderAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
 		orderCoin := sdk.NewCoin(denomY, orderAmt.RoundInt())
 
 		YtoX = append(YtoX, &types.MsgSwap{
-			OfferCoin:     orderCoin,
-			OrderPrice:    orderPrice,
+			OfferCoin:       orderCoin,
+			DemandCoinDenom: denomX,
+			OrderPrice:      orderPrice,
 		})
 	}
 	return

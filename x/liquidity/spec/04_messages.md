@@ -62,12 +62,12 @@ type MsgWithdrawFromLiquidityPool struct {
 
 ```go
 type MsgSwap struct {
-	SwapRequester sdk.AccAddress // account address of the origin of this message
-	PoolID        uint64         // id of the liquidity pool where this message is belong to
-	SwapType      uint32         // swap type of this swap message, default 1: InstantSwap, requesting instant swap
-	OfferCoin     sdk.Coin       // offer coin of this swap message
-	DemandCoin    sdk.Coin       // denom of demand coin of this swap message
-	OrderPrice    sdk.Dec        // order price of this swap message
+	SwapRequester    sdk.AccAddress // account address of the origin of this message
+	PoolID           uint64         // id of the liquidity pool where this message is belong to
+	SwapType         uint32         // swap type of this swap message, default 1: InstantSwap, requesting instant swap
+	OfferCoin        sdk.Coin       // offer coin of this swap message
+	DemandCoinDenom  sdk.Coin       // denom of demand coin of this swap message
+	OrderPrice       sdk.Dec        // order price of this swap message
 }
 ```
 

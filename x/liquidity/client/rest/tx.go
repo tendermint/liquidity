@@ -133,12 +133,12 @@ type DepositLiquidityPoolReq struct {
 
 // DepositLiquidityPoolReq defines the properties of a Deposit liquidity request's body
 type SwapReq struct {
-	BaseReq       rest.BaseReq `json:"base_req" yaml:"base_req"`
-	SwapRequester string       `json:"swap_requester" yaml:"swap_requester"`
-	PoolID        string       `json:"pool_id" yaml:"pool_id"`
-	PoolTypeIndex string       `json:"pool_type_index" yaml:"pool_type_index"`
-	SwapType      string       `json:"swap_type" yaml:"swap_type"`
-	OfferCoin     string       `json:"offer_coin" yaml:"offer_coin"`
-	DemandCoin    string       `json:"demand_coin" yaml:"demand_coin"`
-	OrderPrice    string       `json:"order_price" yaml:"order_price"`
+	BaseReq         rest.BaseReq `json:"base_req" yaml:"base_req"`
+	SwapRequester   string       `json:"swap_requester" yaml:"swap_requester"`
+	PoolID          string       `json:"pool_id" yaml:"pool_id"`
+	PoolTypeIndex   string       `json:"pool_type_index" yaml:"pool_type_index"`
+	SwapType        string       `json:"swap_type" yaml:"swap_type"`
+	OfferCoin       string       `json:"offer_coin" yaml:"offer_coin"`
+	DemandCoinDenom string       `json:"demand_coin" yaml:"demand_coin"`
+	OrderPrice      string       `json:"order_price" yaml:"order_price"`
 }

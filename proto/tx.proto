@@ -49,10 +49,7 @@ message MsgSwap {
      (gogoproto.moretags)     = "yaml:\"offer_coin\""
   ];
 
-  cosmos.base.v1beta1.Coin demand_coin = 6 [
-     (gogoproto.nullable)     = false,
-     (gogoproto.moretags)     = "yaml:\"demand_coin\""
-  ];
+  string demandCoinDenom = 6 [(gogoproto.moretags) = "yaml:\"demand_coin_denom\""];
 
   bytes order_price = 7 [
     (gogoproto.moretags)   = "yaml:\"order_price\"",

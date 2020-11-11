@@ -148,17 +148,17 @@ func NewMsgSwap(
 	poolTypeIndex uint32,
 	swapType uint32,
 	offerCoin sdk.Coin,
-	demandCoin sdk.Coin,
+	demandCoinDenom string,
 	orderPrice sdk.Dec,
 ) *MsgSwap {
 	return &MsgSwap{
-		SwapRequester: swapRequester,
-		PoolID:        poolID,
-		PoolTypeIndex: poolTypeIndex,
-		SwapType:      swapType,
-		OfferCoin:     offerCoin,
-		DemandCoin:    demandCoin,
-		OrderPrice:    orderPrice,
+		SwapRequester:   swapRequester,
+		PoolID:          poolID,
+		PoolTypeIndex:   poolTypeIndex,
+		SwapType:        swapType,
+		OfferCoin:       offerCoin,
+		DemandCoinDenom: demandCoinDenom,
+		OrderPrice:      orderPrice,
 	}
 }
 
