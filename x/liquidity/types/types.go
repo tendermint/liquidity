@@ -5,7 +5,7 @@ package types
 
 type LiquidityPoolBatchLegacy struct {
 	BatchIndex              uint64                     // index of this batch
-	PoolID                  uint64                     // id of target liquidity pool
+	PoolId                  uint64                     // id of target liquidity pool
 	BeginHeight             uint64                     // height where this batch is begun
 	SwapMessageList         []BatchSwapMessage         // list of swap messages stored in this batch
 	PoolDepositMessageList  []BatchPoolDepositMessage  // list of pool deposit messages stored in this batch

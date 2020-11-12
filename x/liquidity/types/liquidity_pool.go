@@ -27,7 +27,7 @@ func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
 
 func NewLiquidityPoolBatch(poolID, batchIndex uint64) LiquidityPoolBatch {
 	return LiquidityPoolBatch{
-		PoolID:           poolID,
+		PoolId:           poolID,
 		BatchIndex:       batchIndex,
 		BeginHeight:      0,
 		DepositMsgIndex:  0,
@@ -61,7 +61,7 @@ func UnmarshalLiquidityPool(cdc codec.BinaryMarshaler, value []byte) (liquidityP
 
 func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress { return lp.ReserveAccount }
 func (lp LiquidityPool) GetPoolCoinDenom() string          { return lp.PoolCoinDenom }
-func (lp LiquidityPool) GetPoolID() uint64                 { return lp.PoolID }
+func (lp LiquidityPool) GetPoolId() uint64                 { return lp.PoolId }
 
 // String returns a human readable string representation of a LiquidityPool.
 //func (lp LiquidityPool) String() string {

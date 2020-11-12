@@ -21,7 +21,7 @@ const (
 var (
 
 	// param key for global Liquidity Pool IDs
-	GlobalLiquidityPoolIDKey = []byte("globalLiquidityPoolID")
+	GlobalLiquidityPoolIdKey = []byte("globalLiquidityPoolId")
 
 	LiquidityPoolKeyPrefix               = []byte{0x11}
 	LiquidityPoolByReserveIndexKeyPrefix = []byte{0x12}

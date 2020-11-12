@@ -12,7 +12,7 @@ import (
 func TestLiquidityPool(t *testing.T) {
 	app, ctx := createTestInput()
 	lp := types.LiquidityPool{
-		PoolID:            0,
+		PoolId:            0,
 		PoolTypeIndex:     0,
 		ReserveCoinDenoms: []string{"a", "b"},
 		ReserveAccount:    nil,
@@ -55,8 +55,8 @@ func TestCreateLiquidityPool(t *testing.T) {
 
 	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
 	require.Equal(t, 1, len(lpList))
-	require.Equal(t, uint64(0), lpList[0].PoolID)
-	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextLiquidityPoolIDWithUpdate(ctx))
+	require.Equal(t, uint64(0), lpList[0].PoolId)
+	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextLiquidityPoolIdWithUpdate(ctx))
 	require.Equal(t, denomA, lpList[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomB, lpList[0].ReserveCoinDenoms[1])
 
@@ -108,7 +108,7 @@ func TestDepositLiquidityPool(t *testing.T) {
 
 	poolCoinBefore := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lp)
 
-	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[1], lp.PoolID, deposit)
+	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[1], lp.PoolId, deposit)
 	err = simapp.LiquidityKeeper.DepositLiquidityPool(ctx, depositMsg)
 	require.NoError(t, err)
 
@@ -153,7 +153,7 @@ func TestWithdrawLiquidityPool(t *testing.T) {
 
 	fmt.Println(poolCoinBefore, withdrawerPoolCoinBefore.Amount)
 	require.Equal(t, poolCoinBefore, withdrawerPoolCoinBefore.Amount)
-	withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[0], lp.PoolID, sdk.NewCoins(sdk.NewCoin(lp.PoolCoinDenom, poolCoinBefore)))
+	withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[0], lp.PoolId, sdk.NewCoins(sdk.NewCoin(lp.PoolCoinDenom, poolCoinBefore)))
 	err = simapp.LiquidityKeeper.WithdrawLiquidityPool(ctx, withdrawMsg)
 	require.NoError(t, err)
 

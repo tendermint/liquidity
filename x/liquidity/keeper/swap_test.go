@@ -59,7 +59,7 @@ func TestSwapExecution(t *testing.T) {
 
 	// verify created liquidity pool
 	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
-	poolID := lpList[0].PoolID
+	poolID := lpList[0].PoolId
 	require.Equal(t, 1, len(lpList))
 	require.Equal(t, uint64(0), poolID)
 	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
@@ -81,13 +81,13 @@ func TestSwapExecution(t *testing.T) {
 	for i, msg := range XtoY {
 		app.SaveAccount(simapp, ctx, buyerAccs[i], sdk.NewCoins(msg.OfferCoin))
 		msg.SwapRequester = buyerAccs[i]
-		msg.PoolID = poolID
+		msg.PoolId = poolID
 		msg.PoolTypeIndex = poolTypeIndex
 	}
 	for i, msg := range YtoX {
 		app.SaveAccount(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin))
 		msg.SwapRequester = sellerAccs[i]
-		msg.PoolID = poolID
+		msg.PoolId = poolID
 		msg.PoolTypeIndex = poolTypeIndex
 	}
 

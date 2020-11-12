@@ -13,16 +13,16 @@ import (
 
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// query liquidity
-	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}", RestPoolID), queryLiquidityHandlerFn(cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId), queryLiquidityHandlerFn(cliCtx)).Methods("GET")
 }
 
 // HTTP request handler to query liquidity information.
 func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		strPoolID := vars[RestPoolID]
+		strPoolId := vars[RestPoolId]
 
-		poolID, ok := rest.ParseUint64OrReturnBadRequest(w, strPoolID)
+		poolID, ok := rest.ParseUint64OrReturnBadRequest(w, strPoolId)
 		if !ok {
 			return
 		}
@@ -33,7 +33,7 @@ func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		params := types.QueryLiquidityPoolParams{
-			PoolID: poolID,
+			PoolId: poolID,
 		}
 
 		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)

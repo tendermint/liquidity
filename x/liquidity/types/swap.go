@@ -134,6 +134,8 @@ type MatchResult struct {
 	FeeAmt            sdk.Int
 }
 
+
+// TODO: fix decimal bug at result
 func ComputePriceDirection(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
 	result = NewBatchResult()
 	orderBook.Sort()

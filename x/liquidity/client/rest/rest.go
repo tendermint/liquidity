@@ -8,7 +8,7 @@ import (
 // Rest variable names
 // nolint
 const (
-	RestPoolID = "pool-id"
+	RestPoolId = "pool-id"
 )
 
 // RegisterHandlers registers asset-related REST handlers to a router

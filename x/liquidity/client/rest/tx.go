@@ -13,9 +13,9 @@ func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
 	// create liquidityPool
 	r.HandleFunc(fmt.Sprintf("/liquidity/pool"), newLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
 	// deposit to liquidityPool
-	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/deposit", RestPoolID), newDepositLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/deposit", RestPoolId), newDepositLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
 	// withdraw from liquidityPool
-	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/withdraw", RestPoolID), newWithdrawLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/withdraw", RestPoolId), newWithdrawLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
 }
 
 // TODO: WIP, add detailed logic to each handler
@@ -58,7 +58,7 @@ func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 func newDepositLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//vars := mux.Vars(r)
-		//poolID := vars[RestPoolID]
+		//poolID := vars[RestPoolId]
 		//
 		//var req DepositLiquidityPoolReq
 		//if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
@@ -84,7 +84,7 @@ func newDepositLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc
 func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//vars := mux.Vars(r)
-		//poolID := vars[RestPoolID]
+		//poolID := vars[RestPoolId]
 		//
 		//var req WithdrawLiquidityPoolReq
 		//if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
@@ -119,7 +119,7 @@ type CreateLiquidityPoolReq struct {
 type WithdrawLiquidityPoolReq struct {
 	BaseReq    rest.BaseReq `json:"base_req" yaml:"base_req"`
 	Withdrawer string       `json:"withdrawer" yaml:"withdrawer"`
-	PoolID     string       `json:"pool_id" yaml:"pool_id"`
+	PoolId     string       `json:"pool_id" yaml:"pool_id"`
 	PoolCoin   string       `json:"pool_coin_amount" yaml:"pool_coin"`
 }
 
@@ -127,7 +127,7 @@ type WithdrawLiquidityPoolReq struct {
 type DepositLiquidityPoolReq struct {
 	BaseReq      rest.BaseReq `json:"base_req" yaml:"base_req"`
 	Depositor    string       `json:"depositor" yaml:"depositor"`
-	PoolID       string       `json:"pool_id" yaml:"pool_id"`
+	PoolId       string       `json:"pool_id" yaml:"pool_id"`
 	DepositCoins string       `json:"deposit_coins_amount" yaml:"deposit_coins"`
 }
 
@@ -135,7 +135,7 @@ type DepositLiquidityPoolReq struct {
 type SwapReq struct {
 	BaseReq         rest.BaseReq `json:"base_req" yaml:"base_req"`
 	SwapRequester   string       `json:"swap_requester" yaml:"swap_requester"`
-	PoolID          string       `json:"pool_id" yaml:"pool_id"`
+	PoolId          string       `json:"pool_id" yaml:"pool_id"`
 	PoolTypeIndex   string       `json:"pool_type_index" yaml:"pool_type_index"`
 	SwapType        string       `json:"swap_type" yaml:"swap_type"`
 	OfferCoin       string       `json:"offer_coin" yaml:"offer_coin"`
