@@ -29,7 +29,7 @@ func queryLiquidity(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuer
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
-	liquidityPool, found := k.GetLiquidityPool(ctx, params.PoolID)
+	liquidityPool, found := k.GetLiquidityPool(ctx, params.PoolId)
 	if !found {
 		return nil, types.ErrPoolNotExists
 	}

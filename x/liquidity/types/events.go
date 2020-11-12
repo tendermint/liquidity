@@ -11,7 +11,7 @@ const (
 	EventTypeWithdrawFromLiquidityPool        = "withdraw_from_liquidity_pool"
 	EventTypeSwap                             = "swap"
 
-	AttributeValueLiquidityPoolID        = "liquidity_pool_id"
+	AttributeValueLiquidityPoolId        = "liquidity_pool_id"
 	AttributeValueLiquidityPoolTypeIndex = "liquidity_pool_type_index"
 	AttributeValueLiquidityPoolFeeRate   = "liquidity_pool_fee_rate"
 	//AttributeValueSwapPriceFunction      = "swap_price_function"

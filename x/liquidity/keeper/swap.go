@@ -8,7 +8,7 @@ import (
 
 func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) error {
 	params := k.GetParams(ctx)
-	pool, found := k.GetLiquidityPool(ctx, liquidityPoolBatch.PoolID)
+	pool, found := k.GetLiquidityPool(ctx, liquidityPoolBatch.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
 	}

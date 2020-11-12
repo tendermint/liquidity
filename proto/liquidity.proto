@@ -56,7 +56,7 @@ message LiquidityPool {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
 
-    uint64 PoolID = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
+    uint64 PoolId = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
     uint32 poolTypeIndex = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
     repeated string ReserveCoinDenoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\""];
     bytes ReserveAccount = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress", (gogoproto.moretags) = "yaml:\"reserve_account\""];
@@ -67,7 +67,7 @@ message LiquidityPoolMetaData {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
 
-    uint64 PoolID = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
+    uint64 PoolId = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
     cosmos.base.v1beta1.Coin PoolCoinTotalSupply = 2 [
         (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
         (gogoproto.nullable)   = false
@@ -78,7 +78,7 @@ message LiquidityPoolBatch {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
 
-    uint64 PoolID = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
+    uint64 PoolId = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
     uint64 BatchIndex = 2 [(gogoproto.moretags) = "yaml:\"batch_index\""];
     int64 BeginHeight = 3 [(gogoproto.moretags) = "yaml:\"begin_height\""];
     uint64 DepositMsgIndex = 4 [(gogoproto.moretags) = "yaml:\"deposit_msg_index\""];

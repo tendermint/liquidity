@@ -71,7 +71,7 @@ func NewMsgDepositToLiquidityPool(
 ) *MsgDepositToLiquidityPool {
 	return &MsgDepositToLiquidityPool{
 		Depositor:    depositor,
-		PoolID:       poolID,
+		PoolId:       poolID,
 		DepositCoins: depositCoins,
 	}
 }
@@ -110,7 +110,7 @@ func NewMsgWithdrawFromLiquidityPool(
 ) *MsgWithdrawFromLiquidityPool {
 	return &MsgWithdrawFromLiquidityPool{
 		Withdrawer: withdrawer,
-		PoolID:     poolID,
+		PoolId:     poolID,
 		PoolCoin:   poolCoin,
 	}
 }
@@ -153,7 +153,7 @@ func NewMsgSwap(
 ) *MsgSwap {
 	return &MsgSwap{
 		SwapRequester:   swapRequester,
-		PoolID:          poolID,
+		PoolId:          poolID,
 		PoolTypeIndex:   poolTypeIndex,
 		SwapType:        swapType,
 		OfferCoin:       offerCoin,

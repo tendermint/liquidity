@@ -40,7 +40,7 @@ func handleMsgCreateLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *types.M
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.PoolCreator.String()),
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolID, ""),
+			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, ""),
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolTypeIndex, fmt.Sprintf("%d", msg.PoolTypeIndex)),
 			sdk.NewAttribute(types.AttributeValueReserveCoinDenoms, ""),
 			sdk.NewAttribute(types.AttributeValueReserveAccount, ""),

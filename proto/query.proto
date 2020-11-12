@@ -4,19 +4,143 @@ package tendermint.liquidity;
 import "gogoproto/gogo.proto";
 import "liquidity.proto";
 import "google/api/annotations.proto";
+import "cosmos_proto/pagination.proto";
 
 option go_package = "github.com/tendermint/liquidity/types";
 
 service Query {
+    // description
+    rpc LiquidityPools (QueryLiquidityPoolsRequest) returns (QueryLiquidityPoolsResponse) {
+        option (google.api.http).get = "/liquidity/pools";
+    }
+
+    // description
     rpc LiquidityPool (QueryLiquidityPoolRequest) returns (QueryLiquidityPoolResponse) {
-        option (google.api.http).get = "/liquidity/{pool_id}";
+        option (google.api.http).get = "/liquidity/pools/{pool_id}";
+    }
+
+    // description
+    rpc LiquidityPoolBatches (QueryLiquidityPoolBatchesRequest) returns (QueryLiquidityPoolBatchesResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batches";
+    }
+
+    // description
+    rpc LiquidityPoolBatch (QueryLiquidityPoolBatchRequest) returns (QueryLiquidityPoolBatchResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/{batch_index}";
+    }
+
+    // description
+    rpc LiquidityPoolLatestBatch (QueryLiquidityPoolLatestBatchRequest) returns (QueryLiquidityPoolLatestBatchResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch";
+    }
+
+    // description
+    rpc PoolBatchSwapMsgs(QueryPoolBatchSwapMsgsRequest) returns (QueryPoolBatchSwapMsgsResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/swaps";
+    }
+
+    // description
+    rpc PoolBatchDepositMsgs(QueryPoolBatchDepositMsgsRequest) returns (QueryPoolBatchDepositMsgsResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits";
+    }
+
+    // description
+    rpc PoolBatchWithdrawMsgs(QueryPoolBatchWithdrawMsgsRequest) returns (QueryPoolBatchWithdrawMsgsResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws";
+    }
+
+    // Parameters queries the liquidity parameters.
+    rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+        option (google.api.http).get = "/liquidity/params";
     }
 }
 
 message QueryLiquidityPoolRequest {
-    uint64 pool_id = 1 [(gogoproto.customname) = "PoolID"];
+    uint64 pool_id = 1;
 }
 
 message QueryLiquidityPoolResponse {
     LiquidityPool liquidity_pool = 1 [(gogoproto.nullable) = false];
+    LiquidityPoolMetaData liquidity_pool_meta_data = 2;
+}
+
+message QueryLiquidityPoolBatchesRequest {
+    uint64 pool_id = 1;
+}
+
+message QueryLiquidityPoolBatchesResponse {
+    repeated LiquidityPoolBatch liquidity_pool_batches = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryLiquidityPoolBatchRequest {
+    uint64 pool_id = 1;
+    uint64 batch_index = 2;
+}
+
+message QueryLiquidityPoolBatchResponse {
+    LiquidityPoolBatch liquidity_pool_batch = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryLiquidityPoolLatestBatchRequest {
+    uint64 pool_id = 1;
+}
+
+message QueryLiquidityPoolLatestBatchResponse {
+    LiquidityPoolBatch liquidity_pool_batch = 1 [(gogoproto.nullable) = false];
+}
+
+
+message QueryLiquidityPoolsRequest {
+    cosmos.query.PageResponse pagination = 1;
+}
+
+message QueryLiquidityPoolsResponse {
+    repeated QueryLiquidityPoolResponse liquidity_pool_responses = 1 [(gogoproto.nullable) = false];
+    cosmos.query.PageResponse pagination = 2;
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+    // params holds all the parameters of this module.
+    Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryPoolBatchSwapMsgsRequest {
+    string pool_id = 1;
+//    string batch_index = 2;
+    // pagination defines the pagination in the response.
+    cosmos.query.PageRequest pagination = 2;
+}
+
+message QueryPoolBatchSwapMsgsResponse {
+    repeated BatchPoolSwapMsg swapMsgs = 1 [(gogoproto.nullable) = false];
+    // pagination defines the pagination in the response.
+    cosmos.query.PageResponse pagination = 2;
+}
+message QueryPoolBatchDepositMsgsRequest {
+    string pool_id = 1;
+//    string batch_index = 2;
+    // pagination defines the pagination in the response.
+    cosmos.query.PageRequest pagination = 2;
+}
+
+message QueryPoolBatchDepositMsgsResponse {
+    repeated BatchPoolDepositMsg depositMsgs = 1 [(gogoproto.nullable) = false];
+    // pagination defines the pagination in the response.
+    cosmos.query.PageResponse pagination = 2;
+}
+message QueryPoolBatchWithdrawMsgsRequest {
+    string pool_id = 1;
+//    string batch_index = 2;
+    // pagination defines the pagination in the response.
+    cosmos.query.PageRequest pagination = 2;
+}
+
+message QueryPoolBatchWithdrawMsgsResponse {
+    repeated BatchPoolWithdrawMsg withdrawMsgs = 1 [(gogoproto.nullable) = false];
+    // pagination defines the pagination in the response.
+    cosmos.query.PageResponse pagination = 2;
 }

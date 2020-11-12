@@ -1,0 +1,2115 @@
+swagger: '2.0'
+info:
+  title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
+  description: 'A REST interface for state queries, transactions'
+  version: 1.0.0
+paths:
+  /liquidity/pools:
+    post:
+      operationId: CreateLiquidityPool
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              pool_creator:
+                type: string
+                format: byte
+              pool_type_index:
+                type: integer
+                format: int64
+              reserve_coin_denoms:
+                type: array
+                items:
+                  type: string
+              deposit_coins:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+      tags:
+        - Msg
+    get:
+      summary: description
+      operationId: LiquidityPools
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              liquidity_pool_responses:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    liquidity_pool:
+                      type: object
+                      properties:
+                        PoolId:
+                          type: string
+                          format: uint64
+                        poolTypeIndex:
+                          type: integer
+                          format: int64
+                        ReserveCoinDenoms:
+                          type: array
+                          items:
+                            type: string
+                        ReserveAccount:
+                          type: string
+                          format: byte
+                        PoolCoinDenom:
+                          type: string
+                    liquidity_pool_meta_data:
+                      type: object
+                      properties:
+                        PoolId:
+                          type: string
+                          format: uint64
+                        PoolCoinTotalSupply:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a coin with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
+              pagination:
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                description: |-
+                  message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pagination.next_key
+          description: |-
+            next_key is the key to be passed to PageRequest.key to
+            query the next page most efficiently.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.total
+          description: >-
+            total is total number of results available if
+            PageRequest.count_total
+
+            was set, its value is undefined otherwise.
+          in: query
+          required: false
+          type: string
+          format: uint64
+      tags:
+        - Query
+  '/liquidity/pools/{pool_id}/batch/deposits':
+    post:
+      operationId: DepositToLiquidityPool
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              depositor:
+                type: string
+                format: byte
+              pool_id:
+                type: string
+                format: uint64
+              deposit_coins:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+      tags:
+        - Msg
+    get:
+      summary: description
+      operationId: PoolBatchDepositMsgs
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              depositMsgs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    MsgHeight:
+                      type: string
+                      format: int64
+                      title: >-
+                        string TxHash = 1 [(gogoproto.moretags) =
+                        "yaml:\"tx_hash\""];
+                    Msg:
+                      type: object
+                      properties:
+                        depositor:
+                          type: string
+                          format: byte
+                        pool_id:
+                          type: string
+                          format: uint64
+                        deposit_coins:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a coin with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs. count_total
+
+            is only respected when offset is used. It is ignored when key is
+            set.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  '/liquidity/pools/{pool_id}/batch/swaps':
+    post:
+      operationId: Swap
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              swap_requester:
+                type: string
+                format: byte
+              pool_id:
+                type: string
+                format: uint64
+              pool_type_index:
+                type: integer
+                format: int64
+              swap_type:
+                type: integer
+                format: int64
+              offer_coin:
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a coin with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+              demandCoinDenom:
+                type: string
+              order_price:
+                type: string
+                format: byte
+      tags:
+        - Msg
+    get:
+      summary: description
+      operationId: PoolBatchSwapMsgs
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              swapMsgs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    MsgHeight:
+                      type: string
+                      format: int64
+                      title: >-
+                        string TxHash = 1 [(gogoproto.moretags) =
+                        "yaml:\"tx_hash\""];
+                    MsgIndex:
+                      type: string
+                      format: uint64
+                    FractionalCount:
+                      type: string
+                      format: uint64
+                    Msg:
+                      type: object
+                      properties:
+                        swap_requester:
+                          type: string
+                          format: byte
+                        pool_id:
+                          type: string
+                          format: uint64
+                        pool_type_index:
+                          type: integer
+                          format: int64
+                        swap_type:
+                          type: integer
+                          format: int64
+                        offer_coin:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a coin with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
+                        demandCoinDenom:
+                          type: string
+                        order_price:
+                          type: string
+                          format: byte
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs. count_total
+
+            is only respected when offset is used. It is ignored when key is
+            set.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  '/liquidity/pools/{pool_id}/batch/withdraws':
+    post:
+      operationId: WithdrawFromLiquidityPool
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              withdrawer:
+                type: string
+                format: byte
+              pool_id:
+                type: string
+                format: uint64
+              pool_coin:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+      tags:
+        - Msg
+    get:
+      summary: description
+      operationId: PoolBatchWithdrawMsgs
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              withdrawMsgs:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    MsgHeight:
+                      type: string
+                      format: int64
+                      title: >-
+                        string TxHash = 1 [(gogoproto.moretags) =
+                        "yaml:\"tx_hash\""];
+                    Msg:
+                      type: object
+                      properties:
+                        withdrawer:
+                          type: string
+                          format: byte
+                        pool_id:
+                          type: string
+                          format: uint64
+                        pool_coin:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a coin with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
+              pagination:
+                description: pagination defines the pagination in the response.
+                type: object
+                properties:
+                  next_key:
+                    type: string
+                    format: byte
+                    title: |-
+                      next_key is the key to be passed to PageRequest.key to
+                      query the next page most efficiently
+                  total:
+                    type: string
+                    format: uint64
+                    title: >-
+                      total is total number of results available if
+                      PageRequest.count_total
+
+                      was set, its value is undefined otherwise
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+        - name: pagination.key
+          description: |-
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
+          in: query
+          required: false
+          type: string
+          format: byte
+        - name: pagination.offset
+          description: >-
+            offset is a numeric offset that can be used when key is unavailable.
+
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs. count_total
+
+            is only respected when offset is used. It is ignored when key is
+            set.
+          in: query
+          required: false
+          type: boolean
+      tags:
+        - Query
+  /liquidity/params:
+    get:
+      summary: Parameters queries the liquidity parameters.
+      operationId: LiquidityParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params holds all the parameters of this module.
+                type: object
+                properties:
+                  LiquidityPoolTypes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        poolTypeIndex:
+                          type: integer
+                          format: int64
+                        Name:
+                          type: string
+                        MinReserveCoinNum:
+                          type: integer
+                          format: int64
+                        MaxReserveCoinNum:
+                          type: integer
+                          format: int64
+                  MinInitDepositToPool:
+                    type: string
+                  InitPoolCoinMintAmount:
+                    type: string
+                  SwapFeeRate:
+                    type: string
+                    format: byte
+                  LiquidityPoolFeeRate:
+                    type: string
+                    format: byte
+                  LiquidityPoolCreationFee:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  UnitBatchSize:
+                    type: integer
+                    format: int64
+            description: >-
+              QueryParamsResponse is response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
+  '/liquidity/pools/{pool_id}':
+    get:
+      summary: description
+      operationId: LiquidityPool
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              liquidity_pool:
+                type: object
+                properties:
+                  PoolId:
+                    type: string
+                    format: uint64
+                  poolTypeIndex:
+                    type: integer
+                    format: int64
+                  ReserveCoinDenoms:
+                    type: array
+                    items:
+                      type: string
+                  ReserveAccount:
+                    type: string
+                    format: byte
+                  PoolCoinDenom:
+                    type: string
+              liquidity_pool_meta_data:
+                type: object
+                properties:
+                  PoolId:
+                    type: string
+                    format: uint64
+                  PoolCoinTotalSupply:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a coin with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - Query
+  '/liquidity/pools/{pool_id}/batch':
+    get:
+      summary: description
+      operationId: LiquidityPoolLatestBatch
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              liquidity_pool_batch:
+                type: object
+                properties:
+                  PoolId:
+                    type: string
+                    format: uint64
+                  BatchIndex:
+                    type: string
+                    format: uint64
+                  BeginHeight:
+                    type: string
+                    format: int64
+                  DepositMsgIndex:
+                    type: string
+                    format: uint64
+                  WithdrawMsgIndex:
+                    type: string
+                    format: uint64
+                  SwapMsgIndex:
+                    type: string
+                    format: uint64
+                  ExecutionStatus:
+                    type: boolean
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - Query
+  '/liquidity/pools/{pool_id}/batch/{batch_index}':
+    get:
+      summary: description
+      operationId: LiquidityPoolBatch
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              liquidity_pool_batch:
+                type: object
+                properties:
+                  PoolId:
+                    type: string
+                    format: uint64
+                  BatchIndex:
+                    type: string
+                    format: uint64
+                  BeginHeight:
+                    type: string
+                    format: int64
+                  DepositMsgIndex:
+                    type: string
+                    format: uint64
+                  WithdrawMsgIndex:
+                    type: string
+                    format: uint64
+                  SwapMsgIndex:
+                    type: string
+                    format: uint64
+                  ExecutionStatus:
+                    type: boolean
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+        - name: batch_index
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - Query
+  '/liquidity/pools/{pool_id}/batches':
+    get:
+      summary: description
+      operationId: LiquidityPoolBatches
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              liquidity_pool_batches:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    PoolId:
+                      type: string
+                      format: uint64
+                    BatchIndex:
+                      type: string
+                      format: uint64
+                    BeginHeight:
+                      type: string
+                      format: int64
+                    DepositMsgIndex:
+                      type: string
+                      format: uint64
+                    WithdrawMsgIndex:
+                      type: string
+                      format: uint64
+                    SwapMsgIndex:
+                      type: string
+                      format: uint64
+                    ExecutionStatus:
+                      type: boolean
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          type: string
+          format: uint64
+      tags:
+        - Query
+definitions:
+  cosmos.base.v1beta1.Coin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      Coin defines a coin with a denomination and an amount.
+
+      NOTE: The amount field is an Int which implements the custom method
+      signatures required by gogoproto.
+  google.protobuf.Any:
+    type: object
+    properties:
+      type_url:
+        type: string
+      value:
+        type: string
+        format: byte
+  grpc.gateway.runtime.Error:
+    type: object
+    properties:
+      error:
+        type: string
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          properties:
+            type_url:
+              type: string
+            value:
+              type: string
+              format: byte
+  tendermint.liquidity.MsgCreateLiquidityPool:
+    type: object
+    properties:
+      pool_creator:
+        type: string
+        format: byte
+      pool_type_index:
+        type: integer
+        format: int64
+      reserve_coin_denoms:
+        type: array
+        items:
+          type: string
+      deposit_coins:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a coin with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+  tendermint.liquidity.MsgCreateLiquidityPoolResponse:
+    type: object
+  tendermint.liquidity.MsgDepositToLiquidityPool:
+    type: object
+    properties:
+      depositor:
+        type: string
+        format: byte
+      pool_id:
+        type: string
+        format: uint64
+      deposit_coins:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a coin with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+  tendermint.liquidity.MsgDepositToLiquidityPoolResponse:
+    type: object
+  tendermint.liquidity.MsgSwap:
+    type: object
+    properties:
+      swap_requester:
+        type: string
+        format: byte
+      pool_id:
+        type: string
+        format: uint64
+      pool_type_index:
+        type: integer
+        format: int64
+      swap_type:
+        type: integer
+        format: int64
+      offer_coin:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a coin with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      demandCoinDenom:
+        type: string
+      order_price:
+        type: string
+        format: byte
+  tendermint.liquidity.MsgSwapResponse:
+    type: object
+  tendermint.liquidity.MsgWithdrawFromLiquidityPool:
+    type: object
+    properties:
+      withdrawer:
+        type: string
+        format: byte
+      pool_id:
+        type: string
+        format: uint64
+      pool_coin:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a coin with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+  tendermint.liquidity.MsgWithdrawFromLiquidityPoolResponse:
+    type: object
+  cosmos.query.PageRequest:
+    type: object
+    properties:
+      key:
+        type: string
+        format: byte
+        description: |-
+          key is a value returned in PageResponse.next_key to begin
+          querying the next page most efficiently. Only one of offset or key
+          should be set.
+      offset:
+        type: string
+        format: uint64
+        description: |-
+          offset is a numeric offset that can be used when key is unavailable.
+          It is less efficient than using key. Only one of offset or key should
+          be set.
+      limit:
+        type: string
+        format: uint64
+        description: >-
+          limit is the total number of results to be returned in the result
+          page.
+
+          If left empty it will default to a value to be set by each app.
+      count_total:
+        type: boolean
+        description: >-
+          count_total is set to true  to indicate that the result set should
+          include
+
+          a count of the total number of items available for pagination in UIs.
+          count_total
+
+          is only respected when offset is used. It is ignored when key is set.
+    description: |-
+      message SomeRequest {
+               Foo some_parameter = 1;
+               PageRequest page = 2;
+       }
+    title: |-
+      PageRequest is to be embedded in gRPC request messages for efficient
+      pagination. Ex:
+  cosmos.query.PageResponse:
+    type: object
+    properties:
+      next_key:
+        type: string
+        format: byte
+        title: |-
+          next_key is the key to be passed to PageRequest.key to
+          query the next page most efficiently
+      total:
+        type: string
+        format: uint64
+        title: |-
+          total is total number of results available if PageRequest.count_total
+          was set, its value is undefined otherwise
+    description: |-
+      message SomeResponse {
+               repeated Bar results = 1;
+               PageResponse page = 2;
+       }
+    title: >-
+      PageResponse is to be embedded in gRPC response messages where the
+      corresponding
+
+      request message has used PageRequest
+  tendermint.liquidity.BatchPoolDepositMsg:
+    type: object
+    properties:
+      MsgHeight:
+        type: string
+        format: int64
+        title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+      Msg:
+        type: object
+        properties:
+          depositor:
+            type: string
+            format: byte
+          pool_id:
+            type: string
+            format: uint64
+          deposit_coins:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+  tendermint.liquidity.BatchPoolSwapMsg:
+    type: object
+    properties:
+      MsgHeight:
+        type: string
+        format: int64
+        title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+      MsgIndex:
+        type: string
+        format: uint64
+      FractionalCount:
+        type: string
+        format: uint64
+      Msg:
+        type: object
+        properties:
+          swap_requester:
+            type: string
+            format: byte
+          pool_id:
+            type: string
+            format: uint64
+          pool_type_index:
+            type: integer
+            format: int64
+          swap_type:
+            type: integer
+            format: int64
+          offer_coin:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          demandCoinDenom:
+            type: string
+          order_price:
+            type: string
+            format: byte
+  tendermint.liquidity.BatchPoolWithdrawMsg:
+    type: object
+    properties:
+      MsgHeight:
+        type: string
+        format: int64
+        title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+      Msg:
+        type: object
+        properties:
+          withdrawer:
+            type: string
+            format: byte
+          pool_id:
+            type: string
+            format: uint64
+          pool_coin:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+  tendermint.liquidity.LiquidityPool:
+    type: object
+    properties:
+      PoolId:
+        type: string
+        format: uint64
+      poolTypeIndex:
+        type: integer
+        format: int64
+      ReserveCoinDenoms:
+        type: array
+        items:
+          type: string
+      ReserveAccount:
+        type: string
+        format: byte
+      PoolCoinDenom:
+        type: string
+  tendermint.liquidity.LiquidityPoolBatch:
+    type: object
+    properties:
+      PoolId:
+        type: string
+        format: uint64
+      BatchIndex:
+        type: string
+        format: uint64
+      BeginHeight:
+        type: string
+        format: int64
+      DepositMsgIndex:
+        type: string
+        format: uint64
+      WithdrawMsgIndex:
+        type: string
+        format: uint64
+      SwapMsgIndex:
+        type: string
+        format: uint64
+      ExecutionStatus:
+        type: boolean
+  tendermint.liquidity.LiquidityPoolMetaData:
+    type: object
+    properties:
+      PoolId:
+        type: string
+        format: uint64
+      PoolCoinTotalSupply:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a coin with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+  tendermint.liquidity.LiquidityPoolType:
+    type: object
+    properties:
+      poolTypeIndex:
+        type: integer
+        format: int64
+      Name:
+        type: string
+      MinReserveCoinNum:
+        type: integer
+        format: int64
+      MaxReserveCoinNum:
+        type: integer
+        format: int64
+  tendermint.liquidity.Params:
+    type: object
+    properties:
+      LiquidityPoolTypes:
+        type: array
+        items:
+          type: object
+          properties:
+            poolTypeIndex:
+              type: integer
+              format: int64
+            Name:
+              type: string
+            MinReserveCoinNum:
+              type: integer
+              format: int64
+            MaxReserveCoinNum:
+              type: integer
+              format: int64
+      MinInitDepositToPool:
+        type: string
+      InitPoolCoinMintAmount:
+        type: string
+      SwapFeeRate:
+        type: string
+        format: byte
+      LiquidityPoolFeeRate:
+        type: string
+        format: byte
+      LiquidityPoolCreationFee:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a coin with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+      UnitBatchSize:
+        type: integer
+        format: int64
+  tendermint.liquidity.QueryLiquidityPoolBatchResponse:
+    type: object
+    properties:
+      liquidity_pool_batch:
+        type: object
+        properties:
+          PoolId:
+            type: string
+            format: uint64
+          BatchIndex:
+            type: string
+            format: uint64
+          BeginHeight:
+            type: string
+            format: int64
+          DepositMsgIndex:
+            type: string
+            format: uint64
+          WithdrawMsgIndex:
+            type: string
+            format: uint64
+          SwapMsgIndex:
+            type: string
+            format: uint64
+          ExecutionStatus:
+            type: boolean
+  tendermint.liquidity.QueryLiquidityPoolBatchesResponse:
+    type: object
+    properties:
+      liquidity_pool_batches:
+        type: array
+        items:
+          type: object
+          properties:
+            PoolId:
+              type: string
+              format: uint64
+            BatchIndex:
+              type: string
+              format: uint64
+            BeginHeight:
+              type: string
+              format: int64
+            DepositMsgIndex:
+              type: string
+              format: uint64
+            WithdrawMsgIndex:
+              type: string
+              format: uint64
+            SwapMsgIndex:
+              type: string
+              format: uint64
+            ExecutionStatus:
+              type: boolean
+  tendermint.liquidity.QueryLiquidityPoolLatestBatchResponse:
+    type: object
+    properties:
+      liquidity_pool_batch:
+        type: object
+        properties:
+          PoolId:
+            type: string
+            format: uint64
+          BatchIndex:
+            type: string
+            format: uint64
+          BeginHeight:
+            type: string
+            format: int64
+          DepositMsgIndex:
+            type: string
+            format: uint64
+          WithdrawMsgIndex:
+            type: string
+            format: uint64
+          SwapMsgIndex:
+            type: string
+            format: uint64
+          ExecutionStatus:
+            type: boolean
+  tendermint.liquidity.QueryLiquidityPoolResponse:
+    type: object
+    properties:
+      liquidity_pool:
+        type: object
+        properties:
+          PoolId:
+            type: string
+            format: uint64
+          poolTypeIndex:
+            type: integer
+            format: int64
+          ReserveCoinDenoms:
+            type: array
+            items:
+              type: string
+          ReserveAccount:
+            type: string
+            format: byte
+          PoolCoinDenom:
+            type: string
+      liquidity_pool_meta_data:
+        type: object
+        properties:
+          PoolId:
+            type: string
+            format: uint64
+          PoolCoinTotalSupply:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+  tendermint.liquidity.QueryLiquidityPoolsResponse:
+    type: object
+    properties:
+      liquidity_pool_responses:
+        type: array
+        items:
+          type: object
+          properties:
+            liquidity_pool:
+              type: object
+              properties:
+                PoolId:
+                  type: string
+                  format: uint64
+                poolTypeIndex:
+                  type: integer
+                  format: int64
+                ReserveCoinDenoms:
+                  type: array
+                  items:
+                    type: string
+                ReserveAccount:
+                  type: string
+                  format: byte
+                PoolCoinDenom:
+                  type: string
+            liquidity_pool_meta_data:
+              type: object
+              properties:
+                PoolId:
+                  type: string
+                  format: uint64
+                PoolCoinTotalSupply:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+      pagination:
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        description: |-
+          message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
+  tendermint.liquidity.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params holds all the parameters of this module.
+        type: object
+        properties:
+          LiquidityPoolTypes:
+            type: array
+            items:
+              type: object
+              properties:
+                poolTypeIndex:
+                  type: integer
+                  format: int64
+                Name:
+                  type: string
+                MinReserveCoinNum:
+                  type: integer
+                  format: int64
+                MaxReserveCoinNum:
+                  type: integer
+                  format: int64
+          MinInitDepositToPool:
+            type: string
+          InitPoolCoinMintAmount:
+            type: string
+          SwapFeeRate:
+            type: string
+            format: byte
+          LiquidityPoolFeeRate:
+            type: string
+            format: byte
+          LiquidityPoolCreationFee:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+          UnitBatchSize:
+            type: integer
+            format: int64
+    description: QueryParamsResponse is response type for the Query/Params RPC method.
+  tendermint.liquidity.QueryPoolBatchDepositMsgsResponse:
+    type: object
+    properties:
+      depositMsgs:
+        type: array
+        items:
+          type: object
+          properties:
+            MsgHeight:
+              type: string
+              format: int64
+              title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+            Msg:
+              type: object
+              properties:
+                depositor:
+                  type: string
+                  format: byte
+                pool_id:
+                  type: string
+                  format: uint64
+                deposit_coins:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a coin with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
+  tendermint.liquidity.QueryPoolBatchSwapMsgsResponse:
+    type: object
+    properties:
+      swapMsgs:
+        type: array
+        items:
+          type: object
+          properties:
+            MsgHeight:
+              type: string
+              format: int64
+              title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+            MsgIndex:
+              type: string
+              format: uint64
+            FractionalCount:
+              type: string
+              format: uint64
+            Msg:
+              type: object
+              properties:
+                swap_requester:
+                  type: string
+                  format: byte
+                pool_id:
+                  type: string
+                  format: uint64
+                pool_type_index:
+                  type: integer
+                  format: int64
+                swap_type:
+                  type: integer
+                  format: int64
+                offer_coin:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+                demandCoinDenom:
+                  type: string
+                order_price:
+                  type: string
+                  format: byte
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
+  tendermint.liquidity.QueryPoolBatchWithdrawMsgsResponse:
+    type: object
+    properties:
+      withdrawMsgs:
+        type: array
+        items:
+          type: object
+          properties:
+            MsgHeight:
+              type: string
+              format: int64
+              title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+            Msg:
+              type: object
+              properties:
+                withdrawer:
+                  type: string
+                  format: byte
+                pool_id:
+                  type: string
+                  format: uint64
+                pool_coin:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a coin with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+      pagination:
+        description: pagination defines the pagination in the response.
+        type: object
+        properties:
+          next_key:
+            type: string
+            format: byte
+            title: |-
+              next_key is the key to be passed to PageRequest.key to
+              query the next page most efficiently
+          total:
+            type: string
+            format: uint64
+            title: >-
+              total is total number of results available if
+              PageRequest.count_total
+
+              was set, its value is undefined otherwise
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
