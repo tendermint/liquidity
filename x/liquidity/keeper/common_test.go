@@ -13,7 +13,7 @@ import (
 
 // createTestInput Returns a simapp with custom LiquidityKeeper
 // to avoid messing with the hooks.
-func createTestInput() (*app.SimApp, sdk.Context) {
+func createTestInput() (*app.LiquidityApp, sdk.Context) {
 	app := app.Setup(false)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
@@ -44,14 +44,14 @@ func createRandomAccounts(accNum int) []sdk.AccAddress {
 }
 
 // setTotalSupply provides the total supply based on accAmt * totalAccounts.
-func setTotalSupply(app *app.SimApp, ctx sdk.Context, accAmt sdk.Int, totalAccounts int) {
+func setTotalSupply(app *app.LiquidityApp, ctx sdk.Context, accAmt sdk.Int, totalAccounts int) {
 	totalSupply := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts))))
 	prevSupply := app.BankKeeper.GetSupply(ctx)
 	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))
 }
 
 // saveAccount saves the provided account into the simapp with balance based on initCoins.
-func saveAccount(app *app.SimApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins) {
+func saveAccount(app *app.LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins) {
 	acc := app.AccountKeeper.NewAccountWithAddress(ctx, addr)
 	app.AccountKeeper.SetAccount(ctx, acc)
 	err := app.BankKeeper.AddCoins(ctx, addr, initCoins)
@@ -71,7 +71,7 @@ func ConvertAddrsToValAddrs(addrs []sdk.AccAddress) []sdk.ValAddress {
 	return valAddrs
 }
 
-func addTestAddrs(app *app.SimApp, ctx sdk.Context, accNum int, accAmt sdk.Int, strategy GenerateAccountStrategy) []sdk.AccAddress {
+func addTestAddrs(app *app.LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Int, strategy GenerateAccountStrategy) []sdk.AccAddress {
 	testAddrs := strategy(accNum)
 
 	initCoins := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt))
