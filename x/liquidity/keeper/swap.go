@@ -36,22 +36,46 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	fmt.Println("orderbook before batch")
 	orderBookValidity := types.CheckValidityOrderBook(orderBook, currentYPriceOverX)
 	result := types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
-	fmt.Println("priceDirection: ", result)
+	fmt.Println("batch Result before", result)
 
 	// find order match, calculate pool delta with the total x, y amount for the invariant check
 	fmt.Println("before XtoY, YtoX", len(XtoY), len(YtoX))
-	matchResultXtoY, XtoY, poolXDeltaXtoY, poolYDeltaXtoY := types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX, result.SwapPrice, params.SwapFeeRate, ctx.BlockHeight())
-	matchResultYtoX, YtoX, poolXDeltaYtoX, poolYDeltaYtoX := types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY, result.SwapPrice, params.SwapFeeRate, ctx.BlockHeight())
-	poolXdelta := poolXDeltaXtoY.Add(poolXDeltaYtoX)
-	poolYdelta := poolYDeltaXtoY.Add(poolYDeltaYtoX)
-	fmt.Println(result, matchResultXtoY, matchResultYtoX, poolXdelta, poolYdelta)
-	fmt.Println(result.SwapPrice, X, Y, currentYPriceOverX)
-	fmt.Println("after XtoY, YtoX", len(XtoY), len(YtoX), len(matchResultXtoY), len(matchResultYtoX))
+	beforeXtoYLen := len(XtoY)
+	beforeYtoXLen := len(YtoX)
+	var matchResultXtoY, matchResultYtoX []types.MatchResult
+	poolXdelta := sdk.ZeroInt()
+	poolYdelta := sdk.ZeroInt()
+	if result.MatchType != types.NoMatch {
+		var poolXDeltaXtoY, poolXDeltaYtoX, poolYDeltaYtoX, poolYDeltaXtoY sdk.Int
+		matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX,
+			result.SwapPrice, params.SwapFeeRate, ctx.BlockHeight())
+		matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
+			result.SwapPrice, params.SwapFeeRate, ctx.BlockHeight())
+		poolXdelta = poolXDeltaXtoY.Add(poolXDeltaYtoX)
+		poolYdelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
+	}
+
+	XtoY, YtoX, X, Y, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
+		types.UpdateState(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
+
+	lastPrice := X.Quo(Y)
+	fmt.Println("lastPrice ", lastPrice)
+
+	fmt.Println("result.SwapPrice, X, Y, currentYPriceOverX", result.SwapPrice, X, Y, currentYPriceOverX)
+	if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != len(XtoY) {
+		fmt.Println("!! match invariant Fail X")
+		panic(beforeXtoYLen)
+	}
+	if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != len(YtoX) {
+		fmt.Println("!! match invariant Fail Y")
+		panic(beforeYtoXLen)
+	}
 
 	totalAmtX := sdk.ZeroInt()
 	totalAmtY := sdk.ZeroInt()
 
 	for _, mr := range matchResultXtoY {
+		fmt.Println("matchResultXtoY", mr)
 		totalAmtX = totalAmtX.Sub(mr.MatchedAmt)
 		totalAmtY = totalAmtY.Add(mr.ReceiveAmt)
 	}
@@ -63,6 +87,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	totalAmtY = sdk.ZeroInt()
 
 	for _, mr := range matchResultYtoX {
+		fmt.Println("matchResultYtoX", mr)
 		totalAmtY = totalAmtY.Sub(mr.MatchedAmt)
 		totalAmtX = totalAmtX.Add(mr.ReceiveAmt)
 	}
@@ -78,6 +103,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		fmt.Println("swap execution invariant check: True")
 	} else {
 		fmt.Println("swap execution invariant check: False", invariantCheckX, invariantCheckY)
+		panic(invariantCheckX)
 	}
 
 	if result.MatchType == 1 {
@@ -92,22 +118,25 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	fmt.Println("matchResultXtoY: ", matchResultXtoY)
 	fmt.Println("matchResultYtoX: ", matchResultYtoX)
 	fmt.Println("matched totalAmtX, totalAmtY", totalAmtX, totalAmtY)
-	fmt.Println("poolXdelta, poolYdelta", poolXdelta, poolYdelta)
+	fmt.Println("poolXdelta, poolYdelta", poolXdelta, poolYdelta, poolXdelta2, poolYdelta2)
 
-	// TODO: updateState, cancelEndOfLifeSpanOrders
+	if !poolXdelta.Add(decimalErrorX).Equal(poolXdelta2) || !poolYdelta.Add(decimalErrorY).Equal(poolYdelta2) {
+		panic(poolXdelta)
+	}
+
 	XtoY, YtoX = types.ClearOrders(XtoY, YtoX)
 
 	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	fmt.Println("orderbook after batch")
-	orderBookValidity = types.CheckValidityOrderBook(orderBookExecuted, currentYPriceOverX)
+	orderBookValidity = types.CheckValidityOrderBook(orderBookExecuted, lastPrice)
 	fmt.Println("after orderBookValidity", orderBookValidity)
 	if !orderBookValidity {
 		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity", orderBookExecuted)
-		//return types.ErrOrderBookInvalidity
+		panic(orderBookValidity)
 	}
 
-	// TODO: updateState with escrow, emit event
+	// TODO: updateState, KV Set, with escrow, emit event
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSwap,
@@ -115,4 +144,3 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	)
 	return nil
 }
-

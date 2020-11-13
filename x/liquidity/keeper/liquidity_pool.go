@@ -572,10 +572,10 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) er
 
 	poolBatch.SwapMsgIndex += 1
 	batchPoolMsg := types.BatchPoolSwapMsg{
-		MsgHeight: ctx.BlockHeight(),
-		MsgIndex: poolBatch.SwapMsgIndex,
+		MsgHeight:       ctx.BlockHeight(),
+		MsgIndex:        poolBatch.SwapMsgIndex,
 		FractionalCount: 0,
-		Msg:       msg,
+		Msg:             msg,
 	}
 	// TODO: escrow
 	k.SetLiquidityPoolBatch(ctx, poolBatch)

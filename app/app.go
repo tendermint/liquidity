@@ -84,9 +84,9 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	liquidityparams "github.com/tendermint/liquidity/app/params"
 	liquiditykeeper "github.com/tendermint/liquidity/x/liquidity/keeper"
 	liquiditytypes "github.com/tendermint/liquidity/x/liquidity/types"
-	liquidityparams "github.com/tendermint/liquidity/app/params"
 )
 
 const appName = "LiquidityApp"

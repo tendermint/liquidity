@@ -30,7 +30,6 @@ func GetQueryCmd() *cobra.Command {
 	return liquidityQueryCmd
 }
 
-
 // GetCmdQueryParams implements the params query command.
 func GetCmdQueryParams() *cobra.Command {
 	cmd := &cobra.Command{

@@ -12,9 +12,8 @@ import (
 )
 
 func getRandPoolAmt(r *rand.Rand) (X, Y sdk.Int) {
-	// TODO: need to set range for avoid min deposit amt errors
-	X = sdk.NewInt(int64(r.Float32() * 100000000000))
-	Y = sdk.NewInt(int64(r.Float32() * 100000000000))
+	X = sdk.NewInt(int64(r.Float32() * 1000000000000))
+	Y = sdk.NewInt(int64(r.Float32() * 1000000000000))
 	return
 }
 
@@ -25,7 +24,7 @@ func TestSimulationSwapExecution(t *testing.T) {
 }
 
 func TestSwapExecution(t *testing.T) {
-	// set simapp, random
+	// TODO: to simulation, ransim
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
 	simapp, ctx := createTestInput()
@@ -124,8 +123,8 @@ func randRange(r *rand.Rand, min, max int) sdk.Int {
 func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []*types.MsgSwap) {
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 
-	XtoYnewSize := int(r.Int31n(20)) // 0~19
-	YtoXnewSize := int(r.Int31n(20)) // 0~19
+	XtoYnewSize := int(r.Int31n(50)) // 0~19
+	YtoXnewSize := int(r.Int31n(50)) // 0~19
 
 	for i := 0; i < XtoYnewSize; i++ {
 		randFloats(0.1, 0.9)
