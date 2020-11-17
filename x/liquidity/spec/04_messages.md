@@ -67,7 +67,8 @@ type MsgSwap struct {
 	SwapType         uint32         // swap type of this swap message, default 1: InstantSwap, requesting instant swap
 	OfferCoin        sdk.Coin       // offer coin of this swap message
 	DemandCoinDenom  sdk.Coin       // denom of demand coin of this swap message
-	OrderPrice       sdk.Dec        // order price of this swap message
+  OrderPrice       sdk.Dec        // order price of this swap message
+  CancelHeight     uint32         // swap orders are cancelled when current height is equal or higher than CancelHeight
 }
 ```
 

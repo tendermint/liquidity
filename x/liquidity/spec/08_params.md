@@ -16,6 +16,7 @@ The liquidity module contains the following parameters:
 | SwapFeeRate              | string (sdk.Dec)    | "0.003000000000000000"                                       |
 | LiquidityPoolCreationFee | sdk.Coins           | [{"denom":"uatom","amount":"100000000"}]                     |
 | UnitBatchSize            | uint32              | 1                                                            |
+| CancelOrderLifeSpan      | uint32              | 0                                                            |
 
 ## LiquidityPoolTypes
 
@@ -50,3 +51,7 @@ Fee paid for new LiquidityPool creation to prevent spamming
 ## UnitBatchSize
 
 The smallest unit batch size for every liquidity pool
+
+## CancelOrderLifeSpan
+
+The life span of swap orders in block heights
