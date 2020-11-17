@@ -23,11 +23,15 @@ Liquidity providers deposit the two kinds of coins into the liquidity pool, and 
 
 ### Coin Swap
 
-Users can request coin swap to a liquidity pool on an AMM style exchange without interacting with constantly changing orderbooks. The requested coin swap is executed with a swap price calculated from given swap price function, the current other swap requests and the current liquidity pool coin reserve status.
+Users can request coin swap to a liquidity pool on an AMM style exchange without interacting with constantly changing orderbooks. The requested coin swap is executed with a swap price calculated from given swap price function, the current other swap requests and the current liquidity pool coin reserve status. Swap orders are executed only when execution swap price is equal or better than submitted order price of the swap order.
 
 ### Price Discovery
 
 Coin swap prices in liquidity pools are determined by the current liquidity pool coin reserves and current requested swap amount. Arbitrageurs constantly buy or sell coins in liquidity pools to gain instant profit which results in real-time price discovery of liquidity pools.
+
+### Escrow Process
+
+For swap order, deposit and withdrawal messages, the module escrow necessary amount of coins from users' balance to ensure action commitments from message senders.
 
 ### Swap Fees
 

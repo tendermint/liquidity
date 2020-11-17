@@ -39,33 +39,37 @@ type LiquidityPoolBatch struct {
 
 type BatchPoolDepositMsg struct {
 	MsgHeight uint64 // height where this message is appended to the batch
+	MsgIndex  uint64 // index of this deposit message in this batch
 	Msg       MsgDepositToLiquidityPool
 }
 
 type BatchPoolWithdrawMsg struct {
 	MsgHeight uint64 // height where this message is appended to the batch
+	MsgIndex  uint64 // index of this withdraw message in this batch
 	Msg       MsgWithdrawFromLiquidityPool
 }
 
 type BatchPoolSwapMsg struct {
-	MsgHeight uint64 // height where this message is appended to the batch
-	Msg       MsgSwap
+	MsgHeight    uint64 // height where this message is appended to the batch
+	MsgIndex     uint64 // index of this swap message in this batch
+	CancelHeight uint32 // swap orders are cancelled when current height is equal or higher than CancelHeight
+	Msg          MsgSwap
 }
 
 ```
 
 LiquidityPoolBatchIndex: `0x21 | PoolID -> amino(int64)`
 
-LiquidityPoolBatch: `0x22 | PoolID | BatchIndex -> amino(LiquidityPoolBatch)`
+LiquidityPoolBatch: `0x22 | PoolID -> amino(LiquidityPoolBatch)`
 
-LiquidityPoolBatchDepositMsgIndex: `0x31 | PoolID | BatchIndex -> nil`
+LiquidityPoolBatchDepositMsgIndex: `0x31 | PoolID -> nil`
 
-LiquidityPoolBatchDepositMsgs: `0x31 | PoolID | BatchIndex | MsgIndex -> amino(BatchPoolDepositMsg)`
+LiquidityPoolBatchDepositMsgs: `0x31 | PoolID | MsgIndex -> amino(BatchPoolDepositMsg)`
 
-LiquidityPoolBatchWithdrawMsgIndex: `0x32 | PoolID | BatchIndex -> nil`
+LiquidityPoolBatchWithdrawMsgIndex: `0x32 | PoolID -> nil`
 
-LiquidityPoolBatchWithdrawMsgs: `0x32 | PoolID | BatchIndex | MsgIndex -> amino(BatchPoolWithdrawMsg)`
+LiquidityPoolBatchWithdrawMsgs: `0x32 | PoolID | MsgIndex -> amino(BatchPoolWithdrawMsg)`
 
-LiquidityPoolBatchSwapMsgIndex: `0x33 | PoolID | BatchIndex -> nil`
+LiquidityPoolBatchSwapMsgIndex: `0x33 | PoolID -> nil`
 
-LiquidityPoolBatchSwapMsgs: `0x33 | PoolID | BatchIndex | MsgIndex -> amino(BatchPoolSwapMsg)`
+LiquidityPoolBatchSwapMsgs: `0x33 | PoolID | MsgIndex -> amino(BatchPoolSwapMsg)`
