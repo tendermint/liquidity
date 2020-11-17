@@ -23,7 +23,7 @@ List of available LiquidityPoolType
 ```go
 type LiquidityPoolType struct {
 	PoolTypeIndex         uint32
-	Name		          string
+	Name                  string
 	MinReserveCoinNum     uint32
 	MaxReserveCoinNum     uint32
 	Description           string
@@ -48,10 +48,10 @@ Fee paid for new LiquidityPool creation to prevent spamming
 
 # Constant Variables
 
-| Key                      | Type                | Constant Value                                               |
-| ------------------------ | ------------------- | ------------------------------------------------------------ |
-| UnitBatchSize            | uint32              | 1                                                            |
-| CancelOrderLifeSpan      | uint32              | 0                                                            |
+| Key                 | Type   | Constant Value |
+| ------------------- | ------ | -------------- |
+| UnitBatchSize       | uint32 | 1              |
+| CancelOrderLifeSpan | uint32 | 0              |
 
 ## UnitBatchSize
 
