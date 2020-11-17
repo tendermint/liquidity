@@ -24,7 +24,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
-		if liquidityPoolBatch.ExecutionStatus {
+		if !liquidityPoolBatch.ExecutionStatus {
 			if err := k.SwapExecution(ctx, liquidityPoolBatch); err != nil {
 				// TODO: WIP
 			}
