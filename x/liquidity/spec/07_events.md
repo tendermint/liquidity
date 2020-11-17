@@ -44,6 +44,7 @@ order: 7
 | Type          | Attribute Key | Attribute Value |
 | ------------- | ------------- | --------------- |
 | swap_to_batch | batch_id      |                 |
+| swap_to_batch | msg_index     |                 |
 | message       | module        | liquidity       |
 | message       | action        | swap            |
 | message       | sender        | {senderAddress} |
@@ -54,7 +55,7 @@ order: 7
 
 | Type                      | Attribute Key         | Attribute Value |
 | ------------------------- | --------------------- | --------------- |
-| deposit_to_liquidity_pool | tx_hash               |                 |
+| deposit_to_liquidity_pool | msg_index             |                 |
 | deposit_to_liquidity_pool | depositor             |                 |
 | deposit_to_liquidity_pool | liquidity_pool_id     |                 |
 | deposit_to_liquidity_pool | accepted_coins_amount |                 |
@@ -65,7 +66,7 @@ order: 7
 
 | Type                         | Attribute Key         | Attribute Value |
 | ---------------------------- | --------------------- | --------------- |
-| withdraw_from_liquidity_pool | tx_hash               |                 |
+| withdraw_from_liquidity_pool | msg_index             |                 |
 | withdraw_from_liquidity_pool | withdrawer            |                 |
 | withdraw_from_liquidity_pool | liquidity_pool_id     |                 |
 | withdraw_from_liquidity_pool | pool_coin_amount      |                 |
@@ -76,7 +77,7 @@ order: 7
 
 | Type | Attribute Key           | Attribute Value |
 | ---- | ----------------------- | --------------- |
-| swap | tx_hash                 |                 |
+| swap | msg_index               |                 |
 | swap | swap_requester          |                 |
 | swap | liquidity_pool_id       |                 |
 | swap | swap_type               |                 |

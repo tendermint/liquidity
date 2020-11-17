@@ -39,17 +39,21 @@ type LiquidityPoolBatch struct {
 
 type BatchPoolDepositMsg struct {
 	MsgHeight uint64 // height where this message is appended to the batch
+	MsgIndex  uint64 // index of this deposit message in this batch
 	Msg       MsgDepositToLiquidityPool
 }
 
 type BatchPoolWithdrawMsg struct {
 	MsgHeight uint64 // height where this message is appended to the batch
+	MsgIndex  uint64 // index of this withdraw message in this batch
 	Msg       MsgWithdrawFromLiquidityPool
 }
 
 type BatchPoolSwapMsg struct {
-	MsgHeight uint64 // height where this message is appended to the batch
-	Msg       MsgSwap
+	MsgHeight    uint64 // height where this message is appended to the batch
+	MsgIndex     uint64 // index of this swap message in this batch
+	CancelHeight uint32 // swap orders are cancelled when current height is equal or higher than CancelHeight
+	Msg          MsgSwap
 }
 
 ```
