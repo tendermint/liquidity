@@ -8,7 +8,12 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
-const DefaultBatchSize uint32 = 1
+const (
+	UnitBatchSize uint32 = 1
+	CancelOrderLifeSpan int64 = 0
+	MinReserveCoinNum uint32 = 2
+	MaxReserveCoinNum uint32 = 2
+)
 
 // Parameter store keys
 var (
@@ -23,8 +28,8 @@ var (
 	LiquidityPoolTypeConstantProduct = LiquidityPoolType{
 		PoolTypeIndex:     0,
 		Name:              "ConstantProductLiquidityPool",
-		MinReserveCoinNum: 2,
-		MaxReserveCoinNum: 2,
+		MinReserveCoinNum: MinReserveCoinNum,
+		MaxReserveCoinNum: MaxReserveCoinNum,
 	}
 )
 
@@ -35,9 +40,7 @@ func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolC
 		MinInitDepositToPool:     minInitDeposit,
 		InitPoolCoinMintAmount:   initPoolCoinMint,
 		SwapFeeRate:              swapFeeRate,
-		LiquidityPoolFeeRate:     poolFeeRate,
 		LiquidityPoolCreationFee: creationFee,
-		UnitBatchSize:            unitBatchSize,
 	}
 }
 
@@ -54,9 +57,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMinInitDepositToPool, &p.MinInitDepositToPool, validateMinInitDepositToPool),
 		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
 		paramtypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
-		paramtypes.NewParamSetPair(KeyLiquidityPoolFeeRate, &p.LiquidityPoolFeeRate, validateLiquidityPoolFeeRate),
 		paramtypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
-		paramtypes.NewParamSetPair(KeyUnitBatchSize, &p.UnitBatchSize, validateUnitBatchSize),
 	}
 }
 
@@ -70,9 +71,7 @@ func DefaultParams() Params {
 		MinInitDepositToPool:     sdk.NewInt(1000000),
 		InitPoolCoinMintAmount:   sdk.NewInt(1000000),
 		SwapFeeRate:              sdk.NewDecWithPrec(3, 3), // "0.001000000000000000"
-		LiquidityPoolFeeRate:     sdk.NewDecWithPrec(0, 3), // "0.001000000000000000"  // TODO: deprecated
 		LiquidityPoolCreationFee: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100000000))),
-		UnitBatchSize:            1,
 	}
 }
 
@@ -139,23 +138,6 @@ func validateSwapFeeRate(i interface{}) error {
 
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("SwapFeeRate too large: %s", v)
-	}
-
-	return nil
-}
-
-func validateLiquidityPoolFeeRate(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.IsNegative() {
-		return fmt.Errorf("LiquidityPoolFeeRate cannot be negative: %s", v)
-	}
-
-	if v.GT(sdk.OneDec()) {
-		return fmt.Errorf("LiquidityPoolFeeRate too large: %s", v)
 	}
 
 	return nil

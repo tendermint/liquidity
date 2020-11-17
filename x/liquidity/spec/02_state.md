@@ -10,7 +10,7 @@ order: 2
 
 ```go
 type LiquidityPool struct {
-	PoolID             uint64         // index of this liquidity pool
+	PoolId             uint64         // index of this liquidity pool
 	PoolTypeIndex      uint32         // pool type of this liquidity pool
 	ReserveCoinDenoms  []string       // list of reserve coin denoms for this liquidity pool
 	ReserveAccount     sdk.AccAddress // module account address for this liquidity pool to store reserve coins
@@ -18,7 +18,7 @@ type LiquidityPool struct {
 }
 ```
 
-LiquidityPool: `0x11 | LiquidityPoolID -> amino(LiquidityPool)`
+LiquidityPool: `0x11 | LiquidityPoolId -> amino(LiquidityPool)`
 
 LiquidityPoolByReserveAccIndex: `0x12 | ReserveAcc -> nil`
 
@@ -27,7 +27,7 @@ LiquidityPoolByReserveAccIndex: `0x12 | ReserveAcc -> nil`
 
 ```go
 type LiquidityPoolBatch struct {
-	PoolID                  uint64                     // id of target liquidity pool
+	PoolId                  uint64                     // id of target liquidity pool
 	BatchIndex              uint64                     // index of this batch
 	BeginHeight             uint64                     // height where this batch is begun
 	DepositMsgIndex         uint64                     // last index of BatchPoolDepositMsgs	
@@ -52,24 +52,24 @@ type BatchPoolWithdrawMsg struct {
 type BatchPoolSwapMsg struct {
 	MsgHeight    uint64 // height where this message is appended to the batch
 	MsgIndex     uint64 // index of this swap message in this batch
-	CancelHeight uint32 // swap orders are cancelled when current height is equal or higher than CancelHeight
+	CancelHeight int64  // swap orders are cancelled when current height is equal or higher than CancelHeight
 	Msg          MsgSwap
 }
 
 ```
 
-LiquidityPoolBatchIndex: `0x21 | PoolID -> amino(int64)`
+LiquidityPoolBatchIndex: `0x21 | PoolId -> amino(int64)`
 
-LiquidityPoolBatch: `0x22 | PoolID -> amino(LiquidityPoolBatch)`
+LiquidityPoolBatch: `0x22 | PoolId -> amino(LiquidityPoolBatch)`
 
-LiquidityPoolBatchDepositMsgIndex: `0x31 | PoolID -> nil`
+LiquidityPoolBatchDepositMsgIndex: `0x31 | PoolId -> nil`
 
-LiquidityPoolBatchDepositMsgs: `0x31 | PoolID | MsgIndex -> amino(BatchPoolDepositMsg)`
+LiquidityPoolBatchDepositMsgs: `0x31 | PoolId | MsgIndex -> amino(BatchPoolDepositMsg)`
 
-LiquidityPoolBatchWithdrawMsgIndex: `0x32 | PoolID -> nil`
+LiquidityPoolBatchWithdrawMsgIndex: `0x32 | PoolId -> nil`
 
-LiquidityPoolBatchWithdrawMsgs: `0x32 | PoolID | MsgIndex -> amino(BatchPoolWithdrawMsg)`
+LiquidityPoolBatchWithdrawMsgs: `0x32 | PoolId | MsgIndex -> amino(BatchPoolWithdrawMsg)`
 
-LiquidityPoolBatchSwapMsgIndex: `0x33 | PoolID -> nil`
+LiquidityPoolBatchSwapMsgIndex: `0x33 | PoolId -> nil`
 
-LiquidityPoolBatchSwapMsgs: `0x33 | PoolID | MsgIndex -> amino(BatchPoolSwapMsg)`
+LiquidityPoolBatchSwapMsgs: `0x33 | PoolId | MsgIndex -> amino(BatchPoolSwapMsg)`

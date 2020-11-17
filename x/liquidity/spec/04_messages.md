@@ -29,7 +29,7 @@ type MsgCreateLiquidityPool struct {
 ```go
 type MsgDepositToLiquidityPool struct {
 	Depositor           sdk.AccAddress // account address of the origin of this message
-	PoolID              uint64         // id of the liquidity pool where this message is belong to
+	PoolId              uint64         // id of the liquidity pool where this message is belong to
 	DepositCoins 	    sdk.Coins      // deposit coins of this pool deposit message
 }
 ```
@@ -37,8 +37,8 @@ type MsgDepositToLiquidityPool struct {
 **Validity check**
 - `MsgDepositToLiquidityPool` failes if
   - `Depositor` address does not exist
-  - `PoolID` does not exist
-  - if the denoms of `DepositCoins` are not composed of `ReserveCoinDenoms` of the `LiquidityPool` with given `PoolID`
+  - `PoolId` does not exist
+  - if the denoms of `DepositCoins` are not composed of `ReserveCoinDenoms` of the `LiquidityPool` with given `PoolId`
   - if the balance of `Depositor` does not have enough amount of coins for `DepositCoins`
   
 ## MsgWithdrawFromLiquidityPool
@@ -46,7 +46,7 @@ type MsgDepositToLiquidityPool struct {
 ```go
 type MsgWithdrawFromLiquidityPool struct {
 	Withdrawer      sdk.AccAddress // account address of the origin of this message
-	PoolID          uint64         // id of the liquidity pool where this message is belong to
+	PoolId          uint64         // id of the liquidity pool where this message is belong to
 	PoolCoin        sdk.Coin       // pool coin sent for reserve coin withdraw
 }
 ```
@@ -54,8 +54,8 @@ type MsgWithdrawFromLiquidityPool struct {
 **Validity check**
 - `MsgWithdrawFromLiquidityPool` failes if
   - `Withdrawer` address does not exist
-  - `PoolID` does not exist
-  - if the denom of `PoolCoin` are not equal to the `PoolCoinDenom` of the `LiquidityPool` with given `PoolID`
+  - `PoolId` does not exist
+  - if the denom of `PoolCoin` are not equal to the `PoolCoinDenom` of the `LiquidityPool` with given `PoolId`
   - if the balance of `Depositor` does not have enough amount of coins for `PoolCoin`
   
 ## MsgSwap
@@ -63,19 +63,18 @@ type MsgWithdrawFromLiquidityPool struct {
 ```go
 type MsgSwap struct {
 	SwapRequester    sdk.AccAddress // account address of the origin of this message
-	PoolID           uint64         // id of the liquidity pool where this message is belong to
+	PoolId           uint64         // id of the liquidity pool where this message is belong to
 	SwapType         uint32         // swap type of this swap message, default 1: InstantSwap, requesting instant swap
 	OfferCoin        sdk.Coin       // offer coin of this swap message
 	DemandCoinDenom  sdk.Coin       // denom of demand coin of this swap message
 	OrderPrice       sdk.Dec        // order price of this swap message
-	CancelHeight     uint32         // swap orders are cancelled when current height is equal or higher than CancelHeight
 }
 ```
 
 **Validity check**
 - `MsgSwap` failes if
   - `SwapRequester` address does not exist
-  - `PoolID` does not exist
+  - `PoolId` does not exist
   - `SwapType` does not exist
   - denoms of `OfferCoin` or `DemandCoin` do not exist in `bank` module
   - if the balance of `SwapRequester` does not have enough amount of coins for `OfferCoin`

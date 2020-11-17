@@ -51,7 +51,9 @@ Fee paid for new LiquidityPool creation to prevent spamming
 | Key                 | Type   | Constant Value |
 | ------------------- | ------ | -------------- |
 | UnitBatchSize       | uint32 | 1              |
-| CancelOrderLifeSpan | uint32 | 0              |
+| CancelOrderLifeSpan | int64  | 0              |
+| MinReserveCoinNum   | uint32 | 2              |
+| MaxReserveCoinNum   | uint32 | 2              |
 
 ## UnitBatchSize
 
@@ -60,3 +62,7 @@ The smallest unit batch size for every liquidity pool
 ## CancelOrderLifeSpan
 
 The life span of swap orders in block heights
+
+## MinReserveCoinNum, MaxReserveCoinNum
+
+min, max number of reserveCoins for LiquidityPoolType on this spec

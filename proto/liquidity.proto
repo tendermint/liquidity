@@ -14,6 +14,7 @@ message LiquidityPoolType {
     string Name = 2 [(gogoproto.moretags) = "yaml:\"name\""];
     uint32 MinReserveCoinNum = 3 [(gogoproto.moretags) = "yaml:\"min_reserve_coin_num\""];
     uint32 MaxReserveCoinNum = 4 [(gogoproto.moretags) = "yaml:\"max_reserve_coin_num\""];
+    string Description = 5 [(gogoproto.moretags) = "yaml:\"description\""];
 }
 
 message Params {
@@ -39,17 +40,10 @@ message Params {
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable)   = false
     ];
-    bytes LiquidityPoolFeeRate = 5 [
-        (gogoproto.moretags)   = "yaml:\"liquidity_pool_fee_rate\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-        (gogoproto.nullable)   = false
-    ];
-    repeated cosmos.base.v1beta1.Coin LiquidityPoolCreationFee = 6 [
+    repeated cosmos.base.v1beta1.Coin LiquidityPoolCreationFee = 5 [
         (gogoproto.moretags)   = "yaml:\"liquidity_pool_creation_fee\"",
         (gogoproto.nullable)   = false
     ];
-
-    uint32 UnitBatchSize = 7 [(gogoproto.moretags) = "yaml:\"unit_batch_size\""];
 }
 
 message LiquidityPool {
@@ -88,21 +82,20 @@ message LiquidityPoolBatch {
 }
 
 message BatchPoolDepositMsg {
-//    string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
-    MsgDepositToLiquidityPool Msg = 2 [(gogoproto.moretags) = "yaml:\"msg\""];
+    int64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
+    MsgDepositToLiquidityPool Msg = 3 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message BatchPoolWithdrawMsg {
-//    string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
-    MsgWithdrawFromLiquidityPool Msg = 2 [(gogoproto.moretags) = "yaml:\"msg\""];
+    int64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
+    MsgWithdrawFromLiquidityPool Msg = 3 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message BatchPoolSwapMsg {
-//    string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
     uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
-    uint64 FractionalCount = 3 [(gogoproto.moretags) = "yaml:\"fractional_count\""];
+    int64 CancelHeight = 3 [(gogoproto.moretags) = "yaml:\"cancel_height\""];
     MsgSwap Msg = 4 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
