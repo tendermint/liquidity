@@ -153,7 +153,7 @@ install: go.sum
 	go install $(BUILD_FLAGS) ./cmd/liquidityd
 
 update-swagger-docs: statik
-	$(BINDIR)/statik -src=client/docs/swagger-ui -dest=client/docs/statik -f -m
+	$(BINDIR)/statik -src=client/docs/swagger-ui -dest=client/docs -f -m
 	@if [ -n "$(git status --porcelain)" ]; then \
         echo "Swagger docs are out of sync";\
         exit 1;\

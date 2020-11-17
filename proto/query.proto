@@ -9,42 +9,33 @@ import "cosmos_proto/pagination.proto";
 option go_package = "github.com/tendermint/liquidity/types";
 
 service Query {
-    // description
+
+    // Get all liquidity pools with each liquidity pool batch
     rpc LiquidityPools (QueryLiquidityPoolsRequest) returns (QueryLiquidityPoolsResponse) {
         option (google.api.http).get = "/liquidity/pools";
     }
 
-    // description
+    // Get a liquidity pool with liquidity pool batch by pool_id
     rpc LiquidityPool (QueryLiquidityPoolRequest) returns (QueryLiquidityPoolResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}";
     }
 
-    // description
-    rpc LiquidityPoolBatches (QueryLiquidityPoolBatchesRequest) returns (QueryLiquidityPoolBatchesResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}/batches";
-    }
-
-    // description
+    // Get a liquidity pool batch by pool_id
     rpc LiquidityPoolBatch (QueryLiquidityPoolBatchRequest) returns (QueryLiquidityPoolBatchResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/{batch_index}";
-    }
-
-    // description
-    rpc LiquidityPoolLatestBatch (QueryLiquidityPoolLatestBatchRequest) returns (QueryLiquidityPoolLatestBatchResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch";
     }
 
-    // description
+    // Get all pool batch swap messages of the liquidity pool
     rpc PoolBatchSwapMsgs(QueryPoolBatchSwapMsgsRequest) returns (QueryPoolBatchSwapMsgsResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/swaps";
     }
 
-    // description
+    // Get all pool batch deposit messages of the liquidity pool
     rpc PoolBatchDepositMsgs(QueryPoolBatchDepositMsgsRequest) returns (QueryPoolBatchDepositMsgsResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits";
     }
 
-    // description
+    // Get all pool batch withdraw messages of the liquidity pool
     rpc PoolBatchWithdrawMsgs(QueryPoolBatchWithdrawMsgsRequest) returns (QueryPoolBatchWithdrawMsgsResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws";
     }
@@ -62,36 +53,19 @@ message QueryLiquidityPoolRequest {
 message QueryLiquidityPoolResponse {
     LiquidityPool liquidity_pool = 1 [(gogoproto.nullable) = false];
     LiquidityPoolMetaData liquidity_pool_meta_data = 2;
-}
-
-message QueryLiquidityPoolBatchesRequest {
-    uint64 pool_id = 1;
-}
-
-message QueryLiquidityPoolBatchesResponse {
-    repeated LiquidityPoolBatch liquidity_pool_batches = 1 [(gogoproto.nullable) = false];
+    LiquidityPoolBatch liquidity_pool_batch = 3;
 }
 
 message QueryLiquidityPoolBatchRequest {
     uint64 pool_id = 1;
-    uint64 batch_index = 2;
 }
 
 message QueryLiquidityPoolBatchResponse {
     LiquidityPoolBatch liquidity_pool_batch = 1 [(gogoproto.nullable) = false];
 }
 
-message QueryLiquidityPoolLatestBatchRequest {
-    uint64 pool_id = 1;
-}
-
-message QueryLiquidityPoolLatestBatchResponse {
-    LiquidityPoolBatch liquidity_pool_batch = 1 [(gogoproto.nullable) = false];
-}
-
-
 message QueryLiquidityPoolsRequest {
-    cosmos.query.PageResponse pagination = 1;
+    cosmos.query.PageRequest pagination = 1;
 }
 
 message QueryLiquidityPoolsResponse {
@@ -110,8 +84,6 @@ message QueryParamsResponse {
 
 message QueryPoolBatchSwapMsgsRequest {
     string pool_id = 1;
-//    string batch_index = 2;
-    // pagination defines the pagination in the response.
     cosmos.query.PageRequest pagination = 2;
 }
 
@@ -122,8 +94,6 @@ message QueryPoolBatchSwapMsgsResponse {
 }
 message QueryPoolBatchDepositMsgsRequest {
     string pool_id = 1;
-//    string batch_index = 2;
-    // pagination defines the pagination in the response.
     cosmos.query.PageRequest pagination = 2;
 }
 
@@ -134,8 +104,6 @@ message QueryPoolBatchDepositMsgsResponse {
 }
 message QueryPoolBatchWithdrawMsgsRequest {
     string pool_id = 1;
-//    string batch_index = 2;
-    // pagination defines the pagination in the response.
     cosmos.query.PageRequest pagination = 2;
 }
 

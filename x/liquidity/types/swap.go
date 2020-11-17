@@ -17,7 +17,7 @@ const (
 	NoMatch         = 2
 	FractionalMatch = 3
 
-	OrderLifeSpanHeight = 0
+	//OrderLifeSpanHeight = 0
 
 	DirectionXtoY = 1
 	DirectionYtoX = 2
@@ -436,7 +436,7 @@ func FindOrderMatch(direction int, swapList []BatchPoolSwapMsg, executableAmt sd
 						orderAmt := matchOrder.Msg.OfferCoin.Amount.ToDec()
 						matchResult := MatchResult{
 							OrderHeight:       height,
-							OrderCancelHeight: height + OrderLifeSpanHeight,
+							OrderCancelHeight: height + CancelOrderLifeSpan,
 							OrderMsgIndex:     matchOrder.MsgIndex,
 							OrderPrice:        matchOrder.Msg.OrderPrice,
 							OrderAmt:          matchOrder.Msg.OfferCoin.Amount,

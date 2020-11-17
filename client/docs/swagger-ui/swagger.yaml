@@ -2,10 +2,11 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 1.0.0
+  version: 1.1.1
 paths:
   /liquidity/pools:
     post:
+      summary: Submit create liquidity pool message
       operationId: CreateLiquidityPool
       responses:
         '200':
@@ -71,7 +72,7 @@ paths:
       tags:
         - Msg
     get:
-      summary: description
+      summary: Get all liquidity pools with each liquidity pool batch
       operationId: LiquidityPools
       responses:
         '200':
@@ -124,6 +125,29 @@ paths:
                             the custom method
 
                             signatures required by gogoproto.
+                    liquidity_pool_batch:
+                      type: object
+                      properties:
+                        PoolId:
+                          type: string
+                          format: uint64
+                        BatchIndex:
+                          type: string
+                          format: uint64
+                        BeginHeight:
+                          type: string
+                          format: int64
+                        DepositMsgIndex:
+                          type: string
+                          format: uint64
+                        WithdrawMsgIndex:
+                          type: string
+                          format: uint64
+                        SwapMsgIndex:
+                          type: string
+                          format: uint64
+                        ExecutionStatus:
+                          type: boolean
               pagination:
                 type: object
                 properties:
@@ -174,28 +198,55 @@ paths:
                       type: string
                       format: byte
       parameters:
-        - name: pagination.next_key
+        - name: pagination.key
           description: |-
-            next_key is the key to be passed to PageRequest.key to
-            query the next page most efficiently.
+            key is a value returned in PageResponse.next_key to begin
+            querying the next page most efficiently. Only one of offset or key
+            should be set.
           in: query
           required: false
           type: string
           format: byte
-        - name: pagination.total
+        - name: pagination.offset
           description: >-
-            total is total number of results available if
-            PageRequest.count_total
+            offset is a numeric offset that can be used when key is unavailable.
 
-            was set, its value is undefined otherwise.
+            It is less efficient than using key. Only one of offset or key
+            should
+
+            be set.
           in: query
           required: false
           type: string
           format: uint64
+        - name: pagination.limit
+          description: >-
+            limit is the total number of results to be returned in the result
+            page.
+
+            If left empty it will default to a value to be set by each app.
+          in: query
+          required: false
+          type: string
+          format: uint64
+        - name: pagination.count_total
+          description: >-
+            count_total is set to true  to indicate that the result set should
+            include
+
+            a count of the total number of items available for pagination in
+            UIs. count_total
+
+            is only respected when offset is used. It is ignored when key is
+            set.
+          in: query
+          required: false
+          type: boolean
       tags:
         - Query
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
+      summary: Submit deposit to the liquidity pool batch
       operationId: DepositToLiquidityPool
       responses:
         '200':
@@ -262,7 +313,7 @@ paths:
       tags:
         - Msg
     get:
-      summary: description
+      summary: Get all pool batch deposit messages of the liquidity pool
       operationId: PoolBatchDepositMsgs
       responses:
         '200':
@@ -278,9 +329,9 @@ paths:
                     MsgHeight:
                       type: string
                       format: int64
-                      title: >-
-                        string TxHash = 1 [(gogoproto.moretags) =
-                        "yaml:\"tx_hash\""];
+                    MsgIndex:
+                      type: string
+                      format: int64
                     Msg:
                       type: object
                       properties:
@@ -406,6 +457,7 @@ paths:
         - Query
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
+      summary: Submit swap to the liquidity pool batch
       operationId: Swap
       responses:
         '200':
@@ -481,7 +533,7 @@ paths:
       tags:
         - Msg
     get:
-      summary: description
+      summary: Get all pool batch swap messages of the liquidity pool
       operationId: PoolBatchSwapMsgs
       responses:
         '200':
@@ -497,15 +549,12 @@ paths:
                     MsgHeight:
                       type: string
                       format: int64
-                      title: >-
-                        string TxHash = 1 [(gogoproto.moretags) =
-                        "yaml:\"tx_hash\""];
                     MsgIndex:
                       type: string
                       format: uint64
-                    FractionalCount:
+                    CancelHeight:
                       type: string
-                      format: uint64
+                      format: int64
                     Msg:
                       type: object
                       properties:
@@ -640,6 +689,7 @@ paths:
         - Query
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
+      summary: Submit withdraw from to the liquidity pool batch
       operationId: WithdrawFromLiquidityPool
       responses:
         '200':
@@ -706,7 +756,7 @@ paths:
       tags:
         - Msg
     get:
-      summary: description
+      summary: Get all pool batch withdraw messages of the liquidity pool
       operationId: PoolBatchWithdrawMsgs
       responses:
         '200':
@@ -722,9 +772,9 @@ paths:
                     MsgHeight:
                       type: string
                       format: int64
-                      title: >-
-                        string TxHash = 1 [(gogoproto.moretags) =
-                        "yaml:\"tx_hash\""];
+                    MsgIndex:
+                      type: string
+                      format: int64
                     Msg:
                       type: object
                       properties:
@@ -851,7 +901,7 @@ paths:
   /liquidity/params:
     get:
       summary: Parameters queries the liquidity parameters.
-      operationId: LiquidityParams
+      operationId: LiquidityQueries
       responses:
         '200':
           description: A successful response.
@@ -878,14 +928,13 @@ paths:
                         MaxReserveCoinNum:
                           type: integer
                           format: int64
+                        Description:
+                          type: string
                   MinInitDepositToPool:
                     type: string
                   InitPoolCoinMintAmount:
                     type: string
                   SwapFeeRate:
-                    type: string
-                    format: byte
-                  LiquidityPoolFeeRate:
                     type: string
                     format: byte
                   LiquidityPoolCreationFee:
@@ -905,9 +954,6 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                  UnitBatchSize:
-                    type: integer
-                    format: int64
             description: >-
               QueryParamsResponse is response type for the Query/Params RPC
               method.
@@ -937,7 +983,7 @@ paths:
         - Query
   '/liquidity/pools/{pool_id}':
     get:
-      summary: description
+      summary: Get a liquidity pool with liquidity pool batch by pool_id
       operationId: LiquidityPool
       responses:
         '200':
@@ -984,6 +1030,29 @@ paths:
                       custom method
 
                       signatures required by gogoproto.
+              liquidity_pool_batch:
+                type: object
+                properties:
+                  PoolId:
+                    type: string
+                    format: uint64
+                  BatchIndex:
+                    type: string
+                    format: uint64
+                  BeginHeight:
+                    type: string
+                    format: int64
+                  DepositMsgIndex:
+                    type: string
+                    format: uint64
+                  WithdrawMsgIndex:
+                    type: string
+                    format: uint64
+                  SwapMsgIndex:
+                    type: string
+                    format: uint64
+                  ExecutionStatus:
+                    type: boolean
         default:
           description: An unexpected error response.
           schema:
@@ -1016,70 +1085,7 @@ paths:
         - Query
   '/liquidity/pools/{pool_id}/batch':
     get:
-      summary: description
-      operationId: LiquidityPoolLatestBatch
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              liquidity_pool_batch:
-                type: object
-                properties:
-                  PoolId:
-                    type: string
-                    format: uint64
-                  BatchIndex:
-                    type: string
-                    format: uint64
-                  BeginHeight:
-                    type: string
-                    format: int64
-                  DepositMsgIndex:
-                    type: string
-                    format: uint64
-                  WithdrawMsgIndex:
-                    type: string
-                    format: uint64
-                  SwapMsgIndex:
-                    type: string
-                    format: uint64
-                  ExecutionStatus:
-                    type: boolean
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      parameters:
-        - name: pool_id
-          in: path
-          required: true
-          type: string
-          format: uint64
-      tags:
-        - Query
-  '/liquidity/pools/{pool_id}/batch/{batch_index}':
-    get:
-      summary: description
+      summary: Get a liquidity pool batch by pool_id
       operationId: LiquidityPoolBatch
       responses:
         '200':
@@ -1110,76 +1116,6 @@ paths:
                     format: uint64
                   ExecutionStatus:
                     type: boolean
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      parameters:
-        - name: pool_id
-          in: path
-          required: true
-          type: string
-          format: uint64
-        - name: batch_index
-          in: path
-          required: true
-          type: string
-          format: uint64
-      tags:
-        - Query
-  '/liquidity/pools/{pool_id}/batches':
-    get:
-      summary: description
-      operationId: LiquidityPoolBatches
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              liquidity_pool_batches:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    PoolId:
-                      type: string
-                      format: uint64
-                    BatchIndex:
-                      type: string
-                      format: uint64
-                    BeginHeight:
-                      type: string
-                      format: int64
-                    DepositMsgIndex:
-                      type: string
-                      format: uint64
-                    WithdrawMsgIndex:
-                      type: string
-                      format: uint64
-                    SwapMsgIndex:
-                      type: string
-                      format: uint64
-                    ExecutionStatus:
-                      type: boolean
         default:
           description: An unexpected error response.
           schema:
@@ -1438,7 +1374,9 @@ definitions:
       MsgHeight:
         type: string
         format: int64
-        title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+      MsgIndex:
+        type: string
+        format: int64
       Msg:
         type: object
         properties:
@@ -1471,13 +1409,12 @@ definitions:
       MsgHeight:
         type: string
         format: int64
-        title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
       MsgIndex:
         type: string
         format: uint64
-      FractionalCount:
+      CancelHeight:
         type: string
-        format: uint64
+        format: int64
       Msg:
         type: object
         properties:
@@ -1519,7 +1456,9 @@ definitions:
       MsgHeight:
         type: string
         format: int64
-        title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+      MsgIndex:
+        type: string
+        format: int64
       Msg:
         type: object
         properties:
@@ -1619,6 +1558,8 @@ definitions:
       MaxReserveCoinNum:
         type: integer
         format: int64
+      Description:
+        type: string
   tendermint.liquidity.Params:
     type: object
     properties:
@@ -1638,14 +1579,13 @@ definitions:
             MaxReserveCoinNum:
               type: integer
               format: int64
+            Description:
+              type: string
       MinInitDepositToPool:
         type: string
       InitPoolCoinMintAmount:
         type: string
       SwapFeeRate:
-        type: string
-        format: byte
-      LiquidityPoolFeeRate:
         type: string
         format: byte
       LiquidityPoolCreationFee:
@@ -1662,64 +1602,7 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
-      UnitBatchSize:
-        type: integer
-        format: int64
   tendermint.liquidity.QueryLiquidityPoolBatchResponse:
-    type: object
-    properties:
-      liquidity_pool_batch:
-        type: object
-        properties:
-          PoolId:
-            type: string
-            format: uint64
-          BatchIndex:
-            type: string
-            format: uint64
-          BeginHeight:
-            type: string
-            format: int64
-          DepositMsgIndex:
-            type: string
-            format: uint64
-          WithdrawMsgIndex:
-            type: string
-            format: uint64
-          SwapMsgIndex:
-            type: string
-            format: uint64
-          ExecutionStatus:
-            type: boolean
-  tendermint.liquidity.QueryLiquidityPoolBatchesResponse:
-    type: object
-    properties:
-      liquidity_pool_batches:
-        type: array
-        items:
-          type: object
-          properties:
-            PoolId:
-              type: string
-              format: uint64
-            BatchIndex:
-              type: string
-              format: uint64
-            BeginHeight:
-              type: string
-              format: int64
-            DepositMsgIndex:
-              type: string
-              format: uint64
-            WithdrawMsgIndex:
-              type: string
-              format: uint64
-            SwapMsgIndex:
-              type: string
-              format: uint64
-            ExecutionStatus:
-              type: boolean
-  tendermint.liquidity.QueryLiquidityPoolLatestBatchResponse:
     type: object
     properties:
       liquidity_pool_batch:
@@ -1787,6 +1670,29 @@ definitions:
               method
 
               signatures required by gogoproto.
+      liquidity_pool_batch:
+        type: object
+        properties:
+          PoolId:
+            type: string
+            format: uint64
+          BatchIndex:
+            type: string
+            format: uint64
+          BeginHeight:
+            type: string
+            format: int64
+          DepositMsgIndex:
+            type: string
+            format: uint64
+          WithdrawMsgIndex:
+            type: string
+            format: uint64
+          SwapMsgIndex:
+            type: string
+            format: uint64
+          ExecutionStatus:
+            type: boolean
   tendermint.liquidity.QueryLiquidityPoolsResponse:
     type: object
     properties:
@@ -1834,6 +1740,29 @@ definitions:
                     method
 
                     signatures required by gogoproto.
+            liquidity_pool_batch:
+              type: object
+              properties:
+                PoolId:
+                  type: string
+                  format: uint64
+                BatchIndex:
+                  type: string
+                  format: uint64
+                BeginHeight:
+                  type: string
+                  format: int64
+                DepositMsgIndex:
+                  type: string
+                  format: uint64
+                WithdrawMsgIndex:
+                  type: string
+                  format: uint64
+                SwapMsgIndex:
+                  type: string
+                  format: uint64
+                ExecutionStatus:
+                  type: boolean
       pagination:
         type: object
         properties:
@@ -1884,14 +1813,13 @@ definitions:
                 MaxReserveCoinNum:
                   type: integer
                   format: int64
+                Description:
+                  type: string
           MinInitDepositToPool:
             type: string
           InitPoolCoinMintAmount:
             type: string
           SwapFeeRate:
-            type: string
-            format: byte
-          LiquidityPoolFeeRate:
             type: string
             format: byte
           LiquidityPoolCreationFee:
@@ -1911,9 +1839,6 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-          UnitBatchSize:
-            type: integer
-            format: int64
     description: QueryParamsResponse is response type for the Query/Params RPC method.
   tendermint.liquidity.QueryPoolBatchDepositMsgsResponse:
     type: object
@@ -1926,7 +1851,9 @@ definitions:
             MsgHeight:
               type: string
               format: int64
-              title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+            MsgIndex:
+              type: string
+              format: int64
             Msg:
               type: object
               properties:
@@ -1987,13 +1914,12 @@ definitions:
             MsgHeight:
               type: string
               format: int64
-              title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
             MsgIndex:
               type: string
               format: uint64
-            FractionalCount:
+            CancelHeight:
               type: string
-              format: uint64
+              format: int64
             Msg:
               type: object
               properties:
@@ -2063,7 +1989,9 @@ definitions:
             MsgHeight:
               type: string
               format: int64
-              title: 'string TxHash = 1 [(gogoproto.moretags) = "yaml:\"tx_hash\""];'
+            MsgIndex:
+              type: string
+              format: int64
             Msg:
               type: object
               properties:
