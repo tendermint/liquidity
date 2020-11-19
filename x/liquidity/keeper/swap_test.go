@@ -102,8 +102,8 @@ func TestSwapExecution(t *testing.T) {
 	}
 
 	// verify pool batch
-	batchIndex := simapp.LiquidityKeeper.GetLiquidityPoolBatchIndex(ctx, poolID)
-	liquidityPoolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolID, batchIndex)
+	//batchIndex := simapp.LiquidityKeeper.GetLiquidityPoolBatchIndex(ctx, poolID)
+	liquidityPoolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolID)
 	require.True(t, found)
 	require.NotNil(t, liquidityPoolBatch)
 
