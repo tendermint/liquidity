@@ -32,7 +32,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	denomX := reserveCoins[0].Denom
 	denomY := reserveCoins[1].Denom
 
-
 	// make orderMap, orderbook by sort orderMap
 	orderMap, XtoY, YtoX := types.GetOrderMap(swapMsgs, denomX, denomY)
 	orderBook := orderMap.SortOrderBook()
@@ -81,8 +80,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	for _, mr := range matchResultXtoY {
 		fmt.Println("matchResultXtoY", mr)
-		totalAmtX = totalAmtX.Sub(mr.MatchedAmt)
-		totalAmtY = totalAmtY.Add(mr.ReceiveAmt)
+		totalAmtX = totalAmtX.Sub(mr.TransactedCoinAmt)
+		totalAmtY = totalAmtY.Add(mr.ExchangedCoinAmt)
 	}
 
 	invariantCheckX := totalAmtX
@@ -93,8 +92,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	for _, mr := range matchResultYtoX {
 		fmt.Println("matchResultYtoX", mr)
-		totalAmtY = totalAmtY.Sub(mr.MatchedAmt)
-		totalAmtX = totalAmtX.Add(mr.ReceiveAmt)
+		totalAmtY = totalAmtY.Sub(mr.TransactedCoinAmt)
+		totalAmtX = totalAmtX.Add(mr.ExchangedCoinAmt)
 	}
 
 	invariantCheckX = invariantCheckX.Add(totalAmtX)

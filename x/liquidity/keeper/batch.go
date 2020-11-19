@@ -5,29 +5,32 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
+// TODO: testcodes
 func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 	// Delete already executed batches
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
 		if liquidityPoolBatch.ExecutionStatus {
-			// TODO: remove all msgs
-			k.DeleteAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch)
-			k.DeleteAllLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch)
-			k.DeleteAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
+			k.DeleteAllReadyLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch)
+			k.DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch)
+			k.DeleteAllReadyLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
+
 			// TODO: remove after endblock? direct delete on fail for deposit, withdraw
 			// TODO: clean, check span height delete for swap
-			k.DeleteLiquidityPoolBatch(ctx, liquidityPoolBatch)
-			// TODO: init next Batch only for executed, no error
+
+			k.InitNextBatch(ctx, liquidityPoolBatch)
 		}
 		return false
 	})
+}
 
-	// Init empty batch
-	// TODO: init only after executed
-	//k.IterateAllLiquidityPools(ctx, func(liquidityPool types.LiquidityPool) bool {
-	//	batch := types.NewLiquidityPoolBatch(liquidityPool.PoolId, k.GetNextBatchIndexWithUpdate(ctx, liquidityPool.PoolId))
-	//	k.SetLiquidityPoolBatch(ctx, batch)
-	//	return false
-	//})
+func (k Keeper) InitNextBatch(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) error {
+	if !liquidityPoolBatch.ExecutionStatus {
+		return types.ErrBatchNotExecuted
+	}
+	liquidityPoolBatch.BatchIndex = k.GetNextBatchIndexWithUpdate(ctx, liquidityPoolBatch.PoolId)
+	liquidityPoolBatch.BeginHeight = ctx.BlockHeight()
+	k.SetLiquidityPoolBatch(ctx, liquidityPoolBatch)
+	return nil
 }
 
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
@@ -40,14 +43,12 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 				if err := k.DepositLiquidityPool(ctx, batchMsg.Msg); err != nil {
 					k.RefundDepositLiquidityPool(ctx, batchMsg)
 				}
-				// TODO: remove executed msg?
 				return false
 			})
 			k.IterateAllLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolWithdrawMsg) bool {
 				if err := k.WithdrawLiquidityPool(ctx, batchMsg.Msg); err != nil {
 					k.RefundWithdrawLiquidityPool(ctx, batchMsg)
 				}
-				// TODO: remove executed msg?
 				return false
 			})
 			liquidityPoolBatch.ExecutionStatus = true
@@ -57,14 +58,14 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	})
 }
 
-func (k Keeper) DepositEscrow(ctx sdk.Context, depositor sdk.AccAddress, depositCoins sdk.Coins) error {
+func (k Keeper) HoldEscrow(ctx sdk.Context, depositor sdk.AccAddress, depositCoins sdk.Coins) error {
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, depositCoins); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (k Keeper) WithdrawEscrow(ctx sdk.Context, withdrawer sdk.AccAddress, withdrawCoins sdk.Coins) error {
+func (k Keeper) ReleaseEscrow(ctx sdk.Context, withdrawer sdk.AccAddress, withdrawCoins sdk.Coins) error {
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, withdrawer, withdrawCoins); err != nil {
 		return err
 	}
@@ -86,14 +87,13 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 		Msg:       msg,
 	}
 
-	// TODO: escrow
-	if err := k.DepositEscrow(ctx, msg.Depositor, msg.DepositCoins); err != nil {
+	if err := k.HoldEscrow(ctx, msg.Depositor, msg.DepositCoins); err != nil {
 		return err
 	}
 
 	poolBatch.DepositMsgIndex += 1
 	k.SetLiquidityPoolBatch(ctx, poolBatch)
-	k.SetLiquidityPoolBatchDepositMsg(ctx, poolBatch, poolBatch.DepositMsgIndex, batchPoolMsg)
+	k.SetLiquidityPoolBatchDepositMsg(ctx, poolBatch.PoolId, poolBatch.DepositMsgIndex, batchPoolMsg)
 	return nil
 }
 
@@ -112,14 +112,13 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 		Msg:       msg,
 	}
 
-	// TODO: escrow
-	if err := k.DepositEscrow(ctx, msg.Withdrawer, msg.PoolCoin); err != nil {
+	if err := k.HoldEscrow(ctx, msg.Withdrawer, msg.PoolCoin); err != nil {
 		return err
 	}
 
 	poolBatch.WithdrawMsgIndex += 1
 	k.SetLiquidityPoolBatch(ctx, poolBatch)
-	k.SetLiquidityPoolBatchWithdrawMsg(ctx, poolBatch, poolBatch.WithdrawMsgIndex, batchPoolMsg)
+	k.SetLiquidityPoolBatchWithdrawMsg(ctx, poolBatch.PoolId, poolBatch.WithdrawMsgIndex, batchPoolMsg)
 	return nil
 }
 
@@ -140,8 +139,12 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) er
 		Msg:       msg,
 	}
 	batchPoolMsg.CancelHeight = batchPoolMsg.MsgHeight + types.CancelOrderLifeSpan
-	// TODO: escrow
+
+	if err := k.HoldEscrow(ctx, msg.SwapRequester, sdk.NewCoins(msg.OfferCoin)); err != nil {
+		return err
+	}
+
 	k.SetLiquidityPoolBatch(ctx, poolBatch)
-	k.SetLiquidityPoolBatchSwapMsg(ctx, poolBatch, poolBatch.SwapMsgIndex, batchPoolMsg)
+	k.SetLiquidityPoolBatchSwapMsg(ctx, poolBatch.PoolId, poolBatch.SwapMsgIndex, batchPoolMsg)
 	return nil
 }

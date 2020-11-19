@@ -92,3 +92,32 @@ func TestDepositLiquidityPoolToBatch(t *testing.T) {
 	require.NotEqual(t, sdk.ZeroInt(), depositBalance)
 	require.Equal(t, poolCoin, depositorBalance.Amount.Add(creatorBalance.Amount))
 }
+
+func TestInitNextBatch(t *testing.T) {
+	simapp, ctx := createTestInput()
+	pool := types.LiquidityPool{
+		PoolId:            0,
+		PoolTypeIndex:     0,
+		ReserveCoinDenoms: nil,
+		ReserveAccount:    nil,
+		PoolCoinDenom:     "",
+	}
+	simapp.LiquidityKeeper.SetLiquidityPool(ctx, pool)
+
+	batch := types.NewLiquidityPoolBatch(pool.PoolId, 0)
+
+	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, batch)
+	err := simapp.LiquidityKeeper.InitNextBatch(ctx, batch)
+	require.Error(t, err)
+
+	batch.ExecutionStatus = true
+	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, batch)
+
+	err = simapp.LiquidityKeeper.InitNextBatch(ctx, batch)
+	require.NoError(t, err)
+
+	batch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, batch.PoolId)
+	require.True(t, found)
+	require.Equal(t, uint64(1), batch.BatchIndex)
+
+}

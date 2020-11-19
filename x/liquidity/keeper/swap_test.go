@@ -5,6 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 	"math/rand"
 	"testing"
@@ -91,7 +92,8 @@ func TestSwapExecution(t *testing.T) {
 	}
 
 	// begin block, delete and init pool batch
-	simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	//simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
 
 	// handle msgs, set order msgs to batch
 	for _, msg := range XtoY {
@@ -108,7 +110,8 @@ func TestSwapExecution(t *testing.T) {
 	require.NotNil(t, liquidityPoolBatch)
 
 	// end block, swap execution
-	err = simapp.LiquidityKeeper.SwapExecution(ctx, liquidityPoolBatch)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	//err = simapp.LiquidityKeeper.SwapExecution(ctx, liquidityPoolBatch)
 	require.NoError(t, err)
 }
 
@@ -133,8 +136,8 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 	for i := 0; i < sizeXtoY; i++ {
 		randFloats(0.1, 0.9)
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009), 3))
-		orderAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
-		orderCoin := sdk.NewCoin(denomX, orderAmt.RoundInt())
+		offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
+		orderCoin := sdk.NewCoin(denomX, offerAmt.RoundInt())
 
 		XtoY = append(XtoY, &types.MsgSwap{
 			OfferCoin:       orderCoin,
@@ -145,8 +148,8 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 
 	for i := 0; i < sizeYtoX; i++ {
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009), 3))
-		orderAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
-		orderCoin := sdk.NewCoin(denomY, orderAmt.RoundInt())
+		offerAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
+		orderCoin := sdk.NewCoin(denomY, offerAmt.RoundInt())
 
 		YtoX = append(YtoX, &types.MsgSwap{
 			OfferCoin:       orderCoin,

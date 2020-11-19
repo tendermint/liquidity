@@ -19,4 +19,5 @@ var (
 	ErrPoolAlreadyExists      = sdkerrors.Register(ModuleName, 11, "the pool already exists")
 	ErrPoolBatchNotExists     = sdkerrors.Register(ModuleName, 12, "pool batch not exists")
 	ErrOrderBookInvalidity    = sdkerrors.Register(ModuleName, 13, "orderbook is not validity")
+	ErrBatchNotExecuted       = sdkerrors.Register(ModuleName, 14, "the liquidity pool batch is not executed")
 )
