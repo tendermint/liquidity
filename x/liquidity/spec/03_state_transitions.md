@@ -143,7 +143,7 @@ simulation script (in python) : [https://github.com/b-harvest/Liquidity-Module-F
             - `fractionalRatio(i)` = (`EX(k)` - `EX(i-1)`) / (`EX(i)` - `EX(i-1)`)
             - break the iteration
         - matching amount for swap orders with this `orderPrice(i)` :
-            - `matchingAmt` = `orderAmt` * `fractionalRatio(i)`
+            - `matchingAmt` = `offerAmt` * `fractionalRatio(i)`
 
 - for swap orders from Y to X
     - Iteration : iterate `orderPrice(i)` of swap orders from Y to X (low to high)
@@ -154,7 +154,7 @@ simulation script (in python) : [https://github.com/b-harvest/Liquidity-Module-F
             - `fractionalRatio(i)` = (`EY(k)` - `EY(i-1)`) / (`EY(i)` - `EY(i-1)`)
             - break the iteration
         - matching amount for swap orders with this `orderPrice(i)` :
-            - `matchingAmt` = `orderAmt` * `fractionalRatio(i)`
+            - `matchingAmt` = `offerAmt` * `fractionalRatio(i)`
 
 **2) Swap Fee Payment**
 

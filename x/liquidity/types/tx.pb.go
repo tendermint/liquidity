@@ -633,9 +633,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
+	// Submit create liquidity pool message
 	CreateLiquidityPool(ctx context.Context, in *MsgCreateLiquidityPoolRequest, opts ...grpc.CallOption) (*MsgCreateLiquidityPoolResponse, error)
+	// Submit deposit to the liquidity pool batch
 	DepositToLiquidityPool(ctx context.Context, in *MsgDepositToLiquidityPoolRequest, opts ...grpc.CallOption) (*MsgDepositToLiquidityPoolResponse, error)
+	// Submit withdraw from to the liquidity pool batch
 	WithdrawFromLiquidityPool(ctx context.Context, in *MsgWithdrawFromLiquidityPoolRequest, opts ...grpc.CallOption) (*MsgWithdrawFromLiquidityPoolResponse, error)
+	// Submit swap to the liquidity pool batch
 	Swap(ctx context.Context, in *MsgSwapRequest, opts ...grpc.CallOption) (*MsgSwapResponse, error)
 }
 
@@ -685,9 +689,13 @@ func (c *msgClient) Swap(ctx context.Context, in *MsgSwapRequest, opts ...grpc.C
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
+	// Submit create liquidity pool message
 	CreateLiquidityPool(context.Context, *MsgCreateLiquidityPoolRequest) (*MsgCreateLiquidityPoolResponse, error)
+	// Submit deposit to the liquidity pool batch
 	DepositToLiquidityPool(context.Context, *MsgDepositToLiquidityPoolRequest) (*MsgDepositToLiquidityPoolResponse, error)
+	// Submit withdraw from to the liquidity pool batch
 	WithdrawFromLiquidityPool(context.Context, *MsgWithdrawFromLiquidityPoolRequest) (*MsgWithdrawFromLiquidityPoolResponse, error)
+	// Submit swap to the liquidity pool batch
 	Swap(context.Context, *MsgSwapRequest) (*MsgSwapResponse, error)
 }
 

@@ -32,15 +32,7 @@ func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPools
 	return nil, nil
 }
 
-func (k Keeper) LiquidityPoolBatches(c context.Context, req *types.QueryLiquidityPoolBatchesRequest) (*types.QueryLiquidityPoolBatchesResponse, error) {
-	return nil, nil
-}
-
 func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
-	return nil, nil
-}
-
-func (k Keeper) LiquidityPoolLatestBatch(c context.Context, req *types.QueryLiquidityPoolLatestBatchRequest) (*types.QueryLiquidityPoolLatestBatchResponse, error) {
 	return nil, nil
 }
 

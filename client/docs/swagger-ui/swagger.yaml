@@ -331,7 +331,13 @@ paths:
                       format: int64
                     MsgIndex:
                       type: string
-                      format: int64
+                      format: uint64
+                    Executed:
+                      type: boolean
+                    Succeed:
+                      type: boolean
+                    ReadyToDelete:
+                      type: boolean
                     Msg:
                       type: object
                       properties:
@@ -555,6 +561,12 @@ paths:
                     CancelHeight:
                       type: string
                       format: int64
+                    Executed:
+                      type: boolean
+                    Succeed:
+                      type: boolean
+                    ReadyToDelete:
+                      type: boolean
                     Msg:
                       type: object
                       properties:
@@ -774,7 +786,13 @@ paths:
                       format: int64
                     MsgIndex:
                       type: string
-                      format: int64
+                      format: uint64
+                    Executed:
+                      type: boolean
+                    Succeed:
+                      type: boolean
+                    ReadyToDelete:
+                      type: boolean
                     Msg:
                       type: object
                       properties:
@@ -1376,7 +1394,13 @@ definitions:
         format: int64
       MsgIndex:
         type: string
-        format: int64
+        format: uint64
+      Executed:
+        type: boolean
+      Succeed:
+        type: boolean
+      ReadyToDelete:
+        type: boolean
       Msg:
         type: object
         properties:
@@ -1415,6 +1439,12 @@ definitions:
       CancelHeight:
         type: string
         format: int64
+      Executed:
+        type: boolean
+      Succeed:
+        type: boolean
+      ReadyToDelete:
+        type: boolean
       Msg:
         type: object
         properties:
@@ -1458,7 +1488,13 @@ definitions:
         format: int64
       MsgIndex:
         type: string
-        format: int64
+        format: uint64
+      Executed:
+        type: boolean
+      Succeed:
+        type: boolean
+      ReadyToDelete:
+        type: boolean
       Msg:
         type: object
         properties:
@@ -1853,7 +1889,13 @@ definitions:
               format: int64
             MsgIndex:
               type: string
-              format: int64
+              format: uint64
+            Executed:
+              type: boolean
+            Succeed:
+              type: boolean
+            ReadyToDelete:
+              type: boolean
             Msg:
               type: object
               properties:
@@ -1920,6 +1962,12 @@ definitions:
             CancelHeight:
               type: string
               format: int64
+            Executed:
+              type: boolean
+            Succeed:
+              type: boolean
+            ReadyToDelete:
+              type: boolean
             Msg:
               type: object
               properties:
@@ -1991,7 +2039,13 @@ definitions:
               format: int64
             MsgIndex:
               type: string
-              format: int64
+              format: uint64
+            Executed:
+              type: boolean
+            Succeed:
+              type: boolean
+            ReadyToDelete:
+              type: boolean
             Msg:
               type: object
               properties:

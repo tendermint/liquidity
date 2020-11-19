@@ -83,19 +83,28 @@ message LiquidityPoolBatch {
 
 message BatchPoolDepositMsg {
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
-    int64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
-    MsgDepositToLiquidityPool Msg = 3 [(gogoproto.moretags) = "yaml:\"msg\""];
+    uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
+    bool Executed = 3 [(gogoproto.moretags) = "yaml:\"executed\""];
+    bool Succeed = 4 [(gogoproto.moretags) = "yaml:\"succeed\""];
+    bool ReadyToDelete = 5 [(gogoproto.moretags) = "yaml:\"ready_to_delete\""];
+    MsgDepositToLiquidityPool Msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message BatchPoolWithdrawMsg {
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
-    int64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
-    MsgWithdrawFromLiquidityPool Msg = 3 [(gogoproto.moretags) = "yaml:\"msg\""];
+    uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
+    bool Executed = 3 [(gogoproto.moretags) = "yaml:\"executed\""];
+    bool Succeed = 4 [(gogoproto.moretags) = "yaml:\"succeed\""];
+    bool ReadyToDelete = 5 [(gogoproto.moretags) = "yaml:\"ready_to_delete\""];
+    MsgWithdrawFromLiquidityPool Msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message BatchPoolSwapMsg {
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
     uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
     int64 CancelHeight = 3 [(gogoproto.moretags) = "yaml:\"cancel_height\""];
-    MsgSwap Msg = 4 [(gogoproto.moretags) = "yaml:\"msg\""];
+    bool Executed = 4 [(gogoproto.moretags) = "yaml:\"executed\""];
+    bool Succeed = 5 [(gogoproto.moretags) = "yaml:\"succeed\""];
+    bool ReadyToDelete = 6 [(gogoproto.moretags) = "yaml:\"ready_to_delete\""];
+    MsgSwap Msg = 7 [(gogoproto.moretags) = "yaml:\"msg\""];
 }

@@ -29,8 +29,8 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, Y
 	for i := 0; i < XtoYnewSize; i++ {
 		randFloats(0.1, 0.9)
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009), 3))
-		orderAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
-		orderCoin := sdk.NewCoin(denomX, orderAmt.RoundInt())
+		offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
+		orderCoin := sdk.NewCoin(denomX, offerAmt.RoundInt())
 
 		XtoY = append(XtoY, BatchPoolSwapMsg{
 			Msg: &MsgSwap{
@@ -43,8 +43,8 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, Y
 
 	for i := 0; i < YtoXnewSize; i++ {
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009), 3))
-		orderAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
-		orderCoin := sdk.NewCoin(denomY, orderAmt.RoundInt())
+		offerAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
+		orderCoin := sdk.NewCoin(denomY, offerAmt.RoundInt())
 
 		YtoX = append(YtoX, BatchPoolSwapMsg{
 			Msg: &MsgSwap{
@@ -76,18 +76,18 @@ func TestOrderBookSort(t *testing.T) {
 	c, _ := sdk.NewDecFromStr("0.3")
 	orderMap[a.String()] = OrderByPrice{
 		OrderPrice:   a,
-		BuyOrderAmt:  sdk.ZeroInt(),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[b.String()] = OrderByPrice{
 		OrderPrice:   b,
-		BuyOrderAmt:  sdk.ZeroInt(),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[c.String()] = OrderByPrice{
 		OrderPrice:   c,
-		BuyOrderAmt:  sdk.ZeroInt(),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	// make orderbook to sort orderMap
 	orderBook := orderMap.SortOrderBook()
@@ -139,18 +139,18 @@ func TestGetExecutableAmt(t *testing.T) {
 	c, _ := sdk.NewDecFromStr("0.3")
 	orderMap[a.String()] = OrderByPrice{
 		OrderPrice:   a,
-		BuyOrderAmt:  sdk.ZeroInt(),
-		SellOrderAmt: sdk.NewInt(30000000),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.NewInt(30000000),
 	}
 	orderMap[b.String()] = OrderByPrice{
 		OrderPrice:   b,
-		BuyOrderAmt:  sdk.NewInt(90000000),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.NewInt(90000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[c.String()] = OrderByPrice{
 		OrderPrice:   c,
-		BuyOrderAmt:  sdk.NewInt(50000000),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.NewInt(50000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	// make orderbook to sort orderMap
 	orderBook := orderMap.SortOrderBook()
@@ -170,18 +170,18 @@ func TestGetPriceDirection(t *testing.T) {
 	c, _ := sdk.NewDecFromStr("0.3")
 	orderMap[a.String()] = OrderByPrice{
 		OrderPrice:   a,
-		BuyOrderAmt:  sdk.ZeroInt(),
-		SellOrderAmt: sdk.NewInt(30000000),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.NewInt(30000000),
 	}
 	orderMap[b.String()] = OrderByPrice{
 		OrderPrice:   b,
-		BuyOrderAmt:  sdk.NewInt(90000000),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.NewInt(90000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[c.String()] = OrderByPrice{
 		OrderPrice:   c,
-		BuyOrderAmt:  sdk.NewInt(50000000),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.NewInt(50000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	// make orderbook to sort orderMap
 	orderBook := orderMap.SortOrderBook()
@@ -214,18 +214,18 @@ func TestComputePriceDirection(t *testing.T) {
 	c, _ := sdk.NewDecFromStr("1.9")
 	orderMap[a.String()] = OrderByPrice{
 		OrderPrice:   a,
-		BuyOrderAmt:  sdk.ZeroInt(),
-		SellOrderAmt: sdk.NewInt(3000000),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.NewInt(3000000),
 	}
 	orderMap[b.String()] = OrderByPrice{
 		OrderPrice:   b,
-		BuyOrderAmt:  sdk.NewInt(9000000),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.NewInt(9000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[c.String()] = OrderByPrice{
 		OrderPrice:   c,
-		BuyOrderAmt:  sdk.NewInt(5000000),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.NewInt(5000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	// make orderbook to sort orderMap
 	orderBook := orderMap.SortOrderBook()
@@ -241,18 +241,18 @@ func TestComputePriceDirection(t *testing.T) {
 	// increase case
 	orderMap[c.String()] = OrderByPrice{
 		OrderPrice:   c,
-		BuyOrderAmt:  sdk.ZeroInt(),
-		SellOrderAmt: sdk.NewInt(1000000),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.NewInt(1000000),
 	}
 	orderMap[b.String()] = OrderByPrice{
 		OrderPrice:   b,
-		BuyOrderAmt:  sdk.NewInt(4000000),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.NewInt(4000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[a.String()] = OrderByPrice{
 		OrderPrice:   a,
-		BuyOrderAmt:  sdk.NewInt(7000000),
-		SellOrderAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.NewInt(7000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	// make orderbook to sort orderMap
 	orderBook = orderMap.SortOrderBook()

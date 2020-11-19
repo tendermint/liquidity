@@ -34,10 +34,10 @@ var (
 	LiquidityPoolBatchSwapMsgIndexKeyPrefix     = []byte{0x33}
 )
 
-func GetLiquidityPoolKey(poolID uint64) []byte {
+func GetLiquidityPoolKey(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolKeyPrefix[0]
-	copy(key[1:], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
@@ -48,68 +48,61 @@ func GetLiquidityPoolByReserveAccIndexKey(reserveAcc sdk.AccAddress) []byte {
 // TODO: check msgList struck is right? need to like UnbondingDelegations, need to sorted MessageList?
 //store.Delete(unbondingTimesliceIterator.Key())
 
-func GetLiquidityPoolBatchIndexKey(poolID uint64) []byte {
+func GetLiquidityPoolBatchIndexKey(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchIndexKeyPrefix[0]
-	copy(key[1:], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-func GetLiquidityPoolBatchKey(poolID uint64, batchIndex uint64) []byte {
-	key := make([]byte, 17)
+func GetLiquidityPoolBatchKey(poolId uint64) []byte {
+	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
-	copy(key[9:], sdk.Uint64ToBigEndian(batchIndex))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-func GetLiquidityPoolBatchDepositMsgsPrefix(poolID, batchIndex uint64) []byte {
+func GetLiquidityPoolBatchDepositMsgsPrefix(poolId uint64) []byte {
+	key := make([]byte, 9)
+	key[0] = LiquidityPoolBatchDepositMsgIndexKeyPrefix[0]
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	return key
+}
+
+func GetLiquidityPoolBatchWithdrawMsgsPrefix(poolId uint64) []byte {
+	key := make([]byte, 9)
+	key[0] = LiquidityPoolBatchWithdrawMsgIndexKeyPrefix[0]
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	return key
+}
+
+func GetLiquidityPoolBatchSwapMsgsPrefix(poolId uint64) []byte {
+	key := make([]byte, 9)
+	key[0] = LiquidityPoolBatchSwapMsgIndexKeyPrefix[0]
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	return key
+}
+
+func GetLiquidityPoolBatchDepositMsgIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchDepositMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
-	copy(key[9:], sdk.Uint64ToBigEndian(batchIndex))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }
 
-func GetLiquidityPoolBatchWithdrawMsgsPrefix(poolID, batchIndex uint64) []byte {
+func GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchWithdrawMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
-	copy(key[9:], sdk.Uint64ToBigEndian(batchIndex))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }
 
-func GetLiquidityPoolBatchSwapMsgsPrefix(poolID, batchIndex uint64) []byte {
+func GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchSwapMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
-	copy(key[9:], sdk.Uint64ToBigEndian(batchIndex))
-	return key
-}
-
-func GetLiquidityPoolBatchDepositMsgIndex(poolID, batchIndex, msgIndex uint64) []byte {
-	key := make([]byte, 25)
-	key[0] = LiquidityPoolBatchDepositMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
-	copy(key[9:17], sdk.Uint64ToBigEndian(batchIndex))
-	copy(key[17:], sdk.Uint64ToBigEndian(msgIndex))
-	return key
-}
-
-func GetLiquidityPoolBatchWithdrawMsgIndex(poolID, batchIndex, msgIndex uint64) []byte {
-	key := make([]byte, 25)
-	key[0] = LiquidityPoolBatchWithdrawMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
-	copy(key[9:17], sdk.Uint64ToBigEndian(batchIndex))
-	copy(key[17:], sdk.Uint64ToBigEndian(msgIndex))
-	return key
-}
-
-func GetLiquidityPoolBatchSwapMsgIndex(poolID, batchIndex, msgIndex uint64) []byte {
-	key := make([]byte, 25)
-	key[0] = LiquidityPoolBatchSwapMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
-	copy(key[9:17], sdk.Uint64ToBigEndian(batchIndex))
-	copy(key[17:], sdk.Uint64ToBigEndian(msgIndex))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }

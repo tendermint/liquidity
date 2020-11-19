@@ -13,6 +13,13 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		return types.ErrPoolNotExists
 	}
 
+	// TODO: get all past queued orders
+	// get All swap msgs
+	swapMsgs := k.GetAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
+	if len(swapMsgs) == 0 {
+		return nil
+	}
+
 	// get reserve Coin from the liquidity pool
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 	reserveCoins.Sort()
@@ -25,11 +32,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	denomX := reserveCoins[0].Denom
 	denomY := reserveCoins[1].Denom
 
-	// get All swap msgs from pool batch, and make orderMap
-	swapMsgs := k.GetAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
+	// make orderMap, orderbook by sort orderMap
 	orderMap, XtoY, YtoX := types.GetOrderMap(swapMsgs, denomX, denomY)
-
-	// make orderbook by sort orderMap
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
@@ -76,8 +80,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	for _, mr := range matchResultXtoY {
 		fmt.Println("matchResultXtoY", mr)
-		totalAmtX = totalAmtX.Sub(mr.MatchedAmt)
-		totalAmtY = totalAmtY.Add(mr.ReceiveAmt)
+		totalAmtX = totalAmtX.Sub(mr.TransactedCoinAmt)
+		totalAmtY = totalAmtY.Add(mr.ExchangedCoinAmt)
 	}
 
 	invariantCheckX := totalAmtX
@@ -88,8 +92,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	for _, mr := range matchResultYtoX {
 		fmt.Println("matchResultYtoX", mr)
-		totalAmtY = totalAmtY.Sub(mr.MatchedAmt)
-		totalAmtX = totalAmtX.Add(mr.ReceiveAmt)
+		totalAmtY = totalAmtY.Sub(mr.TransactedCoinAmt)
+		totalAmtX = totalAmtX.Add(mr.ExchangedCoinAmt)
 	}
 
 	invariantCheckX = invariantCheckX.Add(totalAmtX)
