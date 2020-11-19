@@ -40,13 +40,13 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 				// TODO: WIP
 			}
 			k.IterateAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolDepositMsg) bool {
-				if err := k.DepositLiquidityPool(ctx, batchMsg.Msg); err != nil {
+				if err := k.DepositLiquidityPool(ctx, batchMsg); err != nil {
 					k.RefundDepositLiquidityPool(ctx, batchMsg)
 				}
 				return false
 			})
 			k.IterateAllLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolWithdrawMsg) bool {
-				if err := k.WithdrawLiquidityPool(ctx, batchMsg.Msg); err != nil {
+				if err := k.WithdrawLiquidityPool(ctx, batchMsg); err != nil {
 					k.RefundWithdrawLiquidityPool(ctx, batchMsg)
 				}
 				return false
