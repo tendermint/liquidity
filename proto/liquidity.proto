@@ -83,13 +83,13 @@ message LiquidityPoolBatch {
 
 message BatchPoolDepositMsg {
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
-    int64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
+    uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
     MsgDepositToLiquidityPool Msg = 3 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message BatchPoolWithdrawMsg {
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
-    int64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
+    uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
     MsgWithdrawFromLiquidityPool Msg = 3 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 

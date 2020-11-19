@@ -34,10 +34,10 @@ var (
 	LiquidityPoolBatchSwapMsgIndexKeyPrefix     = []byte{0x33}
 )
 
-func GetLiquidityPoolKey(poolID uint64) []byte {
+func GetLiquidityPoolKey(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolKeyPrefix[0]
-	copy(key[1:], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
@@ -48,61 +48,61 @@ func GetLiquidityPoolByReserveAccIndexKey(reserveAcc sdk.AccAddress) []byte {
 // TODO: check msgList struck is right? need to like UnbondingDelegations, need to sorted MessageList?
 //store.Delete(unbondingTimesliceIterator.Key())
 
-func GetLiquidityPoolBatchIndexKey(poolID uint64) []byte {
+func GetLiquidityPoolBatchIndexKey(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchIndexKeyPrefix[0]
-	copy(key[1:], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-func GetLiquidityPoolBatchKey(poolID uint64) []byte {
+func GetLiquidityPoolBatchKey(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-func GetLiquidityPoolBatchDepositMsgsPrefix(poolID uint64) []byte {
+func GetLiquidityPoolBatchDepositMsgsPrefix(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchDepositMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-func GetLiquidityPoolBatchWithdrawMsgsPrefix(poolID uint64) []byte {
+func GetLiquidityPoolBatchWithdrawMsgsPrefix(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchWithdrawMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-func GetLiquidityPoolBatchSwapMsgsPrefix(poolID uint64) []byte {
+func GetLiquidityPoolBatchSwapMsgsPrefix(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchSwapMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-func GetLiquidityPoolBatchDepositMsgIndex(poolID, msgIndex uint64) []byte {
+func GetLiquidityPoolBatchDepositMsgIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchDepositMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }
 
-func GetLiquidityPoolBatchWithdrawMsgIndex(poolID, msgIndex uint64) []byte {
+func GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchWithdrawMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }
 
-func GetLiquidityPoolBatchSwapMsgIndex(poolID, msgIndex uint64) []byte {
+func GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchSwapMsgIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }

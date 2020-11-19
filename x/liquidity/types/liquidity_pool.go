@@ -25,9 +25,9 @@ func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
 //	return LiquidityPool{}
 //}
 
-func NewLiquidityPoolBatch(poolID, batchIndex uint64) LiquidityPoolBatch {
+func NewLiquidityPoolBatch(poolId, batchIndex uint64) LiquidityPoolBatch {
 	return LiquidityPoolBatch{
-		PoolId:           poolID,
+		PoolId:           poolId,
 		BatchIndex:       batchIndex,
 		BeginHeight:      0,
 		DepositMsgIndex:  0,

@@ -13,6 +13,13 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		return types.ErrPoolNotExists
 	}
 
+	// TODO: get all past queued orders
+	// get All swap msgs
+	swapMsgs := k.GetAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
+	if len(swapMsgs) == 0 {
+		return nil
+	}
+
 	// get reserve Coin from the liquidity pool
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 	reserveCoins.Sort()
@@ -25,11 +32,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	denomX := reserveCoins[0].Denom
 	denomY := reserveCoins[1].Denom
 
-	// get All swap msgs from pool batch, and make orderMap
-	swapMsgs := k.GetAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
-	orderMap, XtoY, YtoX := types.GetOrderMap(swapMsgs, denomX, denomY)
 
-	// make orderbook by sort orderMap
+	// make orderMap, orderbook by sort orderMap
+	orderMap, XtoY, YtoX := types.GetOrderMap(swapMsgs, denomX, denomY)
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)

@@ -331,7 +331,7 @@ paths:
                       format: int64
                     MsgIndex:
                       type: string
-                      format: int64
+                      format: uint64
                     Msg:
                       type: object
                       properties:
@@ -774,7 +774,7 @@ paths:
                       format: int64
                     MsgIndex:
                       type: string
-                      format: int64
+                      format: uint64
                     Msg:
                       type: object
                       properties:
@@ -1376,7 +1376,7 @@ definitions:
         format: int64
       MsgIndex:
         type: string
-        format: int64
+        format: uint64
       Msg:
         type: object
         properties:
@@ -1458,7 +1458,7 @@ definitions:
         format: int64
       MsgIndex:
         type: string
-        format: int64
+        format: uint64
       Msg:
         type: object
         properties:
@@ -1853,7 +1853,7 @@ definitions:
               format: int64
             MsgIndex:
               type: string
-              format: int64
+              format: uint64
             Msg:
               type: object
               properties:
@@ -1991,7 +1991,7 @@ definitions:
               format: int64
             MsgIndex:
               type: string
-              format: int64
+              format: uint64
             Msg:
               type: object
               properties:

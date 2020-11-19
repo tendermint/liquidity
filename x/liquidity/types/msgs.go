@@ -66,12 +66,12 @@ func (msg MsgCreateLiquidityPool) GetSigners() []sdk.AccAddress {
 // NewMsgSwap creates a new MsgSwap object.
 func NewMsgDepositToLiquidityPool(
 	depositor sdk.AccAddress,
-	poolID uint64,
+	poolId uint64,
 	depositCoins sdk.Coins,
 ) *MsgDepositToLiquidityPool {
 	return &MsgDepositToLiquidityPool{
 		Depositor:    depositor,
-		PoolId:       poolID,
+		PoolId:       poolId,
 		DepositCoins: depositCoins,
 	}
 }
@@ -105,12 +105,12 @@ func (msg MsgDepositToLiquidityPool) GetSigners() []sdk.AccAddress {
 // NewMsgSwap creates a new MsgSwap object.
 func NewMsgWithdrawFromLiquidityPool(
 	withdrawer sdk.AccAddress,
-	poolID uint64,
+	poolId uint64,
 	poolCoin sdk.Coins,
 ) *MsgWithdrawFromLiquidityPool {
 	return &MsgWithdrawFromLiquidityPool{
 		Withdrawer: withdrawer,
-		PoolId:     poolID,
+		PoolId:     poolId,
 		PoolCoin:   poolCoin,
 	}
 }
@@ -144,7 +144,7 @@ func (msg MsgWithdrawFromLiquidityPool) GetSigners() []sdk.AccAddress {
 // NewMsgSwap creates a new MsgSwap object.
 func NewMsgSwap(
 	swapRequester sdk.AccAddress,
-	poolID uint64,
+	poolId uint64,
 	poolTypeIndex uint32,
 	swapType uint32,
 	offerCoin sdk.Coin,
@@ -153,7 +153,7 @@ func NewMsgSwap(
 ) *MsgSwap {
 	return &MsgSwap{
 		SwapRequester:   swapRequester,
-		PoolId:          poolID,
+		PoolId:          poolId,
 		PoolTypeIndex:   poolTypeIndex,
 		SwapType:        swapType,
 		OfferCoin:       offerCoin,
