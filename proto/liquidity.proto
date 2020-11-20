@@ -66,6 +66,10 @@ message LiquidityPoolMetaData {
         (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
         (gogoproto.nullable)   = false
     ];
+    repeated cosmos.base.v1beta1.Coin ReserveCoins = 3 [
+        (gogoproto.moretags)   = "yaml:\"reserve_coins\"",
+        (gogoproto.nullable)   = false
+    ];
 }
 
 message LiquidityPoolBatch {
@@ -78,7 +82,7 @@ message LiquidityPoolBatch {
     uint64 DepositMsgIndex = 4 [(gogoproto.moretags) = "yaml:\"deposit_msg_index\""];
     uint64 WithdrawMsgIndex = 5 [(gogoproto.moretags) = "yaml:\"withdraw_msg_index\""];
     uint64 SwapMsgIndex = 6 [(gogoproto.moretags) = "yaml:\"swap_msg_index\""];
-    bool ExecutionStatus = 7 [(gogoproto.moretags) = "yaml:\"execution_status\""];
+    bool Executed = 7 [(gogoproto.moretags) = "yaml:\"executed\""];
 }
 
 message BatchPoolDepositMsg {
@@ -86,7 +90,7 @@ message BatchPoolDepositMsg {
     uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
     bool Executed = 3 [(gogoproto.moretags) = "yaml:\"executed\""];
     bool Succeed = 4 [(gogoproto.moretags) = "yaml:\"succeed\""];
-    bool ReadyToDelete = 5 [(gogoproto.moretags) = "yaml:\"ready_to_delete\""];
+    bool ToDelete = 5 [(gogoproto.moretags) = "yaml:\"to_delete\""];
     MsgDepositToLiquidityPool Msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
@@ -95,16 +99,24 @@ message BatchPoolWithdrawMsg {
     uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
     bool Executed = 3 [(gogoproto.moretags) = "yaml:\"executed\""];
     bool Succeed = 4 [(gogoproto.moretags) = "yaml:\"succeed\""];
-    bool ReadyToDelete = 5 [(gogoproto.moretags) = "yaml:\"ready_to_delete\""];
+    bool ToDelete = 5 [(gogoproto.moretags) = "yaml:\"to_delete\""];
     MsgWithdrawFromLiquidityPool Msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message BatchPoolSwapMsg {
     int64 MsgHeight = 1 [(gogoproto.moretags) = "yaml:\"msg_height\""];
     uint64 MsgIndex = 2 [(gogoproto.moretags) = "yaml:\"msg_index\""];
-    int64 CancelHeight = 3 [(gogoproto.moretags) = "yaml:\"cancel_height\""];
-    bool Executed = 4 [(gogoproto.moretags) = "yaml:\"executed\""];
-    bool Succeed = 5 [(gogoproto.moretags) = "yaml:\"succeed\""];
-    bool ReadyToDelete = 6 [(gogoproto.moretags) = "yaml:\"ready_to_delete\""];
-    MsgSwap Msg = 7 [(gogoproto.moretags) = "yaml:\"msg\""];
+    bool Executed = 3 [(gogoproto.moretags) = "yaml:\"executed\""];
+    bool Succeed = 4 [(gogoproto.moretags) = "yaml:\"succeed\""];
+    bool ToDelete = 5 [(gogoproto.moretags) = "yaml:\"to_delete\""];
+    int64 OrderExpiryHeight = 6 [(gogoproto.moretags) = "yaml:\"order_expiry_height\""];
+    cosmos.base.v1beta1.Coin ExchangedOfferCoin = 7 [
+        (gogoproto.nullable)     = false,
+        (gogoproto.moretags)     = "yaml:\"exchanged_offer_coin\""
+    ];
+    cosmos.base.v1beta1.Coin RemainingOfferCoin = 8 [
+        (gogoproto.nullable)     = false,
+        (gogoproto.moretags)     = "yaml:\"remaining_offer_coin\""
+    ];
+    MsgSwap Msg = 9 [(gogoproto.moretags) = "yaml:\"msg\""];
 }

@@ -239,7 +239,7 @@ func (k Keeper) DeleteAllReadyLiquidityPoolBatchDepositMsgs(ctx sdk.Context, liq
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		msg := types.MustUnmarshalBatchPoolDepositMsg(k.cdc, iterator.Value())
-		if msg.ReadyToDelete {
+		if msg.ToDelete {
 			store.Delete(iterator.Key())
 		}
 	}
@@ -302,7 +302,7 @@ func (k Keeper) DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, li
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		msg := types.MustUnmarshalBatchPoolWithdrawMsg(k.cdc, iterator.Value())
-		if msg.ReadyToDelete {
+		if msg.ToDelete {
 			store.Delete(iterator.Key())
 		}
 	}
@@ -356,7 +356,7 @@ func (k Keeper) DeleteAllReadyLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquid
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		msg := types.MustUnmarshalBatchPoolSwapMsg(k.cdc, iterator.Value())
-		if msg.ReadyToDelete {
+		if msg.ToDelete {
 			store.Delete(iterator.Key())
 		}
 	}

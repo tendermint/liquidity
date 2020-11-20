@@ -137,7 +137,7 @@ func NewBatchResult() BatchResult {
 
 type MatchResult struct {
 	OrderHeight       int64
-	OrderCancelHeight int64
+	OrderExpiryHeight int64
 	OrderMsgIndex     uint64
 	OrderPrice        sdk.Dec
 	OfferCoinAmt      sdk.Int
@@ -436,7 +436,7 @@ func FindOrderMatch(direction int, swapList []BatchPoolSwapMsg, executableAmt sd
 						offerAmt := matchOrder.Msg.OfferCoin.Amount.ToDec()
 						matchResult := MatchResult{
 							OrderHeight:       height,
-							OrderCancelHeight: height + CancelOrderLifeSpan,
+							OrderExpiryHeight: height + CancelOrderLifeSpan,
 							OrderMsgIndex:     matchOrder.MsgIndex,
 							OrderPrice:        matchOrder.Msg.OrderPrice,
 							OfferCoinAmt:      matchOrder.Msg.OfferCoin.Amount,

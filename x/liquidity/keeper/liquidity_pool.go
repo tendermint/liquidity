@@ -194,7 +194,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 		return err
 	}
 	msg.Succeed = true
-	msg.ReadyToDelete = true
+	msg.ToDelete = true
 	k.SetLiquidityPoolBatchDepositMsg(ctx, msg.Msg.PoolId, msg.MsgIndex, msg)
 	// TODO: add events for batch result, each err cases
 	return nil
@@ -246,7 +246,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 		return err
 	}
 	msg.Succeed = true
-	msg.ReadyToDelete = true
+	msg.ToDelete = true
 	k.SetLiquidityPoolBatchWithdrawMsg(ctx, msg.Msg.PoolId, msg.MsgIndex, msg)
 	// TODO: add events for batch result, each err cases
 	return nil
@@ -266,7 +266,7 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Batch
 	if !found {
 		panic(err)
 	}
-	msg.ReadyToDelete = true
+	msg.ToDelete = true
 	k.SetLiquidityPoolBatchDepositMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex, msg)
 	k.DeleteLiquidityPoolBatchDepositMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	return err
@@ -284,7 +284,7 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.Batc
 	if !found {
 		panic(err)
 	}
-	msg.ReadyToDelete = true
+	msg.ToDelete = true
 	k.SetLiquidityPoolBatchWithdrawMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex, msg)
 	k.DeleteLiquidityPoolBatchWithdrawMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	return err
@@ -303,7 +303,7 @@ func (k Keeper) RefundSwapLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoo
 	if !found {
 		panic(err)
 	}
-	msg.ReadyToDelete = true
+	msg.ToDelete = true
 	k.SetLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex, msg)
 	k.DeleteLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	return err

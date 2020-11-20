@@ -28,7 +28,7 @@ func NewLiquidityPoolBatch(poolId, batchIndex uint64) LiquidityPoolBatch {
 		DepositMsgIndex:  0,
 		WithdrawMsgIndex: 0,
 		SwapMsgIndex:     0,
-		ExecutionStatus:  false,
+		Executed:  false,
 	}
 }
 
