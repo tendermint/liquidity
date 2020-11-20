@@ -30,7 +30,7 @@ func NewMsgCreateLiquidityPool(
 	depositCoins sdk.Coins,
 ) *MsgCreateLiquidityPool {
 	return &MsgCreateLiquidityPool{
-		PoolCreator:       poolCreator,
+		PoolCreatorAddress:       poolCreator.String(),
 		PoolTypeIndex:     poolTypeIndex,
 		ReserveCoinDenoms: reserveCoinDenoms,
 		DepositCoins:      depositCoins,
@@ -45,18 +45,45 @@ func (msg MsgCreateLiquidityPool) Type() string { return TypeMsgCreateLiquidityP
 
 // ValidateBasic implements Msg.
 func (msg MsgCreateLiquidityPool) ValidateBasic() error {
+	if msg.PoolCreatorAddress == "" {
+		return ErrEmptyPoolCreatorAddr
+	}
+	if err := msg.DepositCoins.Validate(); err != nil {
+		return err
+	}
+	if !msg.DepositCoins.IsAllPositive() {
+		return ErrBadPoolCoinAmount
+	}
+	if uint32(msg.DepositCoins.Len()) > MaxReserveCoinNum ||
+		MinReserveCoinNum > uint32(msg.DepositCoins.Len()) {
+		return ErrNumOfReserveCoin
+	}
+	if len(msg.ReserveCoinDenoms) != msg.DepositCoins.Len() {
+		return ErrNumOfReserveCoin
+	}
 	return nil
 }
 
 // GetSignBytes implements Msg.
 func (msg MsgCreateLiquidityPool) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
-	return nil
 }
 
 // GetSigners implements Msg.
 func (msg MsgCreateLiquidityPool) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.PoolCreator}
+	addr, err := sdk.AccAddressFromBech32(msg.PoolCreatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{addr}
+}
+
+func (msg MsgCreateLiquidityPool) GetPoolCreator() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(msg.PoolCreatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
 }
 
 // ------------------------------------------------------------------------
@@ -70,7 +97,7 @@ func NewMsgDepositToLiquidityPool(
 	depositCoins sdk.Coins,
 ) *MsgDepositToLiquidityPool {
 	return &MsgDepositToLiquidityPool{
-		Depositor:    depositor,
+		DepositorAddress:    depositor.String(),
 		PoolId:       poolId,
 		DepositCoins: depositCoins,
 	}
@@ -84,18 +111,42 @@ func (msg MsgDepositToLiquidityPool) Type() string { return TypeMsgDepositToLiqu
 
 // ValidateBasic implements Msg.
 func (msg MsgDepositToLiquidityPool) ValidateBasic() error {
+	if msg.DepositorAddress == "" {
+		return ErrEmptyDepositorAddr
+	}
+	if err := msg.DepositCoins.Validate(); err != nil {
+		return err
+	}
+	if !msg.DepositCoins.IsAllPositive() {
+		return ErrBadDepositCoinsAmount
+	}
+	if uint32(msg.DepositCoins.Len()) > MaxReserveCoinNum ||
+		MinReserveCoinNum > uint32(msg.DepositCoins.Len()) {
+		return ErrNumOfReserveCoin
+	}
 	return nil
 }
 
 // GetSignBytes implements Msg.
 func (msg MsgDepositToLiquidityPool) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
-	return nil
 }
 
 // GetSigners implements Msg.
 func (msg MsgDepositToLiquidityPool) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Depositor}
+	addr, err := sdk.AccAddressFromBech32(msg.DepositorAddress)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{addr}
+}
+
+func (msg MsgDepositToLiquidityPool) GetDepositor() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(msg.DepositorAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
 }
 
 // ------------------------------------------------------------------------
@@ -106,10 +157,10 @@ func (msg MsgDepositToLiquidityPool) GetSigners() []sdk.AccAddress {
 func NewMsgWithdrawFromLiquidityPool(
 	withdrawer sdk.AccAddress,
 	poolId uint64,
-	poolCoin sdk.Coins,
+	poolCoin sdk.Coin,
 ) *MsgWithdrawFromLiquidityPool {
 	return &MsgWithdrawFromLiquidityPool{
-		Withdrawer: withdrawer,
+		WithdrawerAddress: withdrawer.String(),
 		PoolId:     poolId,
 		PoolCoin:   poolCoin,
 	}
@@ -123,18 +174,38 @@ func (msg MsgWithdrawFromLiquidityPool) Type() string { return TypeMsgWithdrawFr
 
 // ValidateBasic implements Msg.
 func (msg MsgWithdrawFromLiquidityPool) ValidateBasic() error {
+	if msg.WithdrawerAddress == "" {
+		return ErrEmptyWithdrawerAddr
+	}
+	if err := msg.PoolCoin.Validate(); err != nil {
+		return err
+	}
+	if !msg.PoolCoin.IsPositive() {
+		return ErrBadPoolCoinAmount
+	}
 	return nil
 }
 
 // GetSignBytes implements Msg.
 func (msg MsgWithdrawFromLiquidityPool) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
-	return nil
 }
 
 // GetSigners implements Msg.
 func (msg MsgWithdrawFromLiquidityPool) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Withdrawer}
+	addr, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{addr}
+}
+
+func (msg MsgWithdrawFromLiquidityPool) GetWithdrawer() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
 }
 
 // ------------------------------------------------------------------------
@@ -152,7 +223,7 @@ func NewMsgSwap(
 	orderPrice sdk.Dec,
 ) *MsgSwap {
 	return &MsgSwap{
-		SwapRequester:   swapRequester,
+		SwapRequesterAddress:   swapRequester.String(),
 		PoolId:          poolId,
 		PoolTypeIndex:   poolTypeIndex,
 		SwapType:        swapType,
@@ -170,16 +241,36 @@ func (msg MsgSwap) Type() string { return TypeMsgSwap }
 
 // ValidateBasic implements Msg.
 func (msg MsgSwap) ValidateBasic() error {
+	if msg.SwapRequesterAddress == "" {
+		return ErrEmptySwapRequesterAddr
+	}
+	if err := msg.OfferCoin.Validate(); err != nil {
+		return err
+	}
+	if !msg.OfferCoin.IsPositive() {
+		return ErrBadOfferCoinAmount
+	}
 	return nil
 }
 
 // GetSignBytes implements Msg.
 func (msg MsgSwap) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
-	return nil
 }
 
 // GetSigners implements Msg.
 func (msg MsgSwap) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.SwapRequester}
+	addr, err := sdk.AccAddressFromBech32(msg.SwapRequesterAddress)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{addr}
+}
+
+func (msg MsgSwap) GetSwapRequester() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(msg.SwapRequesterAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
 }

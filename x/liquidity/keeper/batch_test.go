@@ -93,13 +93,15 @@ func TestDepositLiquidityPoolToBatch(t *testing.T) {
 	require.Equal(t, poolCoin, depositorBalance.Amount.Add(creatorBalance.Amount))
 }
 
+
+
 func TestInitNextBatch(t *testing.T) {
 	simapp, ctx := createTestInput()
 	pool := types.LiquidityPool{
 		PoolId:            0,
 		PoolTypeIndex:     0,
 		ReserveCoinDenoms: nil,
-		ReserveAccount:    nil,
+		ReserveAccountAddress:    "",
 		PoolCoinDenom:     "",
 	}
 	simapp.LiquidityKeeper.SetLiquidityPool(ctx, pool)

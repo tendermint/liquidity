@@ -80,13 +80,13 @@ func TestSwapExecution(t *testing.T) {
 
 	for i, msg := range XtoY {
 		app.SaveAccount(simapp, ctx, buyerAccs[i], sdk.NewCoins(msg.OfferCoin))
-		msg.SwapRequester = buyerAccs[i]
+		msg.SwapRequesterAddress = buyerAccs[i].String()
 		msg.PoolId = poolId
 		msg.PoolTypeIndex = poolTypeIndex
 	}
 	for i, msg := range YtoX {
 		app.SaveAccount(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin))
-		msg.SwapRequester = sellerAccs[i]
+		msg.SwapRequesterAddress = sellerAccs[i].String()
 		msg.PoolId = poolId
 		msg.PoolTypeIndex = poolTypeIndex
 	}

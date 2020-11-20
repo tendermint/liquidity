@@ -25,16 +25,16 @@ var (
 	KeyLiquidityPoolCreationFee = []byte("LiquidityPoolCreationFee")
 	KeyUnitBatchSize            = []byte("UnitBatchSize")
 
-	LiquidityPoolTypeConstantProduct = LiquidityPoolType{
+	DefaultLiquidityPoolType = LiquidityPoolType{
 		PoolTypeIndex:     0,
-		Name:              "ConstantProductLiquidityPool",
+		Name:              "DefaultPoolType",
 		MinReserveCoinNum: MinReserveCoinNum,
 		MaxReserveCoinNum: MaxReserveCoinNum,
 	}
 )
 
 // NewParams liquidity paramtypes constructor
-func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint sdk.Int, swapFeeRate, poolFeeRate sdk.Dec, creationFee sdk.Coins, unitBatchSize uint32) Params {
+func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint sdk.Int, swapFeeRate sdk.Dec, creationFee sdk.Coins) Params {
 	return Params{
 		LiquidityPoolTypes:       liquidityPoolTypes,
 		MinInitDepositToPool:     minInitDeposit,
@@ -64,15 +64,14 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 // DefaultParams returns the default liquidity module parameters
 func DefaultParams() Params {
 	var defaultLiquidityPoolTypes []LiquidityPoolType
-	defaultLiquidityPoolTypes = append(defaultLiquidityPoolTypes, LiquidityPoolTypeConstantProduct)
+	defaultLiquidityPoolTypes = append(defaultLiquidityPoolTypes, DefaultLiquidityPoolType)
 
-	return Params{
-		LiquidityPoolTypes:       defaultLiquidityPoolTypes,
-		MinInitDepositToPool:     sdk.NewInt(1000000),
-		InitPoolCoinMintAmount:   sdk.NewInt(1000000),
-		SwapFeeRate:              sdk.NewDecWithPrec(3, 3), // "0.001000000000000000"
-		LiquidityPoolCreationFee: sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100000000))),
-	}
+	return NewParams(
+		defaultLiquidityPoolTypes,
+		sdk.NewInt(1000000),
+		sdk.NewInt(1000000),
+		sdk.NewDecWithPrec(3, 3),  // "0.001000000000000000"
+		sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100000000))))
 }
 
 // String returns a human readable string representation of the parameters.
@@ -144,26 +143,12 @@ func validateSwapFeeRate(i interface{}) error {
 }
 
 func validateLiquidityPoolCreationFee(i interface{}) error {
-	v, ok := i.([]sdk.Coin)
+	coins, ok := i.(sdk.Coins)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-	coins := (sdk.Coins)(v)
 	if coins.Empty() {
-		return fmt.Errorf("LiquidityPoolCreationFee cannot be Empty: %s", v)
+		return fmt.Errorf("LiquidityPoolCreationFee cannot be Empty: %s", coins)
 	}
-	return nil
-}
-
-func validateUnitBatchSize(i interface{}) error {
-	v, ok := i.(uint32)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if 0 >= v {
-		return fmt.Errorf("UnitBatchSize cannot be negative: %d", v)
-	}
-
 	return nil
 }

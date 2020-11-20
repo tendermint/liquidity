@@ -39,7 +39,7 @@ func handleMsgCreateLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *types.M
 			//types.EventTypeCreateLiquidityPool,
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.PoolCreator.String()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.PoolCreatorAddress),
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, ""),
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolTypeIndex, fmt.Sprintf("%d", msg.PoolTypeIndex)),
 			sdk.NewAttribute(types.AttributeValueReserveCoinDenoms, ""),
@@ -62,7 +62,7 @@ func handleMsgDepositToLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *type
 			//types.EventTypeDepositToLiquidityPoolToBatch,
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Depositor.String()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.DepositorAddress),
 			sdk.NewAttribute(types.AttributeValueBatchID, ""),
 		),
 	)
@@ -78,7 +78,7 @@ func handleMsgWithdrawFromLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *t
 			//types.EventTypeWithdrrawFromLiquidityPoolToBatch,
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Withdrawer.String()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.WithdrawerAddress),
 			sdk.NewAttribute(types.AttributeValueBatchID, ""),
 		),
 	)
@@ -99,7 +99,7 @@ func handleMsgSwap(ctx sdk.Context, k keeper.Keeper, msg *types.MsgSwap) (*sdk.R
 			//types.EventTypeSwapToBatch,
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.SwapRequester.String()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.SwapRequesterAddress),
 			sdk.NewAttribute(types.AttributeValueBatchID, ""),
 		),
 	)

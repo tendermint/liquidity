@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 1.1.2
+  version: 1.1.3
 paths:
   /liquidity/pools:
     post:
@@ -42,9 +42,8 @@ paths:
           schema:
             type: object
             properties:
-              pool_creator:
+              pool_creator_address:
                 type: string
-                format: byte
               pool_type_index:
                 type: integer
                 format: int64
@@ -98,9 +97,8 @@ paths:
                           type: array
                           items:
                             type: string
-                        ReserveAccount:
+                        ReserveAccountAddress:
                           type: string
-                          format: byte
                         PoolCoinDenom:
                           type: string
                     liquidity_pool_meta_data:
@@ -305,9 +303,8 @@ paths:
           schema:
             type: object
             properties:
-              depositor:
+              depositor_address:
                 type: string
-                format: byte
               pool_id:
                 type: string
                 format: uint64
@@ -359,9 +356,8 @@ paths:
                     Msg:
                       type: object
                       properties:
-                        depositor:
+                        depositor_address:
                           type: string
-                          format: byte
                         pool_id:
                           type: string
                           format: uint64
@@ -522,9 +518,8 @@ paths:
           schema:
             type: object
             properties:
-              swap_requester:
+              swap_requester_address:
                 type: string
-                format: byte
               pool_id:
                 type: string
                 format: uint64
@@ -618,9 +613,8 @@ paths:
                     Msg:
                       type: object
                       properties:
-                        swap_requester:
+                        swap_requester_address:
                           type: string
-                          format: byte
                         pool_id:
                           type: string
                           format: uint64
@@ -790,29 +784,26 @@ paths:
           schema:
             type: object
             properties:
-              withdrawer:
+              withdrawer_address:
                 type: string
-                format: byte
               pool_id:
                 type: string
                 format: uint64
               pool_coin:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    denom:
-                      type: string
-                    amount:
-                      type: string
-                  description: >-
-                    Coin defines a coin with a denomination and an amount.
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a coin with a denomination and an amount.
 
 
-                    NOTE: The amount field is an Int which implements the custom
-                    method
+                  NOTE: The amount field is an Int which implements the custom
+                  method
 
-                    signatures required by gogoproto.
+                  signatures required by gogoproto.
       tags:
         - Msg
     get:
@@ -844,30 +835,27 @@ paths:
                     Msg:
                       type: object
                       properties:
-                        withdrawer:
+                        withdrawer_address:
                           type: string
-                          format: byte
                         pool_id:
                           type: string
                           format: uint64
                         pool_coin:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              denom:
-                                type: string
-                              amount:
-                                type: string
-                            description: >-
-                              Coin defines a coin with a denomination and an
-                              amount.
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a coin with a denomination and an
+                            amount.
 
 
-                              NOTE: The amount field is an Int which implements
-                              the custom method
+                            NOTE: The amount field is an Int which implements
+                            the custom method
 
-                              signatures required by gogoproto.
+                            signatures required by gogoproto.
               pagination:
                 description: pagination defines the pagination in the response.
                 type: object
@@ -1070,9 +1058,8 @@ paths:
                     type: array
                     items:
                       type: string
-                  ReserveAccount:
+                  ReserveAccountAddress:
                     type: string
-                    format: byte
                   PoolCoinDenom:
                     type: string
               liquidity_pool_meta_data:
@@ -1273,9 +1260,8 @@ definitions:
   tendermint.liquidity.MsgCreateLiquidityPool:
     type: object
     properties:
-      pool_creator:
+      pool_creator_address:
         type: string
-        format: byte
       pool_type_index:
         type: integer
         format: int64
@@ -1302,9 +1288,8 @@ definitions:
   tendermint.liquidity.MsgDepositToLiquidityPool:
     type: object
     properties:
-      depositor:
+      depositor_address:
         type: string
-        format: byte
       pool_id:
         type: string
         format: uint64
@@ -1327,9 +1312,8 @@ definitions:
   tendermint.liquidity.MsgSwap:
     type: object
     properties:
-      swap_requester:
+      swap_requester_address:
         type: string
-        format: byte
       pool_id:
         type: string
         format: uint64
@@ -1361,26 +1345,23 @@ definitions:
   tendermint.liquidity.MsgWithdrawFromLiquidityPool:
     type: object
     properties:
-      withdrawer:
+      withdrawer_address:
         type: string
-        format: byte
       pool_id:
         type: string
         format: uint64
       pool_coin:
-        type: array
-        items:
-          type: object
-          properties:
-            denom:
-              type: string
-            amount:
-              type: string
-          description: |-
-            Coin defines a coin with a denomination and an amount.
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a coin with a denomination and an amount.
 
-            NOTE: The amount field is an Int which implements the custom method
-            signatures required by gogoproto.
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
   tendermint.liquidity.MsgWithdrawFromLiquidityPoolResponse:
     type: object
   cosmos.query.PageRequest:
@@ -1469,9 +1450,8 @@ definitions:
       Msg:
         type: object
         properties:
-          depositor:
+          depositor_address:
             type: string
-            format: byte
           pool_id:
             type: string
             format: uint64
@@ -1537,9 +1517,8 @@ definitions:
       Msg:
         type: object
         properties:
-          swap_requester:
+          swap_requester_address:
             type: string
-            format: byte
           pool_id:
             type: string
             format: uint64
@@ -1587,29 +1566,26 @@ definitions:
       Msg:
         type: object
         properties:
-          withdrawer:
+          withdrawer_address:
             type: string
-            format: byte
           pool_id:
             type: string
             format: uint64
           pool_coin:
-            type: array
-            items:
-              type: object
-              properties:
-                denom:
-                  type: string
-                amount:
-                  type: string
-              description: >-
-                Coin defines a coin with a denomination and an amount.
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
 
 
-                NOTE: The amount field is an Int which implements the custom
-                method
+              NOTE: The amount field is an Int which implements the custom
+              method
 
-                signatures required by gogoproto.
+              signatures required by gogoproto.
   tendermint.liquidity.LiquidityPool:
     type: object
     properties:
@@ -1623,9 +1599,8 @@ definitions:
         type: array
         items:
           type: string
-      ReserveAccount:
+      ReserveAccountAddress:
         type: string
-        format: byte
       PoolCoinDenom:
         type: string
   tendermint.liquidity.LiquidityPoolBatch:
@@ -1783,9 +1758,8 @@ definitions:
             type: array
             items:
               type: string
-          ReserveAccount:
+          ReserveAccountAddress:
             type: string
-            format: byte
           PoolCoinDenom:
             type: string
       liquidity_pool_meta_data:
@@ -1870,9 +1844,8 @@ definitions:
                   type: array
                   items:
                     type: string
-                ReserveAccount:
+                ReserveAccountAddress:
                   type: string
-                  format: byte
                 PoolCoinDenom:
                   type: string
             liquidity_pool_meta_data:
@@ -2036,9 +2009,8 @@ definitions:
             Msg:
               type: object
               properties:
-                depositor:
+                depositor_address:
                   type: string
-                  format: byte
                 pool_id:
                   type: string
                   format: uint64
@@ -2138,9 +2110,8 @@ definitions:
             Msg:
               type: object
               properties:
-                swap_requester:
+                swap_requester_address:
                   type: string
-                  format: byte
                 pool_id:
                   type: string
                   format: uint64
@@ -2216,29 +2187,26 @@ definitions:
             Msg:
               type: object
               properties:
-                withdrawer:
+                withdrawer_address:
                   type: string
-                  format: byte
                 pool_id:
                   type: string
                   format: uint64
                 pool_coin:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      denom:
-                        type: string
-                      amount:
-                        type: string
-                    description: >-
-                      Coin defines a coin with a denomination and an amount.
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
 
 
-                      NOTE: The amount field is an Int which implements the
-                      custom method
+                    NOTE: The amount field is an Int which implements the custom
+                    method
 
-                      signatures required by gogoproto.
+                    signatures required by gogoproto.
       pagination:
         description: pagination defines the pagination in the response.
         type: object

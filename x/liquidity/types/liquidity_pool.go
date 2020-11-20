@@ -54,7 +54,13 @@ func UnmarshalLiquidityPool(cdc codec.BinaryMarshaler, value []byte) (liquidityP
 	return liquidityPool, err
 }
 
-func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress { return lp.ReserveAccount }
+func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(lp.ReserveAccountAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
 func (lp LiquidityPool) GetPoolCoinDenom() string          { return lp.PoolCoinDenom }
 func (lp LiquidityPool) GetPoolId() uint64                 { return lp.PoolId }
 

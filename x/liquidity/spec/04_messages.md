@@ -8,7 +8,7 @@ order: 4
 
 ```go
 type MsgCreateLiquidityPool struct {
-	PoolCreator         sdk.AccAddress // account address of the origin of this message
+	PoolCreatorAddress  string         // account address of the origin of this message
 	PoolTypeIndex       uint32         // index of the liquidity pool type of this new liquidity pool
 	ReserveCoinDenoms   []string       // list of reserve coin denoms for this new liquidity pool, store in alphabetical order
 	DepositCoins 	    sdk.Coins      // deposit coins for initial pool deposit into this new liquidity pool
@@ -28,7 +28,7 @@ type MsgCreateLiquidityPool struct {
 
 ```go
 type MsgDepositToLiquidityPool struct {
-	Depositor           sdk.AccAddress // account address of the origin of this message
+	DepositorAddress    string         // account address of the origin of this message
 	PoolId              uint64         // id of the liquidity pool where this message is belong to
 	DepositCoins 	    sdk.Coins      // deposit coins of this pool deposit message
 }
@@ -45,9 +45,9 @@ type MsgDepositToLiquidityPool struct {
 
 ```go
 type MsgWithdrawFromLiquidityPool struct {
-	Withdrawer      sdk.AccAddress // account address of the origin of this message
-	PoolId          uint64         // id of the liquidity pool where this message is belong to
-	PoolCoin        sdk.Coin       // pool coin sent for reserve coin withdraw
+	WithdrawerAddress string         // account address of the origin of this message
+	PoolId            uint64         // id of the liquidity pool where this message is belong to
+	PoolCoin          sdk.Coin       // pool coin sent for reserve coin withdraw
 }
 ```
 
@@ -62,12 +62,12 @@ type MsgWithdrawFromLiquidityPool struct {
 
 ```go
 type MsgSwap struct {
-	SwapRequester    sdk.AccAddress // account address of the origin of this message
-	PoolId           uint64         // id of the liquidity pool where this message is belong to
-	SwapType         uint32         // swap type of this swap message, default 1: InstantSwap, requesting instant swap
-	OfferCoin        sdk.Coin       // offer coin of this swap message
-	DemandCoinDenom  sdk.Coin       // denom of demand coin of this swap message
-	OrderPrice       sdk.Dec        // order price of this swap message
+	SwapRequesterAddress string     // account address of the origin of this message
+	PoolId               uint64     // id of the liquidity pool where this message is belong to
+	SwapType             uint32     // swap type of this swap message, default 1: InstantSwap, requesting instant swap
+	OfferCoin            sdk.Coin   // offer coin of this swap message
+	DemandCoinDenom      sdk.Coin   // denom of demand coin of this swap message
+	OrderPrice           sdk.Dec    // order price of this swap message
 }
 ```
 
