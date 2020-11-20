@@ -28,7 +28,7 @@ func NewLiquidityPoolBatch(poolId, batchIndex uint64) LiquidityPoolBatch {
 		DepositMsgIndex:  0,
 		WithdrawMsgIndex: 0,
 		SwapMsgIndex:     0,
-		Executed:  false,
+		Executed:         false,
 	}
 }
 
@@ -61,8 +61,8 @@ func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
 	}
 	return addr
 }
-func (lp LiquidityPool) GetPoolCoinDenom() string          { return lp.PoolCoinDenom }
-func (lp LiquidityPool) GetPoolId() uint64                 { return lp.PoolId }
+func (lp LiquidityPool) GetPoolCoinDenom() string { return lp.PoolCoinDenom }
+func (lp LiquidityPool) GetPoolId() uint64        { return lp.PoolId }
 
 // String returns a human readable string representation of a LiquidityPool.
 //func (lp LiquidityPool) String() string {

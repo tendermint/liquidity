@@ -12,11 +12,11 @@ import (
 func TestLiquidityPool(t *testing.T) {
 	app, ctx := createTestInput()
 	lp := types.LiquidityPool{
-		PoolId:            0,
-		PoolTypeIndex:     0,
-		ReserveCoinDenoms: []string{"a", "b"},
-		ReserveAccountAddress:    "",
-		PoolCoinDenom:     "poolCoin",
+		PoolId:                0,
+		PoolTypeIndex:         0,
+		ReserveCoinDenoms:     []string{"a", "b"},
+		ReserveAccountAddress: "",
+		PoolCoinDenom:         "poolCoin",
 	}
 	app.LiquidityKeeper.SetLiquidityPool(ctx, lp)
 

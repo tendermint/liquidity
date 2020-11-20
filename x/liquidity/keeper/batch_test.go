@@ -57,11 +57,8 @@ func TestDepositLiquidityPoolToBatch(t *testing.T) {
 	creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lpList[0].PoolCoinDenom)
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
-
 	// begin block, init
-	// TODO: beginBlocker or direct function
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-	//simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
 
 	// set pool depositor account
 	app.SaveAccount(simapp, ctx, addrs[1], deposit) // pool creator
@@ -73,6 +70,7 @@ func TestDepositLiquidityPoolToBatch(t *testing.T) {
 	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[1], poolId, depositBalance)
 	err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.NoError(t, err)
+
 	// TODO: escrow balance verity
 
 	depositorBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].ReserveCoinDenoms[0])
@@ -82,9 +80,7 @@ func TestDepositLiquidityPoolToBatch(t *testing.T) {
 	require.Equal(t, sdk.ZeroInt(), depositorBalanceY.Amount)
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
-	// TODO: endBlocker or direct function
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
-	//simapp.LiquidityKeeper.ExecutePoolBatch(ctx)
 
 	// verify minted pool coin
 	poolCoin = simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lpList[0])
@@ -93,16 +89,14 @@ func TestDepositLiquidityPoolToBatch(t *testing.T) {
 	require.Equal(t, poolCoin, depositorBalance.Amount.Add(creatorBalance.Amount))
 }
 
-
-
 func TestInitNextBatch(t *testing.T) {
 	simapp, ctx := createTestInput()
 	pool := types.LiquidityPool{
-		PoolId:            0,
-		PoolTypeIndex:     0,
-		ReserveCoinDenoms: nil,
-		ReserveAccountAddress:    "",
-		PoolCoinDenom:     "",
+		PoolId:                0,
+		PoolTypeIndex:         0,
+		ReserveCoinDenoms:     nil,
+		ReserveAccountAddress: "",
+		PoolCoinDenom:         "",
 	}
 	simapp.LiquidityKeeper.SetLiquidityPool(ctx, pool)
 

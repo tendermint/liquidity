@@ -5,6 +5,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
+
 func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) error {
 	params := k.GetParams(ctx)
 	var poolType types.LiquidityPoolType
@@ -19,7 +20,7 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 		return types.ErrPoolTypeNotExists
 	}
 
-	if poolType.MaxReserveCoinNum > types.MaxReserveCoinNum || types.MinReserveCoinNum > poolType.MinReserveCoinNum  {
+	if poolType.MaxReserveCoinNum > types.MaxReserveCoinNum || types.MinReserveCoinNum > poolType.MinReserveCoinNum {
 		return types.ErrNumOfReserveCoin
 	}
 
@@ -66,10 +67,10 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	PoolCoinDenom := types.GetPoolCoinDenom(reserveAcc)
 
 	liquidityPool := types.LiquidityPool{
-		PoolTypeIndex:     msg.PoolTypeIndex,
-		ReserveCoinDenoms: reserveCoinDenoms,
-		ReserveAccountAddress:    reserveAcc.String(),
-		PoolCoinDenom:     PoolCoinDenom,
+		PoolTypeIndex:         msg.PoolTypeIndex,
+		ReserveCoinDenoms:     reserveCoinDenoms,
+		ReserveAccountAddress: reserveAcc.String(),
+		PoolCoinDenom:         PoolCoinDenom,
 	}
 
 	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(liquidityPool.PoolCoinDenom, params.InitPoolCoinMintAmount))
@@ -161,7 +162,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	//lastReserveRatio := reserveCoins[0].Amount.Quo(reserveCoins[1].Amount)
 	// TODO: To truncateInt
-	depositableCoinA := coinA.Amount.Mul(lastReserveRatio.Ceil().RoundInt())
+	depositableCoinA := coinA.Amount.ToDec().Mul(lastReserveRatio).TruncateInt()
 	//depositableCoinB := coinB.Amount.Mul(lastReserveRatio.Ceil().RoundInt())
 	var inputs []banktypes.Input
 	var outputs []banktypes.Output

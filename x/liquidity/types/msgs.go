@@ -30,10 +30,10 @@ func NewMsgCreateLiquidityPool(
 	depositCoins sdk.Coins,
 ) *MsgCreateLiquidityPool {
 	return &MsgCreateLiquidityPool{
-		PoolCreatorAddress:       poolCreator.String(),
-		PoolTypeIndex:     poolTypeIndex,
-		ReserveCoinDenoms: reserveCoinDenoms,
-		DepositCoins:      depositCoins,
+		PoolCreatorAddress: poolCreator.String(),
+		PoolTypeIndex:      poolTypeIndex,
+		ReserveCoinDenoms:  reserveCoinDenoms,
+		DepositCoins:       depositCoins,
 	}
 }
 
@@ -97,9 +97,9 @@ func NewMsgDepositToLiquidityPool(
 	depositCoins sdk.Coins,
 ) *MsgDepositToLiquidityPool {
 	return &MsgDepositToLiquidityPool{
-		DepositorAddress:    depositor.String(),
-		PoolId:       poolId,
-		DepositCoins: depositCoins,
+		DepositorAddress: depositor.String(),
+		PoolId:           poolId,
+		DepositCoins:     depositCoins,
 	}
 }
 
@@ -161,8 +161,8 @@ func NewMsgWithdrawFromLiquidityPool(
 ) *MsgWithdrawFromLiquidityPool {
 	return &MsgWithdrawFromLiquidityPool{
 		WithdrawerAddress: withdrawer.String(),
-		PoolId:     poolId,
-		PoolCoin:   poolCoin,
+		PoolId:            poolId,
+		PoolCoin:          poolCoin,
 	}
 }
 
@@ -223,13 +223,13 @@ func NewMsgSwap(
 	orderPrice sdk.Dec,
 ) *MsgSwap {
 	return &MsgSwap{
-		SwapRequesterAddress:   swapRequester.String(),
-		PoolId:          poolId,
-		PoolTypeIndex:   poolTypeIndex,
-		SwapType:        swapType,
-		OfferCoin:       offerCoin,
-		DemandCoinDenom: demandCoinDenom,
-		OrderPrice:      orderPrice,
+		SwapRequesterAddress: swapRequester.String(),
+		PoolId:               poolId,
+		PoolTypeIndex:        poolTypeIndex,
+		SwapType:             swapType,
+		OfferCoin:            offerCoin,
+		DemandCoinDenom:      demandCoinDenom,
+		OrderPrice:           orderPrice,
 	}
 }
 
