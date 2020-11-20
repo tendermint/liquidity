@@ -42,7 +42,8 @@ message Params {
     ];
     repeated cosmos.base.v1beta1.Coin LiquidityPoolCreationFee = 5 [
         (gogoproto.moretags)   = "yaml:\"liquidity_pool_creation_fee\"",
-        (gogoproto.nullable)   = false
+        (gogoproto.nullable)   = false,
+        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
     ];
 }
 
@@ -53,7 +54,7 @@ message LiquidityPool {
     uint64 PoolId = 1 [(gogoproto.moretags) = "yaml:\"pool_id\""];
     uint32 poolTypeIndex = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
     repeated string ReserveCoinDenoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\""];
-    bytes ReserveAccount = 4 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress", (gogoproto.moretags) = "yaml:\"reserve_account\""];
+    string ReserveAccountAddress = 4 [(gogoproto.moretags) = "yaml:\"reserve_account_address\""];
     string PoolCoinDenom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\""];
 }
 
@@ -68,7 +69,8 @@ message LiquidityPoolMetaData {
     ];
     repeated cosmos.base.v1beta1.Coin ReserveCoins = 3 [
         (gogoproto.moretags)   = "yaml:\"reserve_coins\"",
-        (gogoproto.nullable)   = false
+        (gogoproto.nullable)   = false,
+        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
     ];
 }
 

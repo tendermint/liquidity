@@ -96,7 +96,7 @@ func (k Keeper) GetLiquidityPoolByReserveAccIndex(ctx sdk.Context, reserveAcc sd
 func (k Keeper) SetLiquidityPoolByReserveAccIndex(ctx sdk.Context, liquidityPool types.LiquidityPool) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalLiquidityPool(k.cdc, liquidityPool)
-	store.Set(types.GetLiquidityPoolByReserveAccIndexKey(liquidityPool.ReserveAccount), b)
+	store.Set(types.GetLiquidityPoolByReserveAccIndexKey(liquidityPool.GetReserveAccount()), b)
 }
 
 func (k Keeper) SetLiquidityPoolAtomic(ctx sdk.Context, liquidityPool types.LiquidityPool) {

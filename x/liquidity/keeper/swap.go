@@ -20,6 +20,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		return nil
 	}
 
+	// TODO: add validate MsgSwap
+
 	// get reserve Coin from the liquidity pool
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 	reserveCoins.Sort()
@@ -141,6 +143,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	}
 
 	// TODO: updateState, KV Set, with escrow, emit event
+	// TODO: check order expiry height, set toDelete flag
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSwap,

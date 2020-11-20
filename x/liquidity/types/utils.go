@@ -23,3 +23,12 @@ func GetPoolReserveAcc(poolKey string) sdk.AccAddress {
 func GetPoolCoinDenom(reserveAcc sdk.AccAddress) string {
 	return reserveAcc.String()
 }
+
+func StringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
