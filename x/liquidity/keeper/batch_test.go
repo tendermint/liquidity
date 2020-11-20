@@ -110,7 +110,7 @@ func TestInitNextBatch(t *testing.T) {
 	err := simapp.LiquidityKeeper.InitNextBatch(ctx, batch)
 	require.Error(t, err)
 
-	batch.ExecutionStatus = true
+	batch.Executed = true
 	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, batch)
 
 	err = simapp.LiquidityKeeper.InitNextBatch(ctx, batch)

@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 1.1.1
+  version: 1.1.2
 paths:
   /liquidity/pools:
     post:
@@ -125,6 +125,24 @@ paths:
                             the custom method
 
                             signatures required by gogoproto.
+                        ReserveCoins:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              denom:
+                                type: string
+                              amount:
+                                type: string
+                            description: >-
+                              Coin defines a coin with a denomination and an
+                              amount.
+
+
+                              NOTE: The amount field is an Int which implements
+                              the custom method
+
+                              signatures required by gogoproto.
                     liquidity_pool_batch:
                       type: object
                       properties:
@@ -146,7 +164,7 @@ paths:
                         SwapMsgIndex:
                           type: string
                           format: uint64
-                        ExecutionStatus:
+                        Executed:
                           type: boolean
               pagination:
                 type: object
@@ -336,7 +354,7 @@ paths:
                       type: boolean
                     Succeed:
                       type: boolean
-                    ReadyToDelete:
+                    ToDelete:
                       type: boolean
                     Msg:
                       type: object
@@ -558,15 +576,45 @@ paths:
                     MsgIndex:
                       type: string
                       format: uint64
-                    CancelHeight:
-                      type: string
-                      format: int64
                     Executed:
                       type: boolean
                     Succeed:
                       type: boolean
-                    ReadyToDelete:
+                    ToDelete:
                       type: boolean
+                    OrderExpiryHeight:
+                      type: string
+                      format: int64
+                    ExchangedOfferCoin:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    RemainingOfferCoin:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
                     Msg:
                       type: object
                       properties:
@@ -791,7 +839,7 @@ paths:
                       type: boolean
                     Succeed:
                       type: boolean
-                    ReadyToDelete:
+                    ToDelete:
                       type: boolean
                     Msg:
                       type: object
@@ -1048,6 +1096,23 @@ paths:
                       custom method
 
                       signatures required by gogoproto.
+                  ReserveCoins:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
               liquidity_pool_batch:
                 type: object
                 properties:
@@ -1069,7 +1134,7 @@ paths:
                   SwapMsgIndex:
                     type: string
                     format: uint64
-                  ExecutionStatus:
+                  Executed:
                     type: boolean
         default:
           description: An unexpected error response.
@@ -1132,7 +1197,7 @@ paths:
                   SwapMsgIndex:
                     type: string
                     format: uint64
-                  ExecutionStatus:
+                  Executed:
                     type: boolean
         default:
           description: An unexpected error response.
@@ -1399,7 +1464,7 @@ definitions:
         type: boolean
       Succeed:
         type: boolean
-      ReadyToDelete:
+      ToDelete:
         type: boolean
       Msg:
         type: object
@@ -1436,15 +1501,39 @@ definitions:
       MsgIndex:
         type: string
         format: uint64
-      CancelHeight:
-        type: string
-        format: int64
       Executed:
         type: boolean
       Succeed:
         type: boolean
-      ReadyToDelete:
+      ToDelete:
         type: boolean
+      OrderExpiryHeight:
+        type: string
+        format: int64
+      ExchangedOfferCoin:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a coin with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      RemainingOfferCoin:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a coin with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
       Msg:
         type: object
         properties:
@@ -1493,7 +1582,7 @@ definitions:
         type: boolean
       Succeed:
         type: boolean
-      ReadyToDelete:
+      ToDelete:
         type: boolean
       Msg:
         type: object
@@ -1560,7 +1649,7 @@ definitions:
       SwapMsgIndex:
         type: string
         format: uint64
-      ExecutionStatus:
+      Executed:
         type: boolean
   tendermint.liquidity.LiquidityPoolMetaData:
     type: object
@@ -1580,6 +1669,20 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
+      ReserveCoins:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a coin with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
   tendermint.liquidity.LiquidityPoolType:
     type: object
     properties:
@@ -1662,7 +1765,7 @@ definitions:
           SwapMsgIndex:
             type: string
             format: uint64
-          ExecutionStatus:
+          Executed:
             type: boolean
   tendermint.liquidity.QueryLiquidityPoolResponse:
     type: object
@@ -1706,6 +1809,23 @@ definitions:
               method
 
               signatures required by gogoproto.
+          ReserveCoins:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
       liquidity_pool_batch:
         type: object
         properties:
@@ -1727,7 +1847,7 @@ definitions:
           SwapMsgIndex:
             type: string
             format: uint64
-          ExecutionStatus:
+          Executed:
             type: boolean
   tendermint.liquidity.QueryLiquidityPoolsResponse:
     type: object
@@ -1776,6 +1896,23 @@ definitions:
                     method
 
                     signatures required by gogoproto.
+                ReserveCoins:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a coin with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
             liquidity_pool_batch:
               type: object
               properties:
@@ -1797,7 +1934,7 @@ definitions:
                 SwapMsgIndex:
                   type: string
                   format: uint64
-                ExecutionStatus:
+                Executed:
                   type: boolean
       pagination:
         type: object
@@ -1894,7 +2031,7 @@ definitions:
               type: boolean
             Succeed:
               type: boolean
-            ReadyToDelete:
+            ToDelete:
               type: boolean
             Msg:
               type: object
@@ -1959,15 +2096,45 @@ definitions:
             MsgIndex:
               type: string
               format: uint64
-            CancelHeight:
-              type: string
-              format: int64
             Executed:
               type: boolean
             Succeed:
               type: boolean
-            ReadyToDelete:
+            ToDelete:
               type: boolean
+            OrderExpiryHeight:
+              type: string
+              format: int64
+            ExchangedOfferCoin:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+            RemainingOfferCoin:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
             Msg:
               type: object
               properties:
@@ -2044,7 +2211,7 @@ definitions:
               type: boolean
             Succeed:
               type: boolean
-            ReadyToDelete:
+            ToDelete:
               type: boolean
             Msg:
               type: object

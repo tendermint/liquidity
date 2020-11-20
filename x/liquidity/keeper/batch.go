@@ -9,7 +9,7 @@ import (
 func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 	// Delete already executed batches
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
-		if liquidityPoolBatch.ExecutionStatus {
+		if liquidityPoolBatch.Executed {
 			k.DeleteAllReadyLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch)
 			k.DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch)
 			k.DeleteAllReadyLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
@@ -24,7 +24,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 }
 
 func (k Keeper) InitNextBatch(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) error {
-	if !liquidityPoolBatch.ExecutionStatus {
+	if !liquidityPoolBatch.Executed {
 		return types.ErrBatchNotExecuted
 	}
 	liquidityPoolBatch.BatchIndex = k.GetNextBatchIndexWithUpdate(ctx, liquidityPoolBatch.PoolId)
@@ -35,7 +35,7 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
-		if !liquidityPoolBatch.ExecutionStatus {
+		if !liquidityPoolBatch.Executed {
 			if err := k.SwapExecution(ctx, liquidityPoolBatch); err != nil {
 				// TODO: WIP
 			}
@@ -51,7 +51,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 				}
 				return false
 			})
-			liquidityPoolBatch.ExecutionStatus = true
+			liquidityPoolBatch.Executed = true
 			k.SetLiquidityPoolBatch(ctx, liquidityPoolBatch)
 		}
 		return false
@@ -138,7 +138,7 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) er
 		MsgIndex:  poolBatch.SwapMsgIndex,
 		Msg:       msg,
 	}
-	batchPoolMsg.CancelHeight = batchPoolMsg.MsgHeight + types.CancelOrderLifeSpan
+	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + types.CancelOrderLifeSpan
 
 	if err := k.HoldEscrow(ctx, msg.SwapRequester, sdk.NewCoins(msg.OfferCoin)); err != nil {
 		return err
