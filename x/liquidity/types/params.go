@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	UnitBatchSize uint32 = 1
-	CancelOrderLifeSpan int64 = 0
-	MinReserveCoinNum uint32 = 2
-	MaxReserveCoinNum uint32 = 2
+	UnitBatchSize       uint32 = 1
+	CancelOrderLifeSpan int64  = 0
+	MinReserveCoinNum   uint32 = 2
+	MaxReserveCoinNum   uint32 = 2
 )
 
 // Parameter store keys
@@ -70,7 +70,7 @@ func DefaultParams() Params {
 		defaultLiquidityPoolTypes,
 		sdk.NewInt(1000000),
 		sdk.NewInt(1000000),
-		sdk.NewDecWithPrec(3, 3),  // "0.001000000000000000"
+		sdk.NewDecWithPrec(3, 3), // "0.001000000000000000"
 		sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100000000))))
 }
 

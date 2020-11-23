@@ -129,7 +129,6 @@ func GetRandomSizeOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, size
 	return GetRandomOrders(denomX, denomY, X, Y, r, randomSizeXtoY, randomSizeYtoX)
 }
 
-
 func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY, sizeYtoX int) (XtoY, YtoX []*types.MsgSwap) {
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 
@@ -159,7 +158,6 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 	}
 	return
 }
-
 
 func TestGetRandomOrders(t *testing.T) {
 	s := rand.NewSource(time.Now().UnixNano())
