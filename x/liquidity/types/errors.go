@@ -27,4 +27,5 @@ var (
 	ErrBadPoolCoinAmount      = sdkerrors.Register(ModuleName, 19, "invalid pool coin amount")
 	ErrBadDepositCoinsAmount  = sdkerrors.Register(ModuleName, 20, "invalid pool coin amount")
 	ErrBadOfferCoinAmount     = sdkerrors.Register(ModuleName, 21, "invalid offer coin amount")
+	ErrBadOrderingReserveCoin = sdkerrors.Register(ModuleName, 22, "reserve coin denoms not ordered alphabetical")
 )

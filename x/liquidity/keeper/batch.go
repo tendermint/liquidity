@@ -28,6 +28,7 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	}
 	liquidityPoolBatch.BatchIndex = k.GetNextBatchIndexWithUpdate(ctx, liquidityPoolBatch.PoolId)
 	liquidityPoolBatch.BeginHeight = ctx.BlockHeight()
+	liquidityPoolBatch.Executed = false
 	k.SetLiquidityPoolBatch(ctx, liquidityPoolBatch)
 	return nil
 }
@@ -35,6 +36,9 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
 		if !liquidityPoolBatch.Executed {
+			if liquidityPoolBatch.Executed {
+				return false
+			}
 			if err := k.SwapExecution(ctx, liquidityPoolBatch); err != nil {
 				// TODO: WIP
 			}
@@ -86,6 +90,7 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 
 	batchPoolMsg := types.BatchPoolDepositMsg{
 		MsgHeight: ctx.BlockHeight(),
+		MsgIndex:  poolBatch.DepositMsgIndex,
 		Msg:       msg,
 	}
 
@@ -95,7 +100,7 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 
 	poolBatch.DepositMsgIndex += 1
 	k.SetLiquidityPoolBatch(ctx, poolBatch)
-	k.SetLiquidityPoolBatchDepositMsg(ctx, poolBatch.PoolId, poolBatch.DepositMsgIndex, batchPoolMsg)
+	k.SetLiquidityPoolBatchDepositMsg(ctx, poolBatch.PoolId, batchPoolMsg)
 	// TODO: msg event with msgServer after rebase stargate version sdk
 	return nil
 }
@@ -115,6 +120,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 
 	batchPoolMsg := types.BatchPoolWithdrawMsg{
 		MsgHeight: ctx.BlockHeight(),
+		MsgIndex:  poolBatch.WithdrawMsgIndex,
 		Msg:       msg,
 	}
 
@@ -124,7 +130,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 
 	poolBatch.WithdrawMsgIndex += 1
 	k.SetLiquidityPoolBatch(ctx, poolBatch)
-	k.SetLiquidityPoolBatchWithdrawMsg(ctx, poolBatch.PoolId, poolBatch.WithdrawMsgIndex, batchPoolMsg)
+	k.SetLiquidityPoolBatchWithdrawMsg(ctx, poolBatch.PoolId, batchPoolMsg)
 	// TODO: msg event with msgServer after rebase stargate version sdk
 	return nil
 }
@@ -142,7 +148,6 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) er
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
 
-	poolBatch.SwapMsgIndex += 1
 	batchPoolMsg := types.BatchPoolSwapMsg{
 		MsgHeight: ctx.BlockHeight(),
 		MsgIndex:  poolBatch.SwapMsgIndex,
@@ -154,8 +159,9 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) er
 		return err
 	}
 
+	poolBatch.SwapMsgIndex += 1
 	k.SetLiquidityPoolBatch(ctx, poolBatch)
-	k.SetLiquidityPoolBatchSwapMsg(ctx, poolBatch.PoolId, poolBatch.SwapMsgIndex, batchPoolMsg)
+	k.SetLiquidityPoolBatchSwapMsg(ctx, poolBatch.PoolId, batchPoolMsg)
 	// TODO: msg event with msgServer after rebase stargate version sdk
 	return nil
 }
