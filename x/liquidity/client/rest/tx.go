@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// TODO: after rebase latest stable sdk 0.40.0 for other endpoints
 func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
 	// create liquidityPool
 	r.HandleFunc(fmt.Sprintf("/liquidity/pool"), newLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
@@ -17,8 +18,6 @@ func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
 	// withdraw from liquidityPool
 	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/withdraw", RestPoolId), newWithdrawLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
 }
-
-// TODO: WIP, add detailed logic to each handler
 
 func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

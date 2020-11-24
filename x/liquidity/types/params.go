@@ -26,7 +26,7 @@ var (
 	KeyUnitBatchSize            = []byte("UnitBatchSize")
 
 	DefaultLiquidityPoolType = LiquidityPoolType{
-		PoolTypeIndex:     0,
+		PoolTypeIndex:     1,
 		Name:              "DefaultPoolType",
 		MinReserveCoinNum: MinReserveCoinNum,
 		MaxReserveCoinNum: MaxReserveCoinNum,
@@ -93,7 +93,7 @@ func validateLiquidityPoolTypes(i interface{}) error {
 	}
 
 	for i, p := range v {
-		if i != int(p.PoolTypeIndex) {
+		if i+1 != int(p.PoolTypeIndex) {
 			return fmt.Errorf("LiquidityPoolTypes index must be sorted")
 		}
 	}

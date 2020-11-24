@@ -7,7 +7,7 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// TODO: add commands after rebase sdk stable 0.40.0
+// TODO: after rebase latest stable sdk 0.40.0 for other commands
 
 // GetTxCmd returns a root CLI command handler for all x/liquidity transaction commands.
 func GetTxCmd() *cobra.Command {

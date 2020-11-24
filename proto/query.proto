@@ -83,7 +83,7 @@ message QueryParamsResponse {
 }
 
 message QueryPoolBatchSwapMsgsRequest {
-    string pool_id = 1;
+    uint64 pool_id = 1;
     cosmos.query.PageRequest pagination = 2;
 }
 
@@ -93,7 +93,7 @@ message QueryPoolBatchSwapMsgsResponse {
     cosmos.query.PageResponse pagination = 2;
 }
 message QueryPoolBatchDepositMsgsRequest {
-    string pool_id = 1;
+    uint64 pool_id = 1;
     cosmos.query.PageRequest pagination = 2;
 }
 
@@ -103,7 +103,7 @@ message QueryPoolBatchDepositMsgsResponse {
     cosmos.query.PageResponse pagination = 2;
 }
 message QueryPoolBatchWithdrawMsgsRequest {
-    string pool_id = 1;
+    uint64 pool_id = 1;
     cosmos.query.PageRequest pagination = 2;
 }
 

@@ -36,7 +36,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	require.Equal(t, deposit, depositBalance)
 
 	// create Liquidity pool
-	poolTypeIndex := uint32(0)
+	poolTypeIndex := DefaultPoolTypeIndex
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
@@ -49,7 +49,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
 	sellerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(YtoX), sdk.NewInt(0))
 
-	poolId := uint64(0)
+	poolId := uint64(1)
 	pool, found := simapp.LiquidityKeeper.GetLiquidityPool(ctx, poolId)
 	require.True(t, found)
 
