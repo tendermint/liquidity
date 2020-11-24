@@ -195,7 +195,7 @@ func request_Query_PoolBatchSwapMsgs_0(ctx context.Context, marshaler runtime.Ma
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "pool_id")
 	}
 
-	protoReq.PoolId, err = runtime.String(val)
+	protoReq.PoolId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
@@ -229,7 +229,7 @@ func local_request_Query_PoolBatchSwapMsgs_0(ctx context.Context, marshaler runt
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "pool_id")
 	}
 
-	protoReq.PoolId, err = runtime.String(val)
+	protoReq.PoolId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
@@ -267,7 +267,7 @@ func request_Query_PoolBatchDepositMsgs_0(ctx context.Context, marshaler runtime
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "pool_id")
 	}
 
-	protoReq.PoolId, err = runtime.String(val)
+	protoReq.PoolId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
@@ -301,7 +301,7 @@ func local_request_Query_PoolBatchDepositMsgs_0(ctx context.Context, marshaler r
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "pool_id")
 	}
 
-	protoReq.PoolId, err = runtime.String(val)
+	protoReq.PoolId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
@@ -339,7 +339,7 @@ func request_Query_PoolBatchWithdrawMsgs_0(ctx context.Context, marshaler runtim
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "pool_id")
 	}
 
-	protoReq.PoolId, err = runtime.String(val)
+	protoReq.PoolId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
@@ -373,7 +373,7 @@ func local_request_Query_PoolBatchWithdrawMsgs_0(ctx context.Context, marshaler 
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "pool_id")
 	}
 
-	protoReq.PoolId, err = runtime.String(val)
+	protoReq.PoolId, err = runtime.Uint64(val)
 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
