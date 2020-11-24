@@ -52,7 +52,7 @@ func TestSwapExecution(t *testing.T) {
 	require.Equal(t, deposit, depositBalance)
 
 	// create Liquidity pool
-	poolTypeIndex := uint32(0)
+	poolTypeIndex := DefaultPoolTypeIndex
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
@@ -61,7 +61,7 @@ func TestSwapExecution(t *testing.T) {
 	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
 	poolId := lpList[0].PoolId
 	require.Equal(t, 1, len(lpList))
-	require.Equal(t, uint64(0), poolId)
+	require.Equal(t, uint64(1), poolId)
 	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomY, lpList[0].ReserveCoinDenoms[1])
 

@@ -75,7 +75,7 @@ func (k Keeper) GetNextLiquidityPoolId(ctx sdk.Context) uint64 {
 	bz := store.Get(types.GlobalLiquidityPoolIdKey)
 	if bz == nil {
 		// initialize the LiquidityPoolId
-		poolId = 0
+		poolId = 1
 	} else {
 		val := gogotypes.UInt64Value{}
 
@@ -109,10 +109,11 @@ func (k Keeper) SetLiquidityPoolByReserveAccIndex(ctx sdk.Context, liquidityPool
 	store.Set(types.GetLiquidityPoolByReserveAccIndexKey(liquidityPool.GetReserveAccount()), b)
 }
 
-func (k Keeper) SetLiquidityPoolAtomic(ctx sdk.Context, liquidityPool types.LiquidityPool) {
+func (k Keeper) SetLiquidityPoolAtomic(ctx sdk.Context, liquidityPool types.LiquidityPool) types.LiquidityPool {
 	liquidityPool.PoolId = k.GetNextLiquidityPoolIdWithUpdate(ctx)
 	k.SetLiquidityPool(ctx, liquidityPool)
 	k.SetLiquidityPoolByReserveAccIndex(ctx, liquidityPool)
+	return liquidityPool
 }
 
 // return a specific GetLiquidityPoolBatchIndexKey

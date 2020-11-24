@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
+// TODO: after rebase latest stable sdk 0.40.0 for other endpoints
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// query liquidity
 	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId), queryLiquidityHandlerFn(cliCtx)).Methods("GET")

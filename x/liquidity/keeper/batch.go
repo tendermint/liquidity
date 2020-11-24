@@ -5,7 +5,6 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// TODO: testcodes
 func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 	// Delete already executed batches
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
@@ -83,7 +82,6 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 	if !found {
 		return types.ErrPoolBatchNotExists
 	}
-	// TODO: add validate msg before add to batch
 	if poolBatch.BeginHeight == 0 {
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
@@ -113,7 +111,6 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 	if !found {
 		return types.ErrPoolBatchNotExists
 	}
-	// TODO: add validate msg before add to batch
 	if poolBatch.BeginHeight == 0 {
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
@@ -143,7 +140,6 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) er
 	if !found {
 		return types.ErrPoolBatchNotExists
 	}
-	// TODO: add validate msg before add to batch
 	if poolBatch.BeginHeight == 0 {
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
