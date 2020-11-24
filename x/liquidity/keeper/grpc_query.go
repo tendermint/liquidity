@@ -102,11 +102,11 @@ func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityP
 }
 
 func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSwapMsgsRequest) (*types.QueryPoolBatchSwapMsgsResponse, error) {
-	empty := &types.QueryPoolBatchSwapMsgsRequest{}
-	if req == nil || *req == *empty {
-		return nil, status.Errorf(codes.InvalidArgument, "empty request")
-	}
 	// TODO: after write swap msg on testsuite
+	//empty := &types.QueryPoolBatchSwapMsgsRequest{}
+	//if req == nil || *req == *empty {
+	//	return nil, status.Errorf(codes.InvalidArgument, "empty request")
+	//}
 	//ctx := sdk.UnwrapSDKContext(c)
 	//
 	//store := ctx.KVStore(k.storeKey)

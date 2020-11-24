@@ -27,3 +27,10 @@ func TestStringInSlice(t *testing.T) {
 	require.True(t, types.StringInSlice(denomB, denoms))
 	require.False(t, types.StringInSlice(denomC, denoms))
 }
+
+func TestGetPoolReserveAcc(t *testing.T) {
+	reserveAcc := types.GetPoolReserveAcc("denomX-denomY-1")
+	require.NotNil(t, reserveAcc)
+	require.Equal(t, "cosmos18gvpvm3lrzx6rs6yq5c6klnye2t5qumm3v3re8", reserveAcc.String())
+	require.Equal(t, "cosmos18gvpvm3lrzx6rs6yq5c6klnye2t5qumm3v3re8", types.GetPoolCoinDenom(reserveAcc))
+}
