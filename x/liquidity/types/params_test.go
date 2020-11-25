@@ -2,6 +2,7 @@ package types_test
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/liquidity/app"
@@ -45,4 +46,29 @@ liquidity_pool_creation_fee:
 
 	require.Equal(t, genesisStr, params.String())
 	require.NoError(t, params.Validate())
+
+	params = types.DefaultParams()
+	params.LiquidityPoolTypes = nil
+	require.Error(t, params.Validate())
+
+	params = types.DefaultParams()
+	dec, _ := sdk.NewDecFromStr("2.0")
+	params.SwapFeeRate = dec
+	require.Error(t, params.Validate())
+	dec, _ = sdk.NewDecFromStr("-0.5")
+	params.SwapFeeRate = dec
+	require.Error(t, params.Validate())
+
+	params = types.DefaultParams()
+	params.LiquidityPoolCreationFee = sdk.NewCoins()
+	require.Error(t, params.Validate())
+
+	params = types.DefaultParams()
+	params.InitPoolCoinMintAmount = sdk.ZeroInt()
+	require.Error(t, params.Validate())
+
+	params = types.DefaultParams()
+	params.MinInitDepositToPool = sdk.ZeroInt()
+	require.Error(t, params.Validate())
+
 }

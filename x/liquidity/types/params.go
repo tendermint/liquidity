@@ -82,6 +82,25 @@ func (p Params) String() string {
 
 // Validate returns err if Params is invalid
 func (p Params) Validate() error {
+	if err := validateLiquidityPoolTypes(p.LiquidityPoolTypes); err != nil {
+		return err
+	}
+
+	if err := validateMinInitDepositToPool(p.MinInitDepositToPool); err != nil {
+		return err
+	}
+
+	if err := validateInitPoolCoinMintAmount(p.InitPoolCoinMintAmount); err != nil {
+		return err
+	}
+
+	if err := validateSwapFeeRate(p.SwapFeeRate); err != nil {
+		return err
+	}
+
+	if err := validateLiquidityPoolCreationFee(p.LiquidityPoolCreationFee); err != nil {
+		return err
+	}
 	// TODO: add detail validate logic
 	return nil
 }
@@ -90,6 +109,10 @@ func validateLiquidityPoolTypes(i interface{}) error {
 	v, ok := i.([]LiquidityPoolType)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == nil {
+		return fmt.Errorf("empty parameter: LiquidityPoolTypes #{i}")
 	}
 
 	for i, p := range v {
@@ -105,7 +128,7 @@ func validateMinInitDepositToPool(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == sdk.ZeroInt() {
+	if v.IsZero() {
 		return fmt.Errorf("MinInitDepositToPool must be positive: %d", v)
 	}
 
@@ -118,7 +141,7 @@ func validateInitPoolCoinMintAmount(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == sdk.ZeroInt() {
+	if v.IsZero() {
 		return fmt.Errorf("InitPoolCoinMintAmount must be positive: %d", v)
 	}
 
@@ -147,6 +170,7 @@ func validateLiquidityPoolCreationFee(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
+
 	if coins.Empty() {
 		return fmt.Errorf("LiquidityPoolCreationFee cannot be Empty: %s", coins)
 	}
