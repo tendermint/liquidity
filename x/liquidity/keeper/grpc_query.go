@@ -26,9 +26,9 @@ func (k Keeper) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Liqui
 		return nil, types.ErrPoolBatchNotExists
 	}
 
-	return &types.QueryLiquidityPoolResponse{LiquidityPool:pool,
-		LiquidityPoolMetaData:k.GetLiquidityPoolMetaData(ctx, pool),
-		LiquidityPoolBatch:&batch}, nil
+	return &types.QueryLiquidityPoolResponse{LiquidityPool: pool,
+		LiquidityPoolMetaData: k.GetLiquidityPoolMetaData(ctx, pool),
+		LiquidityPoolBatch:    &batch}, nil
 }
 
 func (k Keeper) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRequest) (*types.QueryLiquidityPoolResponse, error) {
@@ -84,7 +84,7 @@ func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPools
 		poolResponses = append(poolResponses, *response)
 	}
 
-	return &types.QueryLiquidityPoolsResponse{LiquidityPoolResponses: poolResponses, Pagination:pageRes}, nil
+	return &types.QueryLiquidityPoolsResponse{LiquidityPoolResponses: poolResponses, Pagination: pageRes}, nil
 }
 
 func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
@@ -98,7 +98,7 @@ func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityP
 	if !found {
 		return nil, status.Errorf(codes.NotFound, "liquidity pool batch %d doesn't exist", req.PoolId)
 	}
-	return &types.QueryLiquidityPoolBatchResponse{LiquidityPoolBatch:batch}, nil
+	return &types.QueryLiquidityPoolBatchResponse{LiquidityPoolBatch: batch}, nil
 }
 
 func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSwapMsgsRequest) (*types.QueryPoolBatchSwapMsgsResponse, error) {
@@ -167,8 +167,8 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 	}
 
 	return &types.QueryPoolBatchDepositMsgsResponse{
-		DepositMsgs:   msgs,
-		Pagination: pageRes,
+		DepositMsgs: msgs,
+		Pagination:  pageRes,
 	}, nil
 }
 
@@ -202,8 +202,8 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	}
 
 	return &types.QueryPoolBatchWithdrawMsgsResponse{
-		WithdrawMsgs:   msgs,
-		Pagination: pageRes,
+		WithdrawMsgs: msgs,
+		Pagination:   pageRes,
 	}, nil
 }
 

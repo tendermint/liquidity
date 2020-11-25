@@ -13,16 +13,16 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	app         *app.LiquidityApp
-	ctx         sdk.Context
-	addrs       []sdk.AccAddress
+	app   *app.LiquidityApp
+	ctx   sdk.Context
+	addrs []sdk.AccAddress
 	//vals        []stakingtypes.Validator
-	pools []types.LiquidityPool
-	batches []types.LiquidityPoolBatch
-	depositMsgs []types.BatchPoolDepositMsg
+	pools        []types.LiquidityPool
+	batches      []types.LiquidityPoolBatch
+	depositMsgs  []types.BatchPoolDepositMsg
 	withdrawMsgs []types.BatchPoolWithdrawMsg
-	swapMsgs []types.BatchPoolSwapMsg
-	queryClient types.QueryClient
+	swapMsgs     []types.BatchPoolSwapMsg
+	queryClient  types.QueryClient
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
@@ -69,4 +69,3 @@ func TestParams(t *testing.T) {
 func TestKeeperTestSuite(t *testing.T) {
 	suite.Run(t, new(KeeperTestSuite))
 }
-

@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/liquidity/x/liquidity/keeper"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
@@ -425,4 +427,23 @@ func NewPubKeyFromHex(pk string) (res crypto.PubKey) {
 		panic(errors.Wrap(errors.ErrInvalidPubKey, "invalid pubkey size"))
 	}
 	return &ed25519.PubKey{Key: pkBytes}
+}
+
+// CreateTestInput Returns a simapp with custom LiquidityKeeper
+// to avoid messing with the hooks.
+func CreateTestInput() (*LiquidityApp, sdk.Context) {
+	app := Setup(false)
+	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
+
+	appCodec := app.AppCodec()
+
+	app.LiquidityKeeper = keeper.NewKeeper(
+		appCodec,
+		app.GetKey(types.StoreKey),
+		app.GetSubspace(types.ModuleName),
+		app.BankKeeper,
+		app.AccountKeeper,
+	)
+
+	return app, ctx
 }

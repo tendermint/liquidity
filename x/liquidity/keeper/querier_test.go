@@ -18,7 +18,7 @@ const custom = "custom"
 func getQueriedLiquidityPool(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, poolId uint64) (types.LiquidityPool, error) {
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryLiquidityPool}, "/"),
-		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId:poolId}),
+		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId: poolId}),
 	}
 
 	pool := types.LiquidityPool{}
@@ -45,7 +45,7 @@ func TestNewQuerier(t *testing.T) {
 	poolId := testCreatePool(t, simapp, ctx, X, Y, DenomX, DenomY, addrs[0])
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryLiquidityPool}, "/"),
-		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId:poolId}),
+		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId: poolId}),
 	}
 	queryFailCase := abci.RequestQuery{
 		Path: strings.Join([]string{"failCustom", "failRoute", "failQuery"}, "/"),
@@ -60,7 +60,6 @@ func TestNewQuerier(t *testing.T) {
 	require.Error(t, err)
 	require.Error(t, cdc.UnmarshalJSON(bz, &pool))
 }
-
 
 func TestQueries(t *testing.T) {
 	cdc := codec.NewLegacyAmino()
@@ -90,4 +89,3 @@ func TestQueries(t *testing.T) {
 	require.Error(t, err)
 	require.Equal(t, uint64(0), poolResEmpty.PoolId)
 }
-

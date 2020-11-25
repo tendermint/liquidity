@@ -390,5 +390,5 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.Batc
 func (k Keeper) GetLiquidityPoolMetaData(ctx sdk.Context, pool types.LiquidityPool) *types.LiquidityPoolMetaData {
 	totalSupply := sdk.NewCoin(pool.PoolCoinDenom, k.GetPoolCoinTotalSupply(ctx, pool))
 	reserveCoin := k.GetReserveCoins(ctx, pool)
-	return &types.LiquidityPoolMetaData{PoolId:pool.PoolId, PoolCoinTotalSupply: totalSupply, ReserveCoins:reserveCoin}
+	return &types.LiquidityPoolMetaData{PoolId: pool.PoolId, PoolCoinTotalSupply: totalSupply, ReserveCoins: reserveCoin}
 }

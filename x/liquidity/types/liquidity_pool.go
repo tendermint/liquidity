@@ -1,11 +1,10 @@
 package types
 
 import (
-	"strconv"
-	"strings"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"strconv"
+	"strings"
 )
 
 // need to validate alphabetical ordering of ReserveCoinDenoms when New() and Store
@@ -14,6 +13,42 @@ import (
 // reDnmString = `[a-zA-Z][a-zA-Z0-9/]{2,127}`
 func (lp LiquidityPool) GetPoolKey() string {
 	return GetPoolKey(lp.ReserveCoinDenoms, lp.PoolTypeIndex)
+}
+
+func (lp LiquidityPool) Validate() error {
+	if lp.PoolId == 0 {
+		return ErrPoolNotExists
+	}
+	if lp.PoolTypeIndex == 0 {
+		return ErrPoolTypeNotExists
+	}
+	if lp.ReserveCoinDenoms == nil || len(lp.ReserveCoinDenoms) == 0 {
+		return ErrNumOfReserveCoinDenoms
+	}
+	if uint32(len(lp.ReserveCoinDenoms)) > MaxReserveCoinNum || uint32(len(lp.ReserveCoinDenoms)) < MinReserveCoinNum {
+		return ErrNumOfReserveCoinDenoms
+	}
+	sortedDenomA, sortedDenomB := AlphabeticalDenomPair(lp.ReserveCoinDenoms[0], lp.ReserveCoinDenoms[1])
+	if sortedDenomA != lp.ReserveCoinDenoms[0] || sortedDenomB != lp.ReserveCoinDenoms[1] {
+		return ErrBadOrderingReserveCoinDenoms
+	}
+	if lp.ReserveAccountAddress == "" {
+		return ErrEmptyReserveAccountAddress
+	}
+	//addr, err := sdk.AccAddressFromBech32(lp.ReserveAccountAddress)
+	//if err != nil || lp.GetReserveAccount().Equals(addr) {
+	//	return ErrBadReserveAccountAddress
+	//}
+	if lp.ReserveAccountAddress != GetPoolReserveAcc(lp.GetPoolKey()).String() {
+		return ErrBadReserveAccountAddress
+	}
+	if lp.PoolCoinDenom == "" {
+		return ErrEmptyPoolCoinDenom
+	}
+	if lp.PoolCoinDenom != lp.GetPoolKey() {
+		return ErrBadPoolCoinDenom
+	}
+	return nil
 }
 
 func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
@@ -64,12 +99,6 @@ func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
 func (lp LiquidityPool) GetPoolCoinDenom() string { return lp.PoolCoinDenom }
 func (lp LiquidityPool) GetPoolId() uint64        { return lp.PoolId }
 
-// String returns a human readable string representation of a LiquidityPool.
-//func (lp LiquidityPool) String() string {
-//	out, _ := yaml.Marshal(lp)
-//	return string(out)
-//}
-
 // LiquidityPools is a collection of liquidityPools
 type LiquidityPools []LiquidityPool
 
@@ -77,7 +106,6 @@ func (lps LiquidityPools) String() (out string) {
 	for _, del := range lps {
 		out += del.String() + "\n"
 	}
-
 	return strings.TrimSpace(out)
 }
 
