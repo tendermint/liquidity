@@ -57,7 +57,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 		msg      string
 		malleate func()
 		expPass  bool
-		numPools  int
+		numPools int
 		hasNext  bool
 	}{
 		{
@@ -186,7 +186,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 		{"valid request",
 			func() {
 				req = &types.QueryPoolBatchDepositMsgsRequest{
-					PoolId: suite.batches[0].PoolId,
+					PoolId:     suite.batches[0].PoolId,
 					Pagination: &query.PageRequest{Limit: 1, CountTotal: true}}
 			},
 			true,
@@ -196,7 +196,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 		{"valid request",
 			func() {
 				req = &types.QueryPoolBatchDepositMsgsRequest{
-					PoolId: suite.batches[0].PoolId,
+					PoolId:     suite.batches[0].PoolId,
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true}}
 			},
 			true,
@@ -260,7 +260,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 		{"valid request",
 			func() {
 				req = &types.QueryPoolBatchWithdrawMsgsRequest{
-					PoolId: suite.batches[0].PoolId,
+					PoolId:     suite.batches[0].PoolId,
 					Pagination: &query.PageRequest{Limit: 1, CountTotal: true}}
 			},
 			true,
@@ -270,7 +270,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 		{"valid request",
 			func() {
 				req = &types.QueryPoolBatchWithdrawMsgsRequest{
-					PoolId: suite.batches[0].PoolId,
+					PoolId:     suite.batches[0].PoolId,
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true}}
 			},
 			true,

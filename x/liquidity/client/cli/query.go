@@ -13,7 +13,6 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-
 // GetQueryCmd returns the cli query commands for this module
 func GetQueryCmd() *cobra.Command {
 	liquidityQueryCmd := &cobra.Command{

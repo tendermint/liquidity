@@ -15,14 +15,14 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
 		case types.QueryLiquidityPool:
-			return queryLiquidity(ctx, req, k, legacyQuerierCdc)
+			return queryLiquidityPool(ctx, req, k, legacyQuerierCdc)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown query path: %s", path[0])
 		}
 	}
 }
 
-func queryLiquidity(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryLiquidityPool(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	var params types.QueryLiquidityPoolParams
 
 	if err := legacyQuerierCdc.UnmarshalJSON(req.Data, &params); err != nil {

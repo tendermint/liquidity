@@ -19,10 +19,14 @@ func GetPoolReserveAcc(poolKey string) sdk.AccAddress {
 	return sdk.AccAddress(crypto.AddressHash([]byte(poolKey)))
 }
 
-// tmp denom rule, TBD
+// TODO: tmp denom rule, TBD
 func GetPoolCoinDenom(reserveAcc sdk.AccAddress) string {
 	return reserveAcc.String()
 }
+
+//func IsPoolCoin(coin sdk.Coin) bool {
+//
+//}
 
 func StringInSlice(a string, list []string) bool {
 	for _, b := range list {

@@ -10,31 +10,16 @@ import (
 	"github.com/tendermint/liquidity/app"
 	lapp "github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
-	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"testing"
 )
 
 // createTestInput Returns a simapp with custom LiquidityKeeper
 // to avoid messing with the hooks.
 func createTestInput() (*lapp.LiquidityApp, sdk.Context) {
-	app := lapp.Setup(false)
-	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
-
-	appCodec := app.AppCodec()
-
-	app.LiquidityKeeper = keeper.NewKeeper(
-		appCodec,
-		app.GetKey(types.StoreKey),
-		app.GetSubspace(types.ModuleName),
-		app.BankKeeper,
-		app.AccountKeeper,
-	)
-
-	return app, ctx
+	return lapp.CreateTestInput()
 }
 
 type GenerateAccountStrategy func(int) []sdk.AccAddress
@@ -101,7 +86,7 @@ func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int) ([]sdk
 }
 
 var (
-	valTokens           = sdk.TokensFromConsensusPower(42)
+	valTokens = sdk.TokensFromConsensusPower(42)
 	//TestProposal        = types.NewTextProposal("Test", "description")
 	TestDescription     = stakingtypes.NewDescription("T", "E", "S", "T", "Z")
 	TestCommissionRates = stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
@@ -147,8 +132,6 @@ func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, pow
 	_, _ = app.StakingKeeper.Delegate(ctx, addrs[0], sdk.TokensFromConsensusPower(powers[0]), sdk.Unbonded, val1, true)
 	_, _ = app.StakingKeeper.Delegate(ctx, addrs[1], sdk.TokensFromConsensusPower(powers[1]), sdk.Unbonded, val2, true)
 	_, _ = app.StakingKeeper.Delegate(ctx, addrs[2], sdk.TokensFromConsensusPower(powers[2]), sdk.Unbonded, val3, true)
-
-
 
 	_ = staking.EndBlocker(ctx, app.StakingKeeper)
 

@@ -362,24 +362,24 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.Batc
 }
 
 // TODO: WIP
-func (k Keeper) RefundSwapLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoolSwapMsg) error {
-	batchMsg, _ = k.GetLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
-	if !batchMsg.Executed || batchMsg.Succeed {
-		panic("can't refund not executed or succeed msg")
-	}
-	err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetSwapRequester(), sdk.NewCoins(batchMsg.Msg.OfferCoin))
-	if err != nil {
-		panic(err)
-	}
-	msg, found := k.GetLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
-	if !found {
-		panic(err)
-	}
-	msg.ToDelete = true
-	k.SetLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, msg)
-	k.DeleteLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
-	return err
-}
+//func (k Keeper) RefundSwapLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoolSwapMsg) error {
+//	batchMsg, _ = k.GetLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
+//	if !batchMsg.Executed || batchMsg.Succeed {
+//		panic("can't refund not executed or succeed msg")
+//	}
+//	err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetSwapRequester(), sdk.NewCoins(batchMsg.Msg.OfferCoin))
+//	if err != nil {
+//		panic(err)
+//	}
+//	msg, found := k.GetLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
+//	if !found {
+//		panic(err)
+//	}
+//	msg.ToDelete = true
+//	k.SetLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, msg)
+//	k.DeleteLiquidityPoolBatchSwapMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
+//	return err
+//}
 
 //func (k Keeper) FractionalRefundSwapLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoolSwapMsg) error {
 //	if !batchMsg.Executed {
@@ -390,5 +390,5 @@ func (k Keeper) RefundSwapLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoo
 func (k Keeper) GetLiquidityPoolMetaData(ctx sdk.Context, pool types.LiquidityPool) *types.LiquidityPoolMetaData {
 	totalSupply := sdk.NewCoin(pool.PoolCoinDenom, k.GetPoolCoinTotalSupply(ctx, pool))
 	reserveCoin := k.GetReserveCoins(ctx, pool)
-	return &types.LiquidityPoolMetaData{PoolId:pool.PoolId, PoolCoinTotalSupply: totalSupply, ReserveCoins:reserveCoin}
+	return &types.LiquidityPoolMetaData{PoolId: pool.PoolId, PoolCoinTotalSupply: totalSupply, ReserveCoins: reserveCoin}
 }

@@ -48,6 +48,9 @@ func (msg MsgCreateLiquidityPool) ValidateBasic() error {
 	if msg.PoolCreatorAddress == "" {
 		return ErrEmptyPoolCreatorAddr
 	}
+	if len(msg.ReserveCoinDenoms) != msg.DepositCoins.Len() {
+		return ErrNumOfReserveCoin
+	}
 	if err := msg.DepositCoins.Validate(); err != nil {
 		return err
 	}
@@ -56,9 +59,6 @@ func (msg MsgCreateLiquidityPool) ValidateBasic() error {
 	}
 	if uint32(msg.DepositCoins.Len()) > MaxReserveCoinNum ||
 		MinReserveCoinNum > uint32(msg.DepositCoins.Len()) {
-		return ErrNumOfReserveCoin
-	}
-	if len(msg.ReserveCoinDenoms) != msg.DepositCoins.Len() {
 		return ErrNumOfReserveCoin
 	}
 	return nil
@@ -153,7 +153,7 @@ func (msg MsgDepositToLiquidityPool) GetDepositor() sdk.AccAddress {
 // MsgWithdrawFromLiquidityPool
 // ------------------------------------------------------------------------
 
-// NewMsgSwap creates a new MsgSwap object.
+// NewMsgWithdraw creates a new MsgWithdraw object.
 func NewMsgWithdrawFromLiquidityPool(
 	withdrawer sdk.AccAddress,
 	poolId uint64,
@@ -249,6 +249,9 @@ func (msg MsgSwap) ValidateBasic() error {
 	}
 	if !msg.OfferCoin.IsPositive() {
 		return ErrBadOfferCoinAmount
+	}
+	if !msg.OrderPrice.IsPositive() {
+		return ErrBadOderPrice
 	}
 	return nil
 }
