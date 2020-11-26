@@ -500,7 +500,7 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 	return
 }
 
-func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []types.BatchPoolSwapMsg) {
+func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []*types.BatchPoolSwapMsg) {
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 
 	XtoYnewSize := int(r.Int31n(20)) // 0~19
@@ -512,7 +512,7 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 		offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
 		orderCoin := sdk.NewCoin(denomX, offerAmt.RoundInt())
 
-		XtoY = append(XtoY, types.BatchPoolSwapMsg{
+		XtoY = append(XtoY, &types.BatchPoolSwapMsg{
 			Msg: &types.MsgSwap{
 				OfferCoin:       orderCoin,
 				DemandCoinDenom: denomY,
@@ -526,7 +526,7 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 		offerAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
 		orderCoin := sdk.NewCoin(denomY, offerAmt.RoundInt())
 
-		YtoX = append(YtoX, types.BatchPoolSwapMsg{
+		YtoX = append(YtoX, &types.BatchPoolSwapMsg{
 			Msg: &types.MsgSwap{
 				OfferCoin:       orderCoin,
 				DemandCoinDenom: denomX,

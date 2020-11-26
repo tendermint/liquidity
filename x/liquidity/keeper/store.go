@@ -374,9 +374,9 @@ func (k Keeper) DeleteAllReadyLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquid
 }
 
 // GetAllLiquidityPoolBatchSwapMsgs returns all BatchSwapMsgs indexed by the liquidityPoolBatch
-func (k Keeper) GetAllLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolSwapMsg) {
+func (k Keeper) GetAllLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []*types.BatchPoolSwapMsg) {
 	k.IterateAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolSwapMsg) bool {
-		msgs = append(msgs, msg)
+		msgs = append(msgs, &msg)
 		return false
 	})
 	return msgs

@@ -27,6 +27,7 @@ type OrderByPrice struct {
 	OrderPrice   sdk.Dec
 	BuyOfferAmt  sdk.Int
 	SellOfferAmt sdk.Int
+	MsgList []*BatchPoolSwapMsg
 }
 type OrderBook []OrderByPrice
 
@@ -54,6 +55,36 @@ func (orderBook OrderBook) Reverse() {
 		return orderBook[i].OrderPrice.GT(orderBook[j].OrderPrice)
 	})
 }
+
+// TODO: remove if not used
+//func (orderBook *OrderBook) append(orderBook *OrderBook) *OrderBook {
+//
+//	return *orderBook
+//}
+//// Len implements sort.Interface for OrderBook
+//func (orderBook *OrderBook) Len() int { return len(*orderBook) }
+//
+//// Less implements sort.Interface for OrderBook
+//func (orderBook *OrderBook) Less(i, j int) bool {
+//	return (*orderBook)[i].OrderPrice.LT((*orderBook)[j].OrderPrice)
+//}
+//
+//// Swap implements sort.Interface for OrderBook
+//func (orderBook *OrderBook) Swap(i, j int) { (*orderBook)[i], (*orderBook)[j] = (*orderBook)[j], (*orderBook)[i] }
+//
+//func (orderBook *OrderBook) Sort() {
+//	//sort.Sort(orderBook)
+//	sort.Slice(orderBook, func(i, j int) bool {
+//		return (*orderBook)[i].OrderPrice.LT((*orderBook)[j].OrderPrice)
+//	})
+//}
+//
+//func (orderBook *OrderBook) Reverse() {
+//	//sort.Reverse(orderBook)
+//	sort.Slice(orderBook, func(i, j int) bool {
+//		return (*orderBook)[i].OrderPrice.GT((*orderBook)[j].OrderPrice)
+//	})
+//}
 
 func MinDec(a, b sdk.Dec) sdk.Dec {
 	if a.LTE(b) {
@@ -105,6 +136,7 @@ func (orderMap OrderMap) SortOrderBook() (orderBook OrderBook) {
 			OrderPrice:   k,
 			BuyOfferAmt:  orderMap[k.String()].BuyOfferAmt,
 			SellOfferAmt: orderMap[k.String()].SellOfferAmt,
+			MsgList: orderMap[k.String()].MsgList,
 		})
 	}
 	return orderBook
@@ -196,7 +228,7 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 	}
 }
 
-func ClearOrders(XtoY, YtoX []BatchPoolSwapMsg) ([]BatchPoolSwapMsg, []BatchPoolSwapMsg) {
+func ClearOrders(XtoY, YtoX []*BatchPoolSwapMsg) ([]*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
 	// TODO: add clear logic for orderExpiryHeight with ctx.Height, test on keeper
 	newI := 0
 	for _, order := range XtoY {
@@ -243,9 +275,9 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResul
 	return
 }
 
-func FindOrderMatch(direction int, swapList []BatchPoolSwapMsg, executableAmt sdk.Int,
+func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt sdk.Int,
 	swapPrice, swapFeeRate sdk.Dec, height int64) (
-	matchResultList []MatchResult, swapListExecuted []BatchPoolSwapMsg, poolXdelta, poolYdelta sdk.Int) {
+	matchResultList []MatchResult, swapListExecuted []*BatchPoolSwapMsg, poolXdelta, poolYdelta sdk.Int) {
 
 	poolXdelta = sdk.ZeroInt()
 	poolYdelta = sdk.ZeroInt()
@@ -263,7 +295,7 @@ func FindOrderMatch(direction int, swapList []BatchPoolSwapMsg, executableAmt sd
 	matchAmt := sdk.ZeroInt()
 	accumMatchAmt := sdk.ZeroInt()
 	//var matchedOrderMsgIndexList []uint64
-	var matchOrderList []BatchPoolSwapMsg
+	var matchOrderList []*BatchPoolSwapMsg
 	//matchedIndexMap := make(map[uint64]sdk.Coin)
 
 	fmt.Println("executableAmt", executableAmt)
@@ -479,10 +511,10 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 }
 
 // make orderMap key as swap price, value as Buy, Sell Amount from swap msgs,  with split as Buy XtoY, Sell YtoX msg list
-func GetOrderMap(swapMsgs []BatchPoolSwapMsg, denomX, denomY string) (OrderMap, []BatchPoolSwapMsg, []BatchPoolSwapMsg) {
+func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string) (OrderMap, []*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
 	orderMap := make(OrderMap)
-	var XtoY []BatchPoolSwapMsg // buying Y from X
-	var YtoX []BatchPoolSwapMsg // selling Y for X
+	var XtoY []*BatchPoolSwapMsg // buying Y from X
+	var YtoX []*BatchPoolSwapMsg // selling Y for X
 	for _, m := range swapMsgs {
 		if m.Msg.OfferCoin.Denom == denomX { // buying Y from X
 			XtoY = append(XtoY, m)
@@ -490,10 +522,14 @@ func GetOrderMap(swapMsgs []BatchPoolSwapMsg, denomX, denomY string) (OrderMap, 
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
 					m.Msg.OrderPrice,
 					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt.Add(m.Msg.OfferCoin.Amount),
-					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt}
+					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt,
+					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
+				}
 			} else {
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					m.Msg.OfferCoin.Amount, sdk.ZeroInt()}
+					m.Msg.OfferCoin.Amount, sdk.ZeroInt(),
+					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
+				}
 			}
 		} else if m.Msg.OfferCoin.Denom == denomY { // selling Y for X
 			YtoX = append(YtoX, m)
@@ -501,10 +537,14 @@ func GetOrderMap(swapMsgs []BatchPoolSwapMsg, denomX, denomY string) (OrderMap, 
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
 					m.Msg.OrderPrice,
 					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt,
-					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt.Add(m.Msg.OfferCoin.Amount)}
+					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt.Add(m.Msg.OfferCoin.Amount),
+					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
+				}
 			} else {
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					sdk.ZeroInt(), m.Msg.OfferCoin.Amount}
+					sdk.ZeroInt(), m.Msg.OfferCoin.Amount,
+					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
+				}
 			}
 		} else {
 			panic("ErrInvalidDenom")

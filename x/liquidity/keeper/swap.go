@@ -154,8 +154,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 }
 
 // TODO: keeper, err, set kv, test code
-func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []types.BatchPoolSwapMsg, matchResultXtoY, matchResultYtoX []types.MatchResult) (
-	[]types.BatchPoolSwapMsg, []types.BatchPoolSwapMsg, sdk.Dec, sdk.Dec, sdk.Int, sdk.Int, int, int, sdk.Int, sdk.Int) {
+func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, matchResultXtoY, matchResultYtoX []types.MatchResult) (
+	[]*types.BatchPoolSwapMsg, []*types.BatchPoolSwapMsg, sdk.Dec, sdk.Dec, sdk.Int, sdk.Int, int, int, sdk.Int, sdk.Int) {
 	sort.SliceStable(XtoY, func(i, j int) bool {
 		return XtoY[i].Msg.OrderPrice.GT(XtoY[j].Msg.OrderPrice)
 	})

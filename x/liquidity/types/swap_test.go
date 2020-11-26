@@ -52,6 +52,10 @@ func TestOrderMap(t *testing.T) {
 
 	require.Equal(t,3, len(XtoY))
 	require.Equal(t, 1, len(YtoX))
+	require.Equal(t,3, len(orderMap[orderPriceList[0].String()].MsgList))
+	require.Equal(t,1, len(orderMap[orderPriceListY[0].String()].MsgList))
+	require.Equal(t,3, len(orderBook[0].MsgList))
+	require.Equal(t,1, len(orderBook[1].MsgList))
 
 	fmt.Println(orderBook, currentPrice)
 	fmt.Println(XtoY, YtoX)
@@ -91,10 +95,16 @@ func TestOrderMap(t *testing.T) {
 	// TODO: detailed assertion
 	// TODO: debug Ydec 999970003, poolYdelta2, poolYDeltaXtoY -29997
 
+
 	orderMapExecuted, _, _ := types.GetOrderMap(append(clearedXtoY, clearedYtoX...), denomX, denomY)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	lastPrice := XDec.Quo(YDec)
 	require.True(t, types.CheckValidityOrderBook(orderBookExecuted, lastPrice))
+
+	require.Equal(t,3, len(orderMapExecuted[orderPriceList[0].String()].MsgList))
+	require.Equal(t,1, len(orderMapExecuted[orderPriceListY[0].String()].MsgList))
+	require.Equal(t,3, len(orderBookExecuted[0].MsgList))
+	require.Equal(t,1, len(orderBookExecuted[1].MsgList))
 }
 
 func TestOrderBookSort(t *testing.T) {
