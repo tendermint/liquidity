@@ -30,7 +30,7 @@ func TestCreateLiquidityPool(t *testing.T) {
 
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
-	poolTypeIndex := DefaultPoolTypeIndex
+	poolTypeIndex := types.DefaultPoolTypeIndex
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 3, sdk.NewInt(10000))
 
 	denomA := "uETH"
@@ -73,7 +73,7 @@ func TestDepositLiquidityPool(t *testing.T) {
 
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
-	poolTypeIndex := DefaultPoolTypeIndex
+	poolTypeIndex := types.DefaultPoolTypeIndex
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 3, sdk.NewInt(10000))
 
 	denomA := "uETH"
@@ -130,7 +130,7 @@ func TestWithdrawLiquidityPool(t *testing.T) {
 
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
-	poolTypeIndex := DefaultPoolTypeIndex
+	poolTypeIndex := types.DefaultPoolTypeIndex
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 3, sdk.NewInt(10000))
 
 	denomA := "uETH"
@@ -190,7 +190,7 @@ func TestGetLiquidityPoolMetaData(t *testing.T) {
 
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
-	poolTypeIndex := DefaultPoolTypeIndex
+	poolTypeIndex := types.DefaultPoolTypeIndex
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 3, sdk.NewInt(10000))
 
 	denomA := "uETH"

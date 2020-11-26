@@ -13,6 +13,9 @@ const (
 	CancelOrderLifeSpan int64  = 0
 	MinReserveCoinNum   uint32 = 2
 	MaxReserveCoinNum   uint32 = 2
+
+	DefaultPoolTypeIndex = uint32(1)
+	DefaultSwapType = uint32(1)
 )
 
 // Parameter store keys

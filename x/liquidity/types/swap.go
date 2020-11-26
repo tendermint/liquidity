@@ -197,7 +197,7 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 }
 
 func ClearOrders(XtoY, YtoX []BatchPoolSwapMsg) ([]BatchPoolSwapMsg, []BatchPoolSwapMsg) {
-	// TODO: add clear logic for orderCancelHeight
+	// TODO: add clear logic for orderExpiryHeight with ctx.Height, test on keeper
 	newI := 0
 	for _, order := range XtoY {
 		if !order.Msg.OfferCoin.Amount.IsZero() {
@@ -241,124 +241,6 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResul
 		fmt.Println("!! CalculateMatchStay", r, r.EX.Add(r.PoolX), r.EY.Add(r.PoolY))
 	}
 	return
-}
-
-func UpdateState(X, Y sdk.Dec, XtoY, YtoX []BatchPoolSwapMsg, matchResultXtoY, matchResultYtoX []MatchResult) (
-	[]BatchPoolSwapMsg, []BatchPoolSwapMsg, sdk.Dec, sdk.Dec, sdk.Int, sdk.Int, int, int, sdk.Int, sdk.Int) {
-	sort.SliceStable(XtoY, func(i, j int) bool {
-		return XtoY[i].Msg.OrderPrice.GT(XtoY[j].Msg.OrderPrice)
-	})
-	sort.SliceStable(YtoX, func(i, j int) bool {
-		return YtoX[i].Msg.OrderPrice.LT(YtoX[j].Msg.OrderPrice)
-	})
-
-	poolXdelta := sdk.ZeroInt()
-	poolYdelta := sdk.ZeroInt()
-	var matchedOrderMsgIndexListXtoY []uint64
-	var matchedOrderMsgIndexListYtoX []uint64
-	matchedIndexMapXtoY := make(map[uint64]sdk.Coin)
-	matchedIndexMapYtoX := make(map[uint64]sdk.Coin)
-	fractionalCntX := 0
-	fractionalCntY := 0
-	decimalErrorX := sdk.ZeroInt()
-	decimalErrorY := sdk.ZeroInt()
-
-	for _, match := range matchResultXtoY {
-		for _, order := range XtoY {
-			if match.OrderMsgIndex == order.MsgIndex {
-				poolXdelta = poolXdelta.Add(match.TransactedCoinAmt)
-				poolYdelta = poolYdelta.Sub(match.ExchangedCoinAmt)
-				if order.Msg.OfferCoin.Amount.Equal(match.TransactedCoinAmt) {
-					// full match
-					matchedOrderMsgIndexListXtoY = append(matchedOrderMsgIndexListXtoY, order.MsgIndex)
-				} else if order.Msg.OfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) { // TODO: need to verify logic
-					decimalErrorX = decimalErrorX.Add(sdk.OneInt())
-					//poolXdelta = poolXdelta.Add(sdk.OneInt())
-					matchedOrderMsgIndexListXtoY = append(matchedOrderMsgIndexListXtoY, order.MsgIndex)
-				} else {
-					// fractional match
-					order.Msg.OfferCoin = order.Msg.OfferCoin.Sub(sdk.NewCoin(order.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
-					matchedIndexMapXtoY[order.MsgIndex] = order.Msg.OfferCoin
-					fractionalCntX += 1
-				}
-				break
-			}
-		}
-	}
-	if len(matchedOrderMsgIndexListXtoY) > 0 {
-		newI := 0
-		for _, order := range XtoY {
-			if val, ok := matchedIndexMapXtoY[order.MsgIndex]; ok {
-				order.Msg.OfferCoin = val
-			}
-			removeFlag := false
-			for _, i := range matchedOrderMsgIndexListXtoY {
-				if i == order.MsgIndex {
-					removeFlag = true
-					break
-				}
-			}
-			if !removeFlag {
-				XtoY[newI] = order
-				newI += 1
-			}
-			removeFlag = false
-
-		}
-		XtoY = XtoY[:newI]
-	}
-	for _, match := range matchResultYtoX {
-		for _, order := range YtoX {
-			if match.OrderMsgIndex == order.MsgIndex {
-				poolXdelta = poolXdelta.Sub(match.ExchangedCoinAmt)
-				poolYdelta = poolYdelta.Add(match.TransactedCoinAmt)
-				if order.Msg.OfferCoin.Amount.Equal(match.TransactedCoinAmt) {
-					// full match
-					matchedOrderMsgIndexListYtoX = append(matchedOrderMsgIndexListYtoX, order.MsgIndex)
-				} else if order.Msg.OfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) { // TODO: need to verify logic
-					decimalErrorY = decimalErrorY.Add(sdk.OneInt())
-					//poolYdelta = poolYdelta.Add(sdk.OneInt())
-					matchedOrderMsgIndexListYtoX = append(matchedOrderMsgIndexListYtoX, order.MsgIndex)
-				} else {
-					// fractional match
-					order.Msg.OfferCoin = order.Msg.OfferCoin.Sub(sdk.NewCoin(order.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
-					matchedIndexMapYtoX[order.MsgIndex] = order.Msg.OfferCoin
-					fractionalCntY += 1
-				}
-				break
-			}
-		}
-	}
-	if len(matchedOrderMsgIndexListYtoX) > 0 {
-		newI := 0
-		for _, order := range YtoX {
-			if val, ok := matchedIndexMapYtoX[order.MsgIndex]; ok {
-				order.Msg.OfferCoin = val
-			}
-			removeFlag := false
-			for _, i := range matchedOrderMsgIndexListYtoX {
-				if i == order.MsgIndex {
-					removeFlag = true
-					break
-				}
-			}
-			if !removeFlag {
-				YtoX[newI] = order
-				newI += 1
-			}
-			removeFlag = false
-
-		}
-		YtoX = YtoX[:newI]
-	}
-
-	poolXdelta = poolXdelta.Add(decimalErrorX)
-	poolYdelta = poolYdelta.Add(decimalErrorY)
-
-	X = X.Add(poolXdelta.ToDec())
-	Y = Y.Add(poolYdelta.ToDec())
-
-	return XtoY, YtoX, X, Y, poolXdelta, poolYdelta, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY
 }
 
 func FindOrderMatch(direction int, swapList []BatchPoolSwapMsg, executableAmt sdk.Int,
@@ -625,7 +507,7 @@ func GetOrderMap(swapMsgs []BatchPoolSwapMsg, denomX, denomY string) (OrderMap, 
 					sdk.ZeroInt(), m.Msg.OfferCoin.Amount}
 			}
 		} else {
-			//return sdk.ErrInvalidDenom
+			panic("ErrInvalidDenom")
 		}
 	}
 	return orderMap, XtoY, YtoX

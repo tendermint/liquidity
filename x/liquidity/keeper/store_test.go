@@ -24,7 +24,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	denoms := []string{denomX, denomY}
 
 	// get random X, Y amount for create pool
-	X, Y := getRandPoolAmt(r)
+	X, Y := app.GetRandPoolAmt(r)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
 	// set pool creator account, balance for deposit
@@ -36,7 +36,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	require.Equal(t, deposit, depositBalance)
 
 	// create Liquidity pool
-	poolTypeIndex := DefaultPoolTypeIndex
+	poolTypeIndex := types.DefaultPoolTypeIndex
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
@@ -45,7 +45,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	var YtoX []*types.MsgSwap // selling Y for X
 
 	// make random orders, set buyer, seller accounts for the orders
-	XtoY, YtoX = GetRandomOrders(denomX, denomY, X, Y, r, 11, 11)
+	XtoY, YtoX = app.GetRandomOrders(denomX, denomY, X, Y, r, 11, 11)
 	buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
 	sellerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(YtoX), sdk.NewInt(0))
 

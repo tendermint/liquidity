@@ -132,13 +132,13 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 	return nil
 }
 
-func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) error {
+func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) (*types.BatchPoolSwapMsg, error) {
 	if err := k.ValidateMsgSwap(ctx, *msg); err != nil {
-		return err
+		return nil, err
 	}
 	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolId)
 	if !found {
-		return types.ErrPoolBatchNotExists
+		return nil, types.ErrPoolBatchNotExists
 	}
 	if poolBatch.BeginHeight == 0 {
 		poolBatch.BeginHeight = ctx.BlockHeight()
@@ -147,17 +147,23 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) er
 	batchPoolMsg := types.BatchPoolSwapMsg{
 		MsgHeight: ctx.BlockHeight(),
 		MsgIndex:  poolBatch.SwapMsgIndex,
+		Executed: false,
+		Succeed: false,
+		ToDelete: false,
+		ExchangedOfferCoin: sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),  // TODO: verify
+		RemainingOfferCoin: msg.OfferCoin,
 		Msg:       msg,
 	}
+	// TODO: add logic if OrderExpiryHeight==0, pass on batch logic
 	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + types.CancelOrderLifeSpan
 
 	if err := k.HoldEscrow(ctx, msg.GetSwapRequester(), sdk.NewCoins(msg.OfferCoin)); err != nil {
-		return err
+		return nil, err
 	}
 
 	poolBatch.SwapMsgIndex += 1
 	k.SetLiquidityPoolBatch(ctx, poolBatch)
 	k.SetLiquidityPoolBatchSwapMsg(ctx, poolBatch.PoolId, batchPoolMsg)
 	// TODO: msg event with msgServer after rebase stargate version sdk
-	return nil
+	return &batchPoolMsg, nil
 }

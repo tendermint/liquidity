@@ -4,70 +4,97 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
-	"math/rand"
 	"testing"
-	"time"
 )
 
-// TODO: remove redundant function
-func randRange(r *rand.Rand, min, max int) sdk.Int {
-	return sdk.NewInt(int64(r.Intn(max-min) + min))
-}
+func TestOrderMap(t *testing.T) {
+	simapp, ctx := app.CreateTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
-// TODO: remove redundant function
-func randFloats(min, max float64) float64 {
-	return min + rand.Float64()*(max-min)
-}
+	// define test denom X, Y for Liquidity Pool
+	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
 
-// TODO: remove redundant function
-func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []types.BatchPoolSwapMsg) {
-	currentPrice := X.ToDec().Quo(Y.ToDec())
+	X := sdk.NewInt(1000000000)
+	Y := sdk.NewInt(1000000000)
 
-	XtoYnewSize := int(r.Int31n(20)) // 0~19
-	YtoXnewSize := int(r.Int31n(20)) // 0~19
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
-	for i := 0; i < XtoYnewSize; i++ {
-		randFloats(0.1, 0.9)
-		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009), 3))
-		offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
-		orderCoin := sdk.NewCoin(denomX, offerAmt.RoundInt())
+	// begin block, init
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, true)
 
-		XtoY = append(XtoY, types.BatchPoolSwapMsg{
-			Msg: &types.MsgSwap{
-				OfferCoin:       orderCoin,
-				DemandCoinDenom: denomY,
-				OrderPrice:      orderPrice,
-			},
-		})
-	}
+	// next block
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
-	for i := 0; i < YtoXnewSize; i++ {
-		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(randRange(r, 991, 1009), 3))
-		offerAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(randRange(r, 1, 100), 4))
-		orderCoin := sdk.NewCoin(denomY, offerAmt.RoundInt())
+	price, _ := sdk.NewDecFromStr("1.1")
+	priceY, _ := sdk.NewDecFromStr("1.2")
+	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
+	offerCoinListY := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
+	orderPriceList := []sdk.Dec{price}
+	orderPriceListY := []sdk.Dec{priceY}
+	orderAddrList := addrs[1:2]
+	orderAddrListY := addrs[2:3]
+	_, batch := app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
+	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
+	orderMap, XtoY, YtoX := types.GetOrderMap(msgs, denomX, denomY)
+	orderBook := orderMap.SortOrderBook()
+	currentPrice := X.Quo(Y).ToDec()
+	require.Equal(t, orderMap[orderPriceList[0].String()].BuyOfferAmt, offerCoinList[0].Amount.MulRaw(3))
+	require.Equal(t, orderMap[orderPriceList[0].String()].OrderPrice, orderPriceList[0])
 
-		YtoX = append(YtoX, types.BatchPoolSwapMsg{
-			Msg: &types.MsgSwap{
-				OfferCoin:       orderCoin,
-				DemandCoinDenom: denomX,
-				OrderPrice:      orderPrice,
-			},
-		})
-	}
-	return
-}
+	require.Equal(t,3, len(XtoY))
+	require.Equal(t, 1, len(YtoX))
 
-func TestGetOrderMap(t *testing.T) {
-	//var msgs []BatchPoolSwapMsg
-	X := sdk.NewInt(100000000)
-	Y := sdk.NewInt(50000000)
-	//currentYPriceOverX := X.Quo(Y)
-	s := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s)
-	XtoY, YtoX := GetRandomOrders("denomX", "denomY", X, Y, r)
-	fmt.Println(XtoY)
-	fmt.Println(YtoX)
+	fmt.Println(orderBook, currentPrice)
+	fmt.Println(XtoY, YtoX)
+
+	clearedXtoY, clearedYtoX := types.ClearOrders(XtoY, YtoX)
+	require.Equal(t, XtoY, clearedXtoY)
+	require.Equal(t, YtoX, clearedYtoX)
+
+	require.False(t, types.CheckValidityOrderBook(orderBook, currentPrice))
+
+	currentYPriceOverX := X.Quo(Y).ToDec()
+	//direction := types.GetPriceDirection(currentYPriceOverX, orderBook)
+	result := types.ComputePriceDirection(X.ToDec(), Y.ToDec(), currentYPriceOverX, orderBook)
+
+	require.NotEqual(t, types.NoMatch, result.MatchType)
+
+	matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY := types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX,
+		result.SwapPrice, sdk.ZeroDec(), ctx.BlockHeight())
+	matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX := types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
+		result.SwapPrice, sdk.ZeroDec(), ctx.BlockHeight())
+
+	XtoY, YtoX, XDec, YDec, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
+		simapp.LiquidityKeeper.UpdateState(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)
+
+	clearedXtoY, clearedYtoX = types.ClearOrders(XtoY, YtoX)
+	require.Equal(t, 0, len(clearedXtoY))
+	require.Equal(t, 1, len(clearedYtoX))
+
+	fmt.Println(matchResultXtoY)
+	fmt.Println(poolXDeltaXtoY)
+	fmt.Println(poolYDeltaXtoY)
+
+	fmt.Println(poolXDeltaYtoX, poolYDeltaYtoX)
+	fmt.Println(poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY)
+	fmt.Println(decimalErrorX, decimalErrorY)
+	fmt.Println(XDec, YDec)
+	// TODO: detailed assertion
+	// TODO: debug Ydec 999970003, poolYdelta2, poolYDeltaXtoY -29997
+
+	orderMapExecuted, _, _ := types.GetOrderMap(append(clearedXtoY, clearedYtoX...), denomX, denomY)
+	orderBookExecuted := orderMapExecuted.SortOrderBook()
+	lastPrice := XDec.Quo(YDec)
+	require.True(t, types.CheckValidityOrderBook(orderBookExecuted, lastPrice))
 }
 
 func TestOrderBookSort(t *testing.T) {
@@ -133,6 +160,19 @@ func TestMinMaxDec(t *testing.T) {
 	require.Equal(t, a, types.MinDec(a, a))
 }
 
+func TestMaxInt(t *testing.T) {
+	a := sdk.NewInt(1)
+	b := sdk.NewInt(2)
+	c := sdk.NewInt(3)
+
+	require.Equal(t, a, types.MinInt(a, b))
+	require.Equal(t, a, types.MinInt(a, c))
+	require.Equal(t, b, types.MaxInt(a, b))
+	require.Equal(t, c, types.MaxInt(a, c))
+	require.Equal(t, a, types.MaxInt(a, a))
+	require.Equal(t, a, types.MinInt(a, a))
+}
+
 func TestGetExecutableAmt(t *testing.T) {
 	orderMap := make(types.OrderMap)
 	a, _ := sdk.NewDecFromStr("0.1")
@@ -161,108 +201,152 @@ func TestGetExecutableAmt(t *testing.T) {
 	require.Equal(t, sdk.NewInt(30000000), executableSellAmtY)
 }
 
-// TODO: WIP
 func TestGetPriceDirection(t *testing.T) {
-
-	// decrease case
+	// increase case
 	orderMap := make(types.OrderMap)
-	a, _ := sdk.NewDecFromStr("0.1")
-	b, _ := sdk.NewDecFromStr("0.2")
-	c, _ := sdk.NewDecFromStr("0.3")
+	a, _ := sdk.NewDecFromStr("1")
+	b, _ := sdk.NewDecFromStr("1.1")
+	c, _ := sdk.NewDecFromStr("1.2")
 	orderMap[a.String()] = types.OrderByPrice{
 		OrderPrice:   a,
-		BuyOfferAmt:  sdk.ZeroInt(),
-		SellOfferAmt: sdk.NewInt(30000000),
+		BuyOfferAmt:  sdk.NewInt(40000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[b.String()] = types.OrderByPrice{
 		OrderPrice:   b,
-		BuyOfferAmt:  sdk.NewInt(90000000),
+		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[c.String()] = types.OrderByPrice{
 		OrderPrice:   c,
-		BuyOfferAmt:  sdk.NewInt(50000000),
-		SellOfferAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.NewInt(20000000),
 	}
 	// make orderbook to sort orderMap
 	orderBook := orderMap.SortOrderBook()
-
-	// increase
-	X := sdk.NewInt(10000000).ToDec()
-	Y := sdk.NewInt(50000000).ToDec()
-	currentYPriceOverX := X.Quo(Y)
-	require.Equal(t, currentYPriceOverX, b)
+	currentYPriceOverX, _ := sdk.NewDecFromStr("1.0")
 	result := types.GetPriceDirection(currentYPriceOverX, orderBook)
 	require.Equal(t, types.Increase, result)
 
-	// decrease
-	X = sdk.NewInt(100000000).ToDec()
-	Y = sdk.NewInt(50000000).ToDec()
-	currentYPriceOverX = X.Quo(Y)
-	result = types.GetPriceDirection(currentYPriceOverX, orderBook)
-	require.Equal(t, types.Decrease, result)
-
-	// TODO: stay case
-}
-
-// TODO: WIP
-func TestComputePriceDirection(t *testing.T) {
-
 	// decrease case
-	orderMap := make(types.OrderMap)
-	a, _ := sdk.NewDecFromStr("2.0")
-	b, _ := sdk.NewDecFromStr("2.1")
-	c, _ := sdk.NewDecFromStr("1.9")
+	orderMap = make(types.OrderMap)
+	a, _ = sdk.NewDecFromStr("0.7")
+	b, _ = sdk.NewDecFromStr("0.9")
+	c, _ = sdk.NewDecFromStr("0.8")
 	orderMap[a.String()] = types.OrderByPrice{
 		OrderPrice:   a,
-		BuyOfferAmt:  sdk.ZeroInt(),
-		SellOfferAmt: sdk.NewInt(3000000),
+		BuyOfferAmt:  sdk.NewInt(20000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[b.String()] = types.OrderByPrice{
 		OrderPrice:   b,
-		BuyOfferAmt:  sdk.NewInt(9000000),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.NewInt(40000000),
+	}
+	orderMap[c.String()] = types.OrderByPrice{
+		OrderPrice:   c,
+		BuyOfferAmt:  sdk.NewInt(10000000),
+		SellOfferAmt: sdk.ZeroInt(),
+	}
+	// make orderbook to sort orderMap
+	orderBook = orderMap.SortOrderBook()
+	currentYPriceOverX, _ = sdk.NewDecFromStr("1.0")
+	result = types.GetPriceDirection(currentYPriceOverX, orderBook)
+	require.Equal(t, types.Decrease, result)
+
+	// stay case
+	orderMap = make(types.OrderMap)
+	a, _ = sdk.NewDecFromStr("1.0")
+
+	orderMap[a.String()] = types.OrderByPrice{
+		OrderPrice: a,
+		BuyOfferAmt: sdk.NewInt(50000000),
+		SellOfferAmt: sdk.NewInt(50000000),
+	}
+	orderBook = orderMap.SortOrderBook()
+	currentYPriceOverX, _ = sdk.NewDecFromStr("1.0")
+	result = types.GetPriceDirection(currentYPriceOverX, orderBook)
+	require.Equal(t, types.Stay, result)
+}
+
+func TestComputePriceDirection(t *testing.T) {
+	// increase case
+	orderMap := make(types.OrderMap)
+	a, _ := sdk.NewDecFromStr("1")
+	b, _ := sdk.NewDecFromStr("1.1")
+	c, _ := sdk.NewDecFromStr("1.2")
+	orderMap[a.String()] = types.OrderByPrice{
+		OrderPrice:   a,
+		BuyOfferAmt:  sdk.NewInt(40000000),
+		SellOfferAmt: sdk.ZeroInt(),
+	}
+	orderMap[b.String()] = types.OrderByPrice{
+		OrderPrice:   b,
+		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[c.String()] = types.OrderByPrice{
 		OrderPrice:   c,
-		BuyOfferAmt:  sdk.NewInt(5000000),
-		SellOfferAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.NewInt(20000000),
 	}
 	// make orderbook to sort orderMap
 	orderBook := orderMap.SortOrderBook()
 
-	X := sdk.NewInt(100000000).ToDec()
-	Y := sdk.NewInt(50000000).ToDec()
+	X := orderMap[a.String()].BuyOfferAmt.ToDec().Add(orderMap[b.String()].BuyOfferAmt.ToDec())
+	Y := orderMap[c.String()].SellOfferAmt.ToDec()
+
 	currentYPriceOverX := X.Quo(Y)
+	direction := types.GetPriceDirection(currentYPriceOverX, orderBook)
 	result := types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
+	require.Equal(t, types.CalculateMatch(direction, X, Y, currentYPriceOverX, orderBook), result)
 
-	fmt.Println(X, Y, currentYPriceOverX)
-	fmt.Println(result)
-
-	// increase case
-	orderMap[c.String()] = types.OrderByPrice{
-		OrderPrice:   c,
-		BuyOfferAmt:  sdk.ZeroInt(),
-		SellOfferAmt: sdk.NewInt(1000000),
+	// decrease case
+	orderMap = make(types.OrderMap)
+	a, _ = sdk.NewDecFromStr("0.7")
+	b, _ = sdk.NewDecFromStr("0.9")
+	c, _ = sdk.NewDecFromStr("0.8")
+	orderMap[a.String()] = types.OrderByPrice{
+		OrderPrice:   a,
+		BuyOfferAmt:  sdk.NewInt(20000000),
+		SellOfferAmt: sdk.ZeroInt(),
 	}
 	orderMap[b.String()] = types.OrderByPrice{
 		OrderPrice:   b,
-		BuyOfferAmt:  sdk.NewInt(4000000),
-		SellOfferAmt: sdk.ZeroInt(),
+		BuyOfferAmt:  sdk.ZeroInt(),
+		SellOfferAmt: sdk.NewInt(40000000),
 	}
-	orderMap[a.String()] = types.OrderByPrice{
-		OrderPrice:   a,
-		BuyOfferAmt:  sdk.NewInt(7000000),
+	orderMap[c.String()] = types.OrderByPrice{
+		OrderPrice:   c,
+		BuyOfferAmt:  sdk.NewInt(10000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
 	// make orderbook to sort orderMap
 	orderBook = orderMap.SortOrderBook()
 
-	X = sdk.NewInt(100000000).ToDec()
-	Y = sdk.NewInt(50000000).ToDec()
-	currentYPriceOverX = X.Quo(Y)
-	result = types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
+	X = orderMap[a.String()].BuyOfferAmt.ToDec().Add(orderMap[c.String()].BuyOfferAmt.ToDec())
+	Y = orderMap[b.String()].SellOfferAmt.ToDec()
 
-	fmt.Println(X, Y, currentYPriceOverX)
-	fmt.Println(result)
+	currentYPriceOverX = X.Quo(Y)
+	direction = types.GetPriceDirection(currentYPriceOverX, orderBook)
+	result = types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
+	require.Equal(t, types.CalculateMatch(direction, X, Y, currentYPriceOverX, orderBook), result)
+
+	// stay case
+	orderMap = make(types.OrderMap)
+	a, _ = sdk.NewDecFromStr("1.0")
+
+	orderMap[a.String()] = types.OrderByPrice{
+		OrderPrice: a,
+		BuyOfferAmt: sdk.NewInt(50000000),
+		SellOfferAmt: sdk.NewInt(50000000),
+	}
+	orderBook = orderMap.SortOrderBook()
+
+	X = orderMap[a.String()].BuyOfferAmt.ToDec()
+	Y = orderMap[a.String()].SellOfferAmt.ToDec()
+	currentYPriceOverX = X.Quo(Y)
+
+	result = types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
+	require.Equal(t, types.CalculateMatchStay(currentYPriceOverX, orderBook), result)
 }
