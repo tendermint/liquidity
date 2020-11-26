@@ -381,3 +381,25 @@ func (k Keeper) GetAllLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolB
 	})
 	return msgs
 }
+
+// GetAllNotProcessedPoolBatchSwapMsgs returns All only not processed swap msgs, not executed with not succeed and not toDelete BatchSwapMsgs indexed by the liquidityPoolBatch
+func (k Keeper) GetAllNotProcessedPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []*types.BatchPoolSwapMsg) {
+	k.IterateAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolSwapMsg) bool {
+		if !msg.Executed && !msg.Succeed && !msg.ToDelete {
+			msgs = append(msgs, &msg)
+		}
+		return false
+	})
+	return msgs
+}
+
+func (k Keeper) SetLiquidityPoolBatchSwapMsgs(ctx sdk.Context, poolId uint64, msgList []*types.BatchPoolSwapMsg) {
+	for _, msg := range msgList {
+		if poolId != msg.Msg.PoolId {
+			continue
+		}
+		store := ctx.KVStore(k.storeKey)
+		b := types.MustMarshalBatchPoolSwapMsg(k.cdc, *msg)
+		store.Set(types.GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msg.MsgIndex), b)
+	}
+}

@@ -758,7 +758,6 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 	batch, bool := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
 
 	if withEndblock {
-
 		// endblock
 		liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 

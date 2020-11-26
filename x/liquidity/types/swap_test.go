@@ -60,7 +60,7 @@ func TestOrderMap(t *testing.T) {
 	fmt.Println(orderBook, currentPrice)
 	fmt.Println(XtoY, YtoX)
 
-	clearedXtoY, clearedYtoX := types.ClearOrders(XtoY, YtoX)
+	clearedXtoY, clearedYtoX := types.ClearOrders(XtoY, YtoX, ctx.BlockHeight(), false)
 	require.Equal(t, XtoY, clearedXtoY)
 	require.Equal(t, YtoX, clearedYtoX)
 
@@ -80,9 +80,13 @@ func TestOrderMap(t *testing.T) {
 	XtoY, YtoX, XDec, YDec, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		simapp.LiquidityKeeper.UpdateState(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
-	clearedXtoY, clearedYtoX = types.ClearOrders(XtoY, YtoX)
-	require.Equal(t, 0, len(clearedXtoY))
-	require.Equal(t, 1, len(clearedYtoX))
+	clearedXtoY, clearedYtoX = types.ClearOrders(XtoY, YtoX, ctx.BlockHeight(), true)
+	require.Equal(t, 0, (types.MsgList)(clearedXtoY).LenRemainingMsgs())
+	require.Equal(t, 0, (types.MsgList)(clearedXtoY).LenFractionalMsgs())
+	require.Equal(t, 0, (types.MsgList)(clearedYtoX).LenRemainingMsgs())
+	require.Equal(t, 0, (types.MsgList)(clearedYtoX).LenFractionalMsgs())
+	require.Equal(t,1, len(clearedYtoX))
+	require.Equal(t,0, len(clearedXtoY))
 
 	fmt.Println(matchResultXtoY)
 	fmt.Println(poolXDeltaXtoY)
@@ -101,10 +105,10 @@ func TestOrderMap(t *testing.T) {
 	lastPrice := XDec.Quo(YDec)
 	require.True(t, types.CheckValidityOrderBook(orderBookExecuted, lastPrice))
 
-	require.Equal(t,3, len(orderMapExecuted[orderPriceList[0].String()].MsgList))
-	require.Equal(t,1, len(orderMapExecuted[orderPriceListY[0].String()].MsgList))
-	require.Equal(t,3, len(orderBookExecuted[0].MsgList))
-	require.Equal(t,1, len(orderBookExecuted[1].MsgList))
+	require.Equal(t,0, (types.MsgList)(orderMapExecuted[orderPriceList[0].String()].MsgList).LenRemainingMsgs())
+	require.Equal(t,0, (types.MsgList)(orderMapExecuted[orderPriceListY[0].String()].MsgList).LenRemainingMsgs())
+	require.Equal(t,0, (types.MsgList)(orderBookExecuted[0].MsgList).LenRemainingMsgs())
+
 }
 
 func TestOrderBookSort(t *testing.T) {

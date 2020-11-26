@@ -56,35 +56,27 @@ func (orderBook OrderBook) Reverse() {
 	})
 }
 
-// TODO: remove if not used
-//func (orderBook *OrderBook) append(orderBook *OrderBook) *OrderBook {
-//
-//	return *orderBook
-//}
-//// Len implements sort.Interface for OrderBook
-//func (orderBook *OrderBook) Len() int { return len(*orderBook) }
-//
-//// Less implements sort.Interface for OrderBook
-//func (orderBook *OrderBook) Less(i, j int) bool {
-//	return (*orderBook)[i].OrderPrice.LT((*orderBook)[j].OrderPrice)
-//}
-//
-//// Swap implements sort.Interface for OrderBook
-//func (orderBook *OrderBook) Swap(i, j int) { (*orderBook)[i], (*orderBook)[j] = (*orderBook)[j], (*orderBook)[i] }
-//
-//func (orderBook *OrderBook) Sort() {
-//	//sort.Sort(orderBook)
-//	sort.Slice(orderBook, func(i, j int) bool {
-//		return (*orderBook)[i].OrderPrice.LT((*orderBook)[j].OrderPrice)
-//	})
-//}
-//
-//func (orderBook *OrderBook) Reverse() {
-//	//sort.Reverse(orderBook)
-//	sort.Slice(orderBook, func(i, j int) bool {
-//		return (*orderBook)[i].OrderPrice.GT((*orderBook)[j].OrderPrice)
-//	})
-//}
+type MsgList []*BatchPoolSwapMsg
+
+func (msgList MsgList) LenRemainingMsgs() int {
+	cnt := 0
+	for _, m := range msgList {
+		if m.Executed && !m.Succeed {
+			cnt++
+		}
+	}
+	return cnt
+}
+
+func (msgList MsgList) LenFractionalMsgs() int {
+	cnt := 0
+	for _, m := range msgList {
+		if m.Executed && m.Succeed && !m.ToDelete {
+			cnt++
+		}
+	}
+	return cnt
+}
 
 func MinDec(a, b sdk.Dec) sdk.Dec {
 	if a.LTE(b) {
@@ -168,14 +160,15 @@ func NewBatchResult() BatchResult {
 }
 
 type MatchResult struct {
-	OrderHeight       int64
-	OrderExpiryHeight int64
-	OrderMsgIndex     uint64
-	OrderPrice        sdk.Dec
-	OfferCoinAmt      sdk.Int
-	TransactedCoinAmt sdk.Int
-	ExchangedCoinAmt  sdk.Int
-	FeeAmt            sdk.Int
+	OrderHeight            int64
+	OrderExpiryHeight      int64
+	OrderMsgIndex          uint64
+	OrderPrice             sdk.Dec
+	OfferCoinAmt           sdk.Int
+	TransactedCoinAmt      sdk.Int
+	ExchangedDemandCoinAmt sdk.Int
+	FeeAmt                 sdk.Int
+	BatchMsg               *BatchPoolSwapMsg
 }
 
 func ComputePriceDirection(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
@@ -228,25 +221,32 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 	}
 }
 
-func ClearOrders(XtoY, YtoX []*BatchPoolSwapMsg) ([]*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
-	// TODO: add clear logic for orderExpiryHeight with ctx.Height, test on keeper
-	newI := 0
+func ClearOrders(XtoY, YtoX []*BatchPoolSwapMsg, currentHeight int64, clearThisHeight bool) ([]*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
 	for _, order := range XtoY {
-		if !order.Msg.OfferCoin.Amount.IsZero() {
-			XtoY[newI] = order
-			newI += 1
+		if order.RemainingOfferCoin.IsZero() {  // TODO: verify
+			order.Succeed = true
+			order.ToDelete = true
+			// TODO: set exchangedAmt, remainingAmt, without fix msg
+		}
+		// set toDelete, expired msgs
+		if order.OrderExpiryHeight > currentHeight ||
+			(clearThisHeight && order.OrderExpiryHeight >= currentHeight ){
+			order.Succeed = false
+			order.ToDelete = true
 		}
 	}
-	XtoY = XtoY[:newI]
-
-	newI = 0
 	for _, order := range YtoX {
-		if !order.Msg.OfferCoin.Amount.IsZero() {
-			YtoX[newI] = order
-			newI += 1
+		if order.RemainingOfferCoin.IsZero() {  // TODO: verify
+			order.Succeed = true
+			order.ToDelete = true
+		}
+		// set toDelete, expired msgs
+		if order.OrderExpiryHeight > currentHeight ||
+			(clearThisHeight && order.OrderExpiryHeight >= currentHeight ){
+			order.Succeed = false
+			order.ToDelete = true
 		}
 	}
-	YtoX = YtoX[:newI]
 	return XtoY, YtoX
 }
 
@@ -275,6 +275,7 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResul
 	return
 }
 
+// Find matched orders and set status for msgs
 func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt sdk.Int,
 	swapPrice, swapFeeRate sdk.Dec, height int64) (
 	matchResultList []MatchResult, swapListExecuted []*BatchPoolSwapMsg, poolXdelta, poolYdelta sdk.Int) {
@@ -307,10 +308,12 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 	for i, order := range swapList {
 		var breakFlag, appendFlag bool
 
-		// include the order in matchAmt, matchOrderList
+		// include the matched order in matchAmt, matchOrderList
 		if (direction == DirectionXtoY && order.Msg.OrderPrice.GTE(swapPrice)) ||
 			(direction == DirectionYtoX && order.Msg.OrderPrice.LTE(swapPrice)) {
 			matchAmt = matchAmt.Add(order.Msg.OfferCoin.Amount)
+			// TODO: set on state update?
+			//order.Succeed = true
 			matchOrderList = append(matchOrderList, order)
 		}
 
@@ -355,28 +358,36 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 							OrderPrice:        matchOrder.Msg.OrderPrice,
 							OfferCoinAmt:      matchOrder.Msg.OfferCoin.Amount,
 							TransactedCoinAmt: offerAmt.Mul(fractionalMatchRatio).Ceil().TruncateInt(),
+							BatchMsg: matchOrder,
 						}
 						if direction == DirectionXtoY {
-							matchResult.ExchangedCoinAmt = offerAmt.Mul(fractionalMatchRatio).Quo(swapPrice).TruncateInt()
+							// TODO: verify exchanged
+							matchResult.ExchangedDemandCoinAmt = offerAmt.Mul(fractionalMatchRatio).Quo(swapPrice).TruncateInt()
 							matchResult.FeeAmt = offerAmt.Mul(fractionalMatchRatio).Quo(swapPrice).Mul(swapFeeRate).TruncateInt()
 						} else if direction == DirectionYtoX {
-							matchResult.ExchangedCoinAmt = offerAmt.Mul(fractionalMatchRatio).Mul(swapPrice).TruncateInt()
+							// TODO: verify exchanged
+							matchResult.ExchangedDemandCoinAmt = offerAmt.Mul(fractionalMatchRatio).Mul(swapPrice).TruncateInt()
 							matchResult.FeeAmt = offerAmt.Mul(fractionalMatchRatio).Mul(swapPrice).Mul(swapFeeRate).TruncateInt()
 						}
 						// TODO: need to verify logic
 						if matchResult.TransactedCoinAmt.GT(matchResult.OfferCoinAmt) ||
-							(matchResult.FeeAmt.GT(matchResult.ExchangedCoinAmt) && matchResult.FeeAmt.GT(sdk.OneInt())) {
+							(matchResult.FeeAmt.GT(matchResult.ExchangedDemandCoinAmt) && matchResult.FeeAmt.GT(sdk.OneInt())) {
 							fmt.Println("panic(matchResult.TransactedCoinAmt)", matchResult,
 								offerAmt.Mul(fractionalMatchRatio).Mul(swapPrice).Mul(swapFeeRate))
 							panic(matchResult.TransactedCoinAmt)
 						}
-
+						// set exchangedAmt and remainingAmt on batch pointer
+						// TODO: set on state update?
+						//matchOrder.ExchangedOfferCoin = matchOrder.ExchangedOfferCoin.Add(
+						//	sdk.NewCoin(matchOrder.Msg.OfferCoin.Denom, matchResult.TransactedCoinAmt))
+						//// TODO: verify RemainingOfferCoin about deciaml errors
+						//matchOrder.RemainingOfferCoin = matchOrder.Msg.OfferCoin.Sub(matchOrder.ExchangedOfferCoin)
 						matchResultList = append(matchResultList, matchResult)
 						if direction == DirectionXtoY {
 							poolXdelta = poolXdelta.Add(matchResult.TransactedCoinAmt)
-							poolYdelta = poolYdelta.Sub(matchResult.ExchangedCoinAmt)
+							poolYdelta = poolYdelta.Sub(matchResult.ExchangedDemandCoinAmt)
 						} else if direction == DirectionYtoX {
-							poolXdelta = poolXdelta.Sub(matchResult.ExchangedCoinAmt)
+							poolXdelta = poolXdelta.Sub(matchResult.ExchangedDemandCoinAmt)
 							poolYdelta = poolYdelta.Add(matchResult.TransactedCoinAmt)
 						}
 					}

@@ -5,6 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 	"math/rand"
 	"testing"
@@ -104,4 +105,47 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	require.Equal(t, XtoY[10], msgs[10].Msg)
 	require.Equal(t, YtoX[10], msgs[11].Msg)
 	fmt.Println(msgs)
+}
+
+func TestGetAllNotProcessedPoolBatchSwapMsgs(t *testing.T) {
+	simapp, ctx := createTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+
+	// define test denom X, Y for Liquidity Pool
+	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
+
+	X := sdk.NewInt(1000000000)
+	Y := sdk.NewInt(1000000000)
+
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+
+	// begin block, init
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, true)
+
+	// next block
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	price, _ := sdk.NewDecFromStr("1.1")
+	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000)), sdk.NewCoin(denomX, sdk.NewInt(10000)), sdk.NewCoin(denomX, sdk.NewInt(10000))}
+	orderPriceList := []sdk.Dec{price, price, price}
+	orderAddrList := addrs[1:4]
+	batchMsgs, _ := app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	batchMsgs2, batch := app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	require.Equal(t, 3, len(batchMsgs))
+	for _, msg := range batchMsgs2 {
+		msg.Executed = true
+		msg.Succeed = true
+		msg.ToDelete = true
+	}
+	require.Equal(t, 3, len(batchMsgs2))
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, batchMsgs2)
+
+	resultMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
+	resultProccessedMsgs := simapp.LiquidityKeeper.GetAllNotProcessedPoolBatchSwapMsgs(ctx, batch)
+	require.Equal(t, 6, len(resultMsgs))
+	require.Equal(t, 3, len(resultProccessedMsgs))
+
 }
