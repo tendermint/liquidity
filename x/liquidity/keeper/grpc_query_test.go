@@ -300,77 +300,76 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 	}
 }
 
-// TODO: after write swap msg on testsuite
-//func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
-//	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-//	msgs := app.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, suite.batches[0])
-//
-//	var req *types.QueryPoolBatchSwapMsgsRequest
-//	testCases := []struct {
-//		msg      string
-//		malleate func()
-//		expPass  bool
-//		numMsgs  int
-//		hasNext  bool
-//	}{
-//		{
-//			"empty request",
-//			func() {
-//				req = &types.QueryPoolBatchSwapMsgsRequest{}
-//			},
-//			false,
-//			0,
-//			false,
-//		},
-//		{"returns all the pool batch swap Msgs",
-//			func() {
-//				req = &types.QueryPoolBatchSwapMsgsRequest{
-//					PoolId: suite.batches[1].PoolId,
-//				}
-//			},
-//			true,
-//			len(msgs),
-//			false,
-//		},
-//		{"valid request",
-//			func() {
-//				req = &types.QueryPoolBatchSwapMsgsRequest{
-//					PoolId: suite.batches[0].PoolId,
-//					Pagination: &query.PageRequest{Limit: 1, CountTotal: true}}
-//			},
-//			true,
-//			1,
-//			true,
-//		},
-//		{"valid request",
-//			func() {
-//				req = &types.QueryPoolBatchSwapMsgsRequest{
-//					PoolId: suite.batches[0].PoolId,
-//					Pagination: &query.PageRequest{Limit: 10, CountTotal: true}}
-//			},
-//			true,
-//			len(msgs),
-//			false,
-//		},
-//	}
-//	for _, tc := range testCases {
-//		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-//			tc.malleate()
-//			resp, err := queryClient.PoolBatchSwapMsgs(gocontext.Background(), req)
-//			if tc.expPass {
-//				suite.NoError(err)
-//				suite.NotNil(resp)
-//				suite.Equal(tc.numMsgs, len(resp.SwapMsgs))
-//				suite.Equal(uint64(len(msgs)), resp.Pagination.Total)
-//
-//				if tc.hasNext {
-//					suite.NotNil(resp.Pagination.NextKey)
-//				} else {
-//					suite.Nil(resp.Pagination.NextKey)
-//				}
-//			} else {
-//				suite.Require().Error(err)
-//			}
-//		})
-//	}
-//}
+func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
+	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
+	msgs := app.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, suite.batches[0])
+
+	var req *types.QueryPoolBatchSwapMsgsRequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+		numMsgs  int
+		hasNext  bool
+	}{
+		{
+			"empty request",
+			func() {
+				req = &types.QueryPoolBatchSwapMsgsRequest{}
+			},
+			false,
+			0,
+			false,
+		},
+		{"returns all the pool batch swap Msgs",
+			func() {
+				req = &types.QueryPoolBatchSwapMsgsRequest{
+					PoolId: suite.batches[1].PoolId,
+				}
+			},
+			true,
+			len(msgs),
+			false,
+		},
+		{"valid request",
+			func() {
+				req = &types.QueryPoolBatchSwapMsgsRequest{
+					PoolId: suite.batches[0].PoolId,
+					Pagination: &query.PageRequest{Limit: 1, CountTotal: true}}
+			},
+			true,
+			1,
+			true,
+		},
+		{"valid request",
+			func() {
+				req = &types.QueryPoolBatchSwapMsgsRequest{
+					PoolId: suite.batches[0].PoolId,
+					Pagination: &query.PageRequest{Limit: 10, CountTotal: true}}
+			},
+			true,
+			len(msgs),
+			false,
+		},
+	}
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+			resp, err := queryClient.PoolBatchSwapMsgs(gocontext.Background(), req)
+			if tc.expPass {
+				suite.NoError(err)
+				suite.NotNil(resp)
+				suite.Equal(tc.numMsgs, len(resp.SwapMsgs))
+				suite.Equal(uint64(len(msgs)), resp.Pagination.Total)
+
+				if tc.hasNext {
+					suite.NotNil(resp.Pagination.NextKey)
+				} else {
+					suite.Nil(resp.Pagination.NextKey)
+				}
+			} else {
+				suite.Require().Error(err)
+			}
+		})
+	}
+}

@@ -124,6 +124,7 @@ func (AppModule) Name() string { return types.ModuleName }
 
 // RegisterInvariants registers the liquidity module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	keeper.RegisterInvariants(ir, am.keeper)
 }
 
 // Route returns the message routing key for the liquidity module.

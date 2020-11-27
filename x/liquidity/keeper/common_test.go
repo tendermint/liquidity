@@ -153,29 +153,44 @@ func createLiquidity(t *testing.T, ctx sdk.Context, simapp *lapp.LiquidityApp) (
 	B := sdk.NewInt(1000000000)
 
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
-	poolId := testCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
-	testCreatePool(t, simapp, ctx, A, B, denomA, denomB, addrs[1])
+	poolId := lapp.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+	lapp.TestCreatePool(t, simapp, ctx, A, B, denomA, denomB, addrs[1])
 
-	testDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
-	testDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
-	testDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
-	testDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
-	testDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
-	testDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	price, _ := sdk.NewDecFromStr("1.1")
+	priceY, _ := sdk.NewDecFromStr("1.2")
+	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
+	offerCoinListY := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
+	orderPriceList := []sdk.Dec{price}
+	orderPriceListY := []sdk.Dec{priceY}
+	orderAddrList := addrs[1:2]
+	orderAddrListY := addrs[2:3]
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
-	testDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
-	testDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
-	testDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
-	testDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
-	testWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[1:2], poolId, false)
-	testWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[1:2], poolId, false)
-	testWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[2:3], poolId, false)
-	testWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[2:3], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	lapp.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	lapp.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[1:2], poolId, false)
+	lapp.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[1:2], poolId, false)
+	lapp.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[2:3], poolId, false)
+	lapp.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[2:3], poolId, false)
+
+	lapp.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	lapp.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	lapp.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	lapp.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
 
 	pools := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
 	batches := simapp.LiquidityKeeper.GetAllLiquidityPoolBatches(ctx)

@@ -5,6 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/tendermint/liquidity/x/liquidity"
+	"math/rand"
 	"strconv"
 	"testing"
 	"time"
@@ -447,3 +449,321 @@ func CreateTestInput() (*LiquidityApp, sdk.Context) {
 
 	return app, ctx
 }
+
+func GetRandPoolAmt(r *rand.Rand) (X, Y sdk.Int) {
+	X = sdk.NewInt(int64(r.Float32() * 1000000000000))
+	Y = sdk.NewInt(int64(r.Float32() * 1000000000000))
+	return
+}
+
+func GetRandFloats(min, max float64) float64 {
+	return min + rand.Float64()*(max-min)
+}
+
+func GetRandRange(r *rand.Rand, min, max int) sdk.Int {
+	return sdk.NewInt(int64(r.Intn(max-min) + min))
+}
+
+func GetRandomSizeOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY, sizeYtoX int32) (XtoY, YtoX []*types.MsgSwap) {
+	randomSizeXtoY := int(r.Int31n(sizeXtoY))
+	randomSizeYtoX := int(r.Int31n(sizeYtoX))
+	return GetRandomOrders(denomX, denomY, X, Y, r, randomSizeXtoY, randomSizeYtoX)
+}
+
+func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY, sizeYtoX int) (XtoY, YtoX []*types.MsgSwap) {
+	currentPrice := X.ToDec().Quo(Y.ToDec())
+
+	for i := 0; i < sizeXtoY; i++ {
+		GetRandFloats(0.1, 0.9)
+		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
+		offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
+		orderCoin := sdk.NewCoin(denomX, offerAmt.RoundInt())
+
+		XtoY = append(XtoY, &types.MsgSwap{
+			OfferCoin:       orderCoin,
+			DemandCoinDenom: denomY,
+			OrderPrice:      orderPrice,
+		})
+	}
+
+	for i := 0; i < sizeYtoX; i++ {
+		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
+		offerAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
+		orderCoin := sdk.NewCoin(denomY, offerAmt.RoundInt())
+
+		YtoX = append(YtoX, &types.MsgSwap{
+			OfferCoin:       orderCoin,
+			DemandCoinDenom: denomX,
+			OrderPrice:      orderPrice,
+		})
+	}
+	return
+}
+
+func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand) (XtoY, YtoX []*types.BatchPoolSwapMsg) {
+	currentPrice := X.ToDec().Quo(Y.ToDec())
+
+	XtoYnewSize := int(r.Int31n(20)) // 0~19
+	YtoXnewSize := int(r.Int31n(20)) // 0~19
+
+	for i := 0; i < XtoYnewSize; i++ {
+		GetRandFloats(0.1, 0.9)
+		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
+		offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
+		orderCoin := sdk.NewCoin(denomX, offerAmt.RoundInt())
+
+		XtoY = append(XtoY, &types.BatchPoolSwapMsg{
+			Msg: &types.MsgSwap{
+				OfferCoin:       orderCoin,
+				DemandCoinDenom: denomY,
+				OrderPrice:      orderPrice,
+			},
+		})
+	}
+
+	for i := 0; i < YtoXnewSize; i++ {
+		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
+		offerAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
+		orderCoin := sdk.NewCoin(denomY, offerAmt.RoundInt())
+
+		YtoX = append(YtoX, &types.BatchPoolSwapMsg{
+			Msg: &types.MsgSwap{
+				OfferCoin:       orderCoin,
+				DemandCoinDenom: denomX,
+				OrderPrice:      orderPrice,
+			},
+		})
+	}
+	return
+}
+
+func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sdk.Int, denomX, denomY string, addr sdk.AccAddress) uint64 {
+	denoms := []string{denomX, denomY}
+	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
+
+	// set accounts for creator, depositor, withdrawer, balance for deposit
+	SaveAccount(simapp, ctx, addr, deposit) // pool creator
+	depositX := simapp.BankKeeper.GetBalance(ctx, addr, denomX)
+	depositY := simapp.BankKeeper.GetBalance(ctx, addr, denomY)
+	depositBalance := sdk.NewCoins(depositX, depositY)
+	require.Equal(t, deposit, depositBalance)
+
+	// create Liquidity pool
+	poolTypeIndex := types.DefaultPoolTypeIndex
+	poolId := simapp.LiquidityKeeper.GetNextLiquidityPoolId(ctx)
+	msg := types.NewMsgCreateLiquidityPool(addr, poolTypeIndex, denoms, depositBalance)
+	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	require.NoError(t, err)
+
+	// verify created liquidity pool
+	pool, found := simapp.LiquidityKeeper.GetLiquidityPool(ctx, poolId)
+	require.True(t, found)
+	require.Equal(t, poolId, pool.PoolId)
+	require.Equal(t, denomX, pool.ReserveCoinDenoms[0])
+	require.Equal(t, denomY, pool.ReserveCoinDenoms[1])
+
+	// verify minted pool coin
+	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+	creatorBalance := simapp.BankKeeper.GetBalance(ctx, addr, pool.PoolCoinDenom)
+	require.Equal(t, poolCoin, creatorBalance.Amount)
+	return poolId
+}
+
+func TestDepositPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sdk.Int, addrs []sdk.AccAddress, poolId uint64, withEndblock bool) {
+	pool, found := simapp.LiquidityKeeper.GetLiquidityPool(ctx, poolId)
+	require.True(t, found)
+	denomX, denomY := pool.ReserveCoinDenoms[0], pool.ReserveCoinDenoms[1]
+	//addrs := app.AddTestAddrsIncremental(simapp, ctx, iterNum, sdk.NewInt(10000))
+	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
+
+	moduleAccAddress := simapp.AccountKeeper.GetModuleAddress(types.ModuleName)
+	moduleAccEscrowAmtX := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, denomX)
+	moduleAccEscrowAmtY := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, denomY)
+	iterNum := len(addrs)
+	for i := 0; i < iterNum; i++ {
+		SaveAccount(simapp, ctx, addrs[i], deposit) // pool creator
+		//depositX := simapp.BankKeeper.GetBalance(ctx, addrs[i], denomX)
+		//depositY := simapp.BankKeeper.GetBalance(ctx, addrs[i], denomY)
+		//depositBalance := sdk.NewCoins(depositX, depositY)
+		//require.Equal(t, deposit, depositBalance)
+
+		depositMsg := types.NewMsgDepositToLiquidityPool(addrs[i], poolId, deposit)
+		err := simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
+		require.NoError(t, err)
+
+		depositorBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.ReserveCoinDenoms[0])
+		depositorBalanceY := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.ReserveCoinDenoms[1])
+		//require.Equal(t, sdk.ZeroInt(), depositorBalanceX.Amount)
+		//require.Equal(t, sdk.ZeroInt(), depositorBalanceY.Amount)
+		require.Equal(t, denomX, depositorBalanceX.Denom)
+		require.Equal(t, denomY, depositorBalanceY.Denom)
+
+		// check escrow balance of module account
+		moduleAccEscrowAmtX = moduleAccEscrowAmtX.Add(deposit[0])
+		moduleAccEscrowAmtY = moduleAccEscrowAmtY.Add(deposit[1])
+		moduleAccEscrowAmtXAfter := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, denomX)
+		moduleAccEscrowAmtYAfter := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, denomY)
+		require.Equal(t, moduleAccEscrowAmtX, moduleAccEscrowAmtXAfter)
+		require.Equal(t, moduleAccEscrowAmtY, moduleAccEscrowAmtYAfter)
+	}
+	batch, bool := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+	require.True(t, bool)
+	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, batch)
+	//require.Len(t, msgs, iterNum)
+	//
+	//for i, msg := range msgs {
+	//	require.Equal(t, addrs[i].String(), msg.Msg.DepositorAddress)
+	//}
+
+	// endblock
+	if withEndblock {
+		liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+		msgs = simapp.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, batch)
+		for i := 0; i < iterNum; i++ {
+			// verify minted pool coin
+			poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+			depositorPoolCoinBalance := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.PoolCoinDenom)
+			require.NotEqual(t, sdk.ZeroInt(), depositorPoolCoinBalance)
+			require.NotEqual(t, sdk.ZeroInt(), poolCoin)
+			//require.Equal(t, poolCoin, depositorPoolCoinBalance.Amount.Add(creatorBalance.Amount))
+
+			//msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, batch)
+			//require.Len(t, msgs, 1)
+			require.True(t, msgs[i].Executed)
+			require.True(t, msgs[i].Succeed)
+			require.True(t, msgs[i].ToDelete)
+
+			// error balance after endblock
+			depositorBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.ReserveCoinDenoms[0])
+			depositorBalanceY := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.ReserveCoinDenoms[1])
+			//require.Equal(t, sdk.ZeroInt(), depositorBalanceX.Amount)
+			//require.Equal(t, sdk.ZeroInt(), depositorBalanceY.Amount) // refunded
+			require.Equal(t, denomX, depositorBalanceX.Denom)
+			require.Equal(t, denomY, depositorBalanceY.Denom)
+		}
+	}
+}
+
+func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolCoinAmt sdk.Int, addrs []sdk.AccAddress, poolId uint64, withEndblock bool) {
+	pool, found := simapp.LiquidityKeeper.GetLiquidityPool(ctx, poolId)
+	require.True(t, found)
+	//denomX, denomY := pool.ReserveCoinDenoms[0], pool.ReserveCoinDenoms[1]
+	moduleAccAddress := simapp.AccountKeeper.GetModuleAddress(types.ModuleName)
+	moduleAccEscrowAmtPool := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, pool.PoolCoinDenom)
+
+	iterNum := len(addrs)
+	for i := 0; i < iterNum; i++ {
+		//balanceX := simapp.BankKeeper.GetBalance(ctx, addrs[i], denomX)
+		//balanceY := simapp.BankKeeper.GetBalance(ctx, addrs[i], denomY)
+		balancePoolCoin := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.PoolCoinDenom)
+		require.True(t, balancePoolCoin.Amount.GTE(poolCoinAmt))
+
+		withdrawCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
+		withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[i], poolId, withdrawCoin)
+		err := simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
+		require.NoError(t, err)
+
+		moduleAccEscrowAmtPoolAfter := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, pool.PoolCoinDenom)
+		moduleAccEscrowAmtPool.Amount = moduleAccEscrowAmtPool.Amount.Add(withdrawMsg.PoolCoin.Amount)
+		require.Equal(t, moduleAccEscrowAmtPool, moduleAccEscrowAmtPoolAfter)
+
+		balancePoolCoinAfter := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.PoolCoinDenom)
+		if balancePoolCoin.Amount.Equal(withdrawCoin.Amount) {
+
+		} else {
+			require.Equal(t, balancePoolCoin.Sub(withdrawCoin).Amount, balancePoolCoinAfter.Amount)
+		}
+
+	}
+	batch, bool := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+	//msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, batch)
+	//for i, msg := range msgs {
+	//	require.Equal(t, addrs[i].String(), msg.Msg.WithdrawerAddress)
+	//	fmt.Println(i, msg, msg.Msg.WithdrawerAddress, addrs[i])
+	//}
+	//require.Equal(t, iterNum, len(msgs))
+
+	if withEndblock {
+		poolCoinBefore := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+
+		//reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+		//fmt.Println(reserveCoins)
+
+		// endblock
+		liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+		batch, bool = simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+		require.True(t, bool)
+
+		// verify burned pool coin
+		poolCoinAfter := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+		require.True(t, poolCoinAfter.LT(poolCoinBefore))
+
+		for i := 0; i < iterNum; i++ {
+			withdrawerBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.ReserveCoinDenoms[0])
+			withdrawerBalanceY := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.ReserveCoinDenoms[1])
+			//withdrawerBalancePoolCoin := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.PoolCoinDenom)
+			//reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+			//require.Equal(t, sdk.ZeroInt(), withdrawerBalancePoolCoin.Amount)
+			require.True(t, withdrawerBalanceX.IsPositive())
+			require.True(t, withdrawerBalanceY.IsPositive())
+
+			withdrawMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, batch)
+			require.True(t, withdrawMsgs[i].Executed)
+			require.True(t, withdrawMsgs[i].Succeed)
+			require.True(t, withdrawMsgs[i].ToDelete)
+		}
+	}
+}
+
+func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinList []sdk.Coin, orderPrices []sdk.Dec,
+	addrs []sdk.AccAddress, poolId uint64, withEndblock bool) ([]*types.BatchPoolSwapMsg, types.LiquidityPoolBatch) {
+	if len(offerCoinList) != len(orderPrices) || len(orderPrices) != len(addrs) {
+		require.True(t, false)
+	}
+
+	pool, found := simapp.LiquidityKeeper.GetLiquidityPool(ctx, poolId)
+	require.True(t, found)
+
+	moduleAccAddress := simapp.AccountKeeper.GetModuleAddress(types.ModuleName)
+
+	var batchPoolSwapMsgList []*types.BatchPoolSwapMsg
+
+	iterNum := len(addrs)
+	for i := 0; i < iterNum; i++ {
+		moduleAccEscrowAmtPool := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, offerCoinList[i].Denom)
+		currentBalance := simapp.BankKeeper.GetBalance(ctx, addrs[i], offerCoinList[i].Denom)
+		if currentBalance.IsLT(offerCoinList[i]) {
+			SaveAccount(simapp, ctx, addrs[i], sdk.NewCoins(offerCoinList[i]))
+		}
+		var demandCoinDenom string
+		if pool.ReserveCoinDenoms[0] == offerCoinList[i].Denom {
+			demandCoinDenom = pool.ReserveCoinDenoms[1]
+		} else if pool.ReserveCoinDenoms[1] == offerCoinList[i].Denom {
+			demandCoinDenom = pool.ReserveCoinDenoms[0]
+		} else {
+			require.True(t, false)
+		}
+
+		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i])
+		batchPoolSwapMsg, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg)
+		require.NoError(t, err)
+
+		batchPoolSwapMsgList = append(batchPoolSwapMsgList, batchPoolSwapMsg)
+		moduleAccEscrowAmtPoolAfter := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, offerCoinList[i].Denom)
+		moduleAccEscrowAmtPool.Amount = moduleAccEscrowAmtPool.Amount.Add(offerCoinList[i].Amount)
+		require.Equal(t, moduleAccEscrowAmtPool, moduleAccEscrowAmtPoolAfter)
+
+	}
+	batch, bool := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+
+	if withEndblock {
+		// endblock
+		liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+		batch, bool = simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+		require.True(t, bool)
+	}
+	return batchPoolSwapMsgList, batch
+}
+

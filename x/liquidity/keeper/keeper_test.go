@@ -16,7 +16,6 @@ type KeeperTestSuite struct {
 	app   *app.LiquidityApp
 	ctx   sdk.Context
 	addrs []sdk.AccAddress
-	//vals        []stakingtypes.Validator
 	pools        []types.LiquidityPool
 	batches      []types.LiquidityPoolBatch
 	depositMsgs  []types.BatchPoolDepositMsg
@@ -38,32 +37,11 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.ctx = ctx
 	suite.app = app
 
-	//_, validators, vals := createValidators(suite.T(), ctx, app, []int64{9, 8, 7})
-	//for i, addr := range validators {
-	//	addr := sdk.AccAddress(addr)
-	//	app.AccountKeeper.SetAccount(suite.ctx, authtypes.NewBaseAccount(addr, pubkeys[i], uint64(i), 0))
-	//}
-	//suite.vals = vals
-
 	types.RegisterQueryServer(queryHelper, app.LiquidityKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 }
 
 func TestParams(t *testing.T) {
-	//app := simapp.Setup(false)
-	//ctx := app.BaseApp.NewContext(false, tmproto.Header{})
-	//
-	//expParams := types.DefaultParams()
-	//
-	////check that the empty keeper loads the default
-	//resParams := app.StakingKeeper.GetParams(ctx)
-	//require.True(t, expParams.Equal(resParams))
-	//
-	////modify a params, save, and retrieve
-	//expParams.MaxValidators = 777
-	//app.StakingKeeper.SetParams(ctx, expParams)
-	//resParams = app.StakingKeeper.GetParams(ctx)
-	//require.True(t, expParams.Equal(resParams))
 }
 
 func TestKeeperTestSuite(t *testing.T) {

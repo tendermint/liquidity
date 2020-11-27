@@ -9,8 +9,8 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
+// TODO: migrate to msg_server after rebase latest sdk 0.40.0 on milestone2
 // TODO: add detailed logic to each handle, check event output
-
 // NewHandler returns a handler for all "liquidity" type messages.
 func NewHandler(k keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
@@ -88,7 +88,7 @@ func handleMsgWithdrawFromLiquidityPool(ctx sdk.Context, k keeper.Keeper, msg *t
 }
 
 func handleMsgSwap(ctx sdk.Context, k keeper.Keeper, msg *types.MsgSwap) (*sdk.Result, error) {
-	err := k.SwapLiquidityPoolToBatch(ctx, msg)
+	_, err := k.SwapLiquidityPoolToBatch(ctx, msg)
 	if err != nil {
 		return &sdk.Result{
 			Events: ctx.EventManager().ABCIEvents(),

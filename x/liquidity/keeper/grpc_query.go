@@ -102,38 +102,37 @@ func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityP
 }
 
 func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSwapMsgsRequest) (*types.QueryPoolBatchSwapMsgsResponse, error) {
-	// TODO: after write swap msg on testsuite
-	//empty := &types.QueryPoolBatchSwapMsgsRequest{}
-	//if req == nil || *req == *empty {
-	//	return nil, status.Errorf(codes.InvalidArgument, "empty request")
-	//}
-	//ctx := sdk.UnwrapSDKContext(c)
-	//
-	//store := ctx.KVStore(k.storeKey)
-	//msgStore := prefix.NewStore(store, types.LiquidityPoolBatchSwapMsgIndexKeyPrefix)
-	//var msgs []types.BatchPoolSwapMsg
-	//
-	//pageRes, err := query.FilteredPaginate(msgStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
-	//	msg, err := types.UnmarshalBatchPoolSwapMsg(k.cdc, value)
-	//	if err != nil {
-	//		return false, err
-	//	}
-	//
-	//	if accumulate {
-	//		msgs = append(msgs, msg)
-	//	}
-	//
-	//	return true, nil
-	//})
-	//
-	//if err != nil {
-	//	return nil, status.Error(codes.Internal, err.Error())
-	//}
-	//
-	//return &types.QueryPoolBatchSwapMsgsResponse{
-	//	SwapMsgs:   msgs,
-	//	Pagination: pageRes,
-	//}, nil
+	empty := &types.QueryPoolBatchSwapMsgsRequest{}
+	if req == nil || *req == *empty {
+		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+
+	store := ctx.KVStore(k.storeKey)
+	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchSwapMsgIndexKeyPrefix)
+	var msgs []types.BatchPoolSwapMsg
+
+	pageRes, err := query.FilteredPaginate(msgStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+		msg, err := types.UnmarshalBatchPoolSwapMsg(k.cdc, value)
+		if err != nil {
+			return false, err
+		}
+
+		if accumulate {
+			msgs = append(msgs, msg)
+		}
+
+		return true, nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryPoolBatchSwapMsgsResponse{
+		SwapMsgs:   msgs,
+		Pagination: pageRes,
+	}, nil
 	return nil, nil
 }
 

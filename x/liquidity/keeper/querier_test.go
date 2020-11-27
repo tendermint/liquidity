@@ -42,7 +42,7 @@ func TestNewQuerier(t *testing.T) {
 
 	querier := keeper.NewQuerier(simapp.LiquidityKeeper, cdc)
 
-	poolId := testCreatePool(t, simapp, ctx, X, Y, DenomX, DenomY, addrs[0])
+	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, DenomX, DenomY, addrs[0])
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryLiquidityPool}, "/"),
 		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId: poolId}),
@@ -75,12 +75,12 @@ func TestQueries(t *testing.T) {
 
 	querier := keeper.NewQuerier(simapp.LiquidityKeeper, cdc)
 
-	poolId := testCreatePool(t, simapp, ctx, X, Y, DenomX, DenomY, addrs[0])
+	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, DenomX, DenomY, addrs[0])
 	require.Equal(t, uint64(1), poolId)
 	poolRes, err := getQueriedLiquidityPool(t, ctx, cdc, querier, poolId)
 	require.NoError(t, err)
 	require.Equal(t, poolId, poolRes.PoolId)
-	require.Equal(t, DefaultPoolTypeIndex, poolRes.PoolTypeIndex)
+	require.Equal(t, types.DefaultPoolTypeIndex, poolRes.PoolTypeIndex)
 	require.Equal(t, []string{DenomX, DenomY}, poolRes.ReserveCoinDenoms)
 	require.NotNil(t, poolRes.PoolCoinDenom)
 	require.NotNil(t, poolRes.ReserveAccountAddress)
