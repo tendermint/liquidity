@@ -55,7 +55,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	require.True(t, found)
 
 	poolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
-	require.Equal(t, uint64(0), poolBatch.SwapMsgIndex)
+	require.Equal(t, uint64(1), poolBatch.SwapMsgIndex)
 
 	for i, msg := range XtoY {
 		app.SaveAccount(simapp, ctx, buyerAccs[i], sdk.NewCoins(msg.OfferCoin))
@@ -92,7 +92,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	require.Equal(t, 10, len(msgs))
 
 	poolBatch, found = simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
-	require.Equal(t, uint64(20), poolBatch.SwapMsgIndex)
+	require.Equal(t, uint64(21), poolBatch.SwapMsgIndex)
 
 	poolBatch.SwapMsgIndex = uint64(18446744073709551610)
 	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, poolBatch)
@@ -144,7 +144,7 @@ func TestGetAllNotProcessedPoolBatchSwapMsgs(t *testing.T) {
 	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, batchMsgs2)
 
 	resultMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
-	resultProccessedMsgs := simapp.LiquidityKeeper.GetAllNotProcessedPoolBatchSwapMsgs(ctx, batch)
+	resultProccessedMsgs := simapp.LiquidityKeeper.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, batch)
 	require.Equal(t, 6, len(resultMsgs))
 	require.Equal(t, 3, len(resultProccessedMsgs))
 

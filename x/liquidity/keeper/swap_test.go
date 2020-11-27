@@ -14,12 +14,13 @@ import (
 
 func TestSimulationSwapExecution(t *testing.T) {
 	for i := 0; i < 100; i++ {
+		fmt.Println("test count", i)
 		TestSwapExecution(t)
 	}
 }
 
 func TestSwapExecution(t *testing.T) {
-	// TODO: to simulation, ransim
+	// TODO: to with simulation, invariants, ransim
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
 	simapp, ctx := createTestInput()

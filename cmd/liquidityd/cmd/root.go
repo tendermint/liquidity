@@ -122,7 +122,6 @@ func queryCommand() *cobra.Command {
 		authcmd.QueryTxsByEventsCmd(),
 		authcmd.QueryTxCmd(),
 		liquiditycmd.GetQueryCmd(),
-		// TODO: add liquidity query command
 	)
 
 	liquidity.ModuleBasics.AddQueryCommands(cmd)
@@ -152,7 +151,6 @@ func txCommand() *cobra.Command {
 		flags.LineBreak,
 		vestingcli.GetTxCmd(),
 		liquiditycmd.GetTxCmd(),
-		// TODO: add liquidity tx command
 	)
 
 	liquidity.ModuleBasics.AddTxCommands(cmd)

@@ -277,37 +277,3 @@ func (msg MsgSwap) GetSwapRequester() sdk.AccAddress {
 	}
 	return addr
 }
-
-//// TODO: remove if not used
-//func NewBatchPoolSwapMsg(
-//	msgHeight, orderExpiryHeight int64,
-//	msgIndex uint64,
-//	executed, succeed, toDelete bool,
-//	poolId uint64,
-//	poolTypeIndex, swapType uint32,
-//	swapRequester sdk.AccAddress,
-//	offerCoin, exchangedOfferCoin sdk.Coin,
-//	demandCoinDenom string,
-//	orderPrice sdk.Dec,
-//) *BatchPoolSwapMsg {
-//	batch := &BatchPoolSwapMsg{
-//		MsgHeight: msgHeight,
-//		MsgIndex: msgIndex,
-//		OrderExpiryHeight: orderExpiryHeight,
-//		Executed: executed,
-//		Succeed: succeed,
-//		ToDelete: toDelete,
-//		ExchangedOfferCoin: exchangedOfferCoin,
-//		RemainingOfferCoin: offerCoin.Sub(exchangedOfferCoin), // TODO: fix to precise
-//		Msg : &MsgSwap{
-//			SwapRequesterAddress: swapRequester.String(),
-//			PoolId:               poolId,
-//			PoolTypeIndex:        poolTypeIndex,
-//			SwapType:             swapType,
-//			OfferCoin:            offerCoin,
-//			DemandCoinDenom:      demandCoinDenom,
-//			OrderPrice:           orderPrice,
-//		},
-//	}
-//	return batch
-//}

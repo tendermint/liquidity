@@ -24,8 +24,8 @@ func GetPoolCoinDenom(reserveAcc sdk.AccAddress) string {
 	return reserveAcc.String()
 }
 
+// TODO: check is poolcoin or not when poolcoin denom rule fixed
 //func IsPoolCoin(coin sdk.Coin) bool {
-//
 //}
 
 func StringInSlice(a string, list []string) bool {

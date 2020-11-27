@@ -213,6 +213,17 @@ func (k Keeper) SetLiquidityPoolBatchDepositMsg(ctx sdk.Context, poolId uint64, 
 	store.Set(types.GetLiquidityPoolBatchDepositMsgIndexKey(poolId, msg.MsgIndex), b)
 }
 
+func (k Keeper) SetLiquidityPoolBatchDepositMsgs(ctx sdk.Context, poolId uint64, msgList []types.BatchPoolDepositMsg) {
+	for _, msg := range msgList {
+		if poolId != msg.Msg.PoolId {
+			continue
+		}
+		store := ctx.KVStore(k.storeKey)
+		b := types.MustMarshalBatchPoolDepositMsg(k.cdc, msg)
+		store.Set(types.GetLiquidityPoolBatchDepositMsgIndexKey(poolId, msg.MsgIndex), b)
+	}
+}
+
 func (k Keeper) DeleteLiquidityPoolBatchDepositMsg(ctx sdk.Context, poolId uint64, msgIndex uint64) {
 	store := ctx.KVStore(k.storeKey)
 	batchKey := types.GetLiquidityPoolBatchDepositMsgIndexKey(poolId, msgIndex)
@@ -239,6 +250,28 @@ func (k Keeper) IterateAllLiquidityPoolBatchDepositMsgs(ctx sdk.Context, liquidi
 func (k Keeper) GetAllLiquidityPoolBatchDepositMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolDepositMsg) {
 	k.IterateAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolDepositMsg) bool {
 		msgs = append(msgs, msg)
+		return false
+	})
+	return msgs
+}
+
+// GetAllToDeleteLiquidityPoolBatchDepositMsgs returns all Not toDelete BatchDepositMsgs indexed by the liquidityPoolBatch
+func (k Keeper) GetAllNotToDeleteLiquidityPoolBatchDepositMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolDepositMsg) {
+	k.IterateAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolDepositMsg) bool {
+		if !msg.ToDelete {
+			msgs = append(msgs, msg)
+		}
+		return false
+	})
+	return msgs
+}
+
+// GetAllRemainingLiquidityPoolBatchDepositMsgs returns All only remaining BatchDepositMsgs after endblock , executed but not toDelete
+func (k Keeper) GetAllRemainingLiquidityPoolBatchDepositMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolDepositMsg) {
+	k.IterateAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolDepositMsg) bool {
+		if msg.Executed && !msg.ToDelete {
+			msgs = append(msgs, msg)
+		}
 		return false
 	})
 	return msgs
@@ -276,6 +309,17 @@ func (k Keeper) SetLiquidityPoolBatchWithdrawMsg(ctx sdk.Context, poolId uint64,
 	store.Set(types.GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msg.MsgIndex), b)
 }
 
+func (k Keeper) SetLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, poolId uint64, msgList []types.BatchPoolWithdrawMsg) {
+	for _, msg := range msgList {
+		if poolId != msg.Msg.PoolId {
+			continue
+		}
+		store := ctx.KVStore(k.storeKey)
+		b := types.MustMarshalBatchPoolWithdrawMsg(k.cdc, msg)
+		store.Set(types.GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msg.MsgIndex), b)
+	}
+}
+
 func (k Keeper) DeleteLiquidityPoolBatchWithdrawMsg(ctx sdk.Context, poolId uint64, msgIndex uint64) {
 	store := ctx.KVStore(k.storeKey)
 	batchKey := types.GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msgIndex)
@@ -307,6 +351,28 @@ func (k Keeper) GetAllLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, liquidityP
 	return msgs
 }
 
+// GetAllToDeleteLiquidityPoolBatchWithdrawMsgs returns all Not to delete BatchWithdrawMsgs indexed by the liquidityPoolBatch
+func (k Keeper) GetAllNotToDeleteLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolWithdrawMsg) {
+	k.IterateAllLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolWithdrawMsg) bool {
+		if !msg.ToDelete {
+			msgs = append(msgs, msg)
+		}
+		return false
+	})
+	return msgs
+}
+
+// GetAllRemainingLiquidityPoolBatchWithdrawMsgs returns All only remaining BatchWithdrawMsgs after endblock, executed but not toDelete
+func (k Keeper) GetAllRemainingLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolWithdrawMsg) {
+	k.IterateAllLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolWithdrawMsg) bool {
+		if msg.Executed && !msg.ToDelete {
+			msgs = append(msgs, msg)
+		}
+		return false
+	})
+	return msgs
+}
+
 func (k Keeper) DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.GetLiquidityPoolBatchWithdrawMsgsPrefix(liquidityPoolBatch.PoolId))
@@ -319,7 +385,7 @@ func (k Keeper) DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, li
 	}
 }
 
-// return a specific liquidityPoolBatchDepositMsg
+// return a specific GetLiquidityPoolBatchSwapMsg
 func (k Keeper) GetLiquidityPoolBatchSwapMsg(ctx sdk.Context, poolId, msgIndex uint64) (msg types.BatchPoolSwapMsg, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msgIndex)
@@ -382,10 +448,32 @@ func (k Keeper) GetAllLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolB
 	return msgs
 }
 
-// GetAllNotProcessedPoolBatchSwapMsgs returns All only not processed swap msgs, not executed with not succeed and not toDelete BatchSwapMsgs indexed by the liquidityPoolBatch
-func (k Keeper) GetAllNotProcessedPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []*types.BatchPoolSwapMsg) {
+// GetAllNotProcessedLiquidityPoolBatchSwapMsgs returns All only not processed swap msgs, not executed with not succeed and not toDelete BatchSwapMsgs indexed by the liquidityPoolBatch
+func (k Keeper) GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []*types.BatchPoolSwapMsg) {
 	k.IterateAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolSwapMsg) bool {
 		if !msg.Executed && !msg.Succeed && !msg.ToDelete {
+			msgs = append(msgs, &msg)
+		}
+		return false
+	})
+	return msgs
+}
+
+// GetAllRemainingLiquidityPoolBatchSwapMsgs returns All only remaining after endblock swap msgs, executed but not toDelete
+func (k Keeper) GetAllRemainingLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []*types.BatchPoolSwapMsg) {
+	k.IterateAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolSwapMsg) bool {
+		if msg.Executed && !msg.ToDelete {
+			msgs = append(msgs, &msg)
+		}
+		return false
+	})
+	return msgs
+}
+
+// GetAllNotToDeleteLiquidityPoolBatchSwapMsgs returns All only not to delete swap msgs
+func (k Keeper) GetAllNotToDeleteLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []*types.BatchPoolSwapMsg) {
+	k.IterateAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolSwapMsg) bool {
+		if !msg.ToDelete {
 			msgs = append(msgs, &msg)
 		}
 		return false

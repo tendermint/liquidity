@@ -60,7 +60,8 @@ func TestOrderMap(t *testing.T) {
 	fmt.Println(orderBook, currentPrice)
 	fmt.Println(XtoY, YtoX)
 
-	clearedXtoY, clearedYtoX := types.ClearOrders(XtoY, YtoX, ctx.BlockHeight(), false)
+	clearedXtoY := types.ClearOrders(XtoY, ctx.BlockHeight(), false)
+	clearedYtoX := types.ClearOrders(YtoX, ctx.BlockHeight(), false)
 	require.Equal(t, XtoY, clearedXtoY)
 	require.Equal(t, YtoX, clearedYtoX)
 
@@ -80,7 +81,8 @@ func TestOrderMap(t *testing.T) {
 	XtoY, YtoX, XDec, YDec, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		simapp.LiquidityKeeper.UpdateState(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
-	clearedXtoY, clearedYtoX = types.ClearOrders(XtoY, YtoX, ctx.BlockHeight(), true)
+	clearedXtoY = types.ClearOrders(XtoY, ctx.BlockHeight(), true)
+	clearedYtoX = types.ClearOrders(YtoX, ctx.BlockHeight(), true)
 	require.Equal(t, 0, (types.MsgList)(clearedXtoY).LenRemainingMsgs())
 	require.Equal(t, 0, (types.MsgList)(clearedXtoY).LenFractionalMsgs())
 	require.Equal(t, 0, (types.MsgList)(clearedYtoX).LenRemainingMsgs())
