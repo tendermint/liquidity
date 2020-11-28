@@ -13,9 +13,9 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	app   *app.LiquidityApp
-	ctx   sdk.Context
-	addrs []sdk.AccAddress
+	app          *app.LiquidityApp
+	ctx          sdk.Context
+	addrs        []sdk.AccAddress
 	pools        []types.LiquidityPool
 	batches      []types.LiquidityPoolBatch
 	depositMsgs  []types.BatchPoolDepositMsg

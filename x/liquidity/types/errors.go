@@ -35,4 +35,5 @@ var (
 	ErrBadOrderingReserveCoinDenoms = sdkerrors.Register(ModuleName, 27, "bad ordering reserve coin denoms")
 	ErrBadReserveAccountAddress     = sdkerrors.Register(ModuleName, 28, "bad reserve account address")
 	ErrBadPoolCoinDenom             = sdkerrors.Register(ModuleName, 29, "bad pool coin denom")
+	ErrInsufficientPoolCreationFee  = sdkerrors.Register(ModuleName, 30, "insufficient balances for pool creation fee")
 )

@@ -65,7 +65,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		poolYdelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
 
-
 	XtoY, YtoX, X, Y, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		k.UpdateState(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
@@ -129,7 +128,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	fmt.Println("matched totalAmtX, totalAmtY", totalAmtX, totalAmtY)
 	fmt.Println("poolXdelta, poolYdelta", poolXdelta, poolYdelta, poolXdelta2, poolYdelta2)
 
-
 	if !poolXdelta.Add(decimalErrorX).Equal(poolXdelta2) || !poolYdelta.Add(decimalErrorY).Equal(poolYdelta2) {
 		panic(poolXdelta)
 	}
@@ -141,12 +139,14 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	fmt.Println("orderbook after batch")
 	orderBookValidity := types.CheckValidityOrderBook(orderBookExecuted, lastPrice)
-	fmt.Println("after orderBookValidity", orderBookValidity)
+	fmt.Println("orderBookValidity:", orderBookValidity)
 	if !orderBookValidity {
-		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity", orderBookExecuted)
-		panic(orderBookValidity)
+		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity")
+		for _, v := range orderBookExecuted {
+			fmt.Println(v)
+		}
+		panic(types.ErrOrderBookInvalidity)
 	}
-
 
 	// Make index map for match result
 	matchResultMap := make(map[uint64]types.MatchResult)
@@ -168,7 +168,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 			panic("map broken1")
 		}
 	}
-	if len(matchResultXtoY) + len(matchResultYtoX) != len(matchResultMap) {
+	if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
 		panic("match result map err")
 	}
 
@@ -187,7 +187,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		}
 	}
 	for _, msg := range swapMsgs {
-		for _, msgAfter := range XtoY{
+		for _, msgAfter := range XtoY {
 			if msg.MsgIndex == msgAfter.MsgIndex {
 				if *(msg) != *(msgAfter) || msg != msgAfter {
 					panic("msg not matched")
@@ -196,7 +196,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 				}
 			}
 		}
-		for _, msgAfter := range YtoX{
+		for _, msgAfter := range YtoX {
 			if msg.MsgIndex == msgAfter.MsgIndex {
 				if *(msg) != *(msgAfter) || msg != msgAfter {
 					panic("msg not matched")
@@ -207,7 +207,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		}
 		if msgAfter, ok := matchResultMap[msg.MsgIndex]; ok {
 			if msg.MsgIndex == msgAfter.BatchMsg.MsgIndex {
-				if *(msg) != *(msgAfter.BatchMsg) || msg != msgAfter.BatchMsg  {
+				if *(msg) != *(msgAfter.BatchMsg) || msg != msgAfter.BatchMsg {
 					panic("msg not matched")
 				} else {
 					break
@@ -416,4 +416,3 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 
 	return XtoY, YtoX, X, Y, poolXdelta, poolYdelta, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY
 }
-

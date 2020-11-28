@@ -27,7 +27,7 @@ type OrderByPrice struct {
 	OrderPrice   sdk.Dec
 	BuyOfferAmt  sdk.Int
 	SellOfferAmt sdk.Int
-	MsgList []*BatchPoolSwapMsg
+	MsgList      []*BatchPoolSwapMsg
 }
 type OrderBook []OrderByPrice
 
@@ -128,7 +128,7 @@ func (orderMap OrderMap) SortOrderBook() (orderBook OrderBook) {
 			OrderPrice:   k,
 			BuyOfferAmt:  orderMap[k.String()].BuyOfferAmt,
 			SellOfferAmt: orderMap[k.String()].SellOfferAmt,
-			MsgList: orderMap[k.String()].MsgList,
+			MsgList:      orderMap[k.String()].MsgList,
 		})
 	}
 	return orderBook
@@ -206,18 +206,22 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 	}
 
 	// TODO: fix naive error rate
-	oneOverWithErr, _ := sdk.NewDecFromStr("1.001")
-	oneUnderWithErr, _ := sdk.NewDecFromStr("0.999")
+	oneOverWithErr, _ := sdk.NewDecFromStr("1.02")
+	oneUnderWithErr, _ := sdk.NewDecFromStr("0.98")
 	if maxBuyOrderPrice.GT(minSellOrderPrice) ||
 		maxBuyOrderPrice.Quo(currentPrice).GT(oneOverWithErr) ||
 		minSellOrderPrice.Quo(currentPrice).LT(oneUnderWithErr) {
+
+		fmt.Println(maxBuyOrderPrice.GT(minSellOrderPrice),
+			maxBuyOrderPrice.Quo(currentPrice).GT(oneOverWithErr),
+			minSellOrderPrice.Quo(currentPrice).LT(oneUnderWithErr))
 		return false
 	} else {
 		return true
 	}
 }
 
-func ClearOrders(msgList []*BatchPoolSwapMsg, currentHeight int64, clearThisHeight bool) ([]*BatchPoolSwapMsg) {
+func ClearOrders(msgList []*BatchPoolSwapMsg, currentHeight int64, clearThisHeight bool) []*BatchPoolSwapMsg {
 	for _, order := range msgList {
 		if order.RemainingOfferCoin.IsZero() {
 			order.Succeed = true
@@ -336,7 +340,7 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 							OrderPrice:        matchOrder.Msg.OrderPrice,
 							OfferCoinAmt:      matchOrder.Msg.OfferCoin.Amount,
 							TransactedCoinAmt: offerAmt.Mul(fractionalMatchRatio).Ceil().TruncateInt(),
-							BatchMsg: matchOrder,
+							BatchMsg:          matchOrder,
 						}
 						if matchOrder != matchResult.BatchMsg {
 							panic("not matched msg pointer ")

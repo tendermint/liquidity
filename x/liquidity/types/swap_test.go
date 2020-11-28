@@ -20,7 +20,8 @@ func TestOrderMap(t *testing.T) {
 	X := sdk.NewInt(1000000000)
 	Y := sdk.NewInt(1000000000)
 
-	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	addrs := app.AddTestAddrs(simapp, ctx, 20, params.LiquidityPoolCreationFee)
 	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	// begin block, init
@@ -50,12 +51,12 @@ func TestOrderMap(t *testing.T) {
 	require.Equal(t, orderMap[orderPriceList[0].String()].BuyOfferAmt, offerCoinList[0].Amount.MulRaw(3))
 	require.Equal(t, orderMap[orderPriceList[0].String()].OrderPrice, orderPriceList[0])
 
-	require.Equal(t,3, len(XtoY))
+	require.Equal(t, 3, len(XtoY))
 	require.Equal(t, 1, len(YtoX))
-	require.Equal(t,3, len(orderMap[orderPriceList[0].String()].MsgList))
-	require.Equal(t,1, len(orderMap[orderPriceListY[0].String()].MsgList))
-	require.Equal(t,3, len(orderBook[0].MsgList))
-	require.Equal(t,1, len(orderBook[1].MsgList))
+	require.Equal(t, 3, len(orderMap[orderPriceList[0].String()].MsgList))
+	require.Equal(t, 1, len(orderMap[orderPriceListY[0].String()].MsgList))
+	require.Equal(t, 3, len(orderBook[0].MsgList))
+	require.Equal(t, 1, len(orderBook[1].MsgList))
 
 	fmt.Println(orderBook, currentPrice)
 	fmt.Println(XtoY, YtoX)
@@ -87,8 +88,8 @@ func TestOrderMap(t *testing.T) {
 	require.Equal(t, 0, (types.MsgList)(clearedXtoY).LenFractionalMsgs())
 	require.Equal(t, 0, (types.MsgList)(clearedYtoX).LenRemainingMsgs())
 	require.Equal(t, 0, (types.MsgList)(clearedYtoX).LenFractionalMsgs())
-	require.Equal(t,1, len(clearedYtoX))
-	require.Equal(t,0, len(clearedXtoY))
+	require.Equal(t, 1, len(clearedYtoX))
+	require.Equal(t, 0, len(clearedXtoY))
 
 	fmt.Println(matchResultXtoY)
 	fmt.Println(poolXDeltaXtoY)
@@ -101,15 +102,14 @@ func TestOrderMap(t *testing.T) {
 	// TODO: detailed assertion
 	// TODO: debug Ydec 999970003, poolYdelta2, poolYDeltaXtoY -29997
 
-
 	orderMapExecuted, _, _ := types.GetOrderMap(append(clearedXtoY, clearedYtoX...), denomX, denomY)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	lastPrice := XDec.Quo(YDec)
 	require.True(t, types.CheckValidityOrderBook(orderBookExecuted, lastPrice))
 
-	require.Equal(t,0, (types.MsgList)(orderMapExecuted[orderPriceList[0].String()].MsgList).LenRemainingMsgs())
-	require.Equal(t,0, (types.MsgList)(orderMapExecuted[orderPriceListY[0].String()].MsgList).LenRemainingMsgs())
-	require.Equal(t,0, (types.MsgList)(orderBookExecuted[0].MsgList).LenRemainingMsgs())
+	require.Equal(t, 0, (types.MsgList)(orderMapExecuted[orderPriceList[0].String()].MsgList).LenRemainingMsgs())
+	require.Equal(t, 0, (types.MsgList)(orderMapExecuted[orderPriceListY[0].String()].MsgList).LenRemainingMsgs())
+	require.Equal(t, 0, (types.MsgList)(orderBookExecuted[0].MsgList).LenRemainingMsgs())
 
 }
 
@@ -275,8 +275,8 @@ func TestGetPriceDirection(t *testing.T) {
 	a, _ = sdk.NewDecFromStr("1.0")
 
 	orderMap[a.String()] = types.OrderByPrice{
-		OrderPrice: a,
-		BuyOfferAmt: sdk.NewInt(50000000),
+		OrderPrice:   a,
+		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.NewInt(50000000),
 	}
 	orderBook = orderMap.SortOrderBook()
@@ -353,8 +353,8 @@ func TestComputePriceDirection(t *testing.T) {
 	a, _ = sdk.NewDecFromStr("1.0")
 
 	orderMap[a.String()] = types.OrderByPrice{
-		OrderPrice: a,
-		BuyOfferAmt: sdk.NewInt(50000000),
+		OrderPrice:   a,
+		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.NewInt(50000000),
 	}
 	orderBook = orderMap.SortOrderBook()

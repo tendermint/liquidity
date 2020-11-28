@@ -14,7 +14,7 @@ import (
 
 func TestSimulationSwapExecution(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		fmt.Println("test count", i)
+		fmt.Println("test count", i+1)
 		TestSwapExecution(t)
 	}
 }
@@ -25,6 +25,7 @@ func TestSwapExecution(t *testing.T) {
 	r := rand.New(s)
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	// define test denom X, Y for Liquidity Pool
 	denomX := "denomX"
@@ -33,13 +34,14 @@ func TestSwapExecution(t *testing.T) {
 	denoms := []string{denomX, denomY}
 
 	// get random X, Y amount for create pool
-	X, Y := app.GetRandPoolAmt(r)
+	param := simapp.LiquidityKeeper.GetParams(ctx)
+	X, Y := app.GetRandPoolAmt(r, param.MinInitDepositToPool)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 	fmt.Println("-------------------------------------------------------")
 	fmt.Println("X/Y", X.ToDec().Quo(Y.ToDec()), "X", X, "Y", Y)
 
 	// set pool creator account, balance for deposit
-	addrs := app.AddTestAddrsIncremental(simapp, ctx, 3, sdk.NewInt(10000))
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 	app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
@@ -110,11 +112,11 @@ func TestSwapExecution(t *testing.T) {
 	require.NoError(t, err)
 }
 
-
 func TestGetRandomOrders(t *testing.T) {
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
-	X, Y := app.GetRandPoolAmt(r)
+	// get random X, Y amount for create pool
+	X, Y := app.GetRandPoolAmt(r, types.DefaultMinInitDepositToPool)
 	XtoY, YtoX := app.GetRandomSizeOrders("denomX", "denomY", X, Y, r, 50, 50)
 	fmt.Println(XtoY, YtoX)
 	require.Equal(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2))

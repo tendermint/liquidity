@@ -38,12 +38,11 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 				}
 				k.SetLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch.PoolId, swapMsgs)
 			}
-			
+
 			// TODO: optimizing iteration
 			k.DeleteAllReadyLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch)
 			k.DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch)
 			k.DeleteAllReadyLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
-
 
 			k.InitNextBatch(ctx, liquidityPoolBatch)
 		}
@@ -188,14 +187,14 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) (*
 	}
 
 	batchPoolMsg := types.BatchPoolSwapMsg{
-		MsgHeight: ctx.BlockHeight(),
-		MsgIndex:  poolBatch.SwapMsgIndex,
-		Executed: false,
-		Succeed: false,
-		ToDelete: false,
+		MsgHeight:          ctx.BlockHeight(),
+		MsgIndex:           poolBatch.SwapMsgIndex,
+		Executed:           false,
+		Succeed:            false,
+		ToDelete:           false,
 		ExchangedOfferCoin: sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
 		RemainingOfferCoin: msg.OfferCoin,
-		Msg:       msg,
+		Msg:                msg,
 	}
 	// TODO: add logic if OrderExpiryHeight==0, pass on batch logic
 	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + types.CancelOrderLifeSpan

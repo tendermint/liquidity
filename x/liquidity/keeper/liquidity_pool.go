@@ -59,14 +59,19 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	poolCreator := msg.GetPoolCreator()
 	accPoolCreator := k.accountKeeper.GetAccount(ctx, poolCreator)
 	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, accPoolCreator.GetAddress())
+
 	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
 		return types.ErrInsufficientBalance
 	}
-
 	for _, coin := range msg.DepositCoins {
 		if coin.Amount.LT(params.MinInitDepositToPool) {
 			return types.ErrLessThanMinInitDeposit
 		}
+	}
+
+	// TODO: write test case
+	if !poolCreatorBalances.IsAllGTE(params.LiquidityPoolCreationFee.Add(msg.DepositCoins...)) {
+		return types.ErrInsufficientPoolCreationFee
 	}
 
 	denom1, denom2 := types.AlphabeticalDenomPair(msg.ReserveCoinDenoms[0], msg.ReserveCoinDenoms[1])
@@ -75,31 +80,42 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	PoolCoinDenom := types.GetPoolCoinDenom(reserveAcc)
 
 	liquidityPool := types.LiquidityPool{
-		//PoolId: k.GetNextLiquidityPoolIdWithUpdate(ctx),
+		//PoolId: will set on SetLiquidityPoolAtomic
 		PoolTypeIndex:         msg.PoolTypeIndex,
 		ReserveCoinDenoms:     reserveCoinDenoms,
 		ReserveAccountAddress: reserveAcc.String(),
 		PoolCoinDenom:         PoolCoinDenom,
 	}
 
-	// TODO: convert to multi send
+	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(liquidityPool.PoolCoinDenom, params.InitPoolCoinMintAmount))
-	if err := k.bankKeeper.SendCoins(ctx, poolCreator, reserveAcc, msg.DepositCoins); err != nil {
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
 		return err
 	}
 
-	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
-		panic(err)
-	}
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, poolCreator, mintPoolCoin); err != nil {
-		panic(err)
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+
+	// TODO: write test case
+	poolCreationFeePoolAcc := types.GetPoolCreationFeePoolAcc()
+	inputs = append(inputs, banktypes.NewInput(poolCreator, params.LiquidityPoolCreationFee))
+	outputs = append(outputs, banktypes.NewOutput(poolCreationFeePoolAcc, params.LiquidityPoolCreationFee))
+
+	inputs = append(inputs, banktypes.NewInput(poolCreator, msg.DepositCoins))
+	outputs = append(outputs, banktypes.NewOutput(reserveAcc, msg.DepositCoins))
+
+	inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, mintPoolCoin))
+	outputs = append(outputs, banktypes.NewOutput(poolCreator, mintPoolCoin))
+
+	// execute multi-send
+	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+		return err
 	}
 
 	liquidityPool = k.SetLiquidityPoolAtomic(ctx, liquidityPool)
 	batch := types.NewLiquidityPoolBatch(liquidityPool.PoolId, 1)
+
 	k.SetLiquidityPoolBatch(ctx, batch)
-	// TODO: params.LiquidityPoolCreationFee logic
-	// TODO: refactoring, LiquidityPoolCreationFee, check event on handler
 
 	// TODO: remove result state check, debugging
 	reserveCoins := k.GetReserveCoins(ctx, liquidityPool)
@@ -374,12 +390,12 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 				panic("broken msg consistency")
 			}
 			if msgAfter.TransactedCoinAmt.Sub(msgAfter.FeeAmt).IsNegative() ||
-				msgAfter.FeeAmt.GT(msgAfter.TransactedCoinAmt){
+				msgAfter.FeeAmt.GT(msgAfter.TransactedCoinAmt) {
 				panic("fee over offer")
 			}
 
 			// fractional match, but expired order case
-			if batchMsg.RemainingOfferCoin.IsPositive(){
+			if batchMsg.RemainingOfferCoin.IsPositive() {
 				// not to delete, but expired case
 				if !batchMsg.ToDelete && batchMsg.OrderExpiryHeight <= ctx.BlockHeight() {
 					panic("impossible case ")
@@ -437,7 +453,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					panic("impossible case ")
 					// TODO: set to Delete
 				}
-			} else if batchMsg.RemainingOfferCoin.IsZero()  {
+			} else if batchMsg.RemainingOfferCoin.IsZero() {
 				// Add transacted coins to multisend
 				inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
 					sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.Sub(msgAfter.FeeAmt)))))
@@ -461,7 +477,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 			}
 
 		} else {
-		// not matched, remaining
+			// not matched, remaining
 			if !batchMsg.ToDelete && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
 				// have fractional matching history, not matched and expired, remaining refund
 				// refund remaining coins
@@ -476,7 +492,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 				batchMsg.Succeed = false
 				batchMsg.ToDelete = true
 
-			} else if batchMsg.ToDelete && batchMsg.OrderExpiryHeight == ctx.BlockHeight(){
+			} else if batchMsg.ToDelete && batchMsg.OrderExpiryHeight == ctx.BlockHeight() {
 				// not matched and expired, remaining refund
 				// refund remaining coins
 				if input, output, err := k.ReleaseEscrowForMultiSend(batchMsg.Msg.GetSwapRequester(),
@@ -503,7 +519,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 			inputs[newI] = i
 			newI++
 		}
-		if !i.Coins.IsValid(){
+		if !i.Coins.IsValid() {
 			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
 		}
 	}
@@ -515,7 +531,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 			outputs[newI] = i
 			newI++
 		}
-		if !i.Coins.IsValid(){
+		if !i.Coins.IsValid() {
 			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
 		}
 	}

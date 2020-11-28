@@ -10,7 +10,7 @@ import (
 )
 
 // TODO: migrate to msg_server after rebase latest sdk 0.40.0 on milestone2
-// TODO: add detailed logic to each handle, check event output
+// TODO: emit events codes in milestone
 // NewHandler returns a handler for all "liquidity" type messages.
 func NewHandler(k keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
