@@ -10,10 +10,12 @@ import (
 )
 
 const (
-	UnitBatchSize       uint32 = 1
 	CancelOrderLifeSpan int64  = 0
 	MinReserveCoinNum   uint32 = 2
 	MaxReserveCoinNum   uint32 = 2
+
+	// TODO: Develop a case larger than 1 on the next milestone
+	UnitBatchSize uint32 = 1
 
 	DefaultPoolTypeIndex = uint32(1)
 	DefaultSwapType      = uint32(1)
@@ -84,6 +86,13 @@ func DefaultParams() Params {
 // TODO: TBD detail rule for target pool account
 func GetPoolCreationFeePoolAcc() sdk.AccAddress {
 	return sdk.AccAddress(crypto.AddressHash([]byte("PoolCreationFeePool")))
+}
+
+// TODO: temporary Max Order Rate of reserve coin, it can be a param, TBD
+// Maximum Percentage of reserve coins that can be ordered at a order
+func GetMaxOrderRatio() sdk.Dec {
+	DefaultMaxOrderRatio, _ := sdk.NewDecFromStr("0.1")
+	return DefaultMaxOrderRatio
 }
 
 // String returns a human readable string representation of the parameters.

@@ -461,8 +461,8 @@ func CreateTestInput() (*LiquidityApp, sdk.Context) {
 }
 
 func GetRandPoolAmt(r *rand.Rand, minInitDepositAmt sdk.Int) (X, Y sdk.Int) {
-	X = GetRandRange(r, 1, 10000).Mul(minInitDepositAmt)
-	Y = GetRandRange(r, 1, 10000).Mul(minInitDepositAmt)
+	X = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
+	Y = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
 	return
 }
 

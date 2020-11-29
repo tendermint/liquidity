@@ -131,7 +131,6 @@ func (k Keeper) GetReserveCoins(ctx sdk.Context, pool types.LiquidityPool) (rese
 	for _, denom := range pool.ReserveCoinDenoms {
 		reserveCoins = reserveCoins.Add(k.bankKeeper.GetBalance(ctx, pool.GetReserveAccount(), denom))
 	}
-	// TODO: if reserveCoins.Empty(), return zero coin
 	return
 }
 
@@ -269,7 +268,17 @@ func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgW
 }
 
 func (k Keeper) ValidateMsgSwap(ctx sdk.Context, msg types.MsgSwap) error {
-	// TODO: add validate logic
+	pool, found := k.GetLiquidityPool(ctx, msg.PoolId)
+	if !found {
+		return types.ErrPoolNotExists
+	}
+
+	// can not exceed max order ratio  of reserve coins that can be ordered at a order
+	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
+	maximumOrderableAmt := reserveCoinAmt.ToDec().Mul(types.GetMaxOrderRatio()).TruncateInt()
+	if msg.OfferCoin.Amount.GT(maximumOrderableAmt) {
+		return types.ErrExceededMaxOrderable
+	}
 	return nil
 }
 
@@ -398,7 +407,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 			if batchMsg.RemainingOfferCoin.IsPositive() {
 				// not to delete, but expired case
 				if !batchMsg.ToDelete && batchMsg.OrderExpiryHeight <= ctx.BlockHeight() {
-					panic("impossible case ")
+					panic("impossible case")
 					// TODO: set to Delete
 				} else if !batchMsg.ToDelete && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
 					// fractional matched, to be remaining order, not refund, only transact fractional exchange amt

@@ -58,7 +58,7 @@ func (orderBook OrderBook) Reverse() {
 
 type MsgList []*BatchPoolSwapMsg
 
-func (msgList MsgList) LenRemainingMsgs() int {
+func (msgList MsgList) CountNotMatchedMsgs() int {
 	cnt := 0
 	for _, m := range msgList {
 		if m.Executed && !m.Succeed {
@@ -68,7 +68,7 @@ func (msgList MsgList) LenRemainingMsgs() int {
 	return cnt
 }
 
-func (msgList MsgList) LenFractionalMsgs() int {
+func (msgList MsgList) CountFractionalMatchedMsgs() int {
 	cnt := 0
 	for _, m := range msgList {
 		if m.Executed && m.Succeed && !m.ToDelete {
@@ -206,35 +206,41 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 	}
 
 	// TODO: fix naive error rate
-	oneOverWithErr, _ := sdk.NewDecFromStr("1.02")
-	oneUnderWithErr, _ := sdk.NewDecFromStr("0.98")
+	oneOverWithErr, _ := sdk.NewDecFromStr("1.001")
+	oneUnderWithErr, _ := sdk.NewDecFromStr("0.999")
 	if maxBuyOrderPrice.GT(minSellOrderPrice) ||
 		maxBuyOrderPrice.Quo(currentPrice).GT(oneOverWithErr) ||
 		minSellOrderPrice.Quo(currentPrice).LT(oneUnderWithErr) {
-
-		fmt.Println(maxBuyOrderPrice.GT(minSellOrderPrice),
-			maxBuyOrderPrice.Quo(currentPrice).GT(oneOverWithErr),
-			minSellOrderPrice.Quo(currentPrice).LT(oneUnderWithErr))
 		return false
 	} else {
 		return true
 	}
 }
 
-func ClearOrders(msgList []*BatchPoolSwapMsg, currentHeight int64, clearThisHeight bool) []*BatchPoolSwapMsg {
+func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int64, expireThisHeight bool) []*BatchPoolSwapMsg {
 	for _, order := range msgList {
+		if !order.Executed {
+			panic("not executed")
+			continue
+		}
 		if order.RemainingOfferCoin.IsZero() {
+			if !order.Succeed || !order.ToDelete {
+				panic("broken state consistency for not matched order")
+			}
 			order.Succeed = true
 			order.ToDelete = true
 			continue
 		}
 		// set toDelete, expired msgs
 		if currentHeight > order.OrderExpiryHeight {
+			if order.Succeed || !order.ToDelete {
+				panic("broken state consistency for fractional matched order")
+			}
 			order.Succeed = false
 			order.ToDelete = true
 			continue
 		}
-		if clearThisHeight && currentHeight == order.OrderExpiryHeight {
+		if expireThisHeight && currentHeight == order.OrderExpiryHeight {
 			order.ToDelete = true
 		}
 	}
@@ -463,7 +469,7 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 		} else {
 			orderPrice := order.OrderPrice
 			r := CalculateSwap(direction, X, Y, orderPrice, lastOrderPrice, orderBook)
-			// TODO: need to re-check on v2
+			// TODO: need to re-check on milestone 2
 			if (direction == Increase && r.PoolY.ToDec().Sub(r.EX.ToDec().Quo(r.SwapPrice)).GTE(sdk.OneDec())) ||
 				(direction == Decrease && r.PoolX.ToDec().Sub(r.EY.ToDec().Mul(r.SwapPrice)).GTE(sdk.OneDec())) {
 				continue
@@ -486,17 +492,22 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 
 	tmpInvariant := r.EX.Add(r.PoolX).ToDec().Sub(r.EY.Add(r.PoolY).ToDec().Mul(r.SwapPrice))
 	if tmpInvariant.GT(r.SwapPrice) && tmpInvariant.GT(sdk.OneDec()) {
+		fmt.Println(tmpInvariant.GT(r.SwapPrice), tmpInvariant.GT(sdk.OneDec()))
+		fmt.Println(tmpInvariant, r.SwapPrice)
 		panic("maxScenario CalculateSwap")
 	}
 	return maxScenario
 }
 
 // make orderMap key as swap price, value as Buy, Sell Amount from swap msgs,  with split as Buy XtoY, Sell YtoX msg list
-func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string) (OrderMap, []*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
+func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMatched bool) (OrderMap, []*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
 	orderMap := make(OrderMap)
 	var XtoY []*BatchPoolSwapMsg // buying Y from X
 	var YtoX []*BatchPoolSwapMsg // selling Y for X
 	for _, m := range swapMsgs {
+		if onlyNotMatched && (m.ToDelete || m.RemainingOfferCoin.IsZero()) {
+			continue
+		}
 		if m.Msg.OfferCoin.Denom == denomX { // buying Y from X
 			XtoY = append(XtoY, m)
 			if _, ok := orderMap[m.Msg.OrderPrice.String()]; ok {

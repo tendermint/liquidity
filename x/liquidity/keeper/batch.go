@@ -30,6 +30,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 				k.SetLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch.PoolId, withdrawMsgs)
 			}
 
+			// reinitialize remaining batch msgs
 			swapMsgs := k.GetAllRemainingLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
 			if len(swapMsgs) > 0 {
 				for _, msg := range swapMsgs {
