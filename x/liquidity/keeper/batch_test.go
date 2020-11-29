@@ -14,38 +14,79 @@ const (
 	DefaultPoolTypeIndex = uint32(1)
 	DenomX               = "denomX"
 	DenomY               = "denomY"
+	DenomA               = "denomA"
+	DenomB               = "denomB"
 )
 
 func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
 	denoms := []string{denomX, denomY}
+	denomA, denomB := types.AlphabeticalDenomPair(DenomA, DenomB)
+	denomsAB := []string{denomA, denomB}
 
 	X := sdk.NewInt(1000000000)
 	Y := sdk.NewInt(1000000000)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
+	A := sdk.NewInt(1000000000000)
+	B := sdk.NewInt(1000000000000)
+	depositAB := sdk.NewCoins(sdk.NewCoin(denomA, A), sdk.NewCoin(denomB, B))
+
 	// set accounts for creator, depositor, withdrawer, balance for deposit
-	addrs := app.AddTestAddrsIncremental(simapp, ctx, 3, sdk.NewInt(10000))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
+	addrs := app.AddTestAddrs(simapp, ctx, 4, params.LiquidityPoolCreationFee)
+
+	app.SaveAccount(simapp, ctx, addrs[0], deposit.Add(depositAB...)) // pool creator
 	depositX := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 	depositY := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
 	depositBalance := sdk.NewCoins(depositX, depositY)
+	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], DenomA)
+	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	depositBalanceAB := sdk.NewCoins(depositA, depositB)
 	require.Equal(t, deposit, depositBalance)
+	require.Equal(t, depositAB, depositBalanceAB)
 
-	// create Liquidity pool
+	// Success case, create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
+	// Verify PoolCreationFee pay successfully
+	feePoolAcc := types.GetPoolCreationFeePoolAcc()
+	feePoolBalance := simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
+	require.Equal(t, params.LiquidityPoolCreationFee, feePoolBalance)
+
+	// Fail case, reset deposit balance for pool already exists case
+	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	require.Equal(t, types.ErrPoolAlreadyExists, err)
+
+	// reset deposit balance without LiquidityPoolCreationFee of pool creator
+	// Fail case, insufficient balances for pool creation fee case
+	msg = types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denomsAB, depositBalance)
+	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
+
+	// Success case, create another pool
+	msgAB := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denomsAB, depositBalanceAB)
+	app.SaveAccount(simapp, ctx, addrs[0], depositAB.Add(params.LiquidityPoolCreationFee...))
+	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msgAB)
+	require.NoError(t, err)
+
+	// Verify PoolCreationFee pay successfully
+	feePoolBalance = simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
+	require.Equal(t, params.LiquidityPoolCreationFee.Add(params.LiquidityPoolCreationFee...), feePoolBalance)
+
 	// verify created liquidity pool
 	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
 	poolId := lpList[0].PoolId
-	require.Equal(t, 1, len(lpList))
+	require.Equal(t, 2, len(lpList))
 	//require.Equal(t, uint64(1), poolId)
 	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomY, lpList[0].ReserveCoinDenoms[1])
@@ -205,7 +246,8 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 	deposit2 := sdk.NewCoins(sdk.NewCoin(denomX, X.QuoRaw(2)), sdk.NewCoin(denomY, Y.QuoRaw(2)))
 
 	// set accounts for creator, depositor, withdrawer, balance for deposit
-	addrs := app.AddTestAddrsIncremental(simapp, ctx, 3, sdk.NewInt(10000))
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 	app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
 	depositX := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 	depositY := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)

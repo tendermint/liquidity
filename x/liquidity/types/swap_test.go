@@ -13,19 +13,19 @@ import (
 func TestOrderMap(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
 
-	X := sdk.NewInt(1000000000)
-	Y := sdk.NewInt(1000000000)
+	X := params.MinInitDepositToPool
+	Y := params.MinInitDepositToPool
 
-	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	addrs := app.AddTestAddrs(simapp, ctx, 20, params.LiquidityPoolCreationFee)
 	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	// begin block, init
-	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, true)
-	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:1], poolId, true)
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -44,24 +44,28 @@ func TestOrderMap(t *testing.T) {
 	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
 	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
 	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
-	orderMap, XtoY, YtoX := types.GetOrderMap(msgs, denomX, denomY)
+	for _, msg := range msgs {
+		msg.Executed = true
+	}
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, msgs)
+	orderMap, XtoY, YtoX := types.GetOrderMap(msgs, denomX, denomY, false)
 	orderBook := orderMap.SortOrderBook()
 	currentPrice := X.Quo(Y).ToDec()
 	require.Equal(t, orderMap[orderPriceList[0].String()].BuyOfferAmt, offerCoinList[0].Amount.MulRaw(3))
 	require.Equal(t, orderMap[orderPriceList[0].String()].OrderPrice, orderPriceList[0])
 
-	require.Equal(t,3, len(XtoY))
+	require.Equal(t, 3, len(XtoY))
 	require.Equal(t, 1, len(YtoX))
-	require.Equal(t,3, len(orderMap[orderPriceList[0].String()].MsgList))
-	require.Equal(t,1, len(orderMap[orderPriceListY[0].String()].MsgList))
-	require.Equal(t,3, len(orderBook[0].MsgList))
-	require.Equal(t,1, len(orderBook[1].MsgList))
+	require.Equal(t, 3, len(orderMap[orderPriceList[0].String()].MsgList))
+	require.Equal(t, 1, len(orderMap[orderPriceListY[0].String()].MsgList))
+	require.Equal(t, 3, len(orderBook[0].MsgList))
+	require.Equal(t, 1, len(orderBook[1].MsgList))
 
 	fmt.Println(orderBook, currentPrice)
 	fmt.Println(XtoY, YtoX)
 
-	clearedXtoY := types.ClearOrders(XtoY, ctx.BlockHeight(), false)
-	clearedYtoX := types.ClearOrders(YtoX, ctx.BlockHeight(), false)
+	clearedXtoY := types.ValidateStateAndExpireOrders(XtoY, ctx.BlockHeight(), false)
+	clearedYtoX := types.ValidateStateAndExpireOrders(YtoX, ctx.BlockHeight(), false)
 	require.Equal(t, XtoY, clearedXtoY)
 	require.Equal(t, YtoX, clearedYtoX)
 
@@ -81,14 +85,12 @@ func TestOrderMap(t *testing.T) {
 	XtoY, YtoX, XDec, YDec, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		simapp.LiquidityKeeper.UpdateState(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
-	clearedXtoY = types.ClearOrders(XtoY, ctx.BlockHeight(), true)
-	clearedYtoX = types.ClearOrders(YtoX, ctx.BlockHeight(), true)
-	require.Equal(t, 0, (types.MsgList)(clearedXtoY).LenRemainingMsgs())
-	require.Equal(t, 0, (types.MsgList)(clearedXtoY).LenFractionalMsgs())
-	require.Equal(t, 0, (types.MsgList)(clearedYtoX).LenRemainingMsgs())
-	require.Equal(t, 0, (types.MsgList)(clearedYtoX).LenFractionalMsgs())
-	require.Equal(t,1, len(clearedYtoX))
-	require.Equal(t,0, len(clearedXtoY))
+	require.Equal(t, 0, (types.MsgList)(clearedXtoY).CountNotMatchedMsgs())
+	require.Equal(t, 0, (types.MsgList)(clearedXtoY).CountFractionalMatchedMsgs())
+	require.Equal(t, 1, (types.MsgList)(clearedYtoX).CountNotMatchedMsgs())
+	require.Equal(t, 0, (types.MsgList)(clearedYtoX).CountFractionalMatchedMsgs())
+	require.Equal(t, 3, len(clearedXtoY))
+	require.Equal(t, 1, len(clearedYtoX))
 
 	fmt.Println(matchResultXtoY)
 	fmt.Println(poolXDeltaXtoY)
@@ -101,15 +103,119 @@ func TestOrderMap(t *testing.T) {
 	// TODO: detailed assertion
 	// TODO: debug Ydec 999970003, poolYdelta2, poolYDeltaXtoY -29997
 
-
-	orderMapExecuted, _, _ := types.GetOrderMap(append(clearedXtoY, clearedYtoX...), denomX, denomY)
+	orderMapExecuted, _, _ := types.GetOrderMap(append(clearedXtoY, clearedYtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	lastPrice := XDec.Quo(YDec)
+	fmt.Println("lastPrice", lastPrice)
+	fmt.Println("X", XDec)
+	fmt.Println("Y", YDec)
 	require.True(t, types.CheckValidityOrderBook(orderBookExecuted, lastPrice))
 
-	require.Equal(t,0, (types.MsgList)(orderMapExecuted[orderPriceList[0].String()].MsgList).LenRemainingMsgs())
-	require.Equal(t,0, (types.MsgList)(orderMapExecuted[orderPriceListY[0].String()].MsgList).LenRemainingMsgs())
-	require.Equal(t,0, (types.MsgList)(orderBookExecuted[0].MsgList).LenRemainingMsgs())
+	require.Equal(t, 0, (types.MsgList)(orderMapExecuted[orderPriceList[0].String()].MsgList).CountNotMatchedMsgs())
+	require.Equal(t, 1, (types.MsgList)(orderMapExecuted[orderPriceListY[0].String()].MsgList).CountNotMatchedMsgs())
+	require.Equal(t, 1, (types.MsgList)(orderBookExecuted[0].MsgList).CountNotMatchedMsgs())
+
+	clearedXtoY = types.ValidateStateAndExpireOrders(XtoY, ctx.BlockHeight(), true)
+	clearedYtoX = types.ValidateStateAndExpireOrders(YtoX, ctx.BlockHeight(), true)
+
+	orderMapCleared, _, _ := types.GetOrderMap(append(clearedXtoY, clearedYtoX...), denomX, denomY, true)
+	orderBookCleared := orderMapCleared.SortOrderBook()
+	require.True(t, types.CheckValidityOrderBook(orderBookCleared, lastPrice))
+
+	require.Equal(t, 0, (types.MsgList)(orderMapCleared[orderPriceList[0].String()].MsgList).CountNotMatchedMsgs())
+	require.Equal(t, 0, (types.MsgList)(orderMapCleared[orderPriceListY[0].String()].MsgList).CountNotMatchedMsgs())
+	require.Equal(t, 0, len(orderBookCleared))
+}
+
+func TestMaxOrderRatio(t *testing.T) {
+	simapp, ctx := app.CreateTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	// define test denom X, Y for Liquidity Pool
+	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
+
+	X := params.MinInitDepositToPool
+	Y := params.MinInitDepositToPool
+
+	addrs := app.AddTestAddrs(simapp, ctx, 20, params.LiquidityPoolCreationFee)
+	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+
+	// begin block, init
+	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:1], poolId, true)
+
+	// next block
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	maxOrderRatio := types.GetMaxOrderRatio()
+
+	// Success case, not exceed GetMaxOrderRatio orders
+	priceBuy, _ := sdk.NewDecFromStr("1.1")
+	priceSell, _ := sdk.NewDecFromStr("1.2")
+
+	offerCoin := sdk.NewCoin(denomX, sdk.NewInt(100))
+	offerCoinY := sdk.NewCoin(denomY, sdk.NewInt(100))
+
+	app.SaveAccount(simapp, ctx, addrs[1], sdk.NewCoins(offerCoin))
+	app.SaveAccount(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY))
+
+	msgBuy := types.NewMsgSwap(addrs[1], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoin, DenomY, priceBuy)
+	msgSell := types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomY, priceSell)
+
+	_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgBuy)
+	require.NoError(t, err)
+
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgSell)
+	require.NoError(t, err)
+
+	// Fail case, exceed GetMaxOrderRatio orders
+	offerCoin = sdk.NewCoin(denomX, X)
+	offerCoinY = sdk.NewCoin(denomY, Y)
+
+	app.SaveAccount(simapp, ctx, addrs[1], sdk.NewCoins(offerCoin))
+	app.SaveAccount(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY))
+
+	msgBuy = types.NewMsgSwap(addrs[1], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoin, DenomY, priceBuy)
+	msgSell = types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomY, priceSell)
+
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgBuy)
+	require.Equal(t, types.ErrExceededMaxOrderable, err)
+
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgSell)
+	require.Equal(t, types.ErrExceededMaxOrderable, err)
+
+	// Success case, same GetMaxOrderRatio orders
+	offerCoin = sdk.NewCoin(denomX, X.ToDec().Mul(maxOrderRatio).TruncateInt())
+	offerCoinY = sdk.NewCoin(denomY, Y.ToDec().Mul(maxOrderRatio).TruncateInt())
+
+	app.SaveAccount(simapp, ctx, addrs[1], sdk.NewCoins(offerCoin))
+	app.SaveAccount(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY))
+
+	msgBuy = types.NewMsgSwap(addrs[1], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoin, DenomY, priceBuy)
+	msgSell = types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomY, priceSell)
+
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgBuy)
+	require.NoError(t, err)
+
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgSell)
+	require.NoError(t, err)
+
+	// Success case, same GetMaxOrderRatio orders
+	offerCoin = sdk.NewCoin(denomX, X.ToDec().Mul(maxOrderRatio).TruncateInt().AddRaw(1))
+	offerCoinY = sdk.NewCoin(denomY, Y.ToDec().Mul(maxOrderRatio).TruncateInt().AddRaw(1))
+
+	app.SaveAccount(simapp, ctx, addrs[1], sdk.NewCoins(offerCoin))
+	app.SaveAccount(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY))
+
+	msgBuy = types.NewMsgSwap(addrs[1], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoin, DenomY, priceBuy)
+	msgSell = types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomY, priceSell)
+
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgBuy)
+	require.Equal(t, types.ErrExceededMaxOrderable, err)
+
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgSell)
+	require.Equal(t, types.ErrExceededMaxOrderable, err)
 
 }
 
@@ -160,7 +266,6 @@ func TestOrderBookSort(t *testing.T) {
 	require.Equal(t, a, orderBook[2].OrderPrice)
 	require.Equal(t, b, orderBook[1].OrderPrice)
 	require.Equal(t, c, orderBook[0].OrderPrice)
-
 }
 
 func TestMinMaxDec(t *testing.T) {
@@ -275,8 +380,8 @@ func TestGetPriceDirection(t *testing.T) {
 	a, _ = sdk.NewDecFromStr("1.0")
 
 	orderMap[a.String()] = types.OrderByPrice{
-		OrderPrice: a,
-		BuyOfferAmt: sdk.NewInt(50000000),
+		OrderPrice:   a,
+		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.NewInt(50000000),
 	}
 	orderBook = orderMap.SortOrderBook()
@@ -353,8 +458,8 @@ func TestComputePriceDirection(t *testing.T) {
 	a, _ = sdk.NewDecFromStr("1.0")
 
 	orderMap[a.String()] = types.OrderByPrice{
-		OrderPrice: a,
-		BuyOfferAmt: sdk.NewInt(50000000),
+		OrderPrice:   a,
+		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.NewInt(50000000),
 	}
 	orderBook = orderMap.SortOrderBook()

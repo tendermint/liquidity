@@ -17,16 +17,16 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	if !found {
 		return types.ErrPoolNotExists
 	}
-	params := k.GetParams(ctx)
-	currentHeight := ctx.BlockHeight()
-
-	swapMsgs = types.ClearOrders(swapMsgs, currentHeight, false)
-
 	// set all msgs to executed
 	for _, msg := range swapMsgs {
 		msg.Executed = true
 	}
 	k.SetLiquidityPoolBatchSwapMsgs(ctx, pool.PoolId, swapMsgs)
+
+	params := k.GetParams(ctx)
+	currentHeight := ctx.BlockHeight()
+
+	swapMsgs = types.ValidateStateAndExpireOrders(swapMsgs, currentHeight, false)
 
 	// get reserve Coin from the liquidity pool
 	reserveCoins := k.GetReserveCoins(ctx, pool)
@@ -41,7 +41,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	denomY := reserveCoins[1].Denom
 
 	// make orderMap, orderbook by sort orderMap
-	orderMap, XtoY, YtoX := types.GetOrderMap(swapMsgs, denomX, denomY)
+	orderMap, XtoY, YtoX := types.GetOrderMap(swapMsgs, denomX, denomY, false)
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
@@ -65,7 +65,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		poolYdelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
 
-
 	XtoY, YtoX, X, Y, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		k.UpdateState(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
@@ -73,10 +72,10 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	fmt.Println("lastPrice ", lastPrice)
 
 	fmt.Println("result.SwapPrice, X, Y, currentYPriceOverX", result.SwapPrice, X, Y, currentYPriceOverX)
-	if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != (types.MsgList)(XtoY).LenRemainingMsgs()+(types.MsgList)(XtoY).LenFractionalMsgs() {
+	if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != (types.MsgList)(XtoY).CountNotMatchedMsgs()+(types.MsgList)(XtoY).CountFractionalMatchedMsgs() {
 		panic(beforeXtoYLen)
 	}
-	if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != (types.MsgList)(YtoX).LenRemainingMsgs()+(types.MsgList)(YtoX).LenFractionalMsgs() {
+	if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != (types.MsgList)(YtoX).CountNotMatchedMsgs()+(types.MsgList)(YtoX).CountFractionalMatchedMsgs() {
 		panic(beforeYtoXLen)
 	}
 
@@ -129,24 +128,24 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	fmt.Println("matched totalAmtX, totalAmtY", totalAmtX, totalAmtY)
 	fmt.Println("poolXdelta, poolYdelta", poolXdelta, poolYdelta, poolXdelta2, poolYdelta2)
 
-
 	if !poolXdelta.Add(decimalErrorX).Equal(poolXdelta2) || !poolYdelta.Add(decimalErrorY).Equal(poolYdelta2) {
 		panic(poolXdelta)
 	}
 
-	XtoY = types.ClearOrders(XtoY, currentHeight, true)
-	YtoX = types.ClearOrders(YtoX, currentHeight, true)
-
-	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY)
+	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	fmt.Println("orderbook after batch")
 	orderBookValidity := types.CheckValidityOrderBook(orderBookExecuted, lastPrice)
-	fmt.Println("after orderBookValidity", orderBookValidity)
+	fmt.Println("orderBookValidity:", orderBookValidity)
 	if !orderBookValidity {
-		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity", orderBookExecuted)
-		panic(orderBookValidity)
+		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity")
+		for _, v := range orderBookExecuted {
+			fmt.Println(v)
+		}
+		panic(types.ErrOrderBookInvalidity)
 	}
-
+	XtoY = types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
+	YtoX = types.ValidateStateAndExpireOrders(YtoX, currentHeight, true)
 
 	// Make index map for match result
 	matchResultMap := make(map[uint64]types.MatchResult)
@@ -168,7 +167,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 			panic("map broken1")
 		}
 	}
-	if len(matchResultXtoY) + len(matchResultYtoX) != len(matchResultMap) {
+	if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
 		panic("match result map err")
 	}
 
@@ -187,7 +186,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		}
 	}
 	for _, msg := range swapMsgs {
-		for _, msgAfter := range XtoY{
+		for _, msgAfter := range XtoY {
 			if msg.MsgIndex == msgAfter.MsgIndex {
 				if *(msg) != *(msgAfter) || msg != msgAfter {
 					panic("msg not matched")
@@ -196,7 +195,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 				}
 			}
 		}
-		for _, msgAfter := range YtoX{
+		for _, msgAfter := range YtoX {
 			if msg.MsgIndex == msgAfter.MsgIndex {
 				if *(msg) != *(msgAfter) || msg != msgAfter {
 					panic("msg not matched")
@@ -207,7 +206,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		}
 		if msgAfter, ok := matchResultMap[msg.MsgIndex]; ok {
 			if msg.MsgIndex == msgAfter.BatchMsg.MsgIndex {
-				if *(msg) != *(msgAfter.BatchMsg) || msg != msgAfter.BatchMsg  {
+				if *(msg) != *(msgAfter.BatchMsg) || msg != msgAfter.BatchMsg {
 					panic("msg not matched")
 				} else {
 					break
@@ -249,8 +248,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 
 	poolXdelta := sdk.ZeroInt()
 	poolYdelta := sdk.ZeroInt()
-	var matchedOrderMsgIndexListXtoY []uint64
-	var matchedOrderMsgIndexListYtoX []uint64
 	matchedIndexMapXtoY := make(map[uint64]sdk.Coin)
 	matchedIndexMapYtoX := make(map[uint64]sdk.Coin)
 	fractionalCntX := 0
@@ -277,7 +274,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				match.BatchMsg.Succeed = true
 				match.BatchMsg.ToDelete = true
 			}
-			matchedOrderMsgIndexListXtoY = append(matchedOrderMsgIndexListXtoY, match.BatchMsg.MsgIndex)
 		} else if match.BatchMsg.Msg.OfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) ||
 			match.BatchMsg.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) { // TODO: need to verify logic
 			decimalErrorX = decimalErrorX.Add(sdk.OneInt())
@@ -297,7 +293,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				match.BatchMsg.Succeed = true
 				match.BatchMsg.ToDelete = true
 			}
-			matchedOrderMsgIndexListXtoY = append(matchedOrderMsgIndexListXtoY, match.BatchMsg.MsgIndex)
 		} else {
 			// fractional match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
@@ -307,30 +302,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 			match.BatchMsg.ToDelete = false
 			fractionalCntX += 1
 		}
-	}
-	if len(matchedOrderMsgIndexListXtoY) > 0 {
-		newI := 0
-		for _, order := range XtoY {
-			if _, ok := matchedIndexMapXtoY[order.MsgIndex]; ok {
-			}
-			removeFlag := false
-			for _, i := range matchedOrderMsgIndexListXtoY {
-				if i == order.MsgIndex {
-					// TODO: check flag
-					//order.Succeed = true
-					//order.ToDelete = true
-					removeFlag = true
-					break
-				}
-			}
-			if !removeFlag {
-				XtoY[newI] = order
-				newI += 1
-			}
-			removeFlag = false
-
-		}
-		XtoY = XtoY[:newI]
 	}
 	for _, match := range matchResultYtoX {
 		poolXdelta = poolXdelta.Sub(match.ExchangedDemandCoinAmt)
@@ -351,7 +322,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				match.BatchMsg.Succeed = true
 				match.BatchMsg.ToDelete = true
 			}
-			matchedOrderMsgIndexListYtoX = append(matchedOrderMsgIndexListYtoX, match.BatchMsg.MsgIndex)
 		} else if match.BatchMsg.Msg.OfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) ||
 			match.BatchMsg.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) { // TODO: need to verify logic
 			decimalErrorY = decimalErrorY.Add(sdk.OneInt())
@@ -372,7 +342,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				match.BatchMsg.Succeed = true
 				match.BatchMsg.ToDelete = true
 			}
-			matchedOrderMsgIndexListYtoX = append(matchedOrderMsgIndexListYtoX, match.BatchMsg.MsgIndex)
 		} else {
 			// fractional match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
@@ -383,30 +352,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 			fractionalCntY += 1
 		}
 	}
-	if len(matchedOrderMsgIndexListYtoX) > 0 {
-		newI := 0
-		for _, order := range YtoX {
-			if _, ok := matchedIndexMapYtoX[order.MsgIndex]; ok {
-			}
-			removeFlag := false
-			for _, i := range matchedOrderMsgIndexListYtoX {
-				if i == order.MsgIndex {
-					// TODO: check flag
-					//order.Succeed = true
-					//order.ToDelete = true
-					removeFlag = true
-					break
-				}
-			}
-			if !removeFlag {
-				YtoX[newI] = order
-				newI += 1
-			}
-			removeFlag = false
-
-		}
-		YtoX = YtoX[:newI]
-	}
 
 	poolXdelta = poolXdelta.Add(decimalErrorX)
 	poolYdelta = poolYdelta.Add(decimalErrorY)
@@ -416,4 +361,3 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 
 	return XtoY, YtoX, X, Y, poolXdelta, poolYdelta, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY
 }
-

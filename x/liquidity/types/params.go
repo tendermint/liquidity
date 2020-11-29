@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"github.com/tendermint/tendermint/crypto"
 	"gopkg.in/yaml.v2"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -9,13 +10,15 @@ import (
 )
 
 const (
-	UnitBatchSize       uint32 = 1
 	CancelOrderLifeSpan int64  = 0
 	MinReserveCoinNum   uint32 = 2
 	MaxReserveCoinNum   uint32 = 2
 
+	// TODO: Develop a case larger than 1 on the next milestone
+	UnitBatchSize uint32 = 1
+
 	DefaultPoolTypeIndex = uint32(1)
-	DefaultSwapType = uint32(1)
+	DefaultSwapType      = uint32(1)
 )
 
 // Parameter store keys
@@ -24,11 +27,14 @@ var (
 	KeyMinInitDepositToPool     = []byte("MinInitDepositToPool")
 	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
 	KeySwapFeeRate              = []byte("SwapFeeRate")
-	KeyLiquidityPoolFeeRate     = []byte("LiquidityPoolFeeRate")
 	KeyLiquidityPoolCreationFee = []byte("LiquidityPoolCreationFee")
 	KeyUnitBatchSize            = []byte("UnitBatchSize")
 
-	DefaultLiquidityPoolType = LiquidityPoolType{
+	DefaultMinInitDepositToPool     = sdk.NewInt(1000000)
+	DefaultInitPoolCoinMintAmount   = sdk.NewInt(1000000)
+	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
+	DefaultLiquidityPoolCreationFee = sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100000000)))
+	DefaultLiquidityPoolType        = LiquidityPoolType{
 		PoolTypeIndex:     1,
 		Name:              "DefaultPoolType",
 		MinReserveCoinNum: MinReserveCoinNum,
@@ -71,10 +77,22 @@ func DefaultParams() Params {
 
 	return NewParams(
 		defaultLiquidityPoolTypes,
-		sdk.NewInt(1000000),
-		sdk.NewInt(1000000),
-		sdk.NewDecWithPrec(3, 3), // "0.001000000000000000"
-		sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100000000))))
+		DefaultMinInitDepositToPool,
+		DefaultInitPoolCoinMintAmount,
+		DefaultSwapFeeRate,
+		DefaultLiquidityPoolCreationFee)
+}
+
+// TODO: TBD detail rule for target pool account
+func GetPoolCreationFeePoolAcc() sdk.AccAddress {
+	return sdk.AccAddress(crypto.AddressHash([]byte("PoolCreationFeePool")))
+}
+
+// TODO: temporary Max Order Rate of reserve coin, it can be a param, TBD
+// Maximum Percentage of reserve coins that can be ordered at a order
+func GetMaxOrderRatio() sdk.Dec {
+	DefaultMaxOrderRatio, _ := sdk.NewDecFromStr("0.1")
+	return DefaultMaxOrderRatio
 }
 
 // String returns a human readable string representation of the parameters.

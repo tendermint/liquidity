@@ -244,10 +244,20 @@ func setTotalSupply(app *LiquidityApp, ctx sdk.Context, accAmt sdk.Int, totalAcc
 	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))
 }
 
+func addTotalSupply(app *LiquidityApp, ctx sdk.Context, coins sdk.Coins) {
+	prevSupply := app.BankKeeper.GetSupply(ctx)
+	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(coins...)))
+}
+
 // AddTestAddrs constructs and returns accNum amount of accounts with an
 // initial balance of accAmt in random order
-func AddTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Int) []sdk.AccAddress {
-	return addTestAddrs(app, ctx, accNum, accAmt, createRandomAccounts)
+func AddTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, initCoins sdk.Coins) []sdk.AccAddress {
+	testAddrs := createIncrementalAccounts(accNum)
+	for _, addr := range testAddrs {
+		addTotalSupply(app, ctx, initCoins)
+		SaveAccount(app, ctx, addr, initCoins)
+	}
+	return testAddrs
 }
 
 // AddTestAddrs constructs and returns accNum amount of accounts with an
@@ -450,7 +460,13 @@ func CreateTestInput() (*LiquidityApp, sdk.Context) {
 	return app, ctx
 }
 
-func GetRandPoolAmt(r *rand.Rand) (X, Y sdk.Int) {
+func GetRandPoolAmt(r *rand.Rand, minInitDepositAmt sdk.Int) (X, Y sdk.Int) {
+	X = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
+	Y = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
+	return
+}
+
+func GetRandPoolAmtLegacy(r *rand.Rand) (X, Y sdk.Int) {
 	X = sdk.NewInt(int64(r.Float32() * 1000000000000))
 	Y = sdk.NewInt(int64(r.Float32() * 1000000000000))
 	return
@@ -540,9 +556,9 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sdk.Int, denomX, denomY string, addr sdk.AccAddress) uint64 {
 	denoms := []string{denomX, denomY}
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
-
+	params := simapp.LiquidityKeeper.GetParams(ctx)
 	// set accounts for creator, depositor, withdrawer, balance for deposit
-	SaveAccount(simapp, ctx, addr, deposit) // pool creator
+	SaveAccount(simapp, ctx, addr, deposit.Add(params.LiquidityPoolCreationFee...)) // pool creator
 	depositX := simapp.BankKeeper.GetBalance(ctx, addr, denomX)
 	depositY := simapp.BankKeeper.GetBalance(ctx, addr, denomY)
 	depositBalance := sdk.NewCoins(depositX, depositY)
@@ -766,4 +782,3 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 	}
 	return batchPoolSwapMsgList, batch
 }
-

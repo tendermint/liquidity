@@ -72,3 +72,8 @@ liquidity_pool_creation_fee:
 	require.Error(t, params.Validate())
 
 }
+
+func TestGetPoolCreationFeePoolAcc(t *testing.T) {
+	poolCreationFeePoolAcc := types.GetPoolCreationFeePoolAcc()
+	require.Equal(t, "cosmos1ux8lymc6af2cqzpzshyrjtcurnchlqyqclke67", poolCreationFeePoolAcc.String())
+}
