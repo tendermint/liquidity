@@ -463,7 +463,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					// TODO: set to Delete
 				}
 			} else if batchMsg.RemainingOfferCoin.IsZero() {
-				// Add transacted coins to multisend
+				// full matched case, Add transacted coins to multisend
 				inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
 					sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.Sub(msgAfter.FeeAmt)))))
 				outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,

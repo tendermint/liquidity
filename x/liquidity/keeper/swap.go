@@ -132,16 +132,46 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		panic(poolXdelta)
 	}
 
+	XtoY = types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
+	YtoX = types.ValidateStateAndExpireOrders(YtoX, currentHeight, false)
+
 	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	fmt.Println("orderbook after batch")
 	orderBookValidity := types.CheckValidityOrderBook(orderBookExecuted, lastPrice)
+	for _, v := range orderBookExecuted {
+		fmt.Println(v)
+	}
+
+	// TODO: WIP new validity
+	validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
+	fmt.Println("validitySwapPrice:", validitySwapPrice)
+	if !validitySwapPrice {
+		panic("validitySwapPrice")
+	}
+
+	// TODO: WIP new validity
+	var validityMustExecutable bool
+	if result.SwapPrice.IsZero() {
+		validityMustExecutable = types.CheckValidityMustExecutable(orderBookExecuted, lastPrice)
+	} else {
+		validityMustExecutable = types.CheckValidityMustExecutable(orderBookExecuted, result.SwapPrice)
+	}
+	fmt.Println("validityMustExecutable:", validityMustExecutable)
+	//if !validityMustExecutable {
+	//	panic("CheckValidityMustExecutable")
+	//}
+
+	// TODO: WIP new validity
+	errThreshold, _ := sdk.NewDecFromStr("0.001")
+	if lastPrice.Quo(result.SwapPrice).Sub(sdk.OneDec()).Abs().GT(errThreshold) {
+		fmt.Println(lastPrice, lastPrice.Quo(result.SwapPrice.Sub(sdk.OneDec())), lastPrice.Quo(result.SwapPrice.Sub(sdk.OneDec())).Abs())
+		panic("abs(lastPrice/swapPrice-1) > 0.001")
+	}
+
 	fmt.Println("orderBookValidity:", orderBookValidity)
 	if !orderBookValidity {
 		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity")
-		for _, v := range orderBookExecuted {
-			fmt.Println(v)
-		}
 		panic(types.ErrOrderBookInvalidity)
 	}
 	XtoY = types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
