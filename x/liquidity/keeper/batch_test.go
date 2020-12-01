@@ -608,6 +608,7 @@ func TestLiquidityScenario5(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 }
 
+// Verification of results when deposit 30A and 20B is put into a reserve pool with 100A and 200B deposited
 // state : 100A, 200B, 10PoolCoin(total supply)
 // deposit 30A, 20B ->
 // - 10A, 20B
@@ -646,6 +647,7 @@ func TestLiquidityScenario6(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 }
 
+// Verification of results when deposit 10A and 20B is put into a reserve pool with 100A and 200B deposited
 // state : 100A, 200B, 10PoolCoin(total supply)
 // deposit 10A, 30B ->
 // - 10A, 20B
@@ -683,6 +685,7 @@ func TestLiquidityScenario7(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 }
 
+// Verification of results when withdraw 1 PoolCoin from a reserve pool with 100A and 200B deposited
 // state : 100A, 200B, 10PoolCoin(total supply)
 // withdraw 1 PoolCoin ->
 // - 1 PoolCoin burned

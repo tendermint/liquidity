@@ -45,7 +45,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
-	result := types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
+	result := types.MatchOrderbook(X, Y, currentYPriceOverX, orderBook)
 	fmt.Println("batch Result before", result)
 
 	// find order match, calculate pool delta with the total x, y amount for the invariant check

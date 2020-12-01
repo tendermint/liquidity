@@ -10,27 +10,35 @@ import (
 	"testing"
 )
 
-func TestOrderMap(t *testing.T) {
+func TestSwapScenario(t *testing.T) {
+	// init test app and context
 	simapp, ctx := app.CreateTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
-
 	X := params.MinInitDepositToPool
 	Y := params.MinInitDepositToPool
 
+	// init addresses for the test
 	addrs := app.AddTestAddrs(simapp, ctx, 20, params.LiquidityPoolCreationFee)
+
+	// Create pool
+	// The create pool msg is not run in batch, but is processed immediately.
 	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
-	// begin block, init
+	// In case of deposit, withdraw, and swap msg, unlike other normal tx msgs,
+	// collect them in the batch and perform an execution at once at the endblock.
+
+	// add a deposit to pool and run batch execution on endblock
 	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:1], poolId, true)
 
-	// next block
+	// next block, reinitialize batch and increase batchIndex at beginBlocker,
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
+	// Create swap msg for test purposes and put it in the batch.
 	price, _ := sdk.NewDecFromStr("1.1")
 	priceY, _ := sdk.NewDecFromStr("1.2")
 	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
@@ -43,11 +51,15 @@ func TestOrderMap(t *testing.T) {
 	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
 	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
 	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
+
+	// Set the execution status flag of messages to true.
 	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
 	for _, msg := range msgs {
 		msg.Executed = true
 	}
 	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, msgs)
+
+	// Generate an orderbook by arranging swap messages in order price
 	orderMap, XtoY, YtoX := types.GetOrderMap(msgs, denomX, denomY, false)
 	orderBook := orderMap.SortOrderBook()
 	currentPrice := X.Quo(Y).ToDec()
@@ -72,9 +84,10 @@ func TestOrderMap(t *testing.T) {
 	require.False(t, types.CheckValidityOrderBook(orderBook, currentPrice))
 
 	currentYPriceOverX := X.Quo(Y).ToDec()
-	//direction := types.GetPriceDirection(currentYPriceOverX, orderBook)
-	result := types.ComputePriceDirection(X.ToDec(), Y.ToDec(), currentYPriceOverX, orderBook)
 
+	// The price and coins of swap messages in orderbook are calculated
+	// to derive match result with the price direction.
+	result := types.MatchOrderbook(X.ToDec(), Y.ToDec(), currentYPriceOverX, orderBook)
 	require.NotEqual(t, types.NoMatch, result.MatchType)
 
 	matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY := types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX,
@@ -100,9 +113,8 @@ func TestOrderMap(t *testing.T) {
 	fmt.Println(poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY)
 	fmt.Println(decimalErrorX, decimalErrorY)
 	fmt.Println(XDec, YDec)
-	// TODO: detailed assertion
-	// TODO: debug Ydec 999970003, poolYdelta2, poolYDeltaXtoY -29997
 
+	// Verify swap result by creating an orderbook with remaining messages that have been matched and not transacted.
 	orderMapExecuted, _, _ := types.GetOrderMap(append(clearedXtoY, clearedYtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	lastPrice := XDec.Quo(YDec)
@@ -419,7 +431,7 @@ func TestComputePriceDirection(t *testing.T) {
 
 	currentYPriceOverX := X.Quo(Y)
 	direction := types.GetPriceDirection(currentYPriceOverX, orderBook)
-	result := types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
+	result := types.MatchOrderbook(X, Y, currentYPriceOverX, orderBook)
 	require.Equal(t, types.CalculateMatch(direction, X, Y, currentYPriceOverX, orderBook), result)
 
 	// decrease case
@@ -450,7 +462,7 @@ func TestComputePriceDirection(t *testing.T) {
 
 	currentYPriceOverX = X.Quo(Y)
 	direction = types.GetPriceDirection(currentYPriceOverX, orderBook)
-	result = types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
+	result = types.MatchOrderbook(X, Y, currentYPriceOverX, orderBook)
 	require.Equal(t, types.CalculateMatch(direction, X, Y, currentYPriceOverX, orderBook), result)
 
 	// stay case
@@ -468,6 +480,6 @@ func TestComputePriceDirection(t *testing.T) {
 	Y = orderMap[a.String()].SellOfferAmt.ToDec()
 	currentYPriceOverX = X.Quo(Y)
 
-	result = types.ComputePriceDirection(X, Y, currentYPriceOverX, orderBook)
+	result = types.MatchOrderbook(X, Y, currentYPriceOverX, orderBook)
 	require.Equal(t, types.CalculateMatchStay(currentYPriceOverX, orderBook), result)
 }
