@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -11,12 +10,12 @@ import (
 
 // TODO: after rebase latest stable sdk 0.40.0 for other endpoints
 func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
-	// create liquidityPool
-	r.HandleFunc(fmt.Sprintf("/liquidity/pool"), newLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
-	// deposit to liquidityPool
-	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/deposit", RestPoolId), newDepositLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
-	// withdraw from liquidityPool
-	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/withdraw", RestPoolId), newWithdrawLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
+	//// create liquidityPool
+	//r.HandleFunc(fmt.Sprintf("/liquidity/pool"), newLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
+	//// deposit to liquidityPool
+	//r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/deposit", RestPoolId), newDepositLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
+	//// withdraw from liquidityPool
+	//r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}/withdraw", RestPoolId), newWithdrawLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
 }
 
 func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {

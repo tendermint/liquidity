@@ -2,7 +2,7 @@ package types
 
 const (
 	// QueryLiquidityPool liquidity query endpoint supported by the liquidity querier
-	QueryLiquidityPool = "liquidityPool"
+	QueryLiquidityPool = "liquidity_pool"
 )
 
 // QueryLiquidityPoolParams is the query parameters for 'custom/liquidity'

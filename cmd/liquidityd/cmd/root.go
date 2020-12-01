@@ -32,7 +32,6 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	liquidity "github.com/tendermint/liquidity/app"
-	liquiditycmd "github.com/tendermint/liquidity/x/liquidity/client/cli"
 )
 
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
@@ -121,7 +120,7 @@ func queryCommand() *cobra.Command {
 		rpc.BlockCommand(),
 		authcmd.QueryTxsByEventsCmd(),
 		authcmd.QueryTxCmd(),
-		liquiditycmd.GetQueryCmd(),
+		//liquiditycmd.GetQueryCmd(),
 	)
 
 	liquidity.ModuleBasics.AddQueryCommands(cmd)

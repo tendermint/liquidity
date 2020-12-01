@@ -14,7 +14,7 @@ import (
 // TODO: after rebase latest stable sdk 0.40.0 for other endpoints
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// query liquidity
-	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId), queryLiquidityHandlerFn(cliCtx)).Methods("GET")
+	//r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId), queryLiquidityHandlerFn(cliCtx)).Methods("GET")
 }
 
 // HTTP request handler to query liquidity information.
@@ -42,6 +42,7 @@ func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryLiquidityPool)
+		fmt.Println(route)
 		res, height, err := cliCtx.QueryWithData(route, bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
