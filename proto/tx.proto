@@ -63,6 +63,7 @@ message MsgCreateLiquidityPoolRequest {
     MsgCreateLiquidityPool msg = 1;
 }
 
+// todo: as tendermint, sdk tx response
 message MsgCreateLiquidityPoolResponse { }
 
 message MsgDepositToLiquidityPool {
@@ -83,6 +84,7 @@ message MsgDepositToLiquidityPoolRequest {
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
 }
 
+// todo: as tendermint, sdk tx response
 message MsgDepositToLiquidityPoolResponse { }
 
 message MsgWithdrawFromLiquidityPool {
@@ -118,7 +120,7 @@ message MsgSwap {
      (gogoproto.moretags)     = "yaml:\"offer_coin\""
   ];
 
-  string demandCoinDenom = 6 [(gogoproto.moretags) = "yaml:\"demand_coin_denom\""];
+  string demand_coin_denom = 6 [(gogoproto.moretags) = "yaml:\"demand_coin_denom\""];
 
   bytes order_price = 7 [
     (gogoproto.moretags)   = "yaml:\"order_price\"",
@@ -132,4 +134,5 @@ message MsgSwapRequest {
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
 }
 
+// todo: as tendermint, sdk tx response
 message MsgSwapResponse { }
