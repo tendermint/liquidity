@@ -88,7 +88,7 @@ message QueryPoolBatchSwapMsgsRequest {
 }
 
 message QueryPoolBatchSwapMsgsResponse {
-    repeated BatchPoolSwapMsg swapMsgs = 1 [(gogoproto.nullable) = false];
+    repeated BatchPoolSwapMsg swap_msgs = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response.
     cosmos.query.PageResponse pagination = 2;
 }
@@ -98,7 +98,7 @@ message QueryPoolBatchDepositMsgsRequest {
 }
 
 message QueryPoolBatchDepositMsgsResponse {
-    repeated BatchPoolDepositMsg depositMsgs = 1 [(gogoproto.nullable) = false];
+    repeated BatchPoolDepositMsg deposit_msgs = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response.
     cosmos.query.PageResponse pagination = 2;
 }
@@ -108,7 +108,7 @@ message QueryPoolBatchWithdrawMsgsRequest {
 }
 
 message QueryPoolBatchWithdrawMsgsResponse {
-    repeated BatchPoolWithdrawMsg withdrawMsgs = 1 [(gogoproto.nullable) = false];
+    repeated BatchPoolWithdrawMsg withdraw_msgs = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response.
     cosmos.query.PageResponse pagination = 2;
 }
