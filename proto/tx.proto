@@ -17,7 +17,7 @@ service Msg {
   rpc CreateLiquidityPool(MsgCreateLiquidityPoolRequest) returns (MsgCreateLiquidityPoolResponse) {
     option (google.api.http) = {
       post: "/liquidity/pools"
-      body: "msg"
+      body: "*"
     };
   };
 
@@ -25,7 +25,7 @@ service Msg {
   rpc DepositToLiquidityPool(MsgDepositToLiquidityPoolRequest) returns (MsgDepositToLiquidityPoolResponse) {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/deposits"
-      body: "msg"
+      body: "*"
     };
   };
 
@@ -33,7 +33,7 @@ service Msg {
   rpc WithdrawFromLiquidityPool(MsgWithdrawFromLiquidityPoolRequest) returns (MsgWithdrawFromLiquidityPoolResponse) {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/withdraws"
-      body: "msg"
+      body: "*"
     };
   };
 
@@ -41,7 +41,7 @@ service Msg {
   rpc Swap(MsgSwapRequest) returns (MsgSwapResponse) {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/swaps"
-      body: "msg"
+      body: "*"
     };
   };
 }
@@ -60,11 +60,13 @@ message MsgCreateLiquidityPool {
 }
 
 message MsgCreateLiquidityPoolRequest {
-    MsgCreateLiquidityPool msg = 1;
+  BaseReq base_req = 1;
+  MsgCreateLiquidityPool msg = 2;
 }
 
-// todo: as tendermint, sdk tx response
-message MsgCreateLiquidityPoolResponse { }
+message MsgCreateLiquidityPoolResponse {
+  StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
+}
 
 message MsgDepositToLiquidityPool {
   option (gogoproto.equal)           = false;
@@ -80,12 +82,14 @@ message MsgDepositToLiquidityPool {
 }
 
 message MsgDepositToLiquidityPoolRequest {
-  MsgDepositToLiquidityPool msg = 1;
+  BaseReq base_req = 1;
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
+  MsgDepositToLiquidityPool msg = 3;
 }
 
-// todo: as tendermint, sdk tx response
-message MsgDepositToLiquidityPoolResponse { }
+message MsgDepositToLiquidityPoolResponse {
+  StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
+}
 
 message MsgWithdrawFromLiquidityPool {
   option (gogoproto.equal)           = false;
@@ -100,11 +104,14 @@ message MsgWithdrawFromLiquidityPool {
 }
 
 message MsgWithdrawFromLiquidityPoolRequest {
-  MsgWithdrawFromLiquidityPool msg = 1;
+  BaseReq base_req = 1;
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
+  MsgWithdrawFromLiquidityPool msg = 3;
 }
 
-message MsgWithdrawFromLiquidityPoolResponse { }
+message MsgWithdrawFromLiquidityPoolResponse {
+  StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
+}
 
 message MsgSwap {
   option (gogoproto.equal)           = false;
@@ -130,9 +137,61 @@ message MsgSwap {
 }
 
 message MsgSwapRequest {
-  MsgSwap msg = 1;
+  BaseReq base_req = 1;
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
+  MsgSwap msg = 3;
 }
 
-// todo: as tendermint, sdk tx response
-message MsgSwapResponse { }
+message MsgSwapResponse {
+  StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
+}
+
+message BaseReq {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string from = 1 [(gogoproto.moretags) = "yaml:\"from\""];
+  string memo = 2 [(gogoproto.moretags) = "yaml:\"memo\""];
+  string chain_id = 3 [(gogoproto.moretags) = "yaml:\"chain_id\""];
+  uint64 account_number = 4 [(gogoproto.moretags) = "yaml:\"account_number\""];
+  uint64 sequence = 5 [(gogoproto.moretags) = "yaml:\"sequence\""];
+  uint64 timeout_height = 6 [(gogoproto.moretags) = "yaml:\"timeout_height\""];
+  repeated cosmos.base.v1beta1.Coin fees = 7
+  [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  repeated cosmos.base.v1beta1.DecCoin gas_prices = 8 [
+    (gogoproto.moretags)     = "yaml:\"gas_prices\"",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable)     = false
+  ];
+  uint64 gas = 9 [(gogoproto.moretags) = "yaml:\"gas\""];
+  double gas_adjustment = 10 [(gogoproto.moretags) = "yaml:\"gas_adjustment\""];
+  bool simulate = 11 [(gogoproto.moretags) = "yaml:\"simulate\""];
+}
+
+
+message Fee {
+  uint64 gas = 1;
+
+  // amount is the amount of coins to be paid as a fee
+  repeated cosmos.base.v1beta1.Coin amount = 2
+  [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}
+
+message PubKey {
+  string type = 1 [(gogoproto.moretags) = "yaml:\"type\""];
+  string value = 2 [(gogoproto.moretags) = "yaml:\"value\""];
+}
+
+message Signature {
+  string signature = 1 [(gogoproto.moretags) = "yaml:\"signature\""];
+  PubKey pub_key = 2 [(gogoproto.moretags) = "yaml:\"pub_key\""];
+  uint64 account_number = 3 [(gogoproto.moretags) = "yaml:\"account_number\""];
+  uint64 sequence = 4 [(gogoproto.moretags) = "yaml:\"sequence\""];
+}
+
+message StdTx {
+  repeated string msg = 1 [(gogoproto.moretags) = "yaml:\"msg\""];
+  Fee fee = 2 [(gogoproto.moretags) = "yaml:\"fee\""];
+  string memo = 3 [(gogoproto.moretags) = "yaml:\"memo\""];
+  Signature signature = 4 [(gogoproto.moretags) = "yaml:\"signature\""];
+}

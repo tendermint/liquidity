@@ -13,7 +13,59 @@ paths:
           description: A successful response.
           schema:
             type: object
-            title: 'todo: as tendermint, sdk tx response'
+            properties:
+              std_tx:
+                type: object
+                properties:
+                  msg:
+                    type: array
+                    items:
+                      type: string
+                  fee:
+                    type: object
+                    properties:
+                      gas:
+                        type: string
+                        format: uint64
+                      amount:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a coin with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
+                        title: amount is the amount of coins to be paid as a fee
+                  memo:
+                    type: string
+                  signature:
+                    type: object
+                    properties:
+                      signature:
+                        type: string
+                      pub_key:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                          value:
+                            type: string
+                      account_number:
+                        type: string
+                        format: uint64
+                      sequence:
+                        type: string
+                        format: uint64
         default:
           description: An unexpected error response.
           schema:
@@ -43,32 +95,96 @@ paths:
           schema:
             type: object
             properties:
-              pool_creator_address:
-                type: string
-              pool_type_index:
-                type: integer
-                format: int64
-              reserve_coin_denoms:
-                type: array
-                items:
-                  type: string
-              deposit_coins:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    denom:
+              base_req:
+                type: object
+                properties:
+                  from:
+                    type: string
+                  memo:
+                    type: string
+                  chain_id:
+                    type: string
+                  account_number:
+                    type: string
+                    format: uint64
+                  sequence:
+                    type: string
+                    format: uint64
+                  timeout_height:
+                    type: string
+                    format: uint64
+                  fees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  gas_prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        DecCoin defines a coin with a denomination and a decimal
+                        amount.
+
+
+                        NOTE: The amount field is an Dec which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  gas:
+                    type: string
+                    format: uint64
+                  gas_adjustment:
+                    type: number
+                    format: double
+                  simulate:
+                    type: boolean
+              msg:
+                type: object
+                properties:
+                  pool_creator_address:
+                    type: string
+                  pool_type_index:
+                    type: integer
+                    format: int64
+                  reserve_coin_denoms:
+                    type: array
+                    items:
                       type: string
-                    amount:
-                      type: string
-                  description: >-
-                    Coin defines a coin with a denomination and an amount.
+                  deposit_coins:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
 
 
-                    NOTE: The amount field is an Int which implements the custom
-                    method
+                        NOTE: The amount field is an Int which implements the
+                        custom method
 
-                    signatures required by gogoproto.
+                        signatures required by gogoproto.
       tags:
         - Msg
     get:
@@ -270,7 +386,59 @@ paths:
           description: A successful response.
           schema:
             type: object
-            title: 'todo: as tendermint, sdk tx response'
+            properties:
+              std_tx:
+                type: object
+                properties:
+                  msg:
+                    type: array
+                    items:
+                      type: string
+                  fee:
+                    type: object
+                    properties:
+                      gas:
+                        type: string
+                        format: uint64
+                      amount:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a coin with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
+                        title: amount is the amount of coins to be paid as a fee
+                  memo:
+                    type: string
+                  signature:
+                    type: object
+                    properties:
+                      signature:
+                        type: string
+                      pub_key:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                          value:
+                            type: string
+                      account_number:
+                        type: string
+                        format: uint64
+                      sequence:
+                        type: string
+                        format: uint64
         default:
           description: An unexpected error response.
           schema:
@@ -305,28 +473,95 @@ paths:
           schema:
             type: object
             properties:
-              depositor_address:
-                type: string
+              base_req:
+                type: object
+                properties:
+                  from:
+                    type: string
+                  memo:
+                    type: string
+                  chain_id:
+                    type: string
+                  account_number:
+                    type: string
+                    format: uint64
+                  sequence:
+                    type: string
+                    format: uint64
+                  timeout_height:
+                    type: string
+                    format: uint64
+                  fees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  gas_prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        DecCoin defines a coin with a denomination and a decimal
+                        amount.
+
+
+                        NOTE: The amount field is an Dec which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  gas:
+                    type: string
+                    format: uint64
+                  gas_adjustment:
+                    type: number
+                    format: double
+                  simulate:
+                    type: boolean
               pool_id:
                 type: string
                 format: uint64
-              deposit_coins:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    denom:
-                      type: string
-                    amount:
-                      type: string
-                  description: >-
-                    Coin defines a coin with a denomination and an amount.
+              msg:
+                type: object
+                properties:
+                  depositor_address:
+                    type: string
+                  pool_id:
+                    type: string
+                    format: uint64
+                  deposit_coins:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
 
 
-                    NOTE: The amount field is an Int which implements the custom
-                    method
+                        NOTE: The amount field is an Int which implements the
+                        custom method
 
-                    signatures required by gogoproto.
+                        signatures required by gogoproto.
       tags:
         - Msg
     get:
@@ -487,7 +722,59 @@ paths:
           description: A successful response.
           schema:
             type: object
-            title: 'todo: as tendermint, sdk tx response'
+            properties:
+              std_tx:
+                type: object
+                properties:
+                  msg:
+                    type: array
+                    items:
+                      type: string
+                  fee:
+                    type: object
+                    properties:
+                      gas:
+                        type: string
+                        format: uint64
+                      amount:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a coin with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
+                        title: amount is the amount of coins to be paid as a fee
+                  memo:
+                    type: string
+                  signature:
+                    type: object
+                    properties:
+                      signature:
+                        type: string
+                      pub_key:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                          value:
+                            type: string
+                      account_number:
+                        type: string
+                        format: uint64
+                      sequence:
+                        type: string
+                        format: uint64
         default:
           description: An unexpected error response.
           schema:
@@ -522,37 +809,104 @@ paths:
           schema:
             type: object
             properties:
-              swap_requester_address:
-                type: string
+              base_req:
+                type: object
+                properties:
+                  from:
+                    type: string
+                  memo:
+                    type: string
+                  chain_id:
+                    type: string
+                  account_number:
+                    type: string
+                    format: uint64
+                  sequence:
+                    type: string
+                    format: uint64
+                  timeout_height:
+                    type: string
+                    format: uint64
+                  fees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  gas_prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        DecCoin defines a coin with a denomination and a decimal
+                        amount.
+
+
+                        NOTE: The amount field is an Dec which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  gas:
+                    type: string
+                    format: uint64
+                  gas_adjustment:
+                    type: number
+                    format: double
+                  simulate:
+                    type: boolean
               pool_id:
                 type: string
                 format: uint64
-              pool_type_index:
-                type: integer
-                format: int64
-              swap_type:
-                type: integer
-                format: int64
-              offer_coin:
+              msg:
                 type: object
                 properties:
-                  denom:
+                  swap_requester_address:
                     type: string
-                  amount:
+                  pool_id:
                     type: string
-                description: >-
-                  Coin defines a coin with a denomination and an amount.
+                    format: uint64
+                  pool_type_index:
+                    type: integer
+                    format: int64
+                  swap_type:
+                    type: integer
+                    format: int64
+                  offer_coin:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a coin with a denomination and an amount.
 
 
-                  NOTE: The amount field is an Int which implements the custom
-                  method
+                      NOTE: The amount field is an Int which implements the
+                      custom method
 
-                  signatures required by gogoproto.
-              demand_coin_denom:
-                type: string
-              order_price:
-                type: string
-                format: byte
+                      signatures required by gogoproto.
+                  demand_coin_denom:
+                    type: string
+                  order_price:
+                    type: string
+                    format: byte
       tags:
         - Msg
     get:
@@ -755,6 +1109,59 @@ paths:
           description: A successful response.
           schema:
             type: object
+            properties:
+              std_tx:
+                type: object
+                properties:
+                  msg:
+                    type: array
+                    items:
+                      type: string
+                  fee:
+                    type: object
+                    properties:
+                      gas:
+                        type: string
+                        format: uint64
+                      amount:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a coin with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
+                        title: amount is the amount of coins to be paid as a fee
+                  memo:
+                    type: string
+                  signature:
+                    type: object
+                    properties:
+                      signature:
+                        type: string
+                      pub_key:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                          value:
+                            type: string
+                      account_number:
+                        type: string
+                        format: uint64
+                      sequence:
+                        type: string
+                        format: uint64
         default:
           description: An unexpected error response.
           schema:
@@ -789,26 +1196,93 @@ paths:
           schema:
             type: object
             properties:
-              withdrawer_address:
-                type: string
+              base_req:
+                type: object
+                properties:
+                  from:
+                    type: string
+                  memo:
+                    type: string
+                  chain_id:
+                    type: string
+                  account_number:
+                    type: string
+                    format: uint64
+                  sequence:
+                    type: string
+                    format: uint64
+                  timeout_height:
+                    type: string
+                    format: uint64
+                  fees:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  gas_prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        DecCoin defines a coin with a denomination and a decimal
+                        amount.
+
+
+                        NOTE: The amount field is an Dec which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                  gas:
+                    type: string
+                    format: uint64
+                  gas_adjustment:
+                    type: number
+                    format: double
+                  simulate:
+                    type: boolean
               pool_id:
                 type: string
                 format: uint64
-              pool_coin:
+              msg:
                 type: object
                 properties:
-                  denom:
+                  withdrawer_address:
                     type: string
-                  amount:
+                  pool_id:
                     type: string
-                description: >-
-                  Coin defines a coin with a denomination and an amount.
+                    format: uint64
+                  pool_coin:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a coin with a denomination and an amount.
 
 
-                  NOTE: The amount field is an Int which implements the custom
-                  method
+                      NOTE: The amount field is an Int which implements the
+                      custom method
 
-                  signatures required by gogoproto.
+                      signatures required by gogoproto.
       tags:
         - Msg
     get:
@@ -1235,6 +1709,18 @@ definitions:
 
       NOTE: The amount field is an Int which implements the custom method
       signatures required by gogoproto.
+  cosmos.base.v1beta1.DecCoin:
+    type: object
+    properties:
+      denom:
+        type: string
+      amount:
+        type: string
+    description: |-
+      DecCoin defines a coin with a denomination and a decimal amount.
+
+      NOTE: The amount field is an Dec which implements the custom method
+      signatures required by gogoproto.
   google.protobuf.Any:
     type: object
     properties:
@@ -1263,6 +1749,81 @@ definitions:
             value:
               type: string
               format: byte
+  tendermint.liquidity.BaseReq:
+    type: object
+    properties:
+      from:
+        type: string
+      memo:
+        type: string
+      chain_id:
+        type: string
+      account_number:
+        type: string
+        format: uint64
+      sequence:
+        type: string
+        format: uint64
+      timeout_height:
+        type: string
+        format: uint64
+      fees:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a coin with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+      gas_prices:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            DecCoin defines a coin with a denomination and a decimal amount.
+
+            NOTE: The amount field is an Dec which implements the custom method
+            signatures required by gogoproto.
+      gas:
+        type: string
+        format: uint64
+      gas_adjustment:
+        type: number
+        format: double
+      simulate:
+        type: boolean
+  tendermint.liquidity.Fee:
+    type: object
+    properties:
+      gas:
+        type: string
+        format: uint64
+      amount:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+            amount:
+              type: string
+          description: |-
+            Coin defines a coin with a denomination and an amount.
+
+            NOTE: The amount field is an Int which implements the custom method
+            signatures required by gogoproto.
+        title: amount is the amount of coins to be paid as a fee
   tendermint.liquidity.MsgCreateLiquidityPool:
     type: object
     properties:
@@ -1289,9 +1850,152 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
+  tendermint.liquidity.MsgCreateLiquidityPoolRequest:
+    type: object
+    properties:
+      base_req:
+        type: object
+        properties:
+          from:
+            type: string
+          memo:
+            type: string
+          chain_id:
+            type: string
+          account_number:
+            type: string
+            format: uint64
+          sequence:
+            type: string
+            format: uint64
+          timeout_height:
+            type: string
+            format: uint64
+          fees:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+          gas_prices:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                DecCoin defines a coin with a denomination and a decimal amount.
+
+
+                NOTE: The amount field is an Dec which implements the custom
+                method
+
+                signatures required by gogoproto.
+          gas:
+            type: string
+            format: uint64
+          gas_adjustment:
+            type: number
+            format: double
+          simulate:
+            type: boolean
+      msg:
+        type: object
+        properties:
+          pool_creator_address:
+            type: string
+          pool_type_index:
+            type: integer
+            format: int64
+          reserve_coin_denoms:
+            type: array
+            items:
+              type: string
+          deposit_coins:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
   tendermint.liquidity.MsgCreateLiquidityPoolResponse:
     type: object
-    title: 'todo: as tendermint, sdk tx response'
+    properties:
+      std_tx:
+        type: object
+        properties:
+          msg:
+            type: array
+            items:
+              type: string
+          fee:
+            type: object
+            properties:
+              gas:
+                type: string
+                format: uint64
+              amount:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+                title: amount is the amount of coins to be paid as a fee
+          memo:
+            type: string
+          signature:
+            type: object
+            properties:
+              signature:
+                type: string
+              pub_key:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  value:
+                    type: string
+              account_number:
+                type: string
+                format: uint64
+              sequence:
+                type: string
+                format: uint64
   tendermint.liquidity.MsgDepositToLiquidityPool:
     type: object
     properties:
@@ -1314,9 +2018,151 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
+  tendermint.liquidity.MsgDepositToLiquidityPoolRequest:
+    type: object
+    properties:
+      base_req:
+        type: object
+        properties:
+          from:
+            type: string
+          memo:
+            type: string
+          chain_id:
+            type: string
+          account_number:
+            type: string
+            format: uint64
+          sequence:
+            type: string
+            format: uint64
+          timeout_height:
+            type: string
+            format: uint64
+          fees:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+          gas_prices:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                DecCoin defines a coin with a denomination and a decimal amount.
+
+
+                NOTE: The amount field is an Dec which implements the custom
+                method
+
+                signatures required by gogoproto.
+          gas:
+            type: string
+            format: uint64
+          gas_adjustment:
+            type: number
+            format: double
+          simulate:
+            type: boolean
+      pool_id:
+        type: string
+        format: uint64
+      msg:
+        type: object
+        properties:
+          depositor_address:
+            type: string
+          pool_id:
+            type: string
+            format: uint64
+          deposit_coins:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
   tendermint.liquidity.MsgDepositToLiquidityPoolResponse:
     type: object
-    title: 'todo: as tendermint, sdk tx response'
+    properties:
+      std_tx:
+        type: object
+        properties:
+          msg:
+            type: array
+            items:
+              type: string
+          fee:
+            type: object
+            properties:
+              gas:
+                type: string
+                format: uint64
+              amount:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+                title: amount is the amount of coins to be paid as a fee
+          memo:
+            type: string
+          signature:
+            type: object
+            properties:
+              signature:
+                type: string
+              pub_key:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  value:
+                    type: string
+              account_number:
+                type: string
+                format: uint64
+              sequence:
+                type: string
+                format: uint64
   tendermint.liquidity.MsgSwap:
     type: object
     properties:
@@ -1348,9 +2194,160 @@ definitions:
       order_price:
         type: string
         format: byte
+  tendermint.liquidity.MsgSwapRequest:
+    type: object
+    properties:
+      base_req:
+        type: object
+        properties:
+          from:
+            type: string
+          memo:
+            type: string
+          chain_id:
+            type: string
+          account_number:
+            type: string
+            format: uint64
+          sequence:
+            type: string
+            format: uint64
+          timeout_height:
+            type: string
+            format: uint64
+          fees:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+          gas_prices:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                DecCoin defines a coin with a denomination and a decimal amount.
+
+
+                NOTE: The amount field is an Dec which implements the custom
+                method
+
+                signatures required by gogoproto.
+          gas:
+            type: string
+            format: uint64
+          gas_adjustment:
+            type: number
+            format: double
+          simulate:
+            type: boolean
+      pool_id:
+        type: string
+        format: uint64
+      msg:
+        type: object
+        properties:
+          swap_requester_address:
+            type: string
+          pool_id:
+            type: string
+            format: uint64
+          pool_type_index:
+            type: integer
+            format: int64
+          swap_type:
+            type: integer
+            format: int64
+          offer_coin:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          demand_coin_denom:
+            type: string
+          order_price:
+            type: string
+            format: byte
   tendermint.liquidity.MsgSwapResponse:
     type: object
-    title: 'todo: as tendermint, sdk tx response'
+    properties:
+      std_tx:
+        type: object
+        properties:
+          msg:
+            type: array
+            items:
+              type: string
+          fee:
+            type: object
+            properties:
+              gas:
+                type: string
+                format: uint64
+              amount:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+                title: amount is the amount of coins to be paid as a fee
+          memo:
+            type: string
+          signature:
+            type: object
+            properties:
+              signature:
+                type: string
+              pub_key:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  value:
+                    type: string
+              account_number:
+                type: string
+                format: uint64
+              sequence:
+                type: string
+                format: uint64
   tendermint.liquidity.MsgWithdrawFromLiquidityPool:
     type: object
     properties:
@@ -1371,8 +2368,225 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
+  tendermint.liquidity.MsgWithdrawFromLiquidityPoolRequest:
+    type: object
+    properties:
+      base_req:
+        type: object
+        properties:
+          from:
+            type: string
+          memo:
+            type: string
+          chain_id:
+            type: string
+          account_number:
+            type: string
+            format: uint64
+          sequence:
+            type: string
+            format: uint64
+          timeout_height:
+            type: string
+            format: uint64
+          fees:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+          gas_prices:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                DecCoin defines a coin with a denomination and a decimal amount.
+
+
+                NOTE: The amount field is an Dec which implements the custom
+                method
+
+                signatures required by gogoproto.
+          gas:
+            type: string
+            format: uint64
+          gas_adjustment:
+            type: number
+            format: double
+          simulate:
+            type: boolean
+      pool_id:
+        type: string
+        format: uint64
+      msg:
+        type: object
+        properties:
+          withdrawer_address:
+            type: string
+          pool_id:
+            type: string
+            format: uint64
+          pool_coin:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
   tendermint.liquidity.MsgWithdrawFromLiquidityPoolResponse:
     type: object
+    properties:
+      std_tx:
+        type: object
+        properties:
+          msg:
+            type: array
+            items:
+              type: string
+          fee:
+            type: object
+            properties:
+              gas:
+                type: string
+                format: uint64
+              amount:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+                title: amount is the amount of coins to be paid as a fee
+          memo:
+            type: string
+          signature:
+            type: object
+            properties:
+              signature:
+                type: string
+              pub_key:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  value:
+                    type: string
+              account_number:
+                type: string
+                format: uint64
+              sequence:
+                type: string
+                format: uint64
+  tendermint.liquidity.PubKey:
+    type: object
+    properties:
+      type:
+        type: string
+      value:
+        type: string
+  tendermint.liquidity.Signature:
+    type: object
+    properties:
+      signature:
+        type: string
+      pub_key:
+        type: object
+        properties:
+          type:
+            type: string
+          value:
+            type: string
+      account_number:
+        type: string
+        format: uint64
+      sequence:
+        type: string
+        format: uint64
+  tendermint.liquidity.StdTx:
+    type: object
+    properties:
+      msg:
+        type: array
+        items:
+          type: string
+      fee:
+        type: object
+        properties:
+          gas:
+            type: string
+            format: uint64
+          amount:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+            title: amount is the amount of coins to be paid as a fee
+      memo:
+        type: string
+      signature:
+        type: object
+        properties:
+          signature:
+            type: string
+          pub_key:
+            type: object
+            properties:
+              type:
+                type: string
+              value:
+                type: string
+          account_number:
+            type: string
+            format: uint64
+          sequence:
+            type: string
+            format: uint64
   cosmos.query.PageRequest:
     type: object
     properties:
