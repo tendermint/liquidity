@@ -10,7 +10,7 @@ The liquidity module contains the following parameters:
 
 | Key                      | Type                | Example                                                      |
 | ------------------------ | ------------------- | ------------------------------------------------------------ |
-| LiquidityPoolTypes       | []LiquidityPoolType | [{"pool_type_index":0,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
+| LiquidityPoolTypes       | []LiquidityPoolType | [{"pool_type_index":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
 | MinInitDepositToPool     | string (sdk.Int)    | "1000000"                                                    |
 | InitPoolCoinMintAmount   | string (sdk.Int)    | "1000000"                                                    |
 | SwapFeeRate              | string (sdk.Dec)    | "0.003000000000000000"                                       |

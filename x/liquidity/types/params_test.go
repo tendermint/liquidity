@@ -40,7 +40,7 @@ min_init_deposit_to_pool: "1000000"
 init_pool_coin_mint_amount: "1000000"
 swap_fee_rate: "0.003000000000000000"
 liquidity_pool_creation_fee:
-- denom: uatom
+- denom: stake
   amount: "100000000"
 `
 

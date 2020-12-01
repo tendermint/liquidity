@@ -1,6 +1,7 @@
 package liquidity
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -18,6 +19,7 @@ import (
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 
+	"github.com/tendermint/liquidity/x/liquidity/client/cli"
 	"github.com/tendermint/liquidity/x/liquidity/client/rest"
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/simulation"
@@ -52,7 +54,10 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 // module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
-	//return cdc.MustMarshalJSON(types.DefaultGenesisState())
+}
+
+func (AppModuleBasic) DefaultGenesisForTest(cdc codec.JSONMarshaler) json.RawMessage {
+	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
 // ValidateGenesis performs genesis state validation for the liquidity module.
@@ -72,16 +77,17 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 
 // RegisterGRPCRoutes registers the gRPC Gateway routes for the liquidity module.
 func (a AppModuleBasic) RegisterGRPCRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
 
 // GetTxCmd returns the root tx command for the liquidity module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
-	return nil
+	return cli.GetTxCmd()
 }
 
 // GetQueryCmd returns no root query command for the liquidity module.
 func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return nil
+	return cli.GetQueryCmd()
 }
 
 // RegisterInterfaces implements InterfaceModule.RegisterInterfaces
@@ -133,7 +139,7 @@ func (am AppModule) Route() sdk.Route {
 }
 
 // QuerierRoute returns the liquidity module's querier route name.
-func (AppModule) QuerierRoute() string { return types.RouterKey }
+func (AppModule) QuerierRoute() string { return types.QuerierRoute }
 
 // LegacyQuerierHandler returns the liquidity module sdk.Querier.
 func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {

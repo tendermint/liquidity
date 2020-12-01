@@ -150,7 +150,7 @@ func txCommand() *cobra.Command {
 		authcmd.GetDecodeCommand(),
 		flags.LineBreak,
 		vestingcli.GetTxCmd(),
-		liquiditycmd.GetTxCmd(),
+		//liquiditycmd.GetTxCmd(),
 	)
 
 	liquidity.ModuleBasics.AddTxCommands(cmd)

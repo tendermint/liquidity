@@ -23,7 +23,7 @@ func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		strPoolId := vars[RestPoolId]
 
-		poolID, ok := rest.ParseUint64OrReturnBadRequest(w, strPoolId)
+		poolId, ok := rest.ParseUint64OrReturnBadRequest(w, strPoolId)
 		if !ok {
 			return
 		}
@@ -33,9 +33,7 @@ func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		params := types.QueryLiquidityPoolParams{
-			PoolId: poolID,
-		}
+		params := types.NewQueryLiquidityPoolParams(poolId)
 
 		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {

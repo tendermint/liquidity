@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -24,23 +25,22 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	liquidityQueryCmd.AddCommand(
-		GetCmdQueryParams(),
+		GetCmdQueryLiquidityPool(),
+		//GetCmdQueryParams(),
 	)
 
 	return liquidityQueryCmd
 }
 
-// GetCmdQueryParams implements the params query command.
-func GetCmdQueryParams() *cobra.Command {
+func GetCmdQueryLiquidityPool() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "params",
-		Args:  cobra.NoArgs,
-		Short: "Query the current liquidity parameters information",
+		Use:   "liquidity-pool [pool-id]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Query details of a liquidity pool",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query values set as liquidity parameters.
-
+			fmt.Sprintf(`Query details of a liquidity pool
 Example:
-$ %s query liquidity params
+$ %s query liquidity liquidity-pool 1
 `,
 				version.AppName,
 			),
@@ -51,15 +51,38 @@ $ %s query liquidity params
 			if err != nil {
 				return err
 			}
-
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+			}
+
+			// Query the pool
+			res, err := queryClient.LiquidityPool(
+				context.Background(),
+				&types.QueryLiquidityPoolRequest{PoolId: poolId},
+			)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintOutput(&res.Params)
+			_, err = queryClient.LiquidityPool(
+				context.Background(),
+				&types.QueryLiquidityPoolRequest{PoolId:poolId},
+			)
+			if err != nil {
+				return fmt.Errorf("failed to fetch poolId %d: %s", poolId, err)
+			}
+
+			//params := types.NewQueryLiquidityPoolParams(poolId)
+			params := &types.QueryLiquidityPoolRequest{PoolId:poolId}
+			res, err = queryClient.LiquidityPool(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintOutput(&res.LiquidityPool)
 		},
 	}
 
@@ -67,5 +90,44 @@ $ %s query liquidity params
 
 	return cmd
 }
+
+// GetCmdQueryParams implements the params query command.
+//func GetCmdQueryParams() *cobra.Command {
+//	cmd := &cobra.Command{
+//		Use:   "params",
+//		Args:  cobra.NoArgs,
+//		Short: "Query the current liquidity parameters information",
+//		Long: strings.TrimSpace(
+//			fmt.Sprintf(`Query values set as liquidity parameters.
+//
+//Example:
+//$ %s query liquidity params
+//`,
+//				version.AppName,
+//			),
+//		),
+//		RunE: func(cmd *cobra.Command, args []string) error {
+//			clientCtx := client.GetClientContextFromCmd(cmd)
+//			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+//			if err != nil {
+//				return err
+//			}
+//
+//			queryClient := types.NewQueryClient(clientCtx)
+//
+//			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+//			if err != nil {
+//				return err
+//			}
+//
+//			return clientCtx.PrintOutput(&res.Params)
+//		},
+//	}
+//
+//	flags.AddQueryFlagsToCmd(cmd)
+//
+//	return cmd
+//}
+
 
 // TODO: after rebase latest stable sdk 0.40.0 for other commands

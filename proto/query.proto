@@ -112,3 +112,11 @@ message QueryPoolBatchWithdrawMsgsResponse {
     // pagination defines the pagination in the response.
     cosmos.query.PageResponse pagination = 2;
 }
+
+// TODO: query params request, response
+//message QueryParamsRequest {
+//
+//}
+//message QueryParamsResponse {
+//
+//}

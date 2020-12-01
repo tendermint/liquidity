@@ -33,7 +33,7 @@ var (
 	DefaultMinInitDepositToPool     = sdk.NewInt(1000000)
 	DefaultInitPoolCoinMintAmount   = sdk.NewInt(1000000)
 	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
-	DefaultLiquidityPoolCreationFee = sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(100000000)))
+	DefaultLiquidityPoolCreationFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
 	DefaultLiquidityPoolType        = LiquidityPoolType{
 		PoolTypeIndex:     1,
 		Name:              "DefaultPoolType",

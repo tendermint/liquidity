@@ -10,6 +10,10 @@ func DefaultGenesisState() *GenesisState {
 	return NewGenesisState(DefaultParams())
 }
 
+func DefaultGenesisStateForTest() *GenesisState {
+	return NewGenesisState(DefaultParams())
+}
+
 // ValidateGenesis - placeholder function
 func ValidateGenesis(data GenesisState) error {
 	return data.Params.Validate()
