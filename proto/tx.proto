@@ -164,7 +164,7 @@ message BaseReq {
     (gogoproto.nullable)     = false
   ];
   uint64 gas = 9 [(gogoproto.moretags) = "yaml:\"gas\""];
-  double gas_adjustment = 10 [(gogoproto.moretags) = "yaml:\"gas_adjustment\""];
+  string gas_adjustment = 10 [(gogoproto.moretags) = "yaml:\"gas_adjustment\""];
   bool simulate = 11 [(gogoproto.moretags) = "yaml:\"simulate\""];
 }
 
