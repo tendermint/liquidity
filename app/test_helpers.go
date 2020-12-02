@@ -662,6 +662,7 @@ func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolC
 	iterNum := len(addrs)
 	for i := 0; i < iterNum; i++ {
 		balancePoolCoin := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.PoolCoinDenom)
+		fmt.Println(balancePoolCoin, poolCoinAmt)
 		require.True(t, balancePoolCoin.Amount.GTE(poolCoinAmt))
 
 		withdrawCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
@@ -694,6 +695,7 @@ func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolC
 
 		// verify burned pool coin
 		poolCoinAfter := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+		fmt.Println(poolCoinAfter, poolCoinBefore)
 		require.True(t, poolCoinAfter.LT(poolCoinBefore))
 
 		for i := 0; i < iterNum; i++ {

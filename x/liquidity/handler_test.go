@@ -286,7 +286,7 @@ func TestMsgServerSwap(t *testing.T) {
 	batch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
 	require.True(t, found)
 	notProcessedMsgs := simapp.LiquidityKeeper.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, batch)
-	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
+	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, batch)
 	require.Equal(t, 4, len(msgs))
 	require.Equal(t, 4, len(notProcessedMsgs))
 }

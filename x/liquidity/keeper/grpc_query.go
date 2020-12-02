@@ -26,8 +26,8 @@ func (k Keeper) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Liqui
 	}
 
 	return &types.QueryLiquidityPoolResponse{LiquidityPool: pool,
-		LiquidityPoolMetaData: k.GetLiquidityPoolMetaData(ctx, pool),
-		LiquidityPoolBatch:    &batch}, nil
+		LiquidityPoolMetaData: *k.GetLiquidityPoolMetaData(ctx, pool),
+		LiquidityPoolBatch:    batch}, nil
 }
 
 func (k Keeper) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRequest) (*types.QueryLiquidityPoolResponse, error) {

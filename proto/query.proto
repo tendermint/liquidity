@@ -52,8 +52,8 @@ message QueryLiquidityPoolRequest {
 
 message QueryLiquidityPoolResponse {
     LiquidityPool liquidity_pool = 1 [(gogoproto.nullable) = false];
-    LiquidityPoolMetaData liquidity_pool_meta_data = 2;
-    LiquidityPoolBatch liquidity_pool_batch = 3;
+    LiquidityPoolMetaData liquidity_pool_meta_data = 2 [(gogoproto.nullable) = false];
+    LiquidityPoolBatch liquidity_pool_batch = 3 [(gogoproto.nullable) = false];
 }
 
 message QueryLiquidityPoolBatchRequest {

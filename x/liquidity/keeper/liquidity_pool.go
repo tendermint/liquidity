@@ -69,7 +69,6 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 		}
 	}
 
-	// TODO: write test case
 	if !poolCreatorBalances.IsAllGTE(params.LiquidityPoolCreationFee.Add(msg.DepositCoins...)) {
 		return types.ErrInsufficientPoolCreationFee
 	}
@@ -138,6 +137,36 @@ func (k Keeper) GetPoolCoinTotalSupply(ctx sdk.Context, pool types.LiquidityPool
 	supply := k.bankKeeper.GetSupply(ctx)
 	total := supply.GetTotal()
 	return total.AmountOf(pool.PoolCoinDenom)
+}
+
+// TODO: testcode, refactoring other case
+func (k Keeper) GetPoolCoinTotal(ctx sdk.Context, pool types.LiquidityPool) sdk.Coin {
+	return sdk.NewCoin(pool.PoolCoinDenom, k.GetPoolCoinTotalSupply(ctx, pool))
+}
+
+// TODO: testcodes
+func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.LiquidityPool) types.LiquidityPoolMetaData {
+	return types.LiquidityPoolMetaData{
+		PoolId:              pool.PoolId,
+		PoolCoinTotalSupply: k.GetPoolCoinTotal(ctx, pool),
+		ReserveCoins:        k.GetReserveCoins(ctx, pool),
+	}
+}
+
+func (k Keeper) GetLiquidityPoolRecord(ctx sdk.Context, pool types.LiquidityPool) (*types.LiquidityPoolRecord, bool) {
+	batch, found := k.GetLiquidityPoolBatch(ctx, pool.PoolId)
+	if !found {
+		return nil, found
+	}
+	return &types.LiquidityPoolRecord{
+		LiquidityPool:pool,
+		LiquidityPoolMetaData: k.GetPoolMetaData(ctx, pool),
+		LiquidityPoolBatch: batch,
+		BatchPoolSwapMsgRecords: k.GetAllLiquidityPoolBatchSwapMsgsAsRecord(ctx, batch),
+		BatchPoolDepositMsgs: k.GetAllLiquidityPoolBatchDepositMsgs(ctx, batch),
+		BatchPoolWithdrawMsgs: k.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, batch),
+		BatchPoolSwapMsgs: k.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch),
+	}, true
 }
 
 func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDepositToLiquidityPool) error {

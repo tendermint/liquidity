@@ -10,6 +10,13 @@ import (
 	"testing"
 )
 
+func PointerListToValueList(pointerList []*interface{}) (valueList []interface{}) {
+	for _, i := range pointerList {
+		valueList = append(valueList, *i)
+	}
+	return valueList
+}
+
 func TestSwapScenario(t *testing.T) {
 	// init test app and context
 	simapp, ctx := app.CreateTestInput()
@@ -53,11 +60,11 @@ func TestSwapScenario(t *testing.T) {
 	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
 
 	// Set the execution status flag of messages to true.
-	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
+	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, batch)
 	for _, msg := range msgs {
 		msg.Executed = true
 	}
-	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, msgs)
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, *(msgs))
 
 	// Generate an orderbook by arranging swap messages in order price
 	orderMap, XtoY, YtoX := types.GetOrderMap(msgs, denomX, denomY, false)

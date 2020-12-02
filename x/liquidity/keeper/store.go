@@ -246,6 +246,31 @@ func (k Keeper) IterateAllLiquidityPoolBatchDepositMsgs(ctx sdk.Context, liquidi
 	}
 }
 
+// IterateAllBatchDepositMsgs iterate through all of the BatchDepositMsgs of all batches
+func (k Keeper) IterateAllBatchDepositMsgs(ctx sdk.Context, cb func(msg types.BatchPoolDepositMsg) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+
+	prefix := types.LiquidityPoolBatchDepositMsgIndexKeyPrefix
+	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		msg := types.MustUnmarshalBatchPoolDepositMsg(k.cdc, iterator.Value())
+		if cb(msg) {
+			break
+		}
+	}
+}
+
+// GetAllBatchDepositMsgs returns all BatchDepositMsgs for all batches.
+func (k Keeper) GetAllBatchDepositMsgs(ctx sdk.Context) (msgs []types.BatchPoolDepositMsg) {
+	k.IterateAllBatchDepositMsgs(ctx, func(msg types.BatchPoolDepositMsg) bool {
+		msgs = append(msgs, msg)
+		return false
+	})
+	return msgs
+}
+
 // GetAllLiquidityPoolBatchDepositMsgs returns all BatchDepositMsgs indexed by the liquidityPoolBatch
 func (k Keeper) GetAllLiquidityPoolBatchDepositMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolDepositMsg) {
 	k.IterateAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolDepositMsg) bool {
@@ -343,6 +368,31 @@ func (k Keeper) IterateAllLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, liquid
 	}
 }
 
+// IterateAllBatchWithdrawMsgs iterate through all of the BatchPoolWithdrawMsg of all batches
+func (k Keeper) IterateAllBatchWithdrawMsgs(ctx sdk.Context, cb func(msg types.BatchPoolWithdrawMsg) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+
+	prefix := types.LiquidityPoolBatchWithdrawMsgIndexKeyPrefix
+	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		msg := types.MustUnmarshalBatchPoolWithdrawMsg(k.cdc, iterator.Value())
+		if cb(msg) {
+			break
+		}
+	}
+}
+
+// GetAllBatchWithdrawMsgs returns all BatchWithdrawMsgs for all batches
+func (k Keeper) GetAllBatchWithdrawMsgs(ctx sdk.Context) (msgs []types.BatchPoolWithdrawMsg) {
+	k.IterateAllBatchWithdrawMsgs(ctx, func(msg types.BatchPoolWithdrawMsg) bool {
+		msgs = append(msgs, msg)
+		return false
+	})
+	return msgs
+}
+
 // GetAllLiquidityPoolBatchWithdrawMsgs returns all BatchWithdrawMsgs indexed by the liquidityPoolBatch
 func (k Keeper) GetAllLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolWithdrawMsg) {
 	k.IterateAllLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolWithdrawMsg) bool {
@@ -429,6 +479,32 @@ func (k Keeper) IterateAllLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityP
 	}
 }
 
+// TODO: Test
+// IterateAllBatchSwapMsgs iterate through all of the BatchPoolSwapMsg of all batches
+func (k Keeper) IterateAllBatchSwapMsgs(ctx sdk.Context, cb func(msg types.BatchPoolSwapMsg) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+
+	prefix := types.LiquidityPoolBatchSwapMsgIndexKeyPrefix
+	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		msg := types.MustUnmarshalBatchPoolSwapMsg(k.cdc, iterator.Value())
+		if cb(msg) {
+			break
+		}
+	}
+}
+
+// GetAllBatchSwapMsgs returns all BatchSwapMsgs of all batches
+func (k Keeper) GetAllBatchSwapMsgs(ctx sdk.Context) (msgs []types.BatchPoolSwapMsg) {
+	k.IterateAllBatchSwapMsgs(ctx, func(msg types.BatchPoolSwapMsg) bool {
+		msgs = append(msgs, msg)
+		return false
+	})
+	return msgs
+}
+
 func (k Keeper) DeleteAllReadyLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.GetLiquidityPoolBatchSwapMsgsPrefix(liquidityPoolBatch.PoolId))
@@ -441,10 +517,28 @@ func (k Keeper) DeleteAllReadyLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquid
 	}
 }
 
-// GetAllLiquidityPoolBatchSwapMsgs returns all BatchSwapMsgs indexed by the liquidityPoolBatch
-func (k Keeper) GetAllLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []*types.BatchPoolSwapMsg) {
+// GetAllLiquidityPoolBatchSwapMsgsAsPointer returns all BatchSwapMsgs pointer indexed by the liquidityPoolBatch
+func (k Keeper) GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []*types.BatchPoolSwapMsg) {
 	k.IterateAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolSwapMsg) bool {
 		msgs = append(msgs, &msg)
+		return false
+	})
+	return msgs
+}
+// GetAllLiquidityPoolBatchSwapMsgs returns all BatchSwapMsgs indexed by the liquidityPoolBatch
+func (k Keeper) GetAllLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolSwapMsg) {
+	k.IterateAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolSwapMsg) bool {
+		msgs = append(msgs, msg)
+		return false
+	})
+	return msgs
+}
+// GetAllLiquidityPoolBatchSwapMsgsAsPointer returns all BatchSwapMsgs indexed by the liquidityPoolBatch
+func (k Keeper) GetAllLiquidityPoolBatchSwapMsgsAsRecord(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (msgs []types.BatchPoolSwapMsgRecord) {
+	k.IterateAllLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch, func(msg types.BatchPoolSwapMsg) bool {
+		msgs = append(msgs, types.BatchPoolSwapMsgRecord{msg.MsgHeight, msg.MsgIndex,
+			msg.Executed, msg.Succeed, msg.ToDelete, msg.OrderExpiryHeight,
+			msg.ExchangedOfferCoin, msg.RemainingOfferCoin, *msg.Msg})
 		return false
 	})
 	return msgs
