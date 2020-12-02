@@ -1,0 +1,46 @@
+syntax = "proto3";
+package tendermint.liquidity;
+
+import "google/api/annotations.proto";
+import "tx.proto";
+
+option go_package = "github.com/tendermint/liquidity/types";
+//option (gogoproto.goproto_getters_all) = false;
+
+//option (gogoproto.goproto_stringer_all) = false;
+//option (gogoproto.stringer_all)         = false;
+
+// Msg defines the staking Msg service.
+service MsgApi {
+  // Submit create liquidity pool message
+  rpc CreateLiquidityPoolApi(MsgCreateLiquidityPoolRequest) returns (MsgCreateLiquidityPoolResponse) {
+    option (google.api.http) = {
+      post: "/liquidity/pools"
+      body: "*"
+    };
+  };
+
+  // Submit deposit to the liquidity pool batch
+  rpc DepositToLiquidityPoolApi(MsgDepositToLiquidityPoolRequest) returns (MsgDepositToLiquidityPoolResponse) {
+    option (google.api.http) = {
+      post: "/liquidity/pools/{pool_id}/batch/deposits"
+      body: "*"
+    };
+  };
+
+  // Submit withdraw from to the liquidity pool batch
+  rpc WithdrawFromLiquidityPoolApi(MsgWithdrawFromLiquidityPoolRequest) returns (MsgWithdrawFromLiquidityPoolResponse) {
+    option (google.api.http) = {
+      post: "/liquidity/pools/{pool_id}/batch/withdraws"
+      body: "*"
+    };
+  };
+
+  // Submit swap to the liquidity pool batch
+  rpc SwapApi(MsgSwapRequest) returns (MsgSwapResponse) {
+    option (google.api.http) = {
+      post: "/liquidity/pools/{pool_id}/batch/swaps"
+      body: "*"
+    };
+  };
+}

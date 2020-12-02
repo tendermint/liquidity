@@ -17,7 +17,7 @@ for dir in $proto_dirs; do
     --swagger_opt logtostderr=true --swagger_opt fqn_for_swagger_name=true --swagger_opt simple_operation_ids=true
   fi
   # generate swagger files (filter query files)
-  tx_file=$(find "${dir}" -maxdepth 1 -name 'tx.proto')
+  tx_file=$(find "${dir}" -maxdepth 1 -name 'msg.proto')
   if [[ ! -z "$tx_file" ]]; then
     protoc  \
     -I "proto" \

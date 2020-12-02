@@ -2,12 +2,12 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 1.1.4
+  version: 1.2.0
 paths:
   /liquidity/pools:
     post:
       summary: Submit create liquidity pool message
-      operationId: CreateLiquidityPool
+      operationId: CreateLiquidityPoolApi
       responses:
         '200':
           description: A successful response.
@@ -185,7 +185,7 @@ paths:
 
                         signatures required by gogoproto.
       tags:
-        - Msg
+        - MsgApi
     get:
       summary: Get all liquidity pools with each liquidity pool batch
       operationId: LiquidityPools
@@ -379,7 +379,7 @@ paths:
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
       summary: Submit deposit to the liquidity pool batch
-      operationId: DepositToLiquidityPool
+      operationId: DepositToLiquidityPoolApi
       responses:
         '200':
           description: A successful response.
@@ -561,7 +561,7 @@ paths:
 
                         signatures required by gogoproto.
       tags:
-        - Msg
+        - MsgApi
     get:
       summary: Get all pool batch deposit messages of the liquidity pool
       operationId: PoolBatchDepositMsgs
@@ -714,7 +714,7 @@ paths:
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
       summary: Submit swap to the liquidity pool batch
-      operationId: Swap
+      operationId: SwapApi
       responses:
         '200':
           description: A successful response.
@@ -905,7 +905,7 @@ paths:
                     type: string
                     format: byte
       tags:
-        - Msg
+        - MsgApi
     get:
       summary: Get all pool batch swap messages of the liquidity pool
       operationId: PoolBatchSwapMsgs
@@ -1100,7 +1100,7 @@ paths:
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
       summary: Submit withdraw from to the liquidity pool batch
-      operationId: WithdrawFromLiquidityPool
+      operationId: WithdrawFromLiquidityPoolApi
       responses:
         '200':
           description: A successful response.
@@ -1280,7 +1280,7 @@ paths:
 
                       signatures required by gogoproto.
       tags:
-        - Msg
+        - MsgApi
     get:
       summary: Get all pool batch withdraw messages of the liquidity pool
       operationId: PoolBatchWithdrawMsgs

@@ -3,11 +3,11 @@
   "info": {
     "title": "Cosmos SDK Liquidity Module - REST and gRPC Gateway docs",
     "description": "A REST interface for state queries, transactions",
-    "version": "1.1.4"
+    "version": "1.2.0"
   },
   "apis": [
     {
-      "url": "./tmp-swagger-gen/tx.swagger.json",
+      "url": "./tmp-swagger-gen/msg.swagger.json",
       "operationIds": {
         "rename": {
           "Params": "LiquidityTxs"

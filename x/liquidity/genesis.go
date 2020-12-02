@@ -9,6 +9,7 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
+// TODO: init genesis, export genesis  
 // InitGenesis new liquidity genesis
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	if err := types.ValidateGenesis(data); err != nil {

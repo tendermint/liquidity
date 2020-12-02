@@ -14,7 +14,7 @@ option go_package = "github.com/tendermint/liquidity/types";
 // Msg defines the staking Msg service.
 service Msg {
   // Submit create liquidity pool message
-  rpc CreateLiquidityPool(MsgCreateLiquidityPoolRequest) returns (MsgCreateLiquidityPoolResponse) {
+  rpc CreateLiquidityPool(MsgCreateLiquidityPool) returns (MsgCreateLiquidityPoolResponse) {
     option (google.api.http) = {
       post: "/liquidity/pools"
       body: "*"
@@ -22,7 +22,7 @@ service Msg {
   };
 
   // Submit deposit to the liquidity pool batch
-  rpc DepositToLiquidityPool(MsgDepositToLiquidityPoolRequest) returns (MsgDepositToLiquidityPoolResponse) {
+  rpc DepositToLiquidityPool(MsgDepositToLiquidityPool) returns (MsgDepositToLiquidityPoolResponse) {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/deposits"
       body: "*"
@@ -30,7 +30,7 @@ service Msg {
   };
 
   // Submit withdraw from to the liquidity pool batch
-  rpc WithdrawFromLiquidityPool(MsgWithdrawFromLiquidityPoolRequest) returns (MsgWithdrawFromLiquidityPoolResponse) {
+  rpc WithdrawFromLiquidityPool(MsgWithdrawFromLiquidityPool) returns (MsgWithdrawFromLiquidityPoolResponse) {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/withdraws"
       body: "*"
@@ -38,7 +38,7 @@ service Msg {
   };
 
   // Submit swap to the liquidity pool batch
-  rpc Swap(MsgSwapRequest) returns (MsgSwapResponse) {
+  rpc Swap(MsgSwap) returns (MsgSwapResponse) {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/swaps"
       body: "*"

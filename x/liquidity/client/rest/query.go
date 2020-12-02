@@ -1,5 +1,7 @@
 package rest
 
+// DONTCOVER
+
 import (
 	"fmt"
 	"net/http"
@@ -11,10 +13,11 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// TODO: after rebase latest stable sdk 0.40.0 for other endpoints
+// TODO: Plans to increase completeness on Milestone 2
+
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// query liquidity
-	r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId), queryLiquidityHandlerFn(cliCtx)).Methods("GET")
+	//r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId), queryLiquidityHandlerFn(cliCtx)).Methods("GET")
 }
 
 // HTTP request handler to query liquidity information.
@@ -23,7 +26,7 @@ func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		vars := mux.Vars(r)
 		strPoolId := vars[RestPoolId]
 
-		poolID, ok := rest.ParseUint64OrReturnBadRequest(w, strPoolId)
+		poolId, ok := rest.ParseUint64OrReturnBadRequest(w, strPoolId)
 		if !ok {
 			return
 		}
@@ -33,9 +36,7 @@ func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		params := types.QueryLiquidityPoolParams{
-			PoolId: poolID,
-		}
+		params := types.NewQueryLiquidityPoolParams(poolId)
 
 		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
@@ -44,6 +45,7 @@ func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryLiquidityPool)
+		fmt.Println(route)
 		res, height, err := cliCtx.QueryWithData(route, bz)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())

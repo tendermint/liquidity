@@ -6,7 +6,7 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 )
 
-// TODO: write simulation on milestone2
+// TODO: planning to complete simulation codes on milestone two.
 
 // ParamChanges defines the parameters that can be modified by param change proposals
 // on the simulation

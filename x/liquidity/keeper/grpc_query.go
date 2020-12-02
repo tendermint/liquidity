@@ -12,7 +12,6 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// TODO: Keeper to Querier after latest sdk 0.40.0 stargate
 // Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper
 type Querier struct {
 	Keeper

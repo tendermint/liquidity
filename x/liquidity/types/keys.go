@@ -15,7 +15,7 @@ const (
 	StoreKey = ModuleName
 
 	// QuerierRoute is the querier route for the liquidity module.
-	QuerierRoute = StoreKey
+	QuerierRoute = ModuleName
 )
 
 var (
