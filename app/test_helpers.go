@@ -761,6 +761,37 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 	return batchPoolSwapMsgList, batch
 }
 
+
+func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinList []sdk.Coin, orderPrices []sdk.Dec,
+	addrs []sdk.AccAddress, poolId uint64) []*types.MsgSwap {
+	if len(offerCoinList) != len(orderPrices) || len(orderPrices) != len(addrs) {
+		require.True(t, false)
+	}
+
+	var msgList []*types.MsgSwap
+	pool, found := simapp.LiquidityKeeper.GetLiquidityPool(ctx, poolId)
+	require.True(t, found)
+
+	iterNum := len(addrs)
+	for i := 0; i < iterNum; i++ {
+		currentBalance := simapp.BankKeeper.GetBalance(ctx, addrs[i], offerCoinList[i].Denom)
+		if currentBalance.IsLT(offerCoinList[i]) {
+			SaveAccount(simapp, ctx, addrs[i], sdk.NewCoins(offerCoinList[i]))
+		}
+		var demandCoinDenom string
+		if pool.ReserveCoinDenoms[0] == offerCoinList[i].Denom {
+			demandCoinDenom = pool.ReserveCoinDenoms[1]
+		} else if pool.ReserveCoinDenoms[1] == offerCoinList[i].Denom {
+			demandCoinDenom = pool.ReserveCoinDenoms[0]
+		} else {
+			require.True(t, false)
+		}
+
+		msgList = append(msgList,types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i]))
+	}
+	return msgList
+}
+
 // EmptyAppOptions is a stub implementing AppOptions
 type EmptyAppOptions struct{}
 
