@@ -112,7 +112,7 @@ func MaxInt(a, b sdk.Int) sdk.Int {
 
 type OrderMap map[string]OrderByPrice
 
-// make orderbook by sort orderMap, increased
+// make orderbook by sort orderMap
 func (orderMap OrderMap) SortOrderBook() (orderBook OrderBook) {
 	orderPriceList := make([]sdk.Dec, 0, len(orderMap))
 	for _, v := range orderMap {
@@ -172,7 +172,9 @@ type MatchResult struct {
 	// TODO: add swapPrice
 }
 
-func ComputePriceDirection(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
+// The price and coins of swap messages in orderbook are calculated
+// to derive match result with the price direction.
+func MatchOrderbook(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
 	result = NewBatchResult()
 	orderBook.Sort()
 	priceDirection := GetPriceDirection(currentPrice, orderBook)
@@ -564,7 +566,7 @@ func CheckValidityMustExecutable(orderBook OrderBook, swapPrice sdk.Dec) bool {
 }
 
 
-// make orderMap key as swap price, value as Buy, Sell Amount from swap msgs,  with split as Buy XtoY, Sell YtoX msg list
+// make orderMap key as swap price, value as Buy, Sell Amount from swap msgs,  with split as Buy XtoY, Sell YtoX msg list.
 func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMatched bool) (OrderMap, []*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
 	orderMap := make(OrderMap)
 	var XtoY []*BatchPoolSwapMsg // buying Y from X

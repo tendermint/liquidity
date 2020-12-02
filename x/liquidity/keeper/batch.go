@@ -6,11 +6,13 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
+// Reinitialize batch messages that were not executed in the previous batch and delete batch messages that were executed or ready to delete.
 func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
-	// Delete already executed batches
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
 		if liquidityPoolBatch.Executed {
-			// TODO: verify clean, check order expiry height delete for swap
+
+			// On the other hand, BatchDeposit, BatchWithdraw, is all handled by the endblock if there is no error.
+			// If there are BatchMsgs left, reset the Executed, Succeed flag so that it can be executed in the next batch.
 			depositMsgs := k.GetAllRemainingLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch)
 			if len(depositMsgs) > 0 {
 				for _, msg := range depositMsgs {
@@ -19,7 +21,6 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 				}
 				k.SetLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch.PoolId, depositMsgs)
 			}
-			// TODO: verify set
 
 			withdrawMsgs := k.GetAllRemainingLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch)
 			if len(withdrawMsgs) > 0 {
@@ -31,6 +32,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 			}
 
 			// reinitialize remaining batch msgs
+			// In the case of BatchSwapMsgs, it is often fractional matched or has not yet expired since it has not passed ExpiryHeight.
 			swapMsgs := k.GetAllRemainingLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
 			if len(swapMsgs) > 0 {
 				for _, msg := range swapMsgs {
@@ -40,17 +42,19 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 				k.SetLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch.PoolId, swapMsgs)
 			}
 
-			// TODO: optimizing iteration
+			// delete batch messages that were executed or ready to delete
 			k.DeleteAllReadyLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch)
 			k.DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch)
 			k.DeleteAllReadyLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
 
+			// Increase the batch index and initialize the values.
 			k.InitNextBatch(ctx, liquidityPoolBatch)
 		}
 		return false
 	})
 }
 
+// Increase the index of the already executed batch for processing as the next batch and reinitialize the values.
 func (k Keeper) InitNextBatch(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) error {
 	if !liquidityPoolBatch.Executed {
 		return types.ErrBatchNotExecuted
@@ -62,6 +66,8 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	return nil
 }
 
+// In case of deposit, withdraw, and swap msgs, unlike other normal tx msgs,
+// collect them in the liquidity pool batch and perform an execution once at the endblock to calculate and use the universal price.
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
 		if !liquidityPoolBatch.Executed {
@@ -90,6 +96,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	})
 }
 
+// In order to deal with the batch at once, the coins of msgs deposited in escrow.
 func (k Keeper) HoldEscrow(ctx sdk.Context, depositor sdk.AccAddress, depositCoins sdk.Coins) error {
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, depositCoins); err != nil {
 		return err
@@ -97,12 +104,15 @@ func (k Keeper) HoldEscrow(ctx sdk.Context, depositor sdk.AccAddress, depositCoi
 	return nil
 }
 
+// If batch messages has expired or has not been processed, will be refunded the escrow that had been deposited through this function.
 func (k Keeper) ReleaseEscrow(ctx sdk.Context, withdrawer sdk.AccAddress, withdrawCoins sdk.Coins) error {
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, withdrawer, withdrawCoins); err != nil {
 		return err
 	}
 	return nil
 }
+
+// Generate inputs and outputs to treat escrow refunds atomically.
 func (k Keeper) ReleaseEscrowForMultiSend(withdrawer sdk.AccAddress, withdrawCoins sdk.Coins) (
 	banktypes.Input, banktypes.Output, error) {
 	var input banktypes.Input
@@ -117,6 +127,7 @@ func (k Keeper) ReleaseEscrowForMultiSend(withdrawer sdk.AccAddress, withdrawCoi
 	return input, output, nil
 }
 
+// In order to deal with the batch at once, Put the message in the batch and the coins of the msgs deposited in escrow.
 func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepositToLiquidityPool) error {
 	if err := k.ValidateMsgDepositLiquidityPool(ctx, *msg); err != nil {
 		return err
@@ -146,6 +157,7 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 	return nil
 }
 
+// In order to deal with the batch at once, Put the message in the batch and the coins of the msgs deposited in escrow.
 func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWithdrawFromLiquidityPool) error {
 	if err := k.ValidateMsgWithdrawLiquidityPool(ctx, *msg); err != nil {
 		return err
@@ -175,6 +187,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 	return nil
 }
 
+// In order to deal with the batch at once, Put the message in the batch and the coins of the msgs deposited in escrow.
 func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) (*types.BatchPoolSwapMsg, error) {
 	if err := k.ValidateMsgSwap(ctx, *msg); err != nil {
 		return nil, err
