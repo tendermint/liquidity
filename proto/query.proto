@@ -113,7 +113,6 @@ message QueryPoolBatchWithdrawMsgsResponse {
     cosmos.query.PageResponse pagination = 2;
 }
 
-// TODO: query params request, response
 //message QueryParamsRequest {
 //
 //}

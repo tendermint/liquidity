@@ -19,12 +19,12 @@ func GetPoolReserveAcc(poolKey string) sdk.AccAddress {
 	return sdk.AccAddress(crypto.AddressHash([]byte(poolKey)))
 }
 
-// TODO: tmp denom rule, TBD
+// TODO: tmp denom rule, It will fixed on milestone 2
 func GetPoolCoinDenom(reserveAcc sdk.AccAddress) string {
 	return reserveAcc.String()
 }
 
-// TODO: check is poolcoin or not when poolcoin denom rule fixed
+// check is poolcoin or not when poolcoin denom rule fixed
 //func IsPoolCoin(coin sdk.Coin) bool {
 //}
 

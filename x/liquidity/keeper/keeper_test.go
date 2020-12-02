@@ -37,7 +37,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.ctx = ctx
 	suite.app = app
 
-	types.RegisterQueryServer(queryHelper, app.LiquidityKeeper)
+	//types.RegisterQueryServer(queryHelper, app.LiquidityKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 }
 

@@ -114,9 +114,9 @@ func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, pow
 		app.GetSubspace(stakingtypes.ModuleName),
 	)
 
-	val1 := stakingtypes.NewValidator(valAddrs[0], pks[0], stakingtypes.Description{})
-	val2 := stakingtypes.NewValidator(valAddrs[1], pks[1], stakingtypes.Description{})
-	val3 := stakingtypes.NewValidator(valAddrs[2], pks[2], stakingtypes.Description{})
+	val1, _ := stakingtypes.NewValidator(valAddrs[0], pks[0], stakingtypes.Description{})
+	val2, _ := stakingtypes.NewValidator(valAddrs[1], pks[1], stakingtypes.Description{})
+	val3, _ := stakingtypes.NewValidator(valAddrs[2], pks[2], stakingtypes.Description{})
 	vals := []stakingtypes.Validator{val1, val2, val3}
 
 	app.StakingKeeper.SetValidator(ctx, val1)
@@ -129,9 +129,9 @@ func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, pow
 	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val2)
 	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val3)
 
-	_, _ = app.StakingKeeper.Delegate(ctx, addrs[0], sdk.TokensFromConsensusPower(powers[0]), sdk.Unbonded, val1, true)
-	_, _ = app.StakingKeeper.Delegate(ctx, addrs[1], sdk.TokensFromConsensusPower(powers[1]), sdk.Unbonded, val2, true)
-	_, _ = app.StakingKeeper.Delegate(ctx, addrs[2], sdk.TokensFromConsensusPower(powers[2]), sdk.Unbonded, val3, true)
+	_, _ = app.StakingKeeper.Delegate(ctx, addrs[0], sdk.TokensFromConsensusPower(powers[0]), stakingtypes.Unbonded, val1, true)
+	_, _ = app.StakingKeeper.Delegate(ctx, addrs[1], sdk.TokensFromConsensusPower(powers[1]), stakingtypes.Unbonded, val2, true)
+	_, _ = app.StakingKeeper.Delegate(ctx, addrs[2], sdk.TokensFromConsensusPower(powers[2]), stakingtypes.Unbonded, val3, true)
 
 	_ = staking.EndBlocker(ctx, app.StakingKeeper)
 

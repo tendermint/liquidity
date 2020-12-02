@@ -1,5 +1,7 @@
 package cli
 
+// DONTCOVER
+
 import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -13,8 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
-
-// TODO: after rebase latest stable sdk 0.40.0 for other commands
 
 // GetTxCmd returns a root CLI command handler for all x/liquidity transaction commands.
 func GetTxCmd() *cobra.Command {
@@ -42,7 +42,7 @@ func NewCreateLiquidityPoolCmd() *cobra.Command {
 			fmt.Sprintf(`Create Liquidity pool with the specified pool-type-index, deposit coins for reserve
 
 Example:
-$ %s tx liquidity create-liquidity-pool 1 100acoin,100bcoin --from mykey
+$ %s tx liquidity create-liquidity-pool 1 100000000acoin,100000000bcoin --from mykey
 
 Currently, only the default pool-type-index 1 is available
 the number of deposit coins must be two in the pool-type-index 1
@@ -84,8 +84,6 @@ the number of deposit coins must be two in the pool-type-index 1
 
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-			//txf := tx.NewFactoryCLI(clientCtx, cmd.Flags()).WithTxConfig(clientCtx.TxConfig).WithAccountRetriever(clientCtx.AccountRetriever)
-			//return tx.GenerateOrBroadcastTxWithFactory(clientCtx, txf, msg)
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)

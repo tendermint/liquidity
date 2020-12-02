@@ -1,5 +1,7 @@
 package cli
 
+// DONTCOVER
+
 import (
 	"context"
 	"fmt"
@@ -26,7 +28,7 @@ func GetQueryCmd() *cobra.Command {
 
 	liquidityQueryCmd.AddCommand(
 		GetCmdQueryLiquidityPool(),
-		//GetCmdQueryParams(),
+		GetCmdQueryParams(),
 	)
 
 	return liquidityQueryCmd
@@ -91,43 +93,40 @@ $ %s query liquidity liquidity-pool 1
 	return cmd
 }
 
-// GetCmdQueryParams implements the params query command.
-//func GetCmdQueryParams() *cobra.Command {
-//	cmd := &cobra.Command{
-//		Use:   "params",
-//		Args:  cobra.NoArgs,
-//		Short: "Query the current liquidity parameters information",
-//		Long: strings.TrimSpace(
-//			fmt.Sprintf(`Query values set as liquidity parameters.
-//
-//Example:
-//$ %s query liquidity params
-//`,
-//				version.AppName,
-//			),
-//		),
-//		RunE: func(cmd *cobra.Command, args []string) error {
-//			clientCtx := client.GetClientContextFromCmd(cmd)
-//			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
-//			if err != nil {
-//				return err
-//			}
-//
-//			queryClient := types.NewQueryClient(clientCtx)
-//
-//			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
-//			if err != nil {
-//				return err
-//			}
-//
-//			return clientCtx.PrintOutput(&res.Params)
-//		},
-//	}
-//
-//	flags.AddQueryFlagsToCmd(cmd)
-//
-//	return cmd
-//}
+//GetCmdQueryParams implements the params query command.
+func GetCmdQueryParams() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "params",
+		Args:  cobra.NoArgs,
+		Short: "Query the current liquidity parameters information",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query values set as liquidity parameters.
 
+Example:
+$ %s query liquidity params
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
 
-// TODO: after rebase latest stable sdk 0.40.0 for other commands
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintOutput(&res.Params)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}

@@ -6,7 +6,6 @@ package keeper
 //)
 //
 //
-//// TODO: InitGenesis, ExportGenesis on Milestone2
 //func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 //
 //}

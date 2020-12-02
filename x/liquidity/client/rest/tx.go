@@ -1,6 +1,9 @@
 package rest
 
+// DONTCOVER
+
 import (
+	"github.com/tendermint/liquidity/x/liquidity/types"
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -8,7 +11,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// TODO: after rebase latest stable sdk 0.40.0 for other endpoints
+// TODO: Plans to increase completeness on Milestone 2
+
+
 func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
 	//// create liquidityPool
 	//r.HandleFunc(fmt.Sprintf("/liquidity/pool"), newLiquidityPoolHandlerFn(clientCtx)).Methods("POST")
@@ -20,7 +25,7 @@ func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
 
 func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req CreateLiquidityPoolReq
+		var req types.MsgCreateLiquidityPoolRequest
 		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
 			return
 		}

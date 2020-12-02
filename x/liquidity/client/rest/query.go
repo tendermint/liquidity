@@ -1,5 +1,7 @@
 package rest
 
+// DONTCOVER
+
 import (
 	"fmt"
 	"net/http"
@@ -11,7 +13,8 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// TODO: after rebase latest stable sdk 0.40.0 for other endpoints
+// TODO: Plans to increase completeness on Milestone 2
+
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// query liquidity
 	//r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId), queryLiquidityHandlerFn(cliCtx)).Methods("GET")
