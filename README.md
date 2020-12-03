@@ -39,7 +39,7 @@ For detailed Mechanism, you can find on our recent [Paper](https://github.com/te
 | Requirement | Notes            |
 | ----------- | ---------------- |
 | Go version  | Go1.15 or higher |
-| Cosmos-SDK  | v0.40.0-rc0      |
+| Cosmos-SDK  | v0.40.0-rc4      |
 
 ### Get Liquidity Module source code 
 ```bash 
@@ -60,10 +60,9 @@ You can find the `liquidityd` binary on `build/`
 $ make install 
 ```
 
+## liquidityd
 
-## Liquidityd
-
-```
+```bash
 Usage:
   liquidityd [command]
 
@@ -96,9 +95,32 @@ Flags:
 ```
 
 
-### Query
+### Tx
 
-*WIP, It will be released soon*
+`$ liquidityd tx liquidity --help`
+
+```bash
+Liquidity transaction subcommands
+
+Usage:
+  liquidityd tx liquidity [flags]
+
+
+Available Commands:
+  create-liquidity-pool Create Liquidity pool with the specified pool-type, deposit coins
+
+  *WIP, More will soon be added.*
+
+Flags:
+  -h, --help   help for liquidity
+
+Global Flags:
+      --chain-id string   The network chain ID
+      --home string       directory for config and data (default "/Users/dongsamb/.liquidityapp")
+      --trace             print out full stack trace on errors
+```
+
+### Query
 
 `$ liquidityd query liquidity --help`
 ```bash
@@ -109,8 +131,9 @@ Usage:
   liquidityd query liquidity [command]
 
 Available Commands:
-  params      Query the current liquidity parameters information
-  *WIP, It will be released soon*
+  liquidity-pool Query details of a liquidity pool
+  params         Query the current liquidity parameters information
+  *WIP, More will soon be added.*
 
 Flags:
   -h, --help   help for liquidity
@@ -123,30 +146,7 @@ Global Flags:
 Use "liquidityd query liquidity [command] --help" for more information about a command.
 ```
 
-### Tx
-
-*WIP, It will be released soon*
-
-`$ liquidityd tx liquidity --help`
-
-```bash
-Liquidity transaction subcommands
-
-Usage:
-  liquidityd tx liquidity [flags]
-
-
-Available Commands:
-  *WIP, It will be released soon*
-
-Flags:
-  -h, --help   help for liquidity
-
-Global Flags:
-      --chain-id string   The network chain ID
-      --home string       directory for config and data (default "/Users/dongsamb/.liquidityapp")
-      --trace             print out full stack trace on errors
-```
+#### A detailed document on client can be found here. [client.md](doc/client.md)
 
 ## Development
 
@@ -175,4 +175,5 @@ $ make proto-swagger-gen
  - [Proposal and milestone](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
  - [swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
  - [godoc](https://pkg.go.dev/github.com/tendermint/liquidity)
+ - [liquidityd client doc](doc/client.md)
  
