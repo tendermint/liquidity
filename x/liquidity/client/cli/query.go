@@ -32,6 +32,9 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryLiquidityPools(),
 		GetCmdQueryLiquidityPoolBatch(),
 		GetCmdQueryLiquidityPoolsBatch(),
+		GetCmdQueryPoolBatchDeposit(),
+		GetCmdQueryPoolBatchWithdraw(),
+		GetCmdQueryPoolBatchSwap(),
 	)
 
 	return liquidityQueryCmd
@@ -236,6 +239,129 @@ $ %s query liquidity batches
 				return err
 			}
 			result, err := queryClient.LiquidityPoolsBatch(context.Background(), &types.QueryLiquidityPoolsBatchRequest{Pagination: pageReq})
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintOutput(result)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetCmdQueryPoolBatchDeposit() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposits",
+		Args:  cobra.NoArgs,
+		Short: "Query for all deposit messages on the batch of the liquidity pool",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query for all deposit messages on the batch of the liquidity pool
+
+if batch messages are normally processed and from the endblock,  
+the resulting state is applied and removed the messages from the beginblock in the next block.
+
+Example:
+$ %s query liquidity deposits
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+			result, err := queryClient.PoolBatchDepositMsgs(context.Background(), &types.QueryPoolBatchDepositMsgsRequest{Pagination: pageReq})
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintOutput(result)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetCmdQueryPoolBatchWithdraw() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "withdraws",
+		Args:  cobra.NoArgs,
+		Short: "Query for all withdraw messages on the batch of the liquidity pool",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query for all withdraws messages on the batch of the liquidity pool
+
+if batch messages are normally processed and from the endblock,  
+the resulting state is applied and removed the messages from the beginblock in the next block.
+
+Example:
+$ %s query liquidity withdraws
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+			result, err := queryClient.PoolBatchWithdrawMsgs(context.Background(), &types.QueryPoolBatchWithdrawMsgsRequest{Pagination: pageReq})
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintOutput(result)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetCmdQueryPoolBatchSwap() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "swaps",
+		Args:  cobra.NoArgs,
+		Short: "Query for all swap messages on the batch of the liquidity pool",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query for all swap messages on the batch of the liquidity pool
+
+if batch messages are normally processed and from the endblock,  
+the resulting state is applied and removed the messages from the beginblock in the next block.
+
+Example:
+$ %s query liquidity swaps
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+			result, err := queryClient.PoolBatchSwapMsgs(context.Background(), &types.QueryPoolBatchSwapMsgsRequest{Pagination: pageReq})
 			if err != nil {
 				return err
 			}

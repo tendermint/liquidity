@@ -62,67 +62,31 @@ $ make install
 
 ## liquidityd
 
-```bash
-Usage:
-  liquidityd [command]
-
-Available Commands:
-
-
-  add-genesis-account Add a genesis account to genesis.json
-  collect-gentxs      Collect genesis txs and output a genesis.json file
-  debug               Tool for helping with debugging your application
-  export              Export state to JSON
-  gentx               Generate a genesis tx carrying a self delegation
-  help                Help about any command
-  init                Initialize private validator, p2p, genesis, and application configuration files
-  keys                Manage your application's keys
-  migrate             Migrate genesis to a specified target version
-  query               Querying subcommands
-  start               Run the full node
-  status              Query remote node for status
-  tendermint          Tendermint subcommands
-  testnet             Initialize files for a liquidityapp testnet
-  tx                  Transactions subcommands
-  unsafe-reset-all    Resets the blockchain database, removes address book files, and resets priv_validator.json to the genesis state
-  validate-genesis    validates the genesis file at the default location or at the location passed as an arg
-  version             Print the application binary version information
-
-Flags:
-  -h, --help          help for liquidityd
-      --home string   directory for config and data (default "/Users/dongsamb/.liquidityapp")
-      --trace         print out full stack trace on errors
-```
-
-
 ### Tx
 
-`$ liquidityd tx liquidity --help`
+
+`$ ./liquidityd tx liquidity --help`     
 
 ```bash
 Liquidity transaction subcommands
 
 Usage:
   liquidityd tx liquidity [flags]
-
+  liquidityd tx liquidity [command]
 
 Available Commands:
   create-pool Create Liquidity pool with the specified pool-type, deposit coins
-
-  *WIP, More will soon be added.*
-
-Flags:
-  -h, --help   help for liquidity
-
-Global Flags:
-      --chain-id string   The network chain ID
-      --home string       directory for config and data (default "/Users/dongsamb/.liquidityapp")
-      --trace             print out full stack trace on errors
+  deposit     Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins
+  swap        Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
+  withdraw    Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
 ```
+
+
 
 ### Query
 
 `$ liquidityd query liquidity --help`
+
 ```bash
 Querying commands for the liquidity module
 
@@ -131,19 +95,14 @@ Usage:
   liquidityd query liquidity [command]
 
 Available Commands:
-  pool           Query details of a liquidity pool
-  params         Query the current liquidity parameters information
-  *WIP, More will soon be added.*
-
-Flags:
-  -h, --help   help for liquidity
-
-Global Flags:
-      --chain-id string   The network chain ID
-      --home string       directory for config and data (default "/Users/dongsamb/.liquidityapp")
-      --trace             print out full stack trace on errors
-
-Use "liquidityd query liquidity [command] --help" for more information about a command.
+  batch       Query details of a liquidity pool batch of the pool
+  batches     Query for all liquidity pools batch
+  deposits    Query for all deposit messages on the batch of the liquidity pool
+  params      Query the current liquidity parameters information
+  pool        Query details of a liquidity pool
+  pools       Query for all liquidity pools
+  swaps       Query for all swap messages on the batch of the liquidity pool
+  withdraws   Query for all withdraw messages on the batch of the liquidity pool
 ```
 
 #### A detailed document on client can be found here. [client.md](doc/client.md)
