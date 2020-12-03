@@ -105,25 +105,16 @@ $ %s query liquidity pool 1
 				&types.QueryLiquidityPoolRequest{PoolId: poolId},
 			)
 			if err != nil {
-				return err
-			}
-
-			_, err = queryClient.LiquidityPool(
-				context.Background(),
-				&types.QueryLiquidityPoolRequest{PoolId: poolId},
-			)
-			if err != nil {
 				return fmt.Errorf("failed to fetch poolId %d: %s", poolId, err)
 			}
 
-			//params := types.NewQueryLiquidityPoolParams(poolId)
 			params := &types.QueryLiquidityPoolRequest{PoolId: poolId}
 			res, err = queryClient.LiquidityPool(context.Background(), params)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintOutput(&res.LiquidityPool)
+			return clientCtx.PrintOutput(res)
 		},
 	}
 

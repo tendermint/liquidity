@@ -14,19 +14,18 @@ import (
 )
 
 // TODO: Plans to increase completeness on Milestone 2
-
+// using grpc server
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// Get the liquidity pool
-	r.HandleFunc(
-		fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId),
-		queryLiquidityPoolHandlerFn(cliCtx),
-		).Methods("GET")
-
-	// Get all liquidity pools
-	r.HandleFunc(
-		"/liquidity/pools",
-		queryLiquidityPoolsHandlerFn(cliCtx),
-	).Methods("GET")
+	//r.HandleFunc(
+	//	fmt.Sprintf("/liquidity/pools/{%s}", RestPoolId),
+	//	queryLiquidityPoolHandlerFn(cliCtx),
+	//	).Methods("GET")
+	//
+	//// Get all liquidity pools
+	//r.HandleFunc(
+	//	"/liquidity/pools",
+	//	queryLiquidityPoolsHandlerFn(cliCtx)).Methods("GET")
 }
 
 // HTTP request handler to query liquidity information.
@@ -74,18 +73,21 @@ func queryLiquidityPoolsHandlerFn(clientCtx client.Context) http.HandlerFunc {
 		_, page, limit, err := rest.ParseHTTPArgsWithLimit(r, 0)
 		fmt.Println(page, limit, err)
 		if rest.CheckBadRequestError(w, err) {
+			fmt.Println("CheckBadRequestError", w,err)
 			return
 		}
 
 		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		fmt.Println("clientCtx", clientCtx, ok)
 		if !ok {
 			return
 		}
 
 		params := types.NewQueryLiquidityPoolsParams(page, limit)
 
+		fmt.Println("params", params)
 		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
-		fmt.Println(bz, err)
+		fmt.Println("bz, err", bz, err)
 		if rest.CheckBadRequestError(w, err) {
 			return
 		}
@@ -94,7 +96,7 @@ func queryLiquidityPoolsHandlerFn(clientCtx client.Context) http.HandlerFunc {
 
 		res, height, err := clientCtx.QueryWithData(route, bz)
 
-		fmt.Println(route, res, height, err)
+		fmt.Println("route, res, height, err", route, res, height, err)
 		if rest.CheckInternalServerError(w, err) {
 			return
 		}

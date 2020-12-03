@@ -4,6 +4,7 @@ package rest
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/rest"
 	"github.com/gorilla/mux"
 )
 
@@ -17,6 +18,7 @@ const (
 
 // RegisterHandlers registers asset-related REST handlers to a router
 func RegisterHandlers(cliCtx client.Context, r *mux.Router) {
+	r = rest.WithHTTPDeprecationHeaders(r)
 	registerQueryRoutes(cliCtx, r)
 	//registerTxRoutes(cliCtx, r)
 }

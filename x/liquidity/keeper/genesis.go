@@ -44,7 +44,6 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 			poolRecords = append(poolRecords, *record)
 		}
 	}
-
 	//batchIndex := k.GetLiquidityPoolBatchIndex(ctx)
 	return types.NewGenesisState(params, poolRecords)
 }

@@ -63,11 +63,11 @@ func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 		{
 			"empty request",
 			func() {
-				req = &types.QueryLiquidityPoolsRequest{}
+				req = &types.QueryLiquidityPoolsRequest{
+					Pagination: &query.PageRequest{}}
 			},
-			false,
-
-			0,
+			true,
+			2,
 			false,
 		},
 		{"valid request",

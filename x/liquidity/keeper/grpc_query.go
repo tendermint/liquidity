@@ -66,7 +66,7 @@ func (k Keeper) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRe
 
 func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPoolsRequest) (*types.QueryLiquidityPoolsResponse, error) {
 	empty := &types.QueryLiquidityPoolsRequest{}
-	if req == nil || *req == *empty {
+	if req == nil || req == empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 
@@ -76,15 +76,13 @@ func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPools
 	poolStore := prefix.NewStore(store, types.LiquidityPoolKeyPrefix)
 	var pools types.LiquidityPools
 
-	pageRes, err := query.FilteredPaginate(poolStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+	pageRes, err := query.Paginate(poolStore, req.Pagination, func(key []byte, value []byte) error {
 		pool, err := types.UnmarshalLiquidityPool(k.cdc, value)
 		if err != nil {
-			return false, err
+			return err
 		}
-		if accumulate {
-			pools = append(pools, pool)
-		}
-		return true, nil
+		pools = append(pools, pool)
+		return nil
 	})
 
 	if err != nil {
@@ -121,17 +119,15 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchSwapMsgIndexKeyPrefix)
 	var msgs []types.BatchPoolSwapMsg
 
-	pageRes, err := query.FilteredPaginate(msgStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
 		msg, err := types.UnmarshalBatchPoolSwapMsg(k.cdc, value)
 		if err != nil {
-			return false, err
+			return err
 		}
 
-		if accumulate {
-			msgs = append(msgs, msg)
-		}
+		msgs = append(msgs, msg)
 
-		return true, nil
+		return nil
 	})
 
 	if err != nil {
@@ -157,17 +153,15 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchDepositMsgIndexKeyPrefix)
 	var msgs []types.BatchPoolDepositMsg
 
-	pageRes, err := query.FilteredPaginate(msgStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
 		msg, err := types.UnmarshalBatchPoolDepositMsg(k.cdc, value)
 		if err != nil {
-			return false, err
+			return err
 		}
 
-		if accumulate {
-			msgs = append(msgs, msg)
-		}
+		msgs = append(msgs, msg)
 
-		return true, nil
+		return nil
 	})
 
 	if err != nil {
@@ -192,17 +186,15 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchWithdrawMsgIndexKeyPrefix)
 	var msgs []types.BatchPoolWithdrawMsg
 
-	pageRes, err := query.FilteredPaginate(msgStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
 		msg, err := types.UnmarshalBatchPoolWithdrawMsg(k.cdc, value)
 		if err != nil {
-			return false, err
+			return err
 		}
 
-		if accumulate {
-			msgs = append(msgs, msg)
-		}
+		msgs = append(msgs, msg)
 
-		return true, nil
+		return nil
 	})
 
 	if err != nil {
