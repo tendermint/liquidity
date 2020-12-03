@@ -38,4 +38,5 @@ var (
 	ErrInsufficientPoolCreationFee  = sdkerrors.Register(ModuleName, 30, "insufficient balances for pool creation fee")
 	ErrExceededMaxOrderable         = sdkerrors.Register(ModuleName, 31, "can not exceed max order ratio  of reserve coins that can be ordered at a order")
 	ErrBadBatchMsgIndex             = sdkerrors.Register(ModuleName, 32, "bad msg index of the batch")
+	ErrSwapTypeNotExists             = sdkerrors.Register(ModuleName, 33, "swap type not exists")
 )

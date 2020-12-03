@@ -96,7 +96,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 			if tc.expPass {
 				suite.NoError(err)
 				suite.NotNil(resp)
-				suite.Equal(tc.numPools, len(resp.LiquidityPoolResponses))
+				suite.Equal(tc.numPools, len(resp.LiquidityPoolsResponse))
 				suite.Equal(uint64(len(pools)), resp.Pagination.Total)
 
 				if tc.hasNext {

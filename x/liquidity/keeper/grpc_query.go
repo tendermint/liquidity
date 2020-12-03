@@ -94,6 +94,37 @@ func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPools
 	return &types.QueryLiquidityPoolsResponse{*response, pageRes}, nil
 }
 
+func (k Keeper) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidityPoolsBatchRequest) (*types.QueryLiquidityPoolsBatchResponse, error) {
+	empty := &types.QueryLiquidityPoolsBatchRequest{}
+	if req == nil || req == empty {
+		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	store := ctx.KVStore(k.storeKey)
+	batchStore := prefix.NewStore(store, types.LiquidityPoolBatchKeyPrefix)
+	var response []types.QueryLiquidityPoolBatchResponse
+
+	pageRes, err := query.Paginate(batchStore, req.Pagination, func(key []byte, value []byte) error {
+		batch, err := types.UnmarshalLiquidityPoolBatch(k.cdc, value)
+		if err != nil {
+			return err
+		}
+		res := &types.QueryLiquidityPoolBatchResponse{
+			LiquidityPoolBatch: batch,
+		}
+		response = append(response, *res)
+		return nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryLiquidityPoolsBatchResponse{response, pageRes}, nil
+}
+
 func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
 	empty := &types.QueryLiquidityPoolBatchRequest{}
 	if req == nil || *req == *empty {

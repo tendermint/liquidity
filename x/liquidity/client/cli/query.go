@@ -30,6 +30,8 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryParams(),
 		GetCmdQueryLiquidityPool(),
 		GetCmdQueryLiquidityPools(),
+		GetCmdQueryLiquidityPoolBatch(),
+		GetCmdQueryLiquidityPoolsBatch(),
 	)
 
 	return liquidityQueryCmd
@@ -149,6 +151,91 @@ $ %s query liquidity pools
 				return err
 			}
 			result, err := queryClient.LiquidityPools(context.Background(), &types.QueryLiquidityPoolsRequest{Pagination: pageReq})
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintOutput(result)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetCmdQueryLiquidityPoolBatch() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "batch [pool-id]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Query details of a liquidity pool batch of the pool",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query details of a liquidity pool batch
+Example:
+$ %s query liquidity batch 1
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+			}
+
+			// Query the pool
+			res, err := queryClient.LiquidityPoolBatch(
+				context.Background(),
+				&types.QueryLiquidityPoolBatchRequest{PoolId: poolId},
+			)
+			if err != nil {
+				return fmt.Errorf("failed to fetch poolId %d: %s", poolId, err)
+			}
+
+			params := &types.QueryLiquidityPoolBatchRequest{PoolId: poolId}
+			res, err = queryClient.LiquidityPoolBatch(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintOutput(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetCmdQueryLiquidityPoolsBatch() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "batches",
+		Args:  cobra.NoArgs,
+		Short: "Query for all liquidity pools batch",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query details about all liquidity pools batch on a network.
+Example:
+$ %s query liquidity batches
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+			result, err := queryClient.LiquidityPoolsBatch(context.Background(), &types.QueryLiquidityPoolsBatchRequest{Pagination: pageReq})
 			if err != nil {
 				return err
 			}
