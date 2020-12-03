@@ -577,13 +577,24 @@ func (k Keeper) GetAllNotToDeleteLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liq
 	return msgs
 }
 
-func (k Keeper) SetLiquidityPoolBatchSwapMsgs(ctx sdk.Context, poolId uint64, msgList []*types.BatchPoolSwapMsg) {
+func (k Keeper) SetLiquidityPoolBatchSwapMsgPointers(ctx sdk.Context, poolId uint64, msgList []*types.BatchPoolSwapMsg) {
 	for _, msg := range msgList {
 		if poolId != msg.Msg.PoolId {
 			continue
 		}
 		store := ctx.KVStore(k.storeKey)
 		b := types.MustMarshalBatchPoolSwapMsg(k.cdc, *msg)
+		store.Set(types.GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msg.MsgIndex), b)
+	}
+}
+
+func (k Keeper) SetLiquidityPoolBatchSwapMsgs(ctx sdk.Context, poolId uint64, msgList []types.BatchPoolSwapMsg) {
+	for _, msg := range msgList {
+		if poolId != msg.Msg.PoolId {
+			continue
+		}
+		store := ctx.KVStore(k.storeKey)
+		b := types.MustMarshalBatchPoolSwapMsg(k.cdc, msg)
 		store.Set(types.GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msg.MsgIndex), b)
 	}
 }

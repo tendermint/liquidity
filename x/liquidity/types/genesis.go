@@ -36,65 +36,30 @@ func ValidateGenesis(data GenesisState) error {
 	if err := data.Params.Validate(); err != nil {
 		return err
 	}
-
-
-
-	//// todo: it could be delete when if LiquidityPoolRecords is working
-	//for _, i := range data.LiquidityPools{
-	//	return i.Validate()
-	//}
-	//
-	//// todo: it could be delete when if LiquidityPoolRecords is working
-	//for _, i := range data.LiquidityPoolsMetaData{
-	//	if err := i.ReserveCoins.Validate(); err != nil {
-	//		return err
-	//	}
-	//	return i.Validate()
-	//}
-	//// todo: it could be delete when if LiquidityPoolRecords is working
-	//for _, i := range data.LiquidityPoolBatches{
-	//	if err := i.Validate(); err != nil {
-	//		return err
-	//	}
-	//}
-	//for _, i := range data.BatchPoolDepositMsgs{
-	//	// TODO: check states, end reset if need
-	//	if err := i.Msg.ValidateBasic(); err != nil {
-	//		return err
-	//	}
-	//}
-	//for _, i := range data.BatchPoolWithdrawMsgs{
-	//	if err := i.Msg.ValidateBasic(); err != nil {
-	//		// TODO: check states, end reset if need
-	//		return err
-	//	}
-	//}
-	//for _, i := range data.BatchPoolSwapMsgs{
-	//	if err := i.Msg.ValidateBasic(); err != nil {
-	//		// TODO: check states, end reset if need
-	//		return err
-	//	}
-	//}
-	//for _, i := range data.BatchPoolSwapMsgRecords{
-	//	if err := i.Msg.ValidateBasic(); err != nil {
-	//		// TODO: check not pointer
-	//		return err
-	//	}
-	//}
-	//for _, i := range data.LiquidityPoolRecords{
-	//	if err := i.LiquidityPool.Validate(); err != nil {
-	//		return err
-	//	}
-	//	//if err := i.LiquidityPoolBatch.Validate(); err != nil {
-	//	//	return err
-	//	//}
-	//	if err := i.LiquidityPoolMetaData.ReserveCoins.Validate(); err != nil {
-	//		return err
-	//	}
-	//}
-
+	// TODO: add validate only type level without keeper
+	for _, record := range data.LiquidityPoolRecords {
+		if err := record.Validate(); err != nil {
+			return err
+		}
+	}
 	return nil
-	// TODO: validate
 }
 
+// Validate Liquidity Pool Record after init or after export
+func (record LiquidityPoolRecord) Validate() error {
+	// TODO: add validate only type level without keeper
+
+	if len(record.BatchPoolDepositMsgs)!=0 && record.LiquidityPoolBatch.DepositMsgIndex != record.BatchPoolDepositMsgs[len(record.BatchPoolDepositMsgs)-1].MsgIndex+1 {
+		return ErrBadBatchMsgIndex
+	}
+	if len(record.BatchPoolWithdrawMsgs)!=0 && record.LiquidityPoolBatch.WithdrawMsgIndex != record.BatchPoolWithdrawMsgs[len(record.BatchPoolWithdrawMsgs)-1].MsgIndex {
+		return ErrBadBatchMsgIndex
+	}
+	if len(record.BatchPoolSwapMsgs)!=0 && record.LiquidityPoolBatch.SwapMsgIndex != record.BatchPoolSwapMsgs[len(record.BatchPoolSwapMsgs)-1].MsgIndex {
+		return ErrBadBatchMsgIndex
+	}
+
+	// TODO: add verify of escrow amount and poolcoin amount with compare to remaining msgs
+	return nil
+}
 

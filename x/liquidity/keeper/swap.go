@@ -21,7 +21,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	for _, msg := range swapMsgs {
 		msg.Executed = true
 	}
-	k.SetLiquidityPoolBatchSwapMsgs(ctx, pool.PoolId, swapMsgs)
+	k.SetLiquidityPoolBatchSwapMsgPointers(ctx, pool.PoolId, swapMsgs)
 
 	params := k.GetParams(ctx)
 	currentHeight := ctx.BlockHeight()

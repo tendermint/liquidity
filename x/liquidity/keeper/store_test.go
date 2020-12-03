@@ -142,7 +142,7 @@ func TestGetAllNotProcessedPoolBatchSwapMsgs(t *testing.T) {
 		msg.ToDelete = true
 	}
 	require.Equal(t, 3, len(batchMsgs2))
-	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, batchMsgs2)
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgPointers(ctx, poolId, batchMsgs2)
 
 	resultMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, batch)
 	resultProccessedMsgs := simapp.LiquidityKeeper.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, batch)
@@ -278,7 +278,6 @@ func TestIterateAllBatchMsgs(t *testing.T) {
 	})
 	require.Equal(t, 0, len(withdrawMsgs3))
 
-
 	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
 	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
 	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
@@ -308,7 +307,10 @@ func TestIterateAllBatchMsgs(t *testing.T) {
 	})
 	require.Equal(t, 0, len(swapMsg2))
 
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
 	genesis := simapp.LiquidityKeeper.ExportGenesis(ctx)
-	fmt.Println(genesis)
-	// TODO: add require
+	simapp.LiquidityKeeper.InitGenesis(ctx, *genesis)
+	genesisNew := simapp.LiquidityKeeper.ExportGenesis(ctx)
+	require.Equal(t, genesis, genesisNew)
 }

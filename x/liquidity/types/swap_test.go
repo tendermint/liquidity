@@ -64,7 +64,7 @@ func TestSwapScenario(t *testing.T) {
 	for _, msg := range msgs {
 		msg.Executed = true
 	}
-	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, *(msgs))
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgPointers(ctx, poolId, msgs)
 
 	// Generate an orderbook by arranging swap messages in order price
 	orderMap, XtoY, YtoX := types.GetOrderMap(msgs, denomX, denomY, false)

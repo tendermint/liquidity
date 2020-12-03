@@ -39,7 +39,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 					msg.Executed = false
 					msg.Succeed = false
 				}
-				k.SetLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch.PoolId, swapMsgs)
+				k.SetLiquidityPoolBatchSwapMsgPointers(ctx, liquidityPoolBatch.PoolId, swapMsgs)
 			}
 
 			// delete batch messages that were executed or ready to delete
