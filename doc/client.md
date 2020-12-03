@@ -1,37 +1,29 @@
 
 # Liquidityd
 
-```bash
-Usage:
-  liquidityd [command]
+Implemented tx cli
 
-Available Commands:
+- [x]  `create-pool`   Create Liquidity pool with the specified pool-type, deposit coins
+- [x]  `deposit`       Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins
+- [x]  `swap`          Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
+- [x]  `withdraw`      Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool 
 
+Implemented query cli 
 
-  add-genesis-account Add a genesis account to genesis.json
-  collect-gentxs      Collect genesis txs and output a genesis.json file
-  debug               Tool for helping with debugging your application
-  export              Export state to JSON
-  gentx               Generate a genesis tx carrying a self delegation
-  help                Help about any command
-  init                Initialize private validator, p2p, genesis, and application configuration files
-  keys                Manage your application's keys
-  migrate             Migrate genesis to a specified target version
-  query               Querying subcommands
-  start               Run the full node
-  status              Query remote node for status
-  tendermint          Tendermint subcommands
-  testnet             Initialize files for a liquidityapp testnet
-  tx                  Transactions subcommands
-  unsafe-reset-all    Resets the blockchain database, removes address book files, and resets priv_validator.json to the genesis state
-  validate-genesis    validates the genesis file at the default location or at the location passed as an arg
-  version             Print the application binary version information
+- [x]    `batch`       Query details of a liquidity pool batch of the pool
+- [x]    `batches`     Query for all liquidity pools batch
+- [x]    `deposits`    Query for all deposit messages on the batch of the liquidity pool
+- [x]    `params`      Query the current liquidity parameters information
+- [x]    `pool`        Query details of a liquidity pool
+- [x]    `pools`       Query for all liquidity pools
+- [x]    `swaps`       Query for all swap messages on the batch of the liquidity pool
+- [x]    `withdraws`   Query for all withdraw messages on the batch of the liquidity pool
 
-Flags:
-  -h, --help          help for liquidityd
-      --home string   directory for config and data (default "/Users/dongsamb/.liquidityapp")
-      --trace         print out full stack trace on errors
-```
+Progress REST/API
+
+- [x] some querys of REST api using grpc model
+- [ ] txs
+- [ ] pagenation
 
 
 ## Tx
