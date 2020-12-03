@@ -13,7 +13,6 @@ import (
 
 // TODO: Plans to increase completeness on Milestone 2
 
-
 func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
 	//// create liquidityPool
 	//r.HandleFunc(fmt.Sprintf("/liquidity/pool"), newLiquidityPoolHandlerFn(clientCtx)).Methods("POST")

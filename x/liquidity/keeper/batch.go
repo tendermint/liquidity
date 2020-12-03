@@ -31,13 +31,18 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 				k.SetLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch.PoolId, withdrawMsgs)
 			}
 
+			height := ctx.BlockHeight()
 			// reinitialize remaining batch msgs
 			// In the case of BatchSwapMsgs, it is often fractional matched or has not yet expired since it has not passed ExpiryHeight.
 			swapMsgs := k.GetAllRemainingLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
 			if len(swapMsgs) > 0 {
 				for _, msg := range swapMsgs {
-					msg.Executed = false
-					msg.Succeed = false
+					if height > msg.OrderExpiryHeight {
+						msg.ToDelete = true
+					} else {
+						msg.Executed = false
+						msg.Succeed = false
+					}
 				}
 				k.SetLiquidityPoolBatchSwapMsgPointers(ctx, liquidityPoolBatch.PoolId, swapMsgs)
 			}

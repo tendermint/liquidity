@@ -763,7 +763,6 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 	return batchPoolSwapMsgList, batch
 }
 
-
 func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinList []sdk.Coin, orderPrices []sdk.Dec,
 	addrs []sdk.AccAddress, poolId uint64) []*types.MsgSwap {
 	if len(offerCoinList) != len(orderPrices) || len(orderPrices) != len(addrs) {
@@ -789,7 +788,7 @@ func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinLi
 			require.True(t, false)
 		}
 
-		msgList = append(msgList,types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i]))
+		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i]))
 	}
 	return msgList
 }

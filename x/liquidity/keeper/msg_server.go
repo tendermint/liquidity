@@ -1,9 +1,15 @@
 package keeper
+
+// DONTCOVER
+
+// Although written in msg_server_test.go, it is approached at the keeper level rather than at the msgServer level
+// so is not included in the coverage.
+
 import (
+	"context"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/liquidity/x/liquidity/types"
-	"context"
 )
 
 type msgServer struct {
@@ -17,7 +23,6 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 }
 
 var _ types.MsgServer = msgServer{}
-
 
 func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCreateLiquidityPool) (*types.MsgCreateLiquidityPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)

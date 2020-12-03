@@ -14,6 +14,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	for _, record := range data.LiquidityPoolRecords {
 		k.SetLiquidityPoolRecord(ctx, &record)
 	}
+	// TODO: verify GetNextBatchIndexWithUpdate, GetNextLiquidityPoolIdWithUpdate
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.

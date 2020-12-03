@@ -9,6 +9,9 @@ import (
 	"testing"
 )
 
+// Although written in msg_server_test.go, it is approached at the keeper level rather than at the msgServer level
+// so is not included in the coverage.
+
 // TODO: Plans to increase completeness on Milestone 2
 
 func TestMsgCreateLiquidityPool(t *testing.T) {

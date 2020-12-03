@@ -166,7 +166,6 @@ func (app *LiquidityApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAd
 		log.Fatal(err)
 	}
 
-
 	/* Handle slashing state. */
 
 	// reset start height on signing infos

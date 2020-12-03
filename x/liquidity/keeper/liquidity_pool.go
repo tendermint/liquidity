@@ -72,11 +72,11 @@ func (k Keeper) ValidateLiquidityPool(ctx sdk.Context, pool *types.LiquidityPool
 		return types.ErrNumOfReserveCoin
 	}
 
-	if len(pool.ReserveCoinDenoms) !=reserveCoins.Len() {
+	if len(pool.ReserveCoinDenoms) != reserveCoins.Len() {
 		return types.ErrNumOfReserveCoin
 	}
 	for i, denom := range pool.ReserveCoinDenoms {
-		if denom != reserveCoins[i].Denom{
+		if denom != reserveCoins[i].Denom {
 			return types.ErrInvalidDenom
 		}
 	}
@@ -212,17 +212,20 @@ func (k Keeper) GetLiquidityPoolRecord(ctx sdk.Context, pool types.LiquidityPool
 		return nil, found
 	}
 	return &types.LiquidityPoolRecord{
-		LiquidityPool:pool,
+		LiquidityPool:         pool,
 		LiquidityPoolMetaData: k.GetPoolMetaData(ctx, pool),
-		LiquidityPoolBatch: batch,
-		BatchPoolSwapMsgRecords: k.GetAllLiquidityPoolBatchSwapMsgsAsRecord(ctx, batch),
-		BatchPoolDepositMsgs: k.GetAllLiquidityPoolBatchDepositMsgs(ctx, batch),
+		LiquidityPoolBatch:    batch,
+		BatchPoolDepositMsgs:  k.GetAllLiquidityPoolBatchDepositMsgs(ctx, batch),
 		BatchPoolWithdrawMsgs: k.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, batch),
-		BatchPoolSwapMsgs: k.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch),
+		BatchPoolSwapMsgs:     k.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch),
 	}, true
 }
 func (k Keeper) SetLiquidityPoolRecord(ctx sdk.Context, record *types.LiquidityPoolRecord) {
-	k.SetLiquidityPool(ctx, record.LiquidityPool)
+	k.SetLiquidityPoolAtomic(ctx, record.LiquidityPool)
+	//k.SetLiquidityPool(ctx, record.LiquidityPool)
+	//k.SetLiquidityPoolByReserveAccIndex(ctx, record.LiquidityPool)
+	k.GetNextBatchIndexWithUpdate(ctx, record.LiquidityPool.PoolId)
+	record.LiquidityPoolBatch.BeginHeight = ctx.BlockHeight()
 	k.SetLiquidityPoolBatch(ctx, record.LiquidityPoolBatch)
 	k.SetLiquidityPoolBatchDepositMsgs(ctx, record.LiquidityPool.PoolId, record.BatchPoolDepositMsgs)
 	k.SetLiquidityPoolBatchWithdrawMsgs(ctx, record.LiquidityPool.PoolId, record.BatchPoolWithdrawMsgs)
@@ -254,6 +257,7 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 		types.MinReserveCoinNum > uint32(msg.DepositCoins.Len()) {
 		return types.ErrNumOfReserveCoin
 	}
+	// TODO: validate msgIndex
 
 	return nil
 }
@@ -650,23 +654,21 @@ func (k Keeper) GetLiquidityPoolMetaData(ctx sdk.Context, pool types.LiquidityPo
 	return &types.LiquidityPoolMetaData{PoolId: pool.PoolId, PoolCoinTotalSupply: totalSupply, ReserveCoins: reserveCoin}
 }
 
-
 func (k Keeper) ValidateLiquidityPoolMetaData(ctx sdk.Context, pool *types.LiquidityPool, metaData *types.LiquidityPoolMetaData) error {
 	if !metaData.PoolCoinTotalSupply.IsEqual(sdk.NewCoin(pool.PoolCoinDenom, k.GetPoolCoinTotalSupply(ctx, *pool))) {
 		return types.ErrBadPoolCoinAmount
 	}
-	if !metaData.ReserveCoins.Sort().IsEqual(metaData.ReserveCoins){
+	if !metaData.ReserveCoins.Sort().IsEqual(metaData.ReserveCoins) {
 		return types.ErrBadOrderingReserveCoin
 	}
 	if err := metaData.ReserveCoins.Validate(); err != nil {
 		return err
 	}
-	if !metaData.ReserveCoins.IsEqual(k.GetReserveCoins(ctx, *pool)){
+	if !metaData.ReserveCoins.IsEqual(k.GetReserveCoins(ctx, *pool)) {
 		return types.ErrNumOfReserveCoin
 	}
 	return nil
 }
-
 
 // Validate Liquidity Pool Record after init or after export
 func (k Keeper) ValidateLiquidityPoolRecord(ctx sdk.Context, record *types.LiquidityPoolRecord) error {
@@ -687,13 +689,13 @@ func (k Keeper) ValidateLiquidityPoolRecord(ctx sdk.Context, record *types.Liqui
 
 	// validate each msgs with batch state
 
-	if len(record.BatchPoolDepositMsgs)!=0 && record.LiquidityPoolBatch.DepositMsgIndex != record.BatchPoolDepositMsgs[len(record.BatchPoolDepositMsgs)-1].MsgIndex+1 {
+	if len(record.BatchPoolDepositMsgs) != 0 && record.LiquidityPoolBatch.DepositMsgIndex != record.BatchPoolDepositMsgs[len(record.BatchPoolDepositMsgs)-1].MsgIndex+1 {
 		return types.ErrBadBatchMsgIndex
 	}
-	if len(record.BatchPoolWithdrawMsgs)!=0 && record.LiquidityPoolBatch.WithdrawMsgIndex != record.BatchPoolWithdrawMsgs[len(record.BatchPoolWithdrawMsgs)-1].MsgIndex {
+	if len(record.BatchPoolWithdrawMsgs) != 0 && record.LiquidityPoolBatch.WithdrawMsgIndex != record.BatchPoolWithdrawMsgs[len(record.BatchPoolWithdrawMsgs)-1].MsgIndex+1 {
 		return types.ErrBadBatchMsgIndex
 	}
-	if len(record.BatchPoolSwapMsgs)!=0 && record.LiquidityPoolBatch.SwapMsgIndex != record.BatchPoolSwapMsgs[len(record.BatchPoolSwapMsgs)-1].MsgIndex {
+	if len(record.BatchPoolSwapMsgs) != 0 && record.LiquidityPoolBatch.SwapMsgIndex != record.BatchPoolSwapMsgs[len(record.BatchPoolSwapMsgs)-1].MsgIndex+1 {
 		return types.ErrBadBatchMsgIndex
 	}
 

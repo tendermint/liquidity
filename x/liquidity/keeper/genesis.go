@@ -19,7 +19,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	// TODO: reset heights variables when init or export
 }
 
-
 func (k Keeper) ValidateGenesis(ctx sdk.Context, genState types.GenesisState) error {
 	if err := genState.Params.Validate(); err != nil {
 		return err
@@ -33,9 +32,6 @@ func (k Keeper) ValidateGenesis(ctx sdk.Context, genState types.GenesisState) er
 	return nil
 }
 
-
-
-// TODO: WIP
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	params := k.GetParams(ctx)
 	var poolRecords []types.LiquidityPoolRecord
@@ -48,21 +44,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 			poolRecords = append(poolRecords, *record)
 		}
 	}
+
+	//batchIndex := k.GetLiquidityPoolBatchIndex(ctx)
 	return types.NewGenesisState(params, poolRecords)
-
-
-	//
-	//k.GetAllLiquidityPoolBatches()
-	//
-	//k.IterateAllLiquidityPools()
-	//
-	//
-	//// each pool?
-	//k.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, pool)
-	//k.GetPoolMetaData(ctx, pool)
-	//
-	//k.Iterate
-	//
-	//return types.NewGenesisState(params, )
-	////return types.DefaultGenesisState()
 }
