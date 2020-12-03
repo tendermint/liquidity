@@ -82,7 +82,6 @@ the number of deposit coins must be two in the pool-type-index 1
 				return err
 			}
 
-
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

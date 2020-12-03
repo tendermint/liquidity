@@ -152,6 +152,10 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data j
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, genesisState)
+	// TODO: validate as type level without keeper
+	if err := am.keeper.ValidateGenesis(ctx, genesisState); err != nil {
+		panic(fmt.Errorf("panic for ValidateGenesis,%v", err))
+	}
 	return []abci.ValidatorUpdate{}
 }
 

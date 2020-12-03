@@ -1,5 +1,7 @@
 package types
 
+// DONTCOVER
+
 const (
 	// QueryLiquidityPool liquidity query endpoint supported by the liquidity querier
 	QueryLiquidityPool = "liquidity_pool"
@@ -10,9 +12,8 @@ type QueryLiquidityPoolParams struct {
 	PoolId uint64 `json:"pool_id" yaml:"pool_id"`
 }
 
-
 func NewQueryLiquidityPoolParams(poolId uint64) QueryLiquidityPoolParams {
 	return QueryLiquidityPoolParams{
-		PoolId:poolId,
+		PoolId: poolId,
 	}
 }

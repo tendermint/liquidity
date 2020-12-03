@@ -79,7 +79,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 		simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg)
 	}
 
-	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, poolBatch)
+	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, poolBatch)
 	require.Equal(t, 20, len(msgs))
 
 	simapp.LiquidityKeeper.IterateAllLiquidityPoolBatchSwapMsgs(ctx, poolBatch, func(msg types.BatchPoolSwapMsg) bool {
@@ -89,7 +89,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 		return false
 	})
 
-	msgs = simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, poolBatch)
+	msgs = simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, poolBatch)
 	require.Equal(t, 10, len(msgs))
 
 	poolBatch, found = simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
@@ -101,7 +101,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, XtoY[10])
 	simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, YtoX[10])
 
-	msgs = simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, poolBatch)
+	msgs = simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, poolBatch)
 	require.Equal(t, 12, len(msgs))
 	require.Equal(t, XtoY[10], msgs[10].Msg)
 	require.Equal(t, YtoX[10], msgs[11].Msg)
@@ -142,11 +142,210 @@ func TestGetAllNotProcessedPoolBatchSwapMsgs(t *testing.T) {
 		msg.ToDelete = true
 	}
 	require.Equal(t, 3, len(batchMsgs2))
-	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, batchMsgs2)
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgPointers(ctx, poolId, batchMsgs2)
 
-	resultMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
+	resultMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, batch)
 	resultProccessedMsgs := simapp.LiquidityKeeper.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, batch)
 	require.Equal(t, 6, len(resultMsgs))
 	require.Equal(t, 3, len(resultProccessedMsgs))
 
+}
+
+func TestIterateAllBatchMsgs(t *testing.T) {
+	simapp, ctx := createTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+
+	// define test denom X, Y for Liquidity Pool
+	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
+	denomA, denomB := types.AlphabeticalDenomPair("denomA", "denomB")
+
+	X := sdk.NewInt(1000000000)
+	Y := sdk.NewInt(500000000)
+	A := sdk.NewInt(500000000)
+	B := sdk.NewInt(1000000000)
+
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+	poolId2 := app.TestCreatePool(t, simapp, ctx, A, B, denomA, denomB, addrs[4])
+	batch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+	require.True(t, found)
+
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+
+	price, _ := sdk.NewDecFromStr("1.1")
+	priceY, _ := sdk.NewDecFromStr("1.2")
+	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
+	offerCoinListY := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
+
+	orderPriceList := []sdk.Dec{price}
+	orderPriceListY := []sdk.Dec{priceY}
+	orderAddrList := addrs[1:2]
+	orderAddrListY := addrs[2:3]
+
+	offerCoinList2 := []sdk.Coin{sdk.NewCoin(denomA, sdk.NewInt(5000))}
+
+	// next block
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	app.TestDepositPool(t, simapp, ctx, A, B.QuoRaw(10), addrs[4:5], poolId2, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(1000), addrs[4:5], poolId2, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList2, orderPriceList, addrs[4:5], poolId2, true)
+
+	// next block
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	app.TestDepositPool(t, simapp, ctx, A, B.QuoRaw(10), addrs[4:5], poolId2, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(1000), addrs[4:5], poolId2, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList2, orderPriceList, addrs[4:5], poolId2, true)
+
+	// next block,
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	// Reinitialize batch messages that were not executed in the previous batch and delete batch messages that were executed or ready to delete.
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[1:2], poolId, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[1:2], poolId, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[2:3], poolId, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[2:3], poolId, false)
+
+	depositMsgsRemaining := simapp.LiquidityKeeper.GetAllRemainingLiquidityPoolBatchDepositMsgs(ctx, batch)
+	require.Equal(t, 0, len(depositMsgsRemaining))
+
+	var depositMsgs []types.BatchPoolDepositMsg
+	simapp.LiquidityKeeper.IterateAllBatchDepositMsgs(ctx, func(msg types.BatchPoolDepositMsg) bool {
+		depositMsgs = append(depositMsgs, msg)
+		return false
+	})
+	require.Equal(t, 4, len(depositMsgs))
+
+	depositMsgs[0].ToDelete = true
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchDepositMsgs(ctx, poolId, []types.BatchPoolDepositMsg{depositMsgs[0]})
+	depositMsgsNotToDelete := simapp.LiquidityKeeper.GetAllNotToDeleteLiquidityPoolBatchDepositMsgs(ctx, batch)
+	require.Equal(t, 3, len(depositMsgsNotToDelete))
+
+
+	var withdrawMsgs []types.BatchPoolWithdrawMsg
+	simapp.LiquidityKeeper.IterateAllBatchWithdrawMsgs(ctx, func(msg types.BatchPoolWithdrawMsg) bool {
+		withdrawMsgs = append(withdrawMsgs, msg)
+		return false
+	})
+	withdrawMsgs[0].ToDelete = true
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchWithdrawMsgs(ctx, poolId, withdrawMsgs[0:1])
+
+	withdrawMsgsNotToDelete := simapp.LiquidityKeeper.GetAllNotToDeleteLiquidityPoolBatchWithdrawMsgs(ctx, batch)
+	require.Equal(t, 4, len(withdrawMsgs))
+	require.Equal(t, 3, len(withdrawMsgsNotToDelete))
+	require.NotEqual(t, withdrawMsgsNotToDelete, withdrawMsgs)
+
+	app.TestDepositPool(t, simapp, ctx, A, B.QuoRaw(10), addrs[4:5], poolId2, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(1000), addrs[4:5], poolId2, false)
+
+	depositMsgs = simapp.LiquidityKeeper.GetAllBatchDepositMsgs(ctx)
+	require.Equal(t, 5, len(depositMsgs))
+	withdrawMsgs = simapp.LiquidityKeeper.GetAllBatchWithdrawMsgs(ctx)
+	require.Equal(t, 5, len(depositMsgs))
+
+	var depositMsgs2 []types.BatchPoolDepositMsg
+	simapp.LiquidityKeeper.IterateAllBatchDepositMsgs(ctx, func(msg types.BatchPoolDepositMsg) bool {
+		depositMsgs2 = append(depositMsgs2, msg)
+		return false
+	})
+
+	var withdrawMsgs2 []types.BatchPoolWithdrawMsg
+	simapp.LiquidityKeeper.IterateAllBatchWithdrawMsgs(ctx, func(msg types.BatchPoolWithdrawMsg) bool {
+		withdrawMsgs2 = append(withdrawMsgs2, msg)
+		return false
+	})
+
+	require.Equal(t, 5, len(depositMsgs2))
+
+	require.Equal(t, 5, len(withdrawMsgs2))
+
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	depositMsgsRemaining = simapp.LiquidityKeeper.GetAllRemainingLiquidityPoolBatchDepositMsgs(ctx, batch)
+	require.Equal(t, 0, len(depositMsgsRemaining))
+
+	// next block,
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	// Reinitialize batch messages that were not executed in the previous batch and delete batch messages that were executed or ready to delete.
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	var depositMsgs3 []types.BatchPoolDepositMsg
+	simapp.LiquidityKeeper.IterateAllBatchDepositMsgs(ctx, func(msg types.BatchPoolDepositMsg) bool {
+		depositMsgs3 = append(depositMsgs3, msg)
+		return false
+	})
+	require.Equal(t, 0, len(depositMsgs3))
+
+	var withdrawMsgs3 []types.BatchPoolWithdrawMsg
+	simapp.LiquidityKeeper.IterateAllBatchWithdrawMsgs(ctx, func(msg types.BatchPoolWithdrawMsg) bool {
+		withdrawMsgs3 = append(withdrawMsgs3, msg)
+		return false
+	})
+	require.Equal(t, 0, len(withdrawMsgs3))
+
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList2, orderPriceList, addrs[4:5], poolId2, false)
+
+	swapMsgsPool1 := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
+	require.Equal(t, 4, len(swapMsgsPool1))
+
+	var swapMsgsAllPool []types.BatchPoolSwapMsg
+	simapp.LiquidityKeeper.IterateAllBatchSwapMsgs(ctx, func(msg types.BatchPoolSwapMsg) bool {
+		swapMsgsAllPool = append(swapMsgsAllPool, msg)
+		return false
+	})
+	require.Equal(t, 5, len(swapMsgsAllPool))
+
+
+	swapMsgsAllPool = simapp.LiquidityKeeper.GetAllBatchSwapMsgs(ctx)
+	require.Equal(t, 5, len(swapMsgsAllPool))
+	require.Equal(t, swapMsgsPool1, swapMsgsAllPool[:len(swapMsgsPool1)])
+
+	swapMsgsAllPool[1].Executed = true
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, swapMsgsAllPool[1:2])
+
+	reminingSwapMsgs := simapp.LiquidityKeeper.GetAllRemainingLiquidityPoolBatchSwapMsgs(ctx, batch)
+	require.Equal(t, 1, len(reminingSwapMsgs))
+
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	// next block,
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	// Reinitialize batch messages that were not executed in the previous batch and delete batch messages that were executed or ready to delete.
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	var swapMsg2 []types.BatchPoolSwapMsg
+	simapp.LiquidityKeeper.IterateAllBatchSwapMsgs(ctx, func(msg types.BatchPoolSwapMsg) bool {
+		swapMsg2 = append(swapMsg2, msg)
+		return false
+	})
+	require.Equal(t, 0, len(swapMsg2))
+
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	genesis := simapp.LiquidityKeeper.ExportGenesis(ctx)
+	simapp.LiquidityKeeper.InitGenesis(ctx, *genesis)
+	genesisNew := simapp.LiquidityKeeper.ExportGenesis(ctx)
+	require.Equal(t, genesis, genesisNew)
+
+
+	simapp.LiquidityKeeper.DeleteLiquidityPoolBatch(ctx, batch)
+	batch, found = simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, batch.PoolId)
+	require.Equal(t, types.LiquidityPoolBatch{}, batch)
+	require.False(t, found)
 }

@@ -54,7 +54,6 @@ func TestMsgServerCreateLiquidityPool(t *testing.T) {
 	require.Error(t, err, types.ErrPoolAlreadyExists)
 }
 
-
 func TestMsgServerDepositLiquidityPool(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
@@ -230,7 +229,6 @@ func TestMsgServerGetLiquidityPoolMetaData(t *testing.T) {
 	require.Equal(t, creatorBalance, metaData.PoolCoinTotalSupply)
 }
 
-
 func TestMsgServerSwap(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
@@ -253,7 +251,7 @@ func TestMsgServerSwap(t *testing.T) {
 	// collect them in the batch and perform an execution at once at the endblock.
 
 	// add a deposit to pool and run batch execution on endblock
-	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:1], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:2], poolId, true)
 
 	// next block, reinitialize batch and increase batchIndex at beginBlocker,
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -286,7 +284,7 @@ func TestMsgServerSwap(t *testing.T) {
 	batch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
 	require.True(t, found)
 	notProcessedMsgs := simapp.LiquidityKeeper.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, batch)
-	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
+	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, batch)
 	require.Equal(t, 4, len(msgs))
 	require.Equal(t, 4, len(notProcessedMsgs))
 }

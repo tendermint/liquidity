@@ -302,7 +302,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 
 func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	msgs := app.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, suite.batches[0])
+	msgs := app.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, suite.batches[0])
 
 	var req *types.QueryPoolBatchSwapMsgsRequest
 	testCases := []struct {

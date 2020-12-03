@@ -583,12 +583,10 @@ func (app *LiquidityApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.
 	}
 }
 
-
 // RegisterTxService implements the Application.RegisterTxService method.
 func (app *LiquidityApp) RegisterTxService(clientCtx client.Context) {
 	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
-
 
 // RegisterSwaggerAPI registers swagger route with API Server
 func RegisterSwaggerAPI(ctx client.Context, rtr *mux.Router) {

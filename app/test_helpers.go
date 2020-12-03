@@ -662,6 +662,7 @@ func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolC
 	iterNum := len(addrs)
 	for i := 0; i < iterNum; i++ {
 		balancePoolCoin := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.PoolCoinDenom)
+		fmt.Println(balancePoolCoin, poolCoinAmt)
 		require.True(t, balancePoolCoin.Amount.GTE(poolCoinAmt))
 
 		withdrawCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
@@ -694,6 +695,7 @@ func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolC
 
 		// verify burned pool coin
 		poolCoinAfter := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+		fmt.Println(poolCoinAfter, poolCoinBefore)
 		require.True(t, poolCoinAfter.LT(poolCoinBefore))
 
 		for i := 0; i < iterNum; i++ {
@@ -761,7 +763,6 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 	return batchPoolSwapMsgList, batch
 }
 
-
 func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinList []sdk.Coin, orderPrices []sdk.Dec,
 	addrs []sdk.AccAddress, poolId uint64) []*types.MsgSwap {
 	if len(offerCoinList) != len(orderPrices) || len(orderPrices) != len(addrs) {
@@ -787,7 +788,7 @@ func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinLi
 			require.True(t, false)
 		}
 
-		msgList = append(msgList,types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i]))
+		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i]))
 	}
 	return msgList
 }

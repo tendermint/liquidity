@@ -10,6 +10,13 @@ import (
 	"testing"
 )
 
+func PointerListToValueList(pointerList []*interface{}) (valueList []interface{}) {
+	for _, i := range pointerList {
+		valueList = append(valueList, *i)
+	}
+	return valueList
+}
+
 func TestSwapScenario(t *testing.T) {
 	// init test app and context
 	simapp, ctx := app.CreateTestInput()
@@ -32,7 +39,7 @@ func TestSwapScenario(t *testing.T) {
 	// collect them in the batch and perform an execution at once at the endblock.
 
 	// add a deposit to pool and run batch execution on endblock
-	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:1], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:2], poolId, true)
 
 	// next block, reinitialize batch and increase batchIndex at beginBlocker,
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -53,11 +60,11 @@ func TestSwapScenario(t *testing.T) {
 	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
 
 	// Set the execution status flag of messages to true.
-	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
+	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, batch)
 	for _, msg := range msgs {
 		msg.Executed = true
 	}
-	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgs(ctx, poolId, msgs)
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgPointers(ctx, poolId, msgs)
 
 	// Generate an orderbook by arranging swap messages in order price
 	orderMap, XtoY, YtoX := types.GetOrderMap(msgs, denomX, denomY, false)
@@ -137,6 +144,40 @@ func TestSwapScenario(t *testing.T) {
 	require.Equal(t, 0, (types.MsgList)(orderMapCleared[orderPriceList[0].String()].MsgList).CountNotMatchedMsgs())
 	require.Equal(t, 0, (types.MsgList)(orderMapCleared[orderPriceListY[0].String()].MsgList).CountNotMatchedMsgs())
 	require.Equal(t, 0, len(orderBookCleared))
+
+	// next block
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	// test genesisState with export, init
+	genesis := simapp.LiquidityKeeper.ExportGenesis(ctx)
+	simapp.LiquidityKeeper.InitGenesis(ctx, *genesis)
+	err := types.ValidateGenesis(*genesis)
+	require.NoError(t, err)
+	genesisNew := simapp.LiquidityKeeper.ExportGenesis(ctx)
+	err = types.ValidateGenesis(*genesisNew)
+	require.NoError(t, err)
+	require.Equal(t, genesis, genesisNew)
+	for _, record := range genesisNew.LiquidityPoolRecords {
+		err = record.Validate()
+		require.NoError(t, err)
+	}
+
+	// validate genesis fail case
+	batch.DepositMsgIndex = 0
+	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, batch)
+	genesisNew = simapp.LiquidityKeeper.ExportGenesis(ctx)
+	err = types.ValidateGenesis(*genesisNew)
+	require.Error(t, err, types.ErrBadBatchMsgIndex)
+	batch.WithdrawMsgIndex = 0
+	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, batch)
+	genesisNew = simapp.LiquidityKeeper.ExportGenesis(ctx)
+	err = types.ValidateGenesis(*genesisNew)
+	require.Error(t, err, types.ErrBadBatchMsgIndex)
+	batch.SwapMsgIndex = 20
+	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, batch)
+	genesisNew = simapp.LiquidityKeeper.ExportGenesis(ctx)
+	err = types.ValidateGenesis(*genesisNew)
+	require.Error(t, err, types.ErrBadBatchMsgIndex)
 }
 
 func TestMaxOrderRatio(t *testing.T) {
@@ -154,7 +195,7 @@ func TestMaxOrderRatio(t *testing.T) {
 	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	// begin block, init
-	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:1], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:2], poolId, true)
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -217,6 +258,9 @@ func TestMaxOrderRatio(t *testing.T) {
 	offerCoin = sdk.NewCoin(denomX, X.ToDec().Mul(maxOrderRatio).TruncateInt().AddRaw(1))
 	offerCoinY = sdk.NewCoin(denomY, Y.ToDec().Mul(maxOrderRatio).TruncateInt().AddRaw(1))
 
+
+	offerCoin = sdk.NewCoin(denomX, params.MinInitDepositToPool.Quo(sdk.NewInt(2)))
+	offerCoinY = sdk.NewCoin(denomY, params.MinInitDepositToPool.Quo(sdk.NewInt(10)))
 	app.SaveAccount(simapp, ctx, addrs[1], sdk.NewCoins(offerCoin))
 	app.SaveAccount(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY))
 
@@ -227,8 +271,7 @@ func TestMaxOrderRatio(t *testing.T) {
 	require.Equal(t, types.ErrExceededMaxOrderable, err)
 
 	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgSell)
-	require.Equal(t, types.ErrExceededMaxOrderable, err)
-
+	require.NoError(t, err)
 }
 
 func TestOrderBookSort(t *testing.T) {

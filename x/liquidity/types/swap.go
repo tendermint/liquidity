@@ -565,7 +565,6 @@ func CheckValidityMustExecutable(orderBook OrderBook, swapPrice sdk.Dec) bool {
 	}
 }
 
-
 // make orderMap key as swap price, value as Buy, Sell Amount from swap msgs,  with split as Buy XtoY, Sell YtoX msg list.
 func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMatched bool) (OrderMap, []*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
 	orderMap := make(OrderMap)

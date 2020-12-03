@@ -6,7 +6,21 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/tendermint/liquidity/types";
 
-// GenesisState defines the nft module's genesis state.
+message LiquidityPoolRecord {
+    LiquidityPool liquidity_pool = 1 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"liquidity_pool\""];
+    LiquidityPoolMetaData liquidity_pool_meta_data = 2 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"liquidity_pool_meta_data\""];
+    LiquidityPoolBatch liquidity_pool_batch = 3 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"liquidity_pool_batch\""];
+    repeated BatchPoolDepositMsg batch_pool_deposit_msgs = 4  [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"batch_pool_deposit_msgs\""];
+    repeated BatchPoolWithdrawMsg batch_pool_withdraw_msgs = 5   [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"batch_pool_withdraw_msgs\""];
+    repeated BatchPoolSwapMsg batch_pool_swap_msgs = 6   [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"batch_pool_swap_msgs\""];
+}
+
+// GenesisState defines the liquidity module's genesis state.
 message GenesisState {
+    option (gogoproto.equal) = false;
+    option (gogoproto.goproto_getters) = false;
+
+    // params defines all the parameters of related to liquidity.
     Params params = 1 [(gogoproto.nullable) = false];
+    repeated LiquidityPoolRecord liquidity_pool_records = 2   [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"liquidity_pools\""];
 }
