@@ -217,7 +217,7 @@ func TestMsgServerGetLiquidityPoolMetaData(t *testing.T) {
 	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.Error(t, err, types.ErrPoolAlreadyExists)
 
-	metaData := simapp.LiquidityKeeper.GetLiquidityPoolMetaData(ctx, lpList[0])
+	metaData := simapp.LiquidityKeeper.GetPoolMetaData(ctx, lpList[0])
 	require.Equal(t, lpList[0].PoolId, metaData.PoolId)
 
 	reserveCoin := simapp.LiquidityKeeper.GetReserveCoins(ctx, lpList[0])

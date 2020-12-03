@@ -7,15 +7,15 @@ import (
 	"sort"
 )
 
-func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) error {
+func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (uint64, error) {
 	// get All only not processed swap msgs, not executed, not succeed, not toDelete
 	swapMsgs := k.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
 	if len(swapMsgs) == 0 {
-		return nil
+		return 0, nil
 	}
 	pool, found := k.GetLiquidityPool(ctx, liquidityPoolBatch.PoolId)
 	if !found {
-		return types.ErrPoolNotExists
+		return 0, types.ErrPoolNotExists
 	}
 	// set all msgs to executed
 	for _, msg := range swapMsgs {
@@ -252,10 +252,12 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 			notMatchedCount++
 		}
 	}
+	executedMsgCount := uint64(len(swapMsgs))
+
 	// execute transact, refund, expire, send coins with escrow, update state by TransactAndRefundSwapLiquidityPool
 	if err := k.TransactAndRefundSwapLiquidityPool(ctx, swapMsgs, matchResultMap, pool); err != nil {
 		panic(err)
-		return err
+		return executedMsgCount, err
 	}
 
 	//TODO: emit event per msg
@@ -264,7 +266,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 			types.EventTypeSwap,
 		),
 	)
-	return nil
+	return executedMsgCount, nil
 }
 
 func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, matchResultXtoY, matchResultYtoX []types.MatchResult) (

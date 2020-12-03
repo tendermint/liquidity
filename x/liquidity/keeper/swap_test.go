@@ -13,7 +13,7 @@ import (
 )
 
 func TestSimulationSwapExecution(t *testing.T) {
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10; i++ {
 		fmt.Println("test count", i+1)
 		TestSwapExecution(t)
 	}

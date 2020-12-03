@@ -9,6 +9,7 @@ import (
 // Reinitialize batch messages that were not executed in the previous batch and delete batch messages that were executed or ready to delete.
 func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
+		// Delete and init next batch when not empty batch on before block
 		if liquidityPoolBatch.Executed {
 
 			// On the other hand, BatchDeposit, BatchWithdraw, is all handled by the endblock if there is no error.
@@ -79,23 +80,29 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 			if liquidityPoolBatch.Executed {
 				return false
 			}
-			if err := k.SwapExecution(ctx, liquidityPoolBatch); err != nil {
+			executedMsgCount, err := k.SwapExecution(ctx, liquidityPoolBatch);
+			if err != nil {
 				panic(err)
 			}
 			k.IterateAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolDepositMsg) bool {
+				executedMsgCount++
 				if err := k.DepositLiquidityPool(ctx, batchMsg); err != nil {
 					k.RefundDepositLiquidityPool(ctx, batchMsg)
 				}
 				return false
 			})
 			k.IterateAllLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolWithdrawMsg) bool {
+				executedMsgCount++
 				if err := k.WithdrawLiquidityPool(ctx, batchMsg); err != nil {
 					k.RefundWithdrawLiquidityPool(ctx, batchMsg)
 				}
 				return false
 			})
-			liquidityPoolBatch.Executed = true
-			k.SetLiquidityPoolBatch(ctx, liquidityPoolBatch)
+			// set executed when something executed
+			if executedMsgCount > 0 {
+				liquidityPoolBatch.Executed = true
+				k.SetLiquidityPoolBatch(ctx, liquidityPoolBatch)
+			}
 		}
 		return false
 	})

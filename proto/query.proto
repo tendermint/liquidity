@@ -15,6 +15,11 @@ service Query {
         option (google.api.http).get = "/liquidity/pools";
     }
 
+    // Get all liquidity pools batch
+    rpc LiquidityPoolsBatch (QueryLiquidityPoolsBatchRequest) returns (QueryLiquidityPoolsBatchResponse) {
+        option (google.api.http).get = "/liquidity/pools/batch";
+    }
+
     // Get a liquidity pool with liquidity pool batch by pool_id
     rpc LiquidityPool (QueryLiquidityPoolRequest) returns (QueryLiquidityPoolResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}";
@@ -69,7 +74,16 @@ message QueryLiquidityPoolsRequest {
 }
 
 message QueryLiquidityPoolsResponse {
-    repeated QueryLiquidityPoolResponse liquidity_pool_responses = 1 [(gogoproto.nullable) = false];
+    repeated QueryLiquidityPoolResponse liquidity_pools_response = 1 [(gogoproto.nullable) = false];
+    cosmos.query.PageResponse pagination = 2;
+}
+
+message QueryLiquidityPoolsBatchRequest {
+    cosmos.query.PageRequest pagination = 1;
+}
+
+message QueryLiquidityPoolsBatchResponse {
+    repeated QueryLiquidityPoolBatchResponse liquidity_pools_batch_response = 1 [(gogoproto.nullable) = false];
     cosmos.query.PageResponse pagination = 2;
 }
 

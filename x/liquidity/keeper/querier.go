@@ -1,7 +1,9 @@
 package keeper
 
+// DONTCOVER
+// client is excluded from test coverage in the poc phase milestone 1 and will be included in milestone 2 with completeness
+
 import (
-	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -14,12 +16,12 @@ import (
 // NewQuerier creates a querier for liquidity REST endpoints
 func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
-		fmt.Println(path, path, req)
 		switch path[0] {
 		case types.QueryLiquidityPool:
 			return queryLiquidityPool(ctx, path[1:], req, k, legacyQuerierCdc)
+		case types.QueryLiquidityPools:
+			return queryLiquidityPools(ctx, path[1:], req, k, legacyQuerierCdc)
 		default:
-			fmt.Println("querier defalt case")
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown query path of liquidity module: %s", path[0])
 		}
 	}
@@ -38,6 +40,22 @@ func queryLiquidityPool(ctx sdk.Context, _ []string, req abci.RequestQuery, k Ke
 	}
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, liquidityPool)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return bz, nil
+}
+
+func queryLiquidityPools(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+	var params types.QueryLiquidityPoolsParams
+
+	if err := legacyQuerierCdc.UnmarshalJSON(req.Data, &params); err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	liquidityPools := k.GetAllLiquidityPools(ctx)
+
+	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, liquidityPools)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

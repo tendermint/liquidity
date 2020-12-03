@@ -102,6 +102,8 @@ func (lp LiquidityPool) GetPoolId() uint64        { return lp.PoolId }
 // LiquidityPools is a collection of liquidityPools
 type LiquidityPools []LiquidityPool
 
+type LiquidityPoolsBatch []LiquidityPoolBatch
+
 func (lps LiquidityPools) String() (out string) {
 	for _, del := range lps {
 		out += del.String() + "\n"

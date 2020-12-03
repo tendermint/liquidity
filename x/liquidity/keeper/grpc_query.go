@@ -1,5 +1,8 @@
 package keeper
 
+// DONTCOVER
+// client is excluded from test coverage in the poc phase milestone 1 and will be included in milestone 2 with completeness
+
 import (
 	"context"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -26,8 +29,27 @@ func (k Keeper) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Liqui
 	}
 
 	return &types.QueryLiquidityPoolResponse{LiquidityPool: pool,
-		LiquidityPoolMetaData: *k.GetLiquidityPoolMetaData(ctx, pool),
+		LiquidityPoolMetaData: k.GetPoolMetaData(ctx, pool),
 		LiquidityPoolBatch:    batch}, nil
+}
+
+func (k Keeper) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.LiquidityPools) (*[]types.QueryLiquidityPoolResponse, error) {
+	resp := make([]types.QueryLiquidityPoolResponse, len(pools))
+	for i, pool := range pools {
+		batch, found := k.GetLiquidityPoolBatch(ctx, pool.PoolId)
+		if !found {
+			return nil, types.ErrPoolBatchNotExists
+		}
+		meta := k.GetPoolMetaData(ctx, pool)
+		res := types.QueryLiquidityPoolResponse{
+			LiquidityPool:pool,
+			LiquidityPoolMetaData:meta,
+			LiquidityPoolBatch:batch,
+		}
+		resp[i] = res
+	}
+
+	return &resp, nil
 }
 
 func (k Keeper) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRequest) (*types.QueryLiquidityPoolResponse, error) {
@@ -47,7 +69,7 @@ func (k Keeper) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRe
 
 func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPoolsRequest) (*types.QueryLiquidityPoolsResponse, error) {
 	empty := &types.QueryLiquidityPoolsRequest{}
-	if req == nil || *req == *empty {
+	if req == nil || req == empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 
@@ -56,34 +78,54 @@ func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPools
 	store := ctx.KVStore(k.storeKey)
 	poolStore := prefix.NewStore(store, types.LiquidityPoolKeyPrefix)
 	var pools types.LiquidityPools
-	var poolResponses []types.QueryLiquidityPoolResponse
 
-	pageRes, err := query.FilteredPaginate(poolStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+	pageRes, err := query.Paginate(poolStore, req.Pagination, func(key []byte, value []byte) error {
 		pool, err := types.UnmarshalLiquidityPool(k.cdc, value)
 		if err != nil {
-			return false, err
+			return err
 		}
-
-		if accumulate {
-			pools = append(pools, pool)
-		}
-
-		return true, nil
+		pools = append(pools, pool)
+		return nil
 	})
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	for _, pool := range pools {
-		response, err := k.MakeQueryLiquidityPoolResponse(ctx, pool)
-		if err != nil {
-			return nil, err
-		}
-		poolResponses = append(poolResponses, *response)
+	response, err := k.MakeQueryLiquidityPoolsResponse(ctx, pools)
+
+	return &types.QueryLiquidityPoolsResponse{*response, pageRes}, nil
+}
+
+func (k Keeper) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidityPoolsBatchRequest) (*types.QueryLiquidityPoolsBatchResponse, error) {
+	empty := &types.QueryLiquidityPoolsBatchRequest{}
+	if req == nil || req == empty {
+		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 
-	return &types.QueryLiquidityPoolsResponse{LiquidityPoolResponses: poolResponses, Pagination: pageRes}, nil
+	ctx := sdk.UnwrapSDKContext(c)
+
+	store := ctx.KVStore(k.storeKey)
+	batchStore := prefix.NewStore(store, types.LiquidityPoolBatchKeyPrefix)
+	var response []types.QueryLiquidityPoolBatchResponse
+
+	pageRes, err := query.Paginate(batchStore, req.Pagination, func(key []byte, value []byte) error {
+		batch, err := types.UnmarshalLiquidityPoolBatch(k.cdc, value)
+		if err != nil {
+			return err
+		}
+		res := &types.QueryLiquidityPoolBatchResponse{
+			LiquidityPoolBatch: batch,
+		}
+		response = append(response, *res)
+		return nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryLiquidityPoolsBatchResponse{response, pageRes}, nil
 }
 
 func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
@@ -111,17 +153,15 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchSwapMsgIndexKeyPrefix)
 	var msgs []types.BatchPoolSwapMsg
 
-	pageRes, err := query.FilteredPaginate(msgStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
 		msg, err := types.UnmarshalBatchPoolSwapMsg(k.cdc, value)
 		if err != nil {
-			return false, err
+			return err
 		}
 
-		if accumulate {
-			msgs = append(msgs, msg)
-		}
+		msgs = append(msgs, msg)
 
-		return true, nil
+		return nil
 	})
 
 	if err != nil {
@@ -147,17 +187,15 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchDepositMsgIndexKeyPrefix)
 	var msgs []types.BatchPoolDepositMsg
 
-	pageRes, err := query.FilteredPaginate(msgStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
 		msg, err := types.UnmarshalBatchPoolDepositMsg(k.cdc, value)
 		if err != nil {
-			return false, err
+			return err
 		}
 
-		if accumulate {
-			msgs = append(msgs, msg)
-		}
+		msgs = append(msgs, msg)
 
-		return true, nil
+		return nil
 	})
 
 	if err != nil {
@@ -182,17 +220,15 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchWithdrawMsgIndexKeyPrefix)
 	var msgs []types.BatchPoolWithdrawMsg
 
-	pageRes, err := query.FilteredPaginate(msgStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
+	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
 		msg, err := types.UnmarshalBatchPoolWithdrawMsg(k.cdc, value)
 		if err != nil {
-			return false, err
+			return err
 		}
 
-		if accumulate {
-			msgs = append(msgs, msg)
-		}
+		msgs = append(msgs, msg)
 
-		return true, nil
+		return nil
 	})
 
 	if err != nil {
