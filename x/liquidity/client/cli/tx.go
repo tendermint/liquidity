@@ -35,14 +35,14 @@ func GetTxCmd() *cobra.Command {
 
 func NewCreateLiquidityPoolCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-liquidity-pool [pool-type-index] [deposit-coins]",
+		Use:   "create-pool [pool-type-index] [deposit-coins]",
 		Args:  cobra.ExactArgs(2),
 		Short: "Create Liquidity pool with the specified pool-type, deposit coins",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Create Liquidity pool with the specified pool-type-index, deposit coins for reserve
 
 Example:
-$ %s tx liquidity create-liquidity-pool 1 100000000acoin,100000000bcoin --from mykey
+$ %s tx liquidity create-pool 1 100000000acoin,100000000bcoin --from mykey
 
 Currently, only the default pool-type-index 1 is available
 the number of deposit coins must be two in the pool-type-index 1

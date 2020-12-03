@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -28,6 +29,21 @@ func getQueriedLiquidityPool(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmi
 	}
 	require.Nil(t, cdc.UnmarshalJSON(bz, &pool))
 	return pool, nil
+}
+
+func getQueriedLiquidityPools(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier) (types.LiquidityPools, error) {
+	query := abci.RequestQuery{
+		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryLiquidityPools}, "/"),
+		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolsParams{}),
+	}
+
+	pools := types.LiquidityPools{}
+	bz, err := querier(ctx, []string{types.QueryLiquidityPools}, query)
+	if err != nil {
+		return pools, err
+	}
+	require.Nil(t, cdc.UnmarshalJSON(bz, &pools))
+	return pools, nil
 }
 
 func TestNewQuerier(t *testing.T) {
@@ -88,4 +104,10 @@ func TestQueries(t *testing.T) {
 	poolResEmpty, err := getQueriedLiquidityPool(t, ctx, cdc, querier, uint64(2))
 	require.Error(t, err)
 	require.Equal(t, uint64(0), poolResEmpty.PoolId)
+
+	poolsResEmpty, err := getQueriedLiquidityPools(t, ctx, cdc, querier)
+	require.Error(t, err)
+	fmt.Println(err)
+	require.Equal(t, types.LiquidityPools{}, poolsResEmpty)
+
 }

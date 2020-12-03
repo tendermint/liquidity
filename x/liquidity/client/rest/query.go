@@ -16,12 +16,21 @@ import (
 // TODO: Plans to increase completeness on Milestone 2
 
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
-	// query liquidity
-	//r.HandleFunc(fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId), queryLiquidityHandlerFn(cliCtx)).Methods("GET")
+	// Get the liquidity pool
+	r.HandleFunc(
+		fmt.Sprintf("/liquidity/pool/{%s}", RestPoolId),
+		queryLiquidityPoolHandlerFn(cliCtx),
+		).Methods("GET")
+
+	// Get all liquidity pools
+	r.HandleFunc(
+		"/liquidity/pools",
+		queryLiquidityPoolsHandlerFn(cliCtx),
+	).Methods("GET")
 }
 
 // HTTP request handler to query liquidity information.
-func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
+func queryLiquidityPoolHandlerFn(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		strPoolId := vars[RestPoolId]
@@ -45,14 +54,52 @@ func queryLiquidityHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryLiquidityPool)
-		fmt.Println(route)
 		res, height, err := cliCtx.QueryWithData(route, bz)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		if rest.CheckInternalServerError(w, err) {
 			return
 		}
+		//if err != nil {
+		//	rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		//	return
+		//}
 
 		cliCtx = cliCtx.WithHeight(height)
 		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+// HTTP request handler to query list of validators
+func queryLiquidityPoolsHandlerFn(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, page, limit, err := rest.ParseHTTPArgsWithLimit(r, 0)
+		fmt.Println(page, limit, err)
+		if rest.CheckBadRequestError(w, err) {
+			return
+		}
+
+		clientCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, clientCtx, r)
+		if !ok {
+			return
+		}
+
+		params := types.NewQueryLiquidityPoolsParams(page, limit)
+
+		bz, err := clientCtx.LegacyAmino.MarshalJSON(params)
+		fmt.Println(bz, err)
+		if rest.CheckBadRequestError(w, err) {
+			return
+		}
+
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryLiquidityPools)
+
+		res, height, err := clientCtx.QueryWithData(route, bz)
+
+		fmt.Println(route, res, height, err)
+		if rest.CheckInternalServerError(w, err) {
+			return
+		}
+
+		clientCtx = clientCtx.WithHeight(height)
+		rest.PostProcessResponse(w, clientCtx, res)
 	}
 }

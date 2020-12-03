@@ -46,7 +46,7 @@ Usage:
 
 
 Available Commands:
-  create-liquidity-pool Create Liquidity pool with the specified pool-type, deposit coins
+  create-pool Create Liquidity pool with the specified pool-type, deposit coins
 
   *WIP, More will soon be added.*
 
@@ -59,12 +59,12 @@ Global Flags:
       --trace             print out full stack trace on errors
 ```
 
-`$ liquidityd tx liquidity create-liquidity-pool --help`
+`$ liquidityd tx liquidity create-pool --help`
 ```
 Create Liquidity pool with the specified pool-type-index, deposit coins for reserve
 
 Example:
-$ liquidity tx liquidity create-liquidity-pool 1 100000000acoin,100000000bcoin --from mykey
+$ liquidity tx liquidity create-pool 1 100000000acoin,100000000bcoin --from mykey
 
 Currently, only the default pool-type-index 1 is available
 the number of deposit coins must be two in the pool-type-index 1
@@ -72,14 +72,14 @@ the number of deposit coins must be two in the pool-type-index 1
 {"pool_type_index":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
 
 Usage:
-  liquidityd tx liquidity create-liquidity-pool [pool-type-index] [deposit-coins] [flags]
+  liquidityd tx liquidity create-pool [pool-type-index] [deposit-coins] [flags]
 ```
 
-### create-liquidity-pool
+### create-pool
 
 example tx command with result 
 
-`$ liquidityd tx liquidity create-liquidity-pool 1 100000000reservecoin1,100000000reservecoin2 --from node0 --home ./output/node0/liquidityd/ --fees 2stake --chain-id chain-3MYSLc`
+`$ liquidityd tx liquidity create-pool 1 100000000reservecoin1,100000000reservecoin2 --from node0 --home ./output/node0/liquidityd/ --fees 2stake --chain-id chain-3MYSLc`
 
 ```json
 {
@@ -252,7 +252,7 @@ Usage:
   liquidityd query liquidity [command]
 
 Available Commands:
-  liquidity-pool Query details of a liquidity pool
+  pool           Query details of a liquidity pool
   params         Query the current liquidity parameters information
   *WIP, More will soon be added.*
 
@@ -267,18 +267,18 @@ Global Flags:
 Use "liquidityd query liquidity [command] --help" for more information about a command.
 ```
 
-`$ ./liquidityd query liquidity liquidity-pool  --help   `
+`$ ./liquidityd query liquidity pool  --help   `
 ```   
 Query details of a liquidity pool
 Example:
-$ liquidity query liquidity liquidity-pool 1
+$ liquidity query liquidity pool 1
 
 Usage:
-  liquidityd query liquidity liquidity-pool [pool-id] [flags]
+  liquidityd query liquidity pool [pool-id] [flags]
 
 Flags:
       --height int      Use a specific height to query state at (this can error if the node is pruning state)
-  -h, --help            help for liquidity-pool
+  -h, --help            help for pool
       --node string     <host>:<port> to Tendermint RPC interface for this chain (default "tcp://localhost:26657")
   -o, --output string   Output format (text|json) (default "text")
 
@@ -289,11 +289,11 @@ Global Flags:
       --trace              print out full stack trace on errors
 
 ```
-### liquidity-pool
+### pool
 
 example query command with result 
 
-`./liquidityd query liquidity liquidity-pool 1`
+`./liquidityd query liquidity pool 1`
  
 ```bash
 pool_coin_denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
@@ -388,7 +388,7 @@ swap_fee_rate: "0.003000000000000000"
 
 `cat output/node0/liquidityd/config/genesis.json | grep chain_id`
 
-`./liquidityd tx liquidity create-liquidity-pool 1 100000000reservecoin1,100000000reservecoin2 --from node0  --home ./output/node0/liquidityd/ --fees 2stake --chain-id <CHAIN-ID>`
+`./liquidityd tx liquidity create-pool 1 100000000reservecoin1,100000000reservecoin2 --from node0  --home ./output/node0/liquidityd/ --fees 2stake --chain-id <CHAIN-ID>`
 
 `./liquidityd export --home ./output/node0/liquidityd/`
 

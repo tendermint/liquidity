@@ -107,7 +107,7 @@ Usage:
 
 
 Available Commands:
-  create-liquidity-pool Create Liquidity pool with the specified pool-type, deposit coins
+  create-pool Create Liquidity pool with the specified pool-type, deposit coins
 
   *WIP, More will soon be added.*
 
@@ -131,7 +131,7 @@ Usage:
   liquidityd query liquidity [command]
 
 Available Commands:
-  liquidity-pool Query details of a liquidity pool
+  pool           Query details of a liquidity pool
   params         Query the current liquidity parameters information
   *WIP, More will soon be added.*
 

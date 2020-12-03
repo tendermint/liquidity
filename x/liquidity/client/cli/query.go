@@ -27,22 +27,61 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	liquidityQueryCmd.AddCommand(
-		GetCmdQueryLiquidityPool(),
 		GetCmdQueryParams(),
+		GetCmdQueryLiquidityPool(),
+		GetCmdQueryLiquidityPools(),
 	)
 
 	return liquidityQueryCmd
 }
 
+//GetCmdQueryParams implements the params query command.
+func GetCmdQueryParams() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "params",
+		Args:  cobra.NoArgs,
+		Short: "Query the current liquidity parameters information",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query values set as liquidity parameters.
+
+Example:
+$ %s query liquidity params
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintOutput(&res.Params)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
 func GetCmdQueryLiquidityPool() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "liquidity-pool [pool-id]",
+		Use:   "pool [pool-id]",
 		Args:  cobra.ExactArgs(1),
 		Short: "Query details of a liquidity pool",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool
 Example:
-$ %s query liquidity liquidity-pool 1
+$ %s query liquidity pool 1
 `,
 				version.AppName,
 			),
@@ -93,17 +132,15 @@ $ %s query liquidity liquidity-pool 1
 	return cmd
 }
 
-//GetCmdQueryParams implements the params query command.
-func GetCmdQueryParams() *cobra.Command {
+func GetCmdQueryLiquidityPools() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "params",
+		Use:   "pools",
 		Args:  cobra.NoArgs,
-		Short: "Query the current liquidity parameters information",
+		Short: "Query for all liquidity pools",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query values set as liquidity parameters.
-
+			fmt.Sprintf(`Query details about all liquidity pools on a network.
 Example:
-$ %s query liquidity params
+$ %s query liquidity pools
 `,
 				version.AppName,
 			),
@@ -116,16 +153,17 @@ $ %s query liquidity params
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
 				return err
 			}
-
-			return clientCtx.PrintOutput(&res.Params)
+			result, err := queryClient.LiquidityPools(context.Background(), &types.QueryLiquidityPoolsRequest{Pagination: pageReq})
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintOutput(result)
 		},
 	}
-
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd

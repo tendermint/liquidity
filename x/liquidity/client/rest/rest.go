@@ -17,6 +17,6 @@ const (
 
 // RegisterHandlers registers asset-related REST handlers to a router
 func RegisterHandlers(cliCtx client.Context, r *mux.Router) {
-	//registerQueryRoutes(cliCtx, r)
+	registerQueryRoutes(cliCtx, r)
 	//registerTxRoutes(cliCtx, r)
 }

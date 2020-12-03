@@ -26,8 +26,27 @@ func (k Keeper) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Liqui
 	}
 
 	return &types.QueryLiquidityPoolResponse{LiquidityPool: pool,
-		LiquidityPoolMetaData: *k.GetLiquidityPoolMetaData(ctx, pool),
+		LiquidityPoolMetaData: k.GetPoolMetaData(ctx, pool),
 		LiquidityPoolBatch:    batch}, nil
+}
+
+func (k Keeper) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.LiquidityPools) (*[]types.QueryLiquidityPoolResponse, error) {
+	resp := make([]types.QueryLiquidityPoolResponse, len(pools))
+	for i, pool := range pools {
+		batch, found := k.GetLiquidityPoolBatch(ctx, pool.PoolId)
+		if !found {
+			return nil, types.ErrPoolBatchNotExists
+		}
+		meta := k.GetPoolMetaData(ctx, pool)
+		res := types.QueryLiquidityPoolResponse{
+			LiquidityPool:pool,
+			LiquidityPoolMetaData:meta,
+			LiquidityPoolBatch:batch,
+		}
+		resp[i] = res
+	}
+
+	return &resp, nil
 }
 
 func (k Keeper) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRequest) (*types.QueryLiquidityPoolResponse, error) {
@@ -56,18 +75,15 @@ func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPools
 	store := ctx.KVStore(k.storeKey)
 	poolStore := prefix.NewStore(store, types.LiquidityPoolKeyPrefix)
 	var pools types.LiquidityPools
-	var poolResponses []types.QueryLiquidityPoolResponse
 
 	pageRes, err := query.FilteredPaginate(poolStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		pool, err := types.UnmarshalLiquidityPool(k.cdc, value)
 		if err != nil {
 			return false, err
 		}
-
 		if accumulate {
 			pools = append(pools, pool)
 		}
-
 		return true, nil
 	})
 
@@ -75,15 +91,9 @@ func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPools
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	for _, pool := range pools {
-		response, err := k.MakeQueryLiquidityPoolResponse(ctx, pool)
-		if err != nil {
-			return nil, err
-		}
-		poolResponses = append(poolResponses, *response)
-	}
+	response, err := k.MakeQueryLiquidityPoolsResponse(ctx, pools)
 
-	return &types.QueryLiquidityPoolsResponse{LiquidityPoolResponses: poolResponses, Pagination: pageRes}, nil
+	return &types.QueryLiquidityPoolsResponse{*response, pageRes}, nil
 }
 
 func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
