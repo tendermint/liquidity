@@ -8,8 +8,8 @@ import "cosmos_proto/pagination.proto";
 
 option go_package = "github.com/tendermint/liquidity/types";
 
+// Query defines the gRPC querier service for liquidity module.
 service Query {
-
     // Get all liquidity pools with each liquidity pool batch
     rpc LiquidityPools (QueryLiquidityPoolsRequest) returns (QueryLiquidityPoolsResponse) {
         option (google.api.http).get = "/liquidity/pools";
@@ -51,76 +51,103 @@ service Query {
     }
 }
 
+// QueryLiquidityPoolRequest is the request type for the QueryLiquidityPool RPC method.
 message QueryLiquidityPoolRequest {
     uint64 pool_id = 1;
 }
 
+// QueryLiquidityPoolResponse is the response type for the QueryLiquidityPoolResponse RPC method.
 message QueryLiquidityPoolResponse {
     LiquidityPool liquidity_pool = 1 [(gogoproto.nullable) = false];
     LiquidityPoolMetaData liquidity_pool_meta_data = 2 [(gogoproto.nullable) = false];
     LiquidityPoolBatch liquidity_pool_batch = 3 [(gogoproto.nullable) = false];
 }
 
+// QueryLiquidityPoolBatchRequest is the request type for the QueryLiquidityPoolBatch RPC method.
 message QueryLiquidityPoolBatchRequest {
+    // id of the target pool for query
     uint64 pool_id = 1;
 }
 
+// QueryLiquidityPoolBatchResponse is the response type for the QueryLiquidityPoolBatchResponse RPC method.
 message QueryLiquidityPoolBatchResponse {
     LiquidityPoolBatch liquidity_pool_batch = 1 [(gogoproto.nullable) = false];
 }
 
+// QueryLiquidityPoolsRequest is the request type for the QueryLiquidityPools RPC method.
 message QueryLiquidityPoolsRequest {
+    // pagination defines an optional pagination for the request.
     cosmos.query.PageRequest pagination = 1;
 }
 
+// QueryLiquidityPoolsResponse is the response type for the QueryLiquidityPoolsResponse RPC method.
 message QueryLiquidityPoolsResponse {
     repeated QueryLiquidityPoolResponse liquidity_pools_response = 1 [(gogoproto.nullable) = false];
+    // pagination defines the pagination in the response.
     cosmos.query.PageResponse pagination = 2;
 }
 
+// QueryLiquidityPoolsBatchRequest is the request type for the QueryLiquidityPoolsBatch RPC method.
 message QueryLiquidityPoolsBatchRequest {
+    // pagination defines an optional pagination for the request.
     cosmos.query.PageRequest pagination = 1;
 }
 
+// QueryLiquidityPoolsBatchResponse is the response type for the QueryLiquidityPoolsBatchResponse RPC method.
 message QueryLiquidityPoolsBatchResponse {
     repeated QueryLiquidityPoolBatchResponse liquidity_pools_batch_response = 1 [(gogoproto.nullable) = false];
+    // pagination defines the pagination in the response.
     cosmos.query.PageResponse pagination = 2;
 }
 
-// QueryParamsRequest is request type for the Query/Params RPC method.
+// QueryParamsRequest is request type for the QueryParams RPC method.
 message QueryParamsRequest {}
 
-// QueryParamsResponse is response type for the Query/Params RPC method.
+// QueryParamsResponse is response type for the QueryParamsResponse RPC method.
 message QueryParamsResponse {
     // params holds all the parameters of this module.
     Params params = 1 [(gogoproto.nullable) = false];
 }
 
+// QueryPoolBatchSwapMsgsRequest is the request type for the QueryPoolBatchSwap RPC method.
 message QueryPoolBatchSwapMsgsRequest {
+    // id of the target pool for query
     uint64 pool_id = 1;
+    // pagination defines an optional pagination for the request.
     cosmos.query.PageRequest pagination = 2;
 }
 
+// QueryPoolBatchSwapMsgsResponse is the response type for the QueryPoolBatchSwap RPC method.
 message QueryPoolBatchSwapMsgsResponse {
     repeated BatchPoolSwapMsg swap_msgs = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response.
     cosmos.query.PageResponse pagination = 2;
 }
+
+// QueryPoolBatchDepositMsgsRequest is the request type for the QueryPoolBatchDeposit RPC method.
 message QueryPoolBatchDepositMsgsRequest {
+    // id of the target pool for query
     uint64 pool_id = 1;
+    // pagination defines an optional pagination for the request.
     cosmos.query.PageRequest pagination = 2;
 }
 
+// QueryPoolBatchDepositMsgsResponse is the response type for the QueryPoolBatchDeposit RPC method.
 message QueryPoolBatchDepositMsgsResponse {
     repeated BatchPoolDepositMsg deposit_msgs = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response.
     cosmos.query.PageResponse pagination = 2;
 }
+
+// QueryPoolBatchWithdrawMsgsRequest is the request type for the QueryPoolBatchWithdraw RPC method.
 message QueryPoolBatchWithdrawMsgsRequest {
+    // id of the target pool for query
     uint64 pool_id = 1;
+    // pagination defines an optional pagination for the request.
     cosmos.query.PageRequest pagination = 2;
 }
 
+// QueryPoolBatchWithdrawMsgsResponse is the response type for the QueryPoolBatchWithdraw RPC method.
 message QueryPoolBatchWithdrawMsgsResponse {
     repeated BatchPoolWithdrawMsg withdraw_msgs = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response.

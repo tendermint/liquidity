@@ -31,6 +31,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// MsgCreateLiquidityPool defines an sdk.Msg type that supports submitting create liquidity pool
 type MsgCreateLiquidityPool struct {
 	PoolCreatorAddress string                                   `protobuf:"bytes,1,opt,name=pool_creator_address,json=poolCreatorAddress,proto3" json:"pool_creator_address,omitempty" yaml:"pool_creator_address"`
 	PoolTypeIndex      uint32                                   `protobuf:"varint,2,opt,name=pool_type_index,json=poolTypeIndex,proto3" json:"pool_type_index,omitempty" yaml:"pool_type_index"`
@@ -71,6 +72,10 @@ func (m *MsgCreateLiquidityPool) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgCreateLiquidityPool proto.InternalMessageInfo
 
+// MsgCreateLiquidityPoolRequest is the request type for the Query/Deposits RPC method
+// with the specified pool-type-index, deposit coins for reserve
+// Currently, only the default pool-type-index 1 is available on this version
+// the number of deposit coins must be two in the pool-type-index 1.
 type MsgCreateLiquidityPoolRequest struct {
 	BaseReq *BaseReq                `protobuf:"bytes,1,opt,name=base_req,json=baseReq,proto3" json:"base_req,omitempty"`
 	Msg     *MsgCreateLiquidityPool `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
@@ -123,6 +128,7 @@ func (m *MsgCreateLiquidityPoolRequest) GetMsg() *MsgCreateLiquidityPool {
 	return nil
 }
 
+// MsgCreateLiquidityPoolResponse defines the Msg/CreateLiquidityPool response type.
 type MsgCreateLiquidityPoolResponse struct {
 	StdTx *StdTx `protobuf:"bytes,1,opt,name=std_tx,json=stdTx,proto3" json:"std_tx,omitempty" yaml:"std_tx"`
 }
@@ -167,10 +173,15 @@ func (m *MsgCreateLiquidityPoolResponse) GetStdTx() *StdTx {
 	return nil
 }
 
+// MsgDepositToLiquidityPool defines an sdk.Msg type that supports submitting deposit request to the batch of the liquidity pool
+// Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins for reserve
+// this requests are stacked in the batch of the liquidity pool, not immediately processed and
+// processed in the endblock at once with other requests.
 type MsgDepositToLiquidityPool struct {
-	DepositorAddress string                                   `protobuf:"bytes,1,opt,name=depositor_address,json=depositorAddress,proto3" json:"depositor_address,omitempty" yaml:"depositor_address"`
-	PoolId           uint64                                   `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
-	DepositCoins     github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=deposit_coins,json=depositCoins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"deposit_coins" yaml:"deposit_coins"`
+	DepositorAddress string `protobuf:"bytes,1,opt,name=depositor_address,json=depositorAddress,proto3" json:"depositor_address,omitempty" yaml:"depositor_address"`
+	// id of target pool
+	PoolId       uint64                                   `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
+	DepositCoins github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=deposit_coins,json=depositCoins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"deposit_coins" yaml:"deposit_coins"`
 }
 
 func (m *MsgDepositToLiquidityPool) Reset()         { *m = MsgDepositToLiquidityPool{} }
@@ -206,10 +217,12 @@ func (m *MsgDepositToLiquidityPool) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgDepositToLiquidityPool proto.InternalMessageInfo
 
+// MsgDepositToLiquidityPoolRequest is the request type for the Msg/DepositToLiquidityPool RPC method.
 type MsgDepositToLiquidityPoolRequest struct {
-	BaseReq *BaseReq                   `protobuf:"bytes,1,opt,name=base_req,json=baseReq,proto3" json:"base_req,omitempty"`
-	PoolId  uint64                     `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
-	Msg     *MsgDepositToLiquidityPool `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
+	BaseReq *BaseReq `protobuf:"bytes,1,opt,name=base_req,json=baseReq,proto3" json:"base_req,omitempty"`
+	// id of target pool
+	PoolId uint64                     `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
+	Msg    *MsgDepositToLiquidityPool `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
 }
 
 func (m *MsgDepositToLiquidityPoolRequest) Reset()         { *m = MsgDepositToLiquidityPoolRequest{} }
@@ -266,6 +279,7 @@ func (m *MsgDepositToLiquidityPoolRequest) GetMsg() *MsgDepositToLiquidityPool {
 	return nil
 }
 
+// MsgDepositToLiquidityPoolResponse defines the Msg/DepositToLiquidityPool response type.
 type MsgDepositToLiquidityPoolResponse struct {
 	StdTx *StdTx `protobuf:"bytes,1,opt,name=std_tx,json=stdTx,proto3" json:"std_tx,omitempty" yaml:"std_tx"`
 }
@@ -310,10 +324,15 @@ func (m *MsgDepositToLiquidityPoolResponse) GetStdTx() *StdTx {
 	return nil
 }
 
+// MsgWithdrawFromLiquidityPool defines an sdk.Msg type that supports submitting withdraw request to the batch of the liquidity pool
+// Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
+// this requests are stacked in the batch of the liquidity pool, not immediately processed and
+// processed in the endblock at once with other requests.
 type MsgWithdrawFromLiquidityPool struct {
-	WithdrawerAddress string     `protobuf:"bytes,1,opt,name=withdrawer_address,json=withdrawerAddress,proto3" json:"withdrawer_address,omitempty" yaml:"withdrawer_address"`
-	PoolId            uint64     `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
-	PoolCoin          types.Coin `protobuf:"bytes,3,opt,name=pool_coin,json=poolCoin,proto3" json:"pool_coin" yaml:"pool_coin"`
+	WithdrawerAddress string `protobuf:"bytes,1,opt,name=withdrawer_address,json=withdrawerAddress,proto3" json:"withdrawer_address,omitempty" yaml:"withdrawer_address"`
+	// id of target pool
+	PoolId   uint64     `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
+	PoolCoin types.Coin `protobuf:"bytes,3,opt,name=pool_coin,json=poolCoin,proto3" json:"pool_coin" yaml:"pool_coin"`
 }
 
 func (m *MsgWithdrawFromLiquidityPool) Reset()         { *m = MsgWithdrawFromLiquidityPool{} }
@@ -349,10 +368,12 @@ func (m *MsgWithdrawFromLiquidityPool) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgWithdrawFromLiquidityPool proto.InternalMessageInfo
 
+// MsgWithdrawFromLiquidityPoolRequest is the request type for the Query/WithdrawFromLiquidityPool RPC method.
 type MsgWithdrawFromLiquidityPoolRequest struct {
-	BaseReq *BaseReq                      `protobuf:"bytes,1,opt,name=base_req,json=baseReq,proto3" json:"base_req,omitempty"`
-	PoolId  uint64                        `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
-	Msg     *MsgWithdrawFromLiquidityPool `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
+	BaseReq *BaseReq `protobuf:"bytes,1,opt,name=base_req,json=baseReq,proto3" json:"base_req,omitempty"`
+	// id of target pool
+	PoolId uint64                        `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
+	Msg    *MsgWithdrawFromLiquidityPool `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
 }
 
 func (m *MsgWithdrawFromLiquidityPoolRequest) Reset()         { *m = MsgWithdrawFromLiquidityPoolRequest{} }
@@ -409,6 +430,7 @@ func (m *MsgWithdrawFromLiquidityPoolRequest) GetMsg() *MsgWithdrawFromLiquidity
 	return nil
 }
 
+// MsgWithdrawFromLiquidityPoolResponse defines the Msg/WithdrawFromLiquidityPool response type.
 type MsgWithdrawFromLiquidityPoolResponse struct {
 	StdTx *StdTx `protobuf:"bytes,1,opt,name=std_tx,json=stdTx,proto3" json:"std_tx,omitempty" yaml:"std_tx"`
 }
@@ -453,14 +475,30 @@ func (m *MsgWithdrawFromLiquidityPoolResponse) GetStdTx() *StdTx {
 	return nil
 }
 
+// MsgSwap defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
+// Swap offer to the Liquidity pool with the specified pool-id, pool-type-index, swap-type,
+// demand-coin-denom with the coin and the price you're offering
+// this requests are stacked in the batch of the liquidity pool, not immediately processed and
+// processed in the endblock at once with other requests
+// You should request the same each field as the pool
+// Currently, only the default swap-type 1 is available on this version
+// The detailed swap algorithm can be found here
+// https://github.com/tendermint/liquidity .
 type MsgSwap struct {
-	SwapRequesterAddress string                                 `protobuf:"bytes,1,opt,name=swap_requester_address,json=swapRequesterAddress,proto3" json:"swap_requester_address,omitempty" yaml:"swap_requester_address"`
-	PoolId               uint64                                 `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
-	PoolTypeIndex        uint32                                 `protobuf:"varint,3,opt,name=pool_type_index,json=poolTypeIndex,proto3" json:"pool_type_index,omitempty" yaml:"pool_type_index"`
-	SwapType             uint32                                 `protobuf:"varint,4,opt,name=swap_type,json=swapType,proto3" json:"swap_type,omitempty" yaml:"swap_type"`
-	OfferCoin            types.Coin                             `protobuf:"bytes,5,opt,name=offer_coin,json=offerCoin,proto3" json:"offer_coin" yaml:"offer_coin"`
-	DemandCoinDenom      string                                 `protobuf:"bytes,6,opt,name=demand_coin_denom,json=demandCoinDenom,proto3" json:"demand_coin_denom,omitempty" yaml:"demand_coin_denom"`
-	OrderPrice           github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=order_price,json=orderPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"order_price" yaml:"order_price"`
+	// address of swap requester
+	SwapRequesterAddress string `protobuf:"bytes,1,opt,name=swap_requester_address,json=swapRequesterAddress,proto3" json:"swap_requester_address,omitempty" yaml:"swap_requester_address"`
+	// id of target pool
+	PoolId uint64 `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
+	// index of target pool type, only 1 is allowed on this version, Must match the value in the pool.
+	PoolTypeIndex uint32 `protobuf:"varint,3,opt,name=pool_type_index,json=poolTypeIndex,proto3" json:"pool_type_index,omitempty" yaml:"pool_type_index"`
+	// id of swap type type, only 1 is allowed on this version, Must match the value in the pool.
+	SwapType uint32 `protobuf:"varint,4,opt,name=swap_type,json=swapType,proto3" json:"swap_type,omitempty" yaml:"swap_type"`
+	// offer sdk.coin for the swap request, Must match the denom in the pool.
+	OfferCoin types.Coin `protobuf:"bytes,5,opt,name=offer_coin,json=offerCoin,proto3" json:"offer_coin" yaml:"offer_coin"`
+	// denom of demand coin to be exchanged on the swap request, Must match the denom in the pool.
+	DemandCoinDenom string `protobuf:"bytes,6,opt,name=demand_coin_denom,json=demandCoinDenom,proto3" json:"demand_coin_denom,omitempty" yaml:"demand_coin_denom"`
+	// limit order price for this offer
+	OrderPrice github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=order_price,json=orderPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"order_price" yaml:"order_price"`
 }
 
 func (m *MsgSwap) Reset()         { *m = MsgSwap{} }
@@ -496,10 +534,12 @@ func (m *MsgSwap) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSwap proto.InternalMessageInfo
 
+// MsgSwapRequest is the request type for the Query/Swap RPC method.
 type MsgSwapRequest struct {
 	BaseReq *BaseReq `protobuf:"bytes,1,opt,name=base_req,json=baseReq,proto3" json:"base_req,omitempty"`
-	PoolId  uint64   `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
-	Msg     *MsgSwap `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
+	// id of target pool
+	PoolId uint64   `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
+	Msg    *MsgSwap `protobuf:"bytes,3,opt,name=msg,proto3" json:"msg,omitempty"`
 }
 
 func (m *MsgSwapRequest) Reset()         { *m = MsgSwapRequest{} }
@@ -556,6 +596,7 @@ func (m *MsgSwapRequest) GetMsg() *MsgSwap {
 	return nil
 }
 
+// MsgSwapResponse defines the Msg/Swap response type.
 type MsgSwapResponse struct {
 	StdTx *StdTx `protobuf:"bytes,1,opt,name=std_tx,json=stdTx,proto3" json:"std_tx,omitempty" yaml:"std_tx"`
 }
@@ -600,18 +641,27 @@ func (m *MsgSwapResponse) GetStdTx() *StdTx {
 	return nil
 }
 
+// Base Request struct for Post Tx, standard of tendermint/cosmos-sdk
 type BaseReq struct {
-	From          string                                      `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty" yaml:"from"`
-	Memo          string                                      `protobuf:"bytes,2,opt,name=memo,proto3" json:"memo,omitempty" yaml:"memo"`
-	ChainId       string                                      `protobuf:"bytes,3,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty" yaml:"chain_id"`
+	// Sender address or Keybase name to generate a transaction
+	From string `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty" yaml:"from"`
+	// example: Sent via Cosmos Voyager
+	Memo string `protobuf:"bytes,2,opt,name=memo,proto3" json:"memo,omitempty" yaml:"memo"`
+	// example: Cosmos-Hub
+	ChainId string `protobuf:"bytes,3,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty" yaml:"chain_id"`
+	// example: 0
 	AccountNumber uint64                                      `protobuf:"varint,4,opt,name=account_number,json=accountNumber,proto3" json:"account_number,omitempty" yaml:"account_number"`
 	Sequence      uint64                                      `protobuf:"varint,5,opt,name=sequence,proto3" json:"sequence,omitempty" yaml:"sequence"`
 	TimeoutHeight uint64                                      `protobuf:"varint,6,opt,name=timeout_height,json=timeoutHeight,proto3" json:"timeout_height,omitempty" yaml:"timeout_height"`
 	Fees          github_com_cosmos_cosmos_sdk_types.Coins    `protobuf:"bytes,7,rep,name=fees,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fees"`
 	GasPrices     github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,8,rep,name=gas_prices,json=gasPrices,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"gas_prices" yaml:"gas_prices"`
-	Gas           uint64                                      `protobuf:"varint,9,opt,name=gas,proto3" json:"gas,omitempty" yaml:"gas"`
-	GasAdjustment string                                      `protobuf:"bytes,10,opt,name=gas_adjustment,json=gasAdjustment,proto3" json:"gas_adjustment,omitempty" yaml:"gas_adjustment"`
-	Simulate      bool                                        `protobuf:"varint,11,opt,name=simulate,proto3" json:"simulate,omitempty" yaml:"simulate"`
+	// example: 200000
+	Gas uint64 `protobuf:"varint,9,opt,name=gas,proto3" json:"gas,omitempty" yaml:"gas"`
+	// example: 1.2
+	GasAdjustment string `protobuf:"bytes,10,opt,name=gas_adjustment,json=gasAdjustment,proto3" json:"gas_adjustment,omitempty" yaml:"gas_adjustment"`
+	// Estimate gas for a transaction (cannot be used in conjunction with generate_only)
+	// example: false
+	Simulate bool `protobuf:"varint,11,opt,name=simulate,proto3" json:"simulate,omitempty" yaml:"simulate"`
 }
 
 func (m *BaseReq) Reset()         { *m = BaseReq{} }
@@ -647,6 +697,7 @@ func (m *BaseReq) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_BaseReq proto.InternalMessageInfo
 
+// Fee struct of cosmos-sdk
 type Fee struct {
 	Gas uint64 `protobuf:"varint,1,opt,name=gas,proto3" json:"gas,omitempty"`
 	// amount is the amount of coins to be paid as a fee
@@ -700,8 +751,11 @@ func (m *Fee) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
 	return nil
 }
 
+// PubKey struct of tendermint/cosmos-sdk
 type PubKey struct {
-	Type  string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty" yaml:"type"`
+	// example: tendermint/PubKeySecp256k1
+	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty" yaml:"type"`
+	// example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
 	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty" yaml:"value"`
 }
 
@@ -752,11 +806,15 @@ func (m *PubKey) GetValue() string {
 	return ""
 }
 
+// signature struct of tendermint/cosmos-sdk
 type Signature struct {
-	Signature     string  `protobuf:"bytes,1,opt,name=signature,proto3" json:"signature,omitempty" yaml:"signature"`
-	PubKey        *PubKey `protobuf:"bytes,2,opt,name=pub_key,json=pubKey,proto3" json:"pub_key,omitempty" yaml:"pub_key"`
-	AccountNumber uint64  `protobuf:"varint,3,opt,name=account_number,json=accountNumber,proto3" json:"account_number,omitempty" yaml:"account_number"`
-	Sequence      uint64  `protobuf:"varint,4,opt,name=sequence,proto3" json:"sequence,omitempty" yaml:"sequence"`
+	// example: MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+	Signature string  `protobuf:"bytes,1,opt,name=signature,proto3" json:"signature,omitempty" yaml:"signature"`
+	PubKey    *PubKey `protobuf:"bytes,2,opt,name=pub_key,json=pubKey,proto3" json:"pub_key,omitempty" yaml:"pub_key"`
+	// example: 0
+	AccountNumber uint64 `protobuf:"varint,3,opt,name=account_number,json=accountNumber,proto3" json:"account_number,omitempty" yaml:"account_number"`
+	// example: 0
+	Sequence uint64 `protobuf:"varint,4,opt,name=sequence,proto3" json:"sequence,omitempty" yaml:"sequence"`
 }
 
 func (m *Signature) Reset()         { *m = Signature{} }
@@ -820,6 +878,7 @@ func (m *Signature) GetSequence() uint64 {
 	return 0
 }
 
+// Base response struct of result of the requested Tx, standard of tendermint/cosmos-sdk
 type StdTx struct {
 	Msg       []string   `protobuf:"bytes,1,rep,name=msg,proto3" json:"msg,omitempty" yaml:"msg"`
 	Fee       *Fee       `protobuf:"bytes,2,opt,name=fee,proto3" json:"fee,omitempty" yaml:"fee"`
@@ -1023,13 +1082,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// Submit create liquidity pool message
+	// Submit create liquidity pool message.
 	CreateLiquidityPool(ctx context.Context, in *MsgCreateLiquidityPool, opts ...grpc.CallOption) (*MsgCreateLiquidityPoolResponse, error)
-	// Submit deposit to the liquidity pool batch
+	// Submit deposit to the liquidity pool batch.
 	DepositToLiquidityPool(ctx context.Context, in *MsgDepositToLiquidityPool, opts ...grpc.CallOption) (*MsgDepositToLiquidityPoolResponse, error)
-	// Submit withdraw from to the liquidity pool batch
+	// Submit withdraw from to the liquidity pool batch.
 	WithdrawFromLiquidityPool(ctx context.Context, in *MsgWithdrawFromLiquidityPool, opts ...grpc.CallOption) (*MsgWithdrawFromLiquidityPoolResponse, error)
-	// Submit swap to the liquidity pool batch
+	// Submit swap to the liquidity pool batch.
 	Swap(ctx context.Context, in *MsgSwap, opts ...grpc.CallOption) (*MsgSwapResponse, error)
 }
 
@@ -1079,13 +1138,13 @@ func (c *msgClient) Swap(ctx context.Context, in *MsgSwap, opts ...grpc.CallOpti
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// Submit create liquidity pool message
+	// Submit create liquidity pool message.
 	CreateLiquidityPool(context.Context, *MsgCreateLiquidityPool) (*MsgCreateLiquidityPoolResponse, error)
-	// Submit deposit to the liquidity pool batch
+	// Submit deposit to the liquidity pool batch.
 	DepositToLiquidityPool(context.Context, *MsgDepositToLiquidityPool) (*MsgDepositToLiquidityPoolResponse, error)
-	// Submit withdraw from to the liquidity pool batch
+	// Submit withdraw from to the liquidity pool batch.
 	WithdrawFromLiquidityPool(context.Context, *MsgWithdrawFromLiquidityPool) (*MsgWithdrawFromLiquidityPoolResponse, error)
-	// Submit swap to the liquidity pool batch
+	// Submit swap to the liquidity pool batch.
 	Swap(context.Context, *MsgSwap) (*MsgSwapResponse, error)
 }
 
