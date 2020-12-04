@@ -36,3 +36,29 @@ func StringInSlice(a string, list []string) bool {
 	}
 	return false
 }
+
+func CoinSafeSubAmount(coinA sdk.Coin, coinBamt sdk.Int) sdk.Coin {
+	//fmt.Println("CoinSafeSubAmount")
+	//fmt.Println(coinA)
+	//fmt.Println(coinBamt)
+	var resCoin sdk.Coin
+	if coinA.Amount.Equal(coinBamt) {
+		resCoin = sdk.NewCoin(coinA.Denom, sdk.NewInt(0))
+	} else {
+		resCoin = coinA.Sub(sdk.NewCoin(coinA.Denom, coinBamt))
+	}
+	return resCoin
+}
+
+//func CoinSafeSub(coinA, coinB sdk.Coin) sdk.Coin {
+//	var resCoin sdk.Coin
+//	if coinA.Denom != coinB.Denom {
+//		return resCoin
+//	}
+//	if coinA.Equal(coinB) {
+//		resCoin = sdk.NewCoin(coinA.Denom, sdk.ZeroInt())
+//	} else {
+//		coinA = coinA.Sub(sdk.NewCoin(coinA.Denom, coinB.Amount))
+//	}
+//	return resCoin
+//}

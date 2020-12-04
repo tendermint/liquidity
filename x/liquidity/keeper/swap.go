@@ -142,6 +142,11 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	for _, v := range orderBookExecuted {
 		fmt.Println(v)
 	}
+	fmt.Println("orderBookValidity:", orderBookValidity)
+	if !orderBookValidity {
+		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity")
+		panic(types.ErrOrderBookInvalidity)
+	}
 
 	// TODO: WIP new validity
 	validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
@@ -151,29 +156,23 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	}
 
 	// TODO: WIP new validity
-	var validityMustExecutable bool
-	if result.SwapPrice.IsZero() {
-		validityMustExecutable = types.CheckValidityMustExecutable(orderBookExecuted, lastPrice)
-	} else {
-		validityMustExecutable = types.CheckValidityMustExecutable(orderBookExecuted, result.SwapPrice)
-	}
-	fmt.Println("validityMustExecutable:", validityMustExecutable)
+	//var validityMustExecutable bool
+	//if result.SwapPrice.IsZero() {
+	//	validityMustExecutable = types.CheckValidityMustExecutable(orderBookExecuted, lastPrice)
+	//} else {
+	//	validityMustExecutable = types.CheckValidityMustExecutable(orderBookExecuted, result.SwapPrice)
+	//}
 	//if !validityMustExecutable {
 	//	panic("CheckValidityMustExecutable")
 	//}
 
 	// TODO: WIP new validity
-	errThreshold, _ := sdk.NewDecFromStr("0.001")
-	if lastPrice.Quo(result.SwapPrice).Sub(sdk.OneDec()).Abs().GT(errThreshold) {
-		fmt.Println(lastPrice, lastPrice.Quo(result.SwapPrice.Sub(sdk.OneDec())), lastPrice.Quo(result.SwapPrice.Sub(sdk.OneDec())).Abs())
-		panic("abs(lastPrice/swapPrice-1) > 0.001")
-	}
+	//errThreshold, _ := sdk.NewDecFromStr("0.001")
+	//if lastPrice.Quo(result.SwapPrice).Sub(sdk.OneDec()).Abs().GT(errThreshold) {
+	//	fmt.Println(lastPrice, lastPrice.Quo(result.SwapPrice.Sub(sdk.OneDec())), lastPrice.Quo(result.SwapPrice.Sub(sdk.OneDec())).Abs())
+	//	panic("abs(lastPrice/swapPrice-1) > 0.001")
+	//}
 
-	fmt.Println("orderBookValidity:", orderBookValidity)
-	if !orderBookValidity {
-		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity")
-		panic(types.ErrOrderBookInvalidity)
-	}
 	XtoY = types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
 	YtoX = types.ValidateStateAndExpireOrders(YtoX, currentHeight, true)
 
@@ -294,10 +293,15 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 			match.BatchMsg.RemainingOfferCoin.Amount.Equal(match.TransactedCoinAmt) {
 			// full match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
-				sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
-			// TODO: verify RemainingOfferCoin about deciaml errors
-			match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(
-				sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
+				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt))
+			fmt.Println(match)
+			fmt.Println(match.BatchMsg)
+			fmt.Println(match.BatchMsg.RemainingOfferCoin, sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt))
+
+			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
+			//match.BatchMsg.RemainingOfferCoin.Sub(
+			//		sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
+
 			if match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) {
@@ -307,13 +311,13 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				match.BatchMsg.ToDelete = true
 			}
 		} else if match.BatchMsg.Msg.OfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) ||
-			match.BatchMsg.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) { // TODO: need to verify logic
+			match.BatchMsg.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) {
 			decimalErrorX = decimalErrorX.Add(sdk.OneInt())
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
-				sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
-			match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(
-				sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
-			// TODO: verify RemainingOfferCoin about deciaml errors to pool
+				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt))
+			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
+			//match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(
+			//	sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
 			if match.BatchMsg.RemainingOfferCoin.Amount.Equal(sdk.OneInt()) {
 				match.BatchMsg.RemainingOfferCoin.Amount = sdk.ZeroInt()
 			}
@@ -328,7 +332,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 		} else {
 			// fractional match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
-			match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
+			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
+			//match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
 			matchedIndexMapXtoY[match.BatchMsg.MsgIndex] = match.BatchMsg.RemainingOfferCoin
 			match.BatchMsg.Succeed = true
 			match.BatchMsg.ToDelete = false
@@ -342,10 +347,13 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 			match.BatchMsg.RemainingOfferCoin.Amount.Equal(match.TransactedCoinAmt) {
 			// full match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
-				sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
-			// TODO: verify RemainingOfferCoin about deciaml errors
-			match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(
-				sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
+				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt))
+			fmt.Println(match)
+			fmt.Println(match.BatchMsg)
+			fmt.Println(match.BatchMsg.RemainingOfferCoin, sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
+			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
+			//match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(
+			//	sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
 			if match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) {
@@ -355,12 +363,13 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				match.BatchMsg.ToDelete = true
 			}
 		} else if match.BatchMsg.Msg.OfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) ||
-			match.BatchMsg.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) { // TODO: need to verify logic
+			match.BatchMsg.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) {
 			decimalErrorY = decimalErrorY.Add(sdk.OneInt())
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
-				sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
-			match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(
-				sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
+				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt))
+			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
+			//match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(
+			//	sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
 			// TODO: verify RemainingOfferCoin about deciaml errors one to pool
 			if match.BatchMsg.RemainingOfferCoin.Amount.Equal(sdk.OneInt()) {
 				match.BatchMsg.RemainingOfferCoin.Amount = sdk.ZeroInt()
@@ -377,7 +386,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 		} else {
 			// fractional match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
-			match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
+			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
+			//match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
 			matchedIndexMapYtoX[match.BatchMsg.MsgIndex] = match.BatchMsg.RemainingOfferCoin
 			match.BatchMsg.Succeed = true
 			match.BatchMsg.ToDelete = false

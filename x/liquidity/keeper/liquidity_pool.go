@@ -8,6 +8,9 @@ import (
 )
 
 func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) error {
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
 	params := k.GetParams(ctx)
 	var poolType types.LiquidityPoolType
 
@@ -232,10 +235,12 @@ func (k Keeper) SetLiquidityPoolRecord(ctx sdk.Context, record *types.LiquidityP
 }
 
 func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDepositToLiquidityPool) error {
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
 	if err := msg.DepositCoins.Validate(); err != nil {
 		return err
 	}
-
 	pool, found := k.GetLiquidityPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
@@ -355,16 +360,21 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 }
 
 func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgWithdrawFromLiquidityPool) error {
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
 	// TODO: add validate logic
 	return nil
 }
 
 func (k Keeper) ValidateMsgSwap(ctx sdk.Context, msg types.MsgSwap) error {
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
 	pool, found := k.GetLiquidityPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
 	}
-
 	// can not exceed max order ratio  of reserve coins that can be ordered at a order
 	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
 	maximumOrderableAmt := reserveCoinAmt.ToDec().Mul(types.GetMaxOrderRatio()).TruncateInt()
@@ -504,6 +514,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 				} else if !batchMsg.ToDelete && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
 					// fractional matched, to be remaining order, not refund, only transact fractional exchange amt
 					// Add transacted coins to multisend
+					// TODO: coverage
 					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
 						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.Sub(msgAfter.FeeAmt)))))
 					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
@@ -582,6 +593,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 			if !batchMsg.ToDelete && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
 				// have fractional matching history, not matched and expired, remaining refund
 				// refund remaining coins
+				// TODO: coverage
 				if input, output, err := k.ReleaseEscrowForMultiSend(batchMsg.Msg.GetSwapRequester(),
 					sdk.NewCoins(batchMsg.RemainingOfferCoin)); err != nil {
 					panic(err)

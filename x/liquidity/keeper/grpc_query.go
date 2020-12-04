@@ -42,9 +42,9 @@ func (k Keeper) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Liq
 		}
 		meta := k.GetPoolMetaData(ctx, pool)
 		res := types.QueryLiquidityPoolResponse{
-			LiquidityPool:pool,
-			LiquidityPoolMetaData:meta,
-			LiquidityPoolBatch:batch,
+			LiquidityPool:         pool,
+			LiquidityPoolMetaData: meta,
+			LiquidityPoolBatch:    batch,
 		}
 		resp[i] = res
 	}

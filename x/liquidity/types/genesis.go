@@ -10,7 +10,7 @@ func NewGenesisState(params Params, liquidityPoolRecords []LiquidityPoolRecord) 
 
 // DefaultGenesisState creates a default GenesisState object
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), []LiquidityPoolRecord{})  // TODO: 0 or 1
+	return NewGenesisState(DefaultParams(), []LiquidityPoolRecord{}) // TODO: 0 or 1
 }
 
 // ValidateGenesis - placeholder function
@@ -38,7 +38,7 @@ func (record LiquidityPoolRecord) Validate() error {
 	}
 	if (len(record.BatchPoolWithdrawMsgs) != 0 && record.LiquidityPoolBatch.WithdrawMsgIndex !=
 		record.BatchPoolWithdrawMsgs[len(record.BatchPoolWithdrawMsgs)-1].MsgIndex+1) ||
-		record.LiquidityPoolBatch.WithdrawMsgIndex == 0{
+		record.LiquidityPoolBatch.WithdrawMsgIndex == 0 {
 		return ErrBadBatchMsgIndex
 	}
 	if (len(record.BatchPoolSwapMsgs) != 0 && record.LiquidityPoolBatch.SwapMsgIndex !=
