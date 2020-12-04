@@ -30,6 +30,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// QueryLiquidityPoolRequest is the request type for the QueryLiquidityPool RPC method.
 type QueryLiquidityPoolRequest struct {
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 }
@@ -74,6 +75,7 @@ func (m *QueryLiquidityPoolRequest) GetPoolId() uint64 {
 	return 0
 }
 
+// QueryLiquidityPoolResponse is the response type for the QueryLiquidityPoolResponse RPC method.
 type QueryLiquidityPoolResponse struct {
 	LiquidityPool         LiquidityPool         `protobuf:"bytes,1,opt,name=liquidity_pool,json=liquidityPool,proto3" json:"liquidity_pool"`
 	LiquidityPoolMetaData LiquidityPoolMetaData `protobuf:"bytes,2,opt,name=liquidity_pool_meta_data,json=liquidityPoolMetaData,proto3" json:"liquidity_pool_meta_data"`
@@ -134,7 +136,9 @@ func (m *QueryLiquidityPoolResponse) GetLiquidityPoolBatch() LiquidityPoolBatch 
 	return LiquidityPoolBatch{}
 }
 
+// QueryLiquidityPoolBatchRequest is the request type for the QueryLiquidityPoolBatch RPC method.
 type QueryLiquidityPoolBatchRequest struct {
+	// id of the target pool for query
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 }
 
@@ -178,6 +182,7 @@ func (m *QueryLiquidityPoolBatchRequest) GetPoolId() uint64 {
 	return 0
 }
 
+// QueryLiquidityPoolBatchResponse is the response type for the QueryLiquidityPoolBatchResponse RPC method.
 type QueryLiquidityPoolBatchResponse struct {
 	LiquidityPoolBatch LiquidityPoolBatch `protobuf:"bytes,1,opt,name=liquidity_pool_batch,json=liquidityPoolBatch,proto3" json:"liquidity_pool_batch"`
 }
@@ -222,7 +227,9 @@ func (m *QueryLiquidityPoolBatchResponse) GetLiquidityPoolBatch() LiquidityPoolB
 	return LiquidityPoolBatch{}
 }
 
+// QueryLiquidityPoolsRequest is the request type for the QueryLiquidityPools RPC method.
 type QueryLiquidityPoolsRequest struct {
+	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -266,9 +273,11 @@ func (m *QueryLiquidityPoolsRequest) GetPagination() *query.PageRequest {
 	return nil
 }
 
+// QueryLiquidityPoolsResponse is the response type for the QueryLiquidityPoolsResponse RPC method.
 type QueryLiquidityPoolsResponse struct {
 	LiquidityPoolsResponse []QueryLiquidityPoolResponse `protobuf:"bytes,1,rep,name=liquidity_pools_response,json=liquidityPoolsResponse,proto3" json:"liquidity_pools_response"`
-	Pagination             *query.PageResponse          `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	// pagination defines the pagination in the response.
+	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
 func (m *QueryLiquidityPoolsResponse) Reset()         { *m = QueryLiquidityPoolsResponse{} }
@@ -318,7 +327,9 @@ func (m *QueryLiquidityPoolsResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
+// QueryLiquidityPoolsBatchRequest is the request type for the QueryLiquidityPoolsBatch RPC method.
 type QueryLiquidityPoolsBatchRequest struct {
+	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -362,9 +373,11 @@ func (m *QueryLiquidityPoolsBatchRequest) GetPagination() *query.PageRequest {
 	return nil
 }
 
+// QueryLiquidityPoolsBatchResponse is the response type for the QueryLiquidityPoolsBatchResponse RPC method.
 type QueryLiquidityPoolsBatchResponse struct {
 	LiquidityPoolsBatchResponse []QueryLiquidityPoolBatchResponse `protobuf:"bytes,1,rep,name=liquidity_pools_batch_response,json=liquidityPoolsBatchResponse,proto3" json:"liquidity_pools_batch_response"`
-	Pagination                  *query.PageResponse               `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	// pagination defines the pagination in the response.
+	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
 func (m *QueryLiquidityPoolsBatchResponse) Reset()         { *m = QueryLiquidityPoolsBatchResponse{} }
@@ -414,7 +427,7 @@ func (m *QueryLiquidityPoolsBatchResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
-// QueryParamsRequest is request type for the Query/Params RPC method.
+// QueryParamsRequest is request type for the QueryParams RPC method.
 type QueryParamsRequest struct {
 }
 
@@ -451,7 +464,7 @@ func (m *QueryParamsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
-// QueryParamsResponse is response type for the Query/Params RPC method.
+// QueryParamsResponse is response type for the QueryParamsResponse RPC method.
 type QueryParamsResponse struct {
 	// params holds all the parameters of this module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
@@ -497,8 +510,11 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
+// QueryPoolBatchSwapMsgsRequest is the request type for the QueryPoolBatchSwap RPC method.
 type QueryPoolBatchSwapMsgsRequest struct {
-	PoolId     uint64             `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// id of the target pool for query
+	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -549,6 +565,7 @@ func (m *QueryPoolBatchSwapMsgsRequest) GetPagination() *query.PageRequest {
 	return nil
 }
 
+// QueryPoolBatchSwapMsgsResponse is the response type for the QueryPoolBatchSwap RPC method.
 type QueryPoolBatchSwapMsgsResponse struct {
 	SwapMsgs []BatchPoolSwapMsg `protobuf:"bytes,1,rep,name=swap_msgs,json=swapMsgs,proto3" json:"swap_msgs"`
 	// pagination defines the pagination in the response.
@@ -602,8 +619,11 @@ func (m *QueryPoolBatchSwapMsgsResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
+// QueryPoolBatchDepositMsgsRequest is the request type for the QueryPoolBatchDeposit RPC method.
 type QueryPoolBatchDepositMsgsRequest struct {
-	PoolId     uint64             `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// id of the target pool for query
+	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -654,6 +674,7 @@ func (m *QueryPoolBatchDepositMsgsRequest) GetPagination() *query.PageRequest {
 	return nil
 }
 
+// QueryPoolBatchDepositMsgsResponse is the response type for the QueryPoolBatchDeposit RPC method.
 type QueryPoolBatchDepositMsgsResponse struct {
 	DepositMsgs []BatchPoolDepositMsg `protobuf:"bytes,1,rep,name=deposit_msgs,json=depositMsgs,proto3" json:"deposit_msgs"`
 	// pagination defines the pagination in the response.
@@ -707,8 +728,11 @@ func (m *QueryPoolBatchDepositMsgsResponse) GetPagination() *query.PageResponse 
 	return nil
 }
 
+// QueryPoolBatchWithdrawMsgsRequest is the request type for the QueryPoolBatchWithdraw RPC method.
 type QueryPoolBatchWithdrawMsgsRequest struct {
-	PoolId     uint64             `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// id of the target pool for query
+	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -759,6 +783,7 @@ func (m *QueryPoolBatchWithdrawMsgsRequest) GetPagination() *query.PageRequest {
 	return nil
 }
 
+// QueryPoolBatchWithdrawMsgsResponse is the response type for the QueryPoolBatchWithdraw RPC method.
 type QueryPoolBatchWithdrawMsgsResponse struct {
 	WithdrawMsgs []BatchPoolWithdrawMsg `protobuf:"bytes,1,rep,name=withdraw_msgs,json=withdrawMsgs,proto3" json:"withdraw_msgs"`
 	// pagination defines the pagination in the response.

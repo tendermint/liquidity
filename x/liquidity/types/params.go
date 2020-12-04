@@ -132,15 +132,22 @@ func validateLiquidityPoolTypes(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
 	if v == nil {
 		return fmt.Errorf("empty parameter: LiquidityPoolTypes #{i}")
 	}
-
 	for i, p := range v {
 		if i+1 != int(p.PoolTypeIndex) {
 			return fmt.Errorf("LiquidityPoolTypes index must be sorted")
 		}
+	}
+	if len(v) > 1 {
+		return fmt.Errorf("only default pool type allowed on this version")
+	}
+	if len(v) < 1 {
+		return fmt.Errorf("need to default pool type")
+	}
+	if !v[0].Equal(DefaultLiquidityPoolType)  {
+		return fmt.Errorf("only default pool type allowed")
 	}
 	return nil
 }
@@ -149,8 +156,7 @@ func validateMinInitDepositToPool(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
-	if v.IsZero() {
+	if !v.IsPositive() {
 		return fmt.Errorf("MinInitDepositToPool must be positive: %d", v)
 	}
 
@@ -162,11 +168,12 @@ func validateInitPoolCoinMintAmount(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
-	if v.IsZero() {
+	if !v.IsPositive() {
 		return fmt.Errorf("InitPoolCoinMintAmount must be positive: %d", v)
 	}
-
+	if v.LT(DefaultInitPoolCoinMintAmount){
+		return fmt.Errorf("InitPoolCoinMintAmount should over default value: %d", v)
+	}
 	return nil
 }
 
@@ -175,11 +182,9 @@ func validateSwapFeeRate(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
 	if v.IsNegative() {
 		return fmt.Errorf("SwapFeeRate cannot be negative: %s", v)
 	}
-
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("SwapFeeRate too large: %s", v)
 	}
@@ -192,7 +197,9 @@ func validateLiquidityPoolCreationFee(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
+	if err := coins.Validate(); err != nil {
+		return err
+	}
 	if coins.Empty() {
 		return fmt.Errorf("LiquidityPoolCreationFee cannot be Empty: %s", coins)
 	}

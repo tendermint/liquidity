@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 1.2.0
+  version: 1.2.1
 paths:
   /liquidity/pools:
     post:
@@ -46,6 +46,7 @@ paths:
 
                             signatures required by gogoproto.
                         title: amount is the amount of coins to be paid as a fee
+                    title: Fee struct of cosmos-sdk
                   memo:
                     type: string
                   signature:
@@ -53,19 +54,36 @@ paths:
                     properties:
                       signature:
                         type: string
+                        title: >-
+                          example:
+                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                       pub_key:
                         type: object
                         properties:
                           type:
                             type: string
+                            title: 'example: tendermint/PubKeySecp256k1'
                           value:
                             type: string
+                            title: >-
+                              example:
+                              Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                        title: PubKey struct of tendermint/cosmos-sdk
                       account_number:
                         type: string
                         format: uint64
+                        title: 'example: 0'
                       sequence:
                         type: string
                         format: uint64
+                        title: 'example: 0'
+                    title: signature struct of tendermint/cosmos-sdk
+                title: >-
+                  Base response struct of result of the requested Tx, standard
+                  of tendermint/cosmos-sdk
+            description: >-
+              MsgCreateLiquidityPoolResponse defines the Msg/CreateLiquidityPool
+              response type.
         default:
           description: An unexpected error response.
           schema:
@@ -100,13 +118,17 @@ paths:
                 properties:
                   from:
                     type: string
+                    title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
+                    title: 'example: Sent via Cosmos Voyager'
                   chain_id:
                     type: string
+                    title: 'example: Cosmos-Hub'
                   account_number:
                     type: string
                     format: uint64
+                    title: 'example: 0'
                   sequence:
                     type: string
                     format: uint64
@@ -151,10 +173,20 @@ paths:
                   gas:
                     type: string
                     format: uint64
+                    title: 'example: 200000'
                   gas_adjustment:
                     type: string
+                    title: 'example: 1.2'
                   simulate:
                     type: boolean
+                    title: >-
+                      Estimate gas for a transaction (cannot be used in
+                      conjunction with generate_only)
+
+                      example: false
+                title: >-
+                  Base Request struct for Post Tx, standard of
+                  tendermint/cosmos-sdk
               msg:
                 type: object
                 properties:
@@ -184,6 +216,19 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                title: >-
+                  MsgCreateLiquidityPool defines an sdk.Msg type that supports
+                  submitting create liquidity pool
+            description: >-
+              MsgCreateLiquidityPoolRequest is the request type for the
+              Query/Deposits RPC method
+
+              with the specified pool-type-index, deposit coins for reserve
+
+              Currently, only the default pool-type-index 1 is available on this
+              version
+
+              the number of deposit coins must be two in the pool-type-index 1.
       tags:
         - MsgApi
     get:
@@ -280,7 +325,11 @@ paths:
                           format: uint64
                         executed:
                           type: boolean
+                  description: >-
+                    QueryLiquidityPoolResponse is the response type for the
+                    QueryLiquidityPoolResponse RPC method.
               pagination:
+                description: pagination defines the pagination in the response.
                 type: object
                 properties:
                   next_key:
@@ -297,16 +346,14 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
                 title: >-
                   PageResponse is to be embedded in gRPC response messages where
                   the corresponding
 
                   request message has used PageRequest
+            description: >-
+              QueryLiquidityPoolsResponse is the response type for the
+              QueryLiquidityPoolsResponse RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -418,6 +465,7 @@ paths:
 
                             signatures required by gogoproto.
                         title: amount is the amount of coins to be paid as a fee
+                    title: Fee struct of cosmos-sdk
                   memo:
                     type: string
                   signature:
@@ -425,19 +473,36 @@ paths:
                     properties:
                       signature:
                         type: string
+                        title: >-
+                          example:
+                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                       pub_key:
                         type: object
                         properties:
                           type:
                             type: string
+                            title: 'example: tendermint/PubKeySecp256k1'
                           value:
                             type: string
+                            title: >-
+                              example:
+                              Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                        title: PubKey struct of tendermint/cosmos-sdk
                       account_number:
                         type: string
                         format: uint64
+                        title: 'example: 0'
                       sequence:
                         type: string
                         format: uint64
+                        title: 'example: 0'
+                    title: signature struct of tendermint/cosmos-sdk
+                title: >-
+                  Base response struct of result of the requested Tx, standard
+                  of tendermint/cosmos-sdk
+            description: >-
+              MsgDepositToLiquidityPoolResponse defines the
+              Msg/DepositToLiquidityPool response type.
         default:
           description: An unexpected error response.
           schema:
@@ -462,6 +527,7 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
+          description: id of target pool
           in: path
           required: true
           type: string
@@ -477,13 +543,17 @@ paths:
                 properties:
                   from:
                     type: string
+                    title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
+                    title: 'example: Sent via Cosmos Voyager'
                   chain_id:
                     type: string
+                    title: 'example: Cosmos-Hub'
                   account_number:
                     type: string
                     format: uint64
+                    title: 'example: 0'
                   sequence:
                     type: string
                     format: uint64
@@ -528,13 +598,24 @@ paths:
                   gas:
                     type: string
                     format: uint64
+                    title: 'example: 200000'
                   gas_adjustment:
                     type: string
+                    title: 'example: 1.2'
                   simulate:
                     type: boolean
+                    title: >-
+                      Estimate gas for a transaction (cannot be used in
+                      conjunction with generate_only)
+
+                      example: false
+                title: >-
+                  Base Request struct for Post Tx, standard of
+                  tendermint/cosmos-sdk
               pool_id:
                 type: string
                 format: uint64
+                title: id of target pool
               msg:
                 type: object
                 properties:
@@ -543,6 +624,7 @@ paths:
                   pool_id:
                     type: string
                     format: uint64
+                    title: id of target pool
                   deposit_coins:
                     type: array
                     items:
@@ -560,6 +642,21 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                description: >-
+                  MsgDepositToLiquidityPool defines an sdk.Msg type that
+                  supports submitting deposit request to the batch of the
+                  liquidity pool
+
+                  Deposit submit to the batch of the Liquidity pool with the
+                  specified pool-id, deposit coins for reserve
+
+                  this requests are stacked in the batch of the liquidity pool,
+                  not immediately processed and
+
+                  processed in the endblock at once with other requests.
+            description: >-
+              MsgDepositToLiquidityPoolRequest is the request type for the
+              Msg/DepositToLiquidityPool RPC method.
       tags:
         - MsgApi
     get:
@@ -596,6 +693,7 @@ paths:
                         pool_id:
                           type: string
                           format: uint64
+                          title: id of target pool
                         deposit_coins:
                           type: array
                           items:
@@ -614,6 +712,18 @@ paths:
                               the custom method
 
                               signatures required by gogoproto.
+                      description: >-
+                        MsgDepositToLiquidityPool defines an sdk.Msg type that
+                        supports submitting deposit request to the batch of the
+                        liquidity pool
+
+                        Deposit submit to the batch of the Liquidity pool with
+                        the specified pool-id, deposit coins for reserve
+
+                        this requests are stacked in the batch of the liquidity
+                        pool, not immediately processed and
+
+                        processed in the endblock at once with other requests.
               pagination:
                 description: pagination defines the pagination in the response.
                 type: object
@@ -637,6 +747,9 @@ paths:
                   the corresponding
 
                   request message has used PageRequest
+            description: >-
+              QueryPoolBatchDepositMsgsResponse is the response type for the
+              QueryPoolBatchDeposit RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -661,6 +774,7 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
+          description: id of the target pool for query
           in: path
           required: true
           type: string
@@ -753,6 +867,7 @@ paths:
 
                             signatures required by gogoproto.
                         title: amount is the amount of coins to be paid as a fee
+                    title: Fee struct of cosmos-sdk
                   memo:
                     type: string
                   signature:
@@ -760,19 +875,34 @@ paths:
                     properties:
                       signature:
                         type: string
+                        title: >-
+                          example:
+                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                       pub_key:
                         type: object
                         properties:
                           type:
                             type: string
+                            title: 'example: tendermint/PubKeySecp256k1'
                           value:
                             type: string
+                            title: >-
+                              example:
+                              Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                        title: PubKey struct of tendermint/cosmos-sdk
                       account_number:
                         type: string
                         format: uint64
+                        title: 'example: 0'
                       sequence:
                         type: string
                         format: uint64
+                        title: 'example: 0'
+                    title: signature struct of tendermint/cosmos-sdk
+                title: >-
+                  Base response struct of result of the requested Tx, standard
+                  of tendermint/cosmos-sdk
+            description: MsgSwapResponse defines the Msg/Swap response type.
         default:
           description: An unexpected error response.
           schema:
@@ -797,6 +927,7 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
+          description: id of target pool
           in: path
           required: true
           type: string
@@ -812,13 +943,17 @@ paths:
                 properties:
                   from:
                     type: string
+                    title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
+                    title: 'example: Sent via Cosmos Voyager'
                   chain_id:
                     type: string
+                    title: 'example: Cosmos-Hub'
                   account_number:
                     type: string
                     format: uint64
+                    title: 'example: 0'
                   sequence:
                     type: string
                     format: uint64
@@ -863,47 +998,88 @@ paths:
                   gas:
                     type: string
                     format: uint64
+                    title: 'example: 200000'
                   gas_adjustment:
                     type: string
+                    title: 'example: 1.2'
                   simulate:
                     type: boolean
+                    title: >-
+                      Estimate gas for a transaction (cannot be used in
+                      conjunction with generate_only)
+
+                      example: false
+                title: >-
+                  Base Request struct for Post Tx, standard of
+                  tendermint/cosmos-sdk
               pool_id:
                 type: string
                 format: uint64
+                title: id of target pool
               msg:
                 type: object
                 properties:
                   swap_requester_address:
                     type: string
+                    title: address of swap requester
                   pool_id:
                     type: string
                     format: uint64
+                    title: id of target pool
                   pool_type_index:
                     type: integer
                     format: int64
+                    description: >-
+                      index of target pool type, only 1 is allowed on this
+                      version, Must match the value in the pool.
                   swap_type:
                     type: integer
                     format: int64
+                    description: >-
+                      id of swap type type, only 1 is allowed on this version,
+                      Must match the value in the pool.
                   offer_coin:
+                    description: >-
+                      offer sdk.coin for the swap request, Must match the denom
+                      in the pool.
                     type: object
                     properties:
                       denom:
                         type: string
                       amount:
                         type: string
-                    description: >-
-                      Coin defines a coin with a denomination and an amount.
-
-
-                      NOTE: The amount field is an Int which implements the
-                      custom method
-
-                      signatures required by gogoproto.
                   demand_coin_denom:
                     type: string
+                    description: >-
+                      denom of demand coin to be exchanged on the swap request,
+                      Must match the denom in the pool.
                   order_price:
                     type: string
                     format: byte
+                    title: limit order price for this offer
+                description: >-
+                  MsgSwap defines an sdk.Msg type that supports submitting swap
+                  offer request to the batch of the liquidity pool
+
+                  Swap offer to the Liquidity pool with the specified pool-id,
+                  pool-type-index, swap-type,
+
+                  demand-coin-denom with the coin and the price you're offering
+
+                  this requests are stacked in the batch of the liquidity pool,
+                  not immediately processed and
+
+                  processed in the endblock at once with other requests
+
+                  You should request the same each field as the pool
+
+                  Currently, only the default swap-type 1 is available on this
+                  version
+
+                  The detailed swap algorithm can be found here
+
+                  https://github.com/tendermint/liquidity .
+            description: MsgSwapRequest is the request type for the Query/Swap RPC method.
       tags:
         - MsgApi
     get:
@@ -970,36 +1146,65 @@ paths:
                       properties:
                         swap_requester_address:
                           type: string
+                          title: address of swap requester
                         pool_id:
                           type: string
                           format: uint64
+                          title: id of target pool
                         pool_type_index:
                           type: integer
                           format: int64
+                          description: >-
+                            index of target pool type, only 1 is allowed on this
+                            version, Must match the value in the pool.
                         swap_type:
                           type: integer
                           format: int64
+                          description: >-
+                            id of swap type type, only 1 is allowed on this
+                            version, Must match the value in the pool.
                         offer_coin:
+                          description: >-
+                            offer sdk.coin for the swap request, Must match the
+                            denom in the pool.
                           type: object
                           properties:
                             denom:
                               type: string
                             amount:
                               type: string
-                          description: >-
-                            Coin defines a coin with a denomination and an
-                            amount.
-
-
-                            NOTE: The amount field is an Int which implements
-                            the custom method
-
-                            signatures required by gogoproto.
                         demand_coin_denom:
                           type: string
+                          description: >-
+                            denom of demand coin to be exchanged on the swap
+                            request, Must match the denom in the pool.
                         order_price:
                           type: string
                           format: byte
+                          title: limit order price for this offer
+                      description: >-
+                        MsgSwap defines an sdk.Msg type that supports submitting
+                        swap offer request to the batch of the liquidity pool
+
+                        Swap offer to the Liquidity pool with the specified
+                        pool-id, pool-type-index, swap-type,
+
+                        demand-coin-denom with the coin and the price you're
+                        offering
+
+                        this requests are stacked in the batch of the liquidity
+                        pool, not immediately processed and
+
+                        processed in the endblock at once with other requests
+
+                        You should request the same each field as the pool
+
+                        Currently, only the default swap-type 1 is available on
+                        this version
+
+                        The detailed swap algorithm can be found here
+
+                        https://github.com/tendermint/liquidity .
               pagination:
                 description: pagination defines the pagination in the response.
                 type: object
@@ -1023,6 +1228,9 @@ paths:
                   the corresponding
 
                   request message has used PageRequest
+            description: >-
+              QueryPoolBatchSwapMsgsResponse is the response type for the
+              QueryPoolBatchSwap RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1047,6 +1255,7 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
+          description: id of the target pool for query
           in: path
           required: true
           type: string
@@ -1139,6 +1348,7 @@ paths:
 
                             signatures required by gogoproto.
                         title: amount is the amount of coins to be paid as a fee
+                    title: Fee struct of cosmos-sdk
                   memo:
                     type: string
                   signature:
@@ -1146,19 +1356,36 @@ paths:
                     properties:
                       signature:
                         type: string
+                        title: >-
+                          example:
+                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                       pub_key:
                         type: object
                         properties:
                           type:
                             type: string
+                            title: 'example: tendermint/PubKeySecp256k1'
                           value:
                             type: string
+                            title: >-
+                              example:
+                              Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                        title: PubKey struct of tendermint/cosmos-sdk
                       account_number:
                         type: string
                         format: uint64
+                        title: 'example: 0'
                       sequence:
                         type: string
                         format: uint64
+                        title: 'example: 0'
+                    title: signature struct of tendermint/cosmos-sdk
+                title: >-
+                  Base response struct of result of the requested Tx, standard
+                  of tendermint/cosmos-sdk
+            description: >-
+              MsgWithdrawFromLiquidityPoolResponse defines the
+              Msg/WithdrawFromLiquidityPool response type.
         default:
           description: An unexpected error response.
           schema:
@@ -1183,6 +1410,7 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
+          description: id of target pool
           in: path
           required: true
           type: string
@@ -1198,13 +1426,17 @@ paths:
                 properties:
                   from:
                     type: string
+                    title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
+                    title: 'example: Sent via Cosmos Voyager'
                   chain_id:
                     type: string
+                    title: 'example: Cosmos-Hub'
                   account_number:
                     type: string
                     format: uint64
+                    title: 'example: 0'
                   sequence:
                     type: string
                     format: uint64
@@ -1249,13 +1481,24 @@ paths:
                   gas:
                     type: string
                     format: uint64
+                    title: 'example: 200000'
                   gas_adjustment:
                     type: string
+                    title: 'example: 1.2'
                   simulate:
                     type: boolean
+                    title: >-
+                      Estimate gas for a transaction (cannot be used in
+                      conjunction with generate_only)
+
+                      example: false
+                title: >-
+                  Base Request struct for Post Tx, standard of
+                  tendermint/cosmos-sdk
               pool_id:
                 type: string
                 format: uint64
+                title: id of target pool
               msg:
                 type: object
                 properties:
@@ -1264,6 +1507,7 @@ paths:
                   pool_id:
                     type: string
                     format: uint64
+                    title: id of target pool
                   pool_coin:
                     type: object
                     properties:
@@ -1279,6 +1523,21 @@ paths:
                       custom method
 
                       signatures required by gogoproto.
+                description: >-
+                  MsgWithdrawFromLiquidityPool defines an sdk.Msg type that
+                  supports submitting withdraw request to the batch of the
+                  liquidity pool
+
+                  Withdraw submit to the batch from the Liquidity pool with the
+                  specified pool-id, pool-coin of the pool
+
+                  this requests are stacked in the batch of the liquidity pool,
+                  not immediately processed and
+
+                  processed in the endblock at once with other requests.
+            description: >-
+              MsgWithdrawFromLiquidityPoolRequest is the request type for the
+              Query/WithdrawFromLiquidityPool RPC method.
       tags:
         - MsgApi
     get:
@@ -1315,6 +1574,7 @@ paths:
                         pool_id:
                           type: string
                           format: uint64
+                          title: id of target pool
                         pool_coin:
                           type: object
                           properties:
@@ -1331,6 +1591,18 @@ paths:
                             the custom method
 
                             signatures required by gogoproto.
+                      description: >-
+                        MsgWithdrawFromLiquidityPool defines an sdk.Msg type
+                        that supports submitting withdraw request to the batch
+                        of the liquidity pool
+
+                        Withdraw submit to the batch from the Liquidity pool
+                        with the specified pool-id, pool-coin of the pool
+
+                        this requests are stacked in the batch of the liquidity
+                        pool, not immediately processed and
+
+                        processed in the endblock at once with other requests.
               pagination:
                 description: pagination defines the pagination in the response.
                 type: object
@@ -1354,6 +1626,9 @@ paths:
                   the corresponding
 
                   request message has used PageRequest
+            description: >-
+              QueryPoolBatchWithdrawMsgsResponse is the response type for the
+              QueryPoolBatchWithdraw RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1378,6 +1653,7 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
+          description: id of the target pool for query
           in: path
           required: true
           type: string
@@ -1485,8 +1761,8 @@ paths:
 
                         signatures required by gogoproto.
             description: >-
-              QueryParamsResponse is response type for the Query/Params RPC
-              method.
+              QueryParamsResponse is response type for the QueryParamsResponse
+              RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1549,7 +1825,11 @@ paths:
                           format: uint64
                         executed:
                           type: boolean
+                  description: >-
+                    QueryLiquidityPoolBatchResponse is the response type for the
+                    QueryLiquidityPoolBatchResponse RPC method.
               pagination:
+                description: pagination defines the pagination in the response.
                 type: object
                 properties:
                   next_key:
@@ -1566,16 +1846,14 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
                 title: >-
                   PageResponse is to be embedded in gRPC response messages where
                   the corresponding
 
                   request message has used PageRequest
+            description: >-
+              QueryLiquidityPoolsBatchResponse is the response type for the
+              QueryLiquidityPoolsBatchResponse RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1733,6 +2011,9 @@ paths:
                     format: uint64
                   executed:
                     type: boolean
+            description: >-
+              QueryLiquidityPoolResponse is the response type for the
+              QueryLiquidityPoolResponse RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1796,6 +2077,9 @@ paths:
                     format: uint64
                   executed:
                     type: boolean
+            description: >-
+              QueryLiquidityPoolBatchResponse is the response type for the
+              QueryLiquidityPoolBatchResponse RPC method.
         default:
           description: An unexpected error response.
           schema:
@@ -1820,12 +2104,835 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
+          description: id of the target pool for query
           in: path
           required: true
           type: string
           format: uint64
       tags:
         - Query
+  /node_info:
+    get:
+      description: Information about the connected node
+      summary: The properties of the connected node
+      tags:
+        - Gaia REST
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Node status
+          schema:
+            type: object
+            properties:
+              application_version:
+                properties:
+                  build_tags:
+                    type: string
+                  client_name:
+                    type: string
+                  commit:
+                    type: string
+                  go:
+                    type: string
+                  name:
+                    type: string
+                  server_name:
+                    type: string
+                  version:
+                    type: string
+              node_info:
+                properties:
+                  id:
+                    type: string
+                  moniker:
+                    type: string
+                    example: validator-name
+                  protocol_version:
+                    properties:
+                      p2p:
+                        type: string
+                        example: 7
+                      block:
+                        type: string
+                        example: 10
+                      app:
+                        type: string
+                        example: 0
+                  network:
+                    type: string
+                    example: gaia-2
+                  channels:
+                    type: string
+                  listen_addr:
+                    type: string
+                    example: '192.168.56.1:26656'
+                  version:
+                    description: Tendermint version
+                    type: string
+                    example: 0.15.0
+                  other:
+                    description: more information on versions
+                    type: object
+                    properties:
+                      tx_index:
+                        type: string
+                        example: 'on'
+                      rpc_address:
+                        type: string
+                        example: 'tcp://0.0.0.0:26657'
+        '500':
+          description: Failed to query node status
+  /syncing:
+    get:
+      summary: Syncing state of node
+      tags:
+        - Tendermint RPC
+      description: Get if the node is currently syning with other nodes
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Node syncing status
+          schema:
+            type: object
+            properties:
+              syncing:
+                type: boolean
+        '500':
+          description: Server internal error
+  /blocks/latest:
+    get:
+      summary: Get the latest block
+      tags:
+        - Tendermint RPC
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: The latest block
+          schema:
+            type: object
+            properties:
+              block_meta:
+                type: object
+                properties:
+                  header:
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                        example: cosmoshub-2
+                      height:
+                        type: number
+                        example: 1
+                      time:
+                        type: string
+                        example: '2017-12-30T05:53:09.287+01:00'
+                      num_txs:
+                        type: number
+                        example: 0
+                      last_block_id:
+                        type: object
+                        properties:
+                          hash:
+                            type: string
+                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                          parts:
+                            type: object
+                            properties:
+                              total:
+                                type: number
+                                example: 0
+                              hash:
+                                type: string
+                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      total_txs:
+                        type: number
+                        example: 35
+                      last_commit_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      data_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      validators_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      next_validators_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      consensus_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      app_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      last_results_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      evidence_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      proposer_address:
+                        type: string
+                        description: bech32 encoded address
+                        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+                      version:
+                        type: object
+                        properties:
+                          block:
+                            type: string
+                            example: 10
+                          app:
+                            type: string
+                            example: 0
+                  block_id:
+                    type: object
+                    properties:
+                      hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      parts:
+                        type: object
+                        properties:
+                          total:
+                            type: number
+                            example: 0
+                          hash:
+                            type: string
+                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              block:
+                type: object
+                properties:
+                  header:
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                        example: cosmoshub-2
+                      height:
+                        type: number
+                        example: 1
+                      time:
+                        type: string
+                        example: '2017-12-30T05:53:09.287+01:00'
+                      num_txs:
+                        type: number
+                        example: 0
+                      last_block_id:
+                        type: object
+                        properties:
+                          hash:
+                            type: string
+                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                          parts:
+                            type: object
+                            properties:
+                              total:
+                                type: number
+                                example: 0
+                              hash:
+                                type: string
+                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      total_txs:
+                        type: number
+                        example: 35
+                      last_commit_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      data_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      validators_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      next_validators_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      consensus_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      app_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      last_results_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      evidence_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      proposer_address:
+                        type: string
+                        description: bech32 encoded address
+                        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+                      version:
+                        type: object
+                        properties:
+                          block:
+                            type: string
+                            example: 10
+                          app:
+                            type: string
+                            example: 0
+                  txs:
+                    type: array
+                    items:
+                      type: string
+                  evidence:
+                    type: array
+                    items:
+                      type: string
+                  last_commit:
+                    type: object
+                    properties:
+                      block_id:
+                        type: object
+                        properties:
+                          hash:
+                            type: string
+                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                          parts:
+                            type: object
+                            properties:
+                              total:
+                                type: number
+                                example: 0
+                              hash:
+                                type: string
+                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      precommits:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            validator_address:
+                              type: string
+                            validator_index:
+                              type: string
+                              example: '0'
+                            height:
+                              type: string
+                              example: '0'
+                            round:
+                              type: string
+                              example: '0'
+                            timestamp:
+                              type: string
+                              example: '2017-12-30T05:53:09.287+01:00'
+                            type:
+                              type: number
+                              example: 2
+                            block_id:
+                              type: object
+                              properties:
+                                hash:
+                                  type: string
+                                  example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                                parts:
+                                  type: object
+                                  properties:
+                                    total:
+                                      type: number
+                                      example: 0
+                                    hash:
+                                      type: string
+                                      example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                            signature:
+                              type: string
+                              example: >-
+                                7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ==
+        '500':
+          description: Server internal error
+  '/blocks/{height}':
+    get:
+      summary: Get a block at a certain height
+      tags:
+        - Tendermint RPC
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: height
+          description: Block height
+          required: true
+          type: number
+          x-example: 1
+      responses:
+        '200':
+          description: The block at a specific height
+          schema:
+            type: object
+            properties:
+              block_meta:
+                type: object
+                properties:
+                  header:
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                        example: cosmoshub-2
+                      height:
+                        type: number
+                        example: 1
+                      time:
+                        type: string
+                        example: '2017-12-30T05:53:09.287+01:00'
+                      num_txs:
+                        type: number
+                        example: 0
+                      last_block_id:
+                        type: object
+                        properties:
+                          hash:
+                            type: string
+                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                          parts:
+                            type: object
+                            properties:
+                              total:
+                                type: number
+                                example: 0
+                              hash:
+                                type: string
+                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      total_txs:
+                        type: number
+                        example: 35
+                      last_commit_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      data_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      validators_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      next_validators_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      consensus_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      app_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      last_results_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      evidence_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      proposer_address:
+                        type: string
+                        description: bech32 encoded address
+                        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+                      version:
+                        type: object
+                        properties:
+                          block:
+                            type: string
+                            example: 10
+                          app:
+                            type: string
+                            example: 0
+                  block_id:
+                    type: object
+                    properties:
+                      hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      parts:
+                        type: object
+                        properties:
+                          total:
+                            type: number
+                            example: 0
+                          hash:
+                            type: string
+                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              block:
+                type: object
+                properties:
+                  header:
+                    type: object
+                    properties:
+                      chain_id:
+                        type: string
+                        example: cosmoshub-2
+                      height:
+                        type: number
+                        example: 1
+                      time:
+                        type: string
+                        example: '2017-12-30T05:53:09.287+01:00'
+                      num_txs:
+                        type: number
+                        example: 0
+                      last_block_id:
+                        type: object
+                        properties:
+                          hash:
+                            type: string
+                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                          parts:
+                            type: object
+                            properties:
+                              total:
+                                type: number
+                                example: 0
+                              hash:
+                                type: string
+                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      total_txs:
+                        type: number
+                        example: 35
+                      last_commit_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      data_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      validators_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      next_validators_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      consensus_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      app_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      last_results_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      evidence_hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      proposer_address:
+                        type: string
+                        description: bech32 encoded address
+                        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+                      version:
+                        type: object
+                        properties:
+                          block:
+                            type: string
+                            example: 10
+                          app:
+                            type: string
+                            example: 0
+                  txs:
+                    type: array
+                    items:
+                      type: string
+                  evidence:
+                    type: array
+                    items:
+                      type: string
+                  last_commit:
+                    type: object
+                    properties:
+                      block_id:
+                        type: object
+                        properties:
+                          hash:
+                            type: string
+                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                          parts:
+                            type: object
+                            properties:
+                              total:
+                                type: number
+                                example: 0
+                              hash:
+                                type: string
+                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                      precommits:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            validator_address:
+                              type: string
+                            validator_index:
+                              type: string
+                              example: '0'
+                            height:
+                              type: string
+                              example: '0'
+                            round:
+                              type: string
+                              example: '0'
+                            timestamp:
+                              type: string
+                              example: '2017-12-30T05:53:09.287+01:00'
+                            type:
+                              type: number
+                              example: 2
+                            block_id:
+                              type: object
+                              properties:
+                                hash:
+                                  type: string
+                                  example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                                parts:
+                                  type: object
+                                  properties:
+                                    total:
+                                      type: number
+                                      example: 0
+                                    hash:
+                                      type: string
+                                      example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                            signature:
+                              type: string
+                              example: >-
+                                7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ==
+        '400':
+          description: Invalid height
+        '404':
+          description: Request block height doesn't
+        '500':
+          description: Server internal error
+  /validatorsets/latest:
+    get:
+      summary: Get the latest validator set
+      tags:
+        - Tendermint RPC
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: The validator set at the latest block height
+          schema:
+            type: object
+            properties:
+              block_height:
+                type: string
+              validators:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                      description: bech32 encoded address
+                      example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+                    pub_key:
+                      type: string
+                      example: >-
+                        cosmosvalconspub1zcjduepq0vu2zgkgk49efa0nqwzndanq5m4c7pa3u4apz4g2r9gspqg6g9cs3k9cuf
+                    voting_power:
+                      type: string
+                      example: '1000'
+                    proposer_priority:
+                      type: string
+                      example: '1000'
+        '500':
+          description: Server internal error
+  '/validatorsets/{height}':
+    get:
+      summary: Get a validator set a certain height
+      tags:
+        - Tendermint RPC
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: height
+          description: Block height
+          required: true
+          type: number
+          x-example: 1
+      responses:
+        '200':
+          description: The validator set at a specific block height
+          schema:
+            type: object
+            properties:
+              block_height:
+                type: string
+              validators:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                      description: bech32 encoded address
+                      example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+                    pub_key:
+                      type: string
+                      example: >-
+                        cosmosvalconspub1zcjduepq0vu2zgkgk49efa0nqwzndanq5m4c7pa3u4apz4g2r9gspqg6g9cs3k9cuf
+                    voting_power:
+                      type: string
+                      example: '1000'
+                    proposer_priority:
+                      type: string
+                      example: '1000'
+        '400':
+          description: Invalid height
+        '404':
+          description: Block at height not available
+        '500':
+          description: Server internal error
+  /txs:
+    post:
+      tags:
+        - Transactions
+      summary: Broadcast a signed tx
+      description: Broadcast a signed tx to a full node
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: txBroadcast
+          description: >-
+            The tx must be a signed StdTx. The supported broadcast modes include
+            `"block"`(return after tx commit), `"sync"`(return afer CheckTx) and
+            `"async"`(return right away).
+          required: true
+          schema:
+            type: object
+            properties:
+              tx:
+                type: object
+                properties:
+                  msg:
+                    type: array
+                    items:
+                      type: string
+                  fee:
+                    type: object
+                    properties:
+                      gas:
+                        type: string
+                      amount:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                              example: stake
+                            amount:
+                              type: string
+                              example: '50'
+                  memo:
+                    type: string
+                  signature:
+                    type: object
+                    properties:
+                      signature:
+                        type: string
+                        example: >-
+                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                      pub_key:
+                        type: object
+                        properties:
+                          type:
+                            type: string
+                            example: tendermint/PubKeySecp256k1
+                          value:
+                            type: string
+                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                      account_number:
+                        type: string
+                        example: '0'
+                      sequence:
+                        type: string
+                        example: '0'
+              mode:
+                type: string
+                example: block
+      responses:
+        '200':
+          description: Tx broadcasting result
+          schema:
+            type: object
+            properties:
+              check_tx:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: string
+                  gas_used:
+                    type: integer
+                  gas_wanted:
+                    type: integer
+                  info:
+                    type: string
+                  log:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                example:
+                  code: 0
+                  data: data
+                  log: log
+                  gas_used: 5000
+                  gas_wanted: 10000
+                  info: info
+                  tags:
+                    - ''
+                    - ''
+              deliver_tx:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: string
+                  gas_used:
+                    type: integer
+                  gas_wanted:
+                    type: integer
+                  info:
+                    type: string
+                  log:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                example:
+                  code: 5
+                  data: data
+                  log: log
+                  gas_used: 5000
+                  gas_wanted: 10000
+                  info: info
+                  tags:
+                    - ''
+                    - ''
+              hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              height:
+                type: integer
+        '500':
+          description: Internal Server Error
 definitions:
   cosmos.base.v1beta1.Coin:
     type: object
@@ -1884,13 +2991,19 @@ definitions:
     properties:
       from:
         type: string
+        title: Sender address or Keybase name to generate a transaction
+        example: cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc
+        description: Sender address or Keybase name to generate a transaction
       memo:
         type: string
+        title: 'example: Sent via Cosmos Voyager'
       chain_id:
         type: string
+        title: 'example: Cosmos-Hub'
       account_number:
         type: string
         format: uint64
+        title: 'example: 0'
       sequence:
         type: string
         format: uint64
@@ -1928,10 +3041,18 @@ definitions:
       gas:
         type: string
         format: uint64
+        title: 'example: 200000'
       gas_adjustment:
         type: string
+        title: 'example: 1.2'
       simulate:
         type: boolean
+        title: >-
+          Estimate gas for a transaction (cannot be used in conjunction with
+          generate_only)
+
+          example: false
+    title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
   tendermint.liquidity.Fee:
     type: object
     properties:
@@ -1953,6 +3074,7 @@ definitions:
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
         title: amount is the amount of coins to be paid as a fee
+    title: Fee struct of cosmos-sdk
   tendermint.liquidity.MsgCreateLiquidityPool:
     type: object
     properties:
@@ -1979,6 +3101,9 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
+    title: >-
+      MsgCreateLiquidityPool defines an sdk.Msg type that supports submitting
+      create liquidity pool
   tendermint.liquidity.MsgCreateLiquidityPoolRequest:
     type: object
     properties:
@@ -1987,13 +3112,17 @@ definitions:
         properties:
           from:
             type: string
+            title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
+            title: 'example: Sent via Cosmos Voyager'
           chain_id:
             type: string
+            title: 'example: Cosmos-Hub'
           account_number:
             type: string
             format: uint64
+            title: 'example: 0'
           sequence:
             type: string
             format: uint64
@@ -2037,10 +3166,18 @@ definitions:
           gas:
             type: string
             format: uint64
+            title: 'example: 200000'
           gas_adjustment:
             type: string
+            title: 'example: 1.2'
           simulate:
             type: boolean
+            title: >-
+              Estimate gas for a transaction (cannot be used in conjunction with
+              generate_only)
+
+              example: false
+        title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
       msg:
         type: object
         properties:
@@ -2070,6 +3207,18 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+        title: >-
+          MsgCreateLiquidityPool defines an sdk.Msg type that supports
+          submitting create liquidity pool
+    description: >-
+      MsgCreateLiquidityPoolRequest is the request type for the Query/Deposits
+      RPC method
+
+      with the specified pool-type-index, deposit coins for reserve
+
+      Currently, only the default pool-type-index 1 is available on this version
+
+      the number of deposit coins must be two in the pool-type-index 1.
   tendermint.liquidity.MsgCreateLiquidityPoolResponse:
     type: object
     properties:
@@ -2104,6 +3253,7 @@ definitions:
 
                     signatures required by gogoproto.
                 title: amount is the amount of coins to be paid as a fee
+            title: Fee struct of cosmos-sdk
           memo:
             type: string
           signature:
@@ -2111,19 +3261,34 @@ definitions:
             properties:
               signature:
                 type: string
+                title: >-
+                  example:
+                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
               pub_key:
                 type: object
                 properties:
                   type:
                     type: string
+                    title: 'example: tendermint/PubKeySecp256k1'
                   value:
                     type: string
+                    title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
+                title: PubKey struct of tendermint/cosmos-sdk
               account_number:
                 type: string
                 format: uint64
+                title: 'example: 0'
               sequence:
                 type: string
                 format: uint64
+                title: 'example: 0'
+            title: signature struct of tendermint/cosmos-sdk
+        title: >-
+          Base response struct of result of the requested Tx, standard of
+          tendermint/cosmos-sdk
+    description: >-
+      MsgCreateLiquidityPoolResponse defines the Msg/CreateLiquidityPool
+      response type.
   tendermint.liquidity.MsgDepositToLiquidityPool:
     type: object
     properties:
@@ -2132,6 +3297,7 @@ definitions:
       pool_id:
         type: string
         format: uint64
+        title: id of target pool
       deposit_coins:
         type: array
         items:
@@ -2146,6 +3312,17 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
+    description: >-
+      MsgDepositToLiquidityPool defines an sdk.Msg type that supports submitting
+      deposit request to the batch of the liquidity pool
+
+      Deposit submit to the batch of the Liquidity pool with the specified
+      pool-id, deposit coins for reserve
+
+      this requests are stacked in the batch of the liquidity pool, not
+      immediately processed and
+
+      processed in the endblock at once with other requests.
   tendermint.liquidity.MsgDepositToLiquidityPoolRequest:
     type: object
     properties:
@@ -2154,13 +3331,17 @@ definitions:
         properties:
           from:
             type: string
+            title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
+            title: 'example: Sent via Cosmos Voyager'
           chain_id:
             type: string
+            title: 'example: Cosmos-Hub'
           account_number:
             type: string
             format: uint64
+            title: 'example: 0'
           sequence:
             type: string
             format: uint64
@@ -2204,13 +3385,22 @@ definitions:
           gas:
             type: string
             format: uint64
+            title: 'example: 200000'
           gas_adjustment:
             type: string
+            title: 'example: 1.2'
           simulate:
             type: boolean
+            title: >-
+              Estimate gas for a transaction (cannot be used in conjunction with
+              generate_only)
+
+              example: false
+        title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
       pool_id:
         type: string
         format: uint64
+        title: id of target pool
       msg:
         type: object
         properties:
@@ -2219,6 +3409,7 @@ definitions:
           pool_id:
             type: string
             format: uint64
+            title: id of target pool
           deposit_coins:
             type: array
             items:
@@ -2236,6 +3427,20 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+        description: >-
+          MsgDepositToLiquidityPool defines an sdk.Msg type that supports
+          submitting deposit request to the batch of the liquidity pool
+
+          Deposit submit to the batch of the Liquidity pool with the specified
+          pool-id, deposit coins for reserve
+
+          this requests are stacked in the batch of the liquidity pool, not
+          immediately processed and
+
+          processed in the endblock at once with other requests.
+    description: >-
+      MsgDepositToLiquidityPoolRequest is the request type for the
+      Msg/DepositToLiquidityPool RPC method.
   tendermint.liquidity.MsgDepositToLiquidityPoolResponse:
     type: object
     properties:
@@ -2270,6 +3475,7 @@ definitions:
 
                     signatures required by gogoproto.
                 title: amount is the amount of coins to be paid as a fee
+            title: Fee struct of cosmos-sdk
           memo:
             type: string
           signature:
@@ -2277,50 +3483,94 @@ definitions:
             properties:
               signature:
                 type: string
+                title: >-
+                  example:
+                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
               pub_key:
                 type: object
                 properties:
                   type:
                     type: string
+                    title: 'example: tendermint/PubKeySecp256k1'
                   value:
                     type: string
+                    title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
+                title: PubKey struct of tendermint/cosmos-sdk
               account_number:
                 type: string
                 format: uint64
+                title: 'example: 0'
               sequence:
                 type: string
                 format: uint64
+                title: 'example: 0'
+            title: signature struct of tendermint/cosmos-sdk
+        title: >-
+          Base response struct of result of the requested Tx, standard of
+          tendermint/cosmos-sdk
+    description: >-
+      MsgDepositToLiquidityPoolResponse defines the Msg/DepositToLiquidityPool
+      response type.
   tendermint.liquidity.MsgSwap:
     type: object
     properties:
       swap_requester_address:
         type: string
+        title: address of swap requester
       pool_id:
         type: string
         format: uint64
+        title: id of target pool
       pool_type_index:
         type: integer
         format: int64
+        description: >-
+          index of target pool type, only 1 is allowed on this version, Must
+          match the value in the pool.
       swap_type:
         type: integer
         format: int64
+        description: >-
+          id of swap type type, only 1 is allowed on this version, Must match
+          the value in the pool.
       offer_coin:
+        description: 'offer sdk.coin for the swap request, Must match the denom in the pool.'
         type: object
         properties:
           denom:
             type: string
           amount:
             type: string
-        description: |-
-          Coin defines a coin with a denomination and an amount.
-
-          NOTE: The amount field is an Int which implements the custom method
-          signatures required by gogoproto.
       demand_coin_denom:
         type: string
+        description: >-
+          denom of demand coin to be exchanged on the swap request, Must match
+          the denom in the pool.
       order_price:
         type: string
         format: byte
+        title: limit order price for this offer
+    description: >-
+      MsgSwap defines an sdk.Msg type that supports submitting swap offer
+      request to the batch of the liquidity pool
+
+      Swap offer to the Liquidity pool with the specified pool-id,
+      pool-type-index, swap-type,
+
+      demand-coin-denom with the coin and the price you're offering
+
+      this requests are stacked in the batch of the liquidity pool, not
+      immediately processed and
+
+      processed in the endblock at once with other requests
+
+      You should request the same each field as the pool
+
+      Currently, only the default swap-type 1 is available on this version
+
+      The detailed swap algorithm can be found here
+
+      https://github.com/tendermint/liquidity .
   tendermint.liquidity.MsgSwapRequest:
     type: object
     properties:
@@ -2329,13 +3579,17 @@ definitions:
         properties:
           from:
             type: string
+            title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
+            title: 'example: Sent via Cosmos Voyager'
           chain_id:
             type: string
+            title: 'example: Cosmos-Hub'
           account_number:
             type: string
             format: uint64
+            title: 'example: 0'
           sequence:
             type: string
             format: uint64
@@ -2379,47 +3633,85 @@ definitions:
           gas:
             type: string
             format: uint64
+            title: 'example: 200000'
           gas_adjustment:
             type: string
+            title: 'example: 1.2'
           simulate:
             type: boolean
+            title: >-
+              Estimate gas for a transaction (cannot be used in conjunction with
+              generate_only)
+
+              example: false
+        title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
       pool_id:
         type: string
         format: uint64
+        title: id of target pool
       msg:
         type: object
         properties:
           swap_requester_address:
             type: string
+            title: address of swap requester
           pool_id:
             type: string
             format: uint64
+            title: id of target pool
           pool_type_index:
             type: integer
             format: int64
+            description: >-
+              index of target pool type, only 1 is allowed on this version, Must
+              match the value in the pool.
           swap_type:
             type: integer
             format: int64
+            description: >-
+              id of swap type type, only 1 is allowed on this version, Must
+              match the value in the pool.
           offer_coin:
+            description: >-
+              offer sdk.coin for the swap request, Must match the denom in the
+              pool.
             type: object
             properties:
               denom:
                 type: string
               amount:
                 type: string
-            description: >-
-              Coin defines a coin with a denomination and an amount.
-
-
-              NOTE: The amount field is an Int which implements the custom
-              method
-
-              signatures required by gogoproto.
           demand_coin_denom:
             type: string
+            description: >-
+              denom of demand coin to be exchanged on the swap request, Must
+              match the denom in the pool.
           order_price:
             type: string
             format: byte
+            title: limit order price for this offer
+        description: >-
+          MsgSwap defines an sdk.Msg type that supports submitting swap offer
+          request to the batch of the liquidity pool
+
+          Swap offer to the Liquidity pool with the specified pool-id,
+          pool-type-index, swap-type,
+
+          demand-coin-denom with the coin and the price you're offering
+
+          this requests are stacked in the batch of the liquidity pool, not
+          immediately processed and
+
+          processed in the endblock at once with other requests
+
+          You should request the same each field as the pool
+
+          Currently, only the default swap-type 1 is available on this version
+
+          The detailed swap algorithm can be found here
+
+          https://github.com/tendermint/liquidity .
+    description: MsgSwapRequest is the request type for the Query/Swap RPC method.
   tendermint.liquidity.MsgSwapResponse:
     type: object
     properties:
@@ -2454,6 +3746,7 @@ definitions:
 
                     signatures required by gogoproto.
                 title: amount is the amount of coins to be paid as a fee
+            title: Fee struct of cosmos-sdk
           memo:
             type: string
           signature:
@@ -2461,19 +3754,32 @@ definitions:
             properties:
               signature:
                 type: string
+                title: >-
+                  example:
+                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
               pub_key:
                 type: object
                 properties:
                   type:
                     type: string
+                    title: 'example: tendermint/PubKeySecp256k1'
                   value:
                     type: string
+                    title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
+                title: PubKey struct of tendermint/cosmos-sdk
               account_number:
                 type: string
                 format: uint64
+                title: 'example: 0'
               sequence:
                 type: string
                 format: uint64
+                title: 'example: 0'
+            title: signature struct of tendermint/cosmos-sdk
+        title: >-
+          Base response struct of result of the requested Tx, standard of
+          tendermint/cosmos-sdk
+    description: MsgSwapResponse defines the Msg/Swap response type.
   tendermint.liquidity.MsgWithdrawFromLiquidityPool:
     type: object
     properties:
@@ -2482,6 +3788,7 @@ definitions:
       pool_id:
         type: string
         format: uint64
+        title: id of target pool
       pool_coin:
         type: object
         properties:
@@ -2494,6 +3801,17 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
+    description: >-
+      MsgWithdrawFromLiquidityPool defines an sdk.Msg type that supports
+      submitting withdraw request to the batch of the liquidity pool
+
+      Withdraw submit to the batch from the Liquidity pool with the specified
+      pool-id, pool-coin of the pool
+
+      this requests are stacked in the batch of the liquidity pool, not
+      immediately processed and
+
+      processed in the endblock at once with other requests.
   tendermint.liquidity.MsgWithdrawFromLiquidityPoolRequest:
     type: object
     properties:
@@ -2502,13 +3820,17 @@ definitions:
         properties:
           from:
             type: string
+            title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
+            title: 'example: Sent via Cosmos Voyager'
           chain_id:
             type: string
+            title: 'example: Cosmos-Hub'
           account_number:
             type: string
             format: uint64
+            title: 'example: 0'
           sequence:
             type: string
             format: uint64
@@ -2552,13 +3874,22 @@ definitions:
           gas:
             type: string
             format: uint64
+            title: 'example: 200000'
           gas_adjustment:
             type: string
+            title: 'example: 1.2'
           simulate:
             type: boolean
+            title: >-
+              Estimate gas for a transaction (cannot be used in conjunction with
+              generate_only)
+
+              example: false
+        title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
       pool_id:
         type: string
         format: uint64
+        title: id of target pool
       msg:
         type: object
         properties:
@@ -2567,6 +3898,7 @@ definitions:
           pool_id:
             type: string
             format: uint64
+            title: id of target pool
           pool_coin:
             type: object
             properties:
@@ -2582,6 +3914,20 @@ definitions:
               method
 
               signatures required by gogoproto.
+        description: >-
+          MsgWithdrawFromLiquidityPool defines an sdk.Msg type that supports
+          submitting withdraw request to the batch of the liquidity pool
+
+          Withdraw submit to the batch from the Liquidity pool with the
+          specified pool-id, pool-coin of the pool
+
+          this requests are stacked in the batch of the liquidity pool, not
+          immediately processed and
+
+          processed in the endblock at once with other requests.
+    description: >-
+      MsgWithdrawFromLiquidityPoolRequest is the request type for the
+      Query/WithdrawFromLiquidityPool RPC method.
   tendermint.liquidity.MsgWithdrawFromLiquidityPoolResponse:
     type: object
     properties:
@@ -2616,6 +3962,7 @@ definitions:
 
                     signatures required by gogoproto.
                 title: amount is the amount of coins to be paid as a fee
+            title: Fee struct of cosmos-sdk
           memo:
             type: string
           signature:
@@ -2623,44 +3970,71 @@ definitions:
             properties:
               signature:
                 type: string
+                title: >-
+                  example:
+                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
               pub_key:
                 type: object
                 properties:
                   type:
                     type: string
+                    title: 'example: tendermint/PubKeySecp256k1'
                   value:
                     type: string
+                    title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
+                title: PubKey struct of tendermint/cosmos-sdk
               account_number:
                 type: string
                 format: uint64
+                title: 'example: 0'
               sequence:
                 type: string
                 format: uint64
+                title: 'example: 0'
+            title: signature struct of tendermint/cosmos-sdk
+        title: >-
+          Base response struct of result of the requested Tx, standard of
+          tendermint/cosmos-sdk
+    description: >-
+      MsgWithdrawFromLiquidityPoolResponse defines the
+      Msg/WithdrawFromLiquidityPool response type.
   tendermint.liquidity.PubKey:
     type: object
     properties:
       type:
         type: string
+        title: 'example: tendermint/PubKeySecp256k1'
       value:
         type: string
+        title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
+    title: PubKey struct of tendermint/cosmos-sdk
   tendermint.liquidity.Signature:
     type: object
     properties:
       signature:
         type: string
+        title: >-
+          example:
+          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
       pub_key:
         type: object
         properties:
           type:
             type: string
+            title: 'example: tendermint/PubKeySecp256k1'
           value:
             type: string
+            title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
+        title: PubKey struct of tendermint/cosmos-sdk
       account_number:
         type: string
         format: uint64
+        title: 'example: 0'
       sequence:
         type: string
         format: uint64
+        title: 'example: 0'
+    title: signature struct of tendermint/cosmos-sdk
   tendermint.liquidity.StdTx:
     type: object
     properties:
@@ -2692,6 +4066,7 @@ definitions:
 
                 signatures required by gogoproto.
             title: amount is the amount of coins to be paid as a fee
+        title: Fee struct of cosmos-sdk
       memo:
         type: string
       signature:
@@ -2699,19 +4074,31 @@ definitions:
         properties:
           signature:
             type: string
+            title: >-
+              example:
+              MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
           pub_key:
             type: object
             properties:
               type:
                 type: string
+                title: 'example: tendermint/PubKeySecp256k1'
               value:
                 type: string
+                title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
+            title: PubKey struct of tendermint/cosmos-sdk
           account_number:
             type: string
             format: uint64
+            title: 'example: 0'
           sequence:
             type: string
             format: uint64
+            title: 'example: 0'
+        title: signature struct of tendermint/cosmos-sdk
+    title: >-
+      Base response struct of result of the requested Tx, standard of
+      tendermint/cosmos-sdk
   cosmos.query.PageRequest:
     type: object
     properties:
@@ -2803,6 +4190,7 @@ definitions:
           pool_id:
             type: string
             format: uint64
+            title: id of target pool
           deposit_coins:
             type: array
             items:
@@ -2820,6 +4208,17 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+        description: >-
+          MsgDepositToLiquidityPool defines an sdk.Msg type that supports
+          submitting deposit request to the batch of the liquidity pool
+
+          Deposit submit to the batch of the Liquidity pool with the specified
+          pool-id, deposit coins for reserve
+
+          this requests are stacked in the batch of the liquidity pool, not
+          immediately processed and
+
+          processed in the endblock at once with other requests.
   tendermint.liquidity.BatchPoolSwapMsg:
     type: object
     properties:
@@ -2867,35 +4266,63 @@ definitions:
         properties:
           swap_requester_address:
             type: string
+            title: address of swap requester
           pool_id:
             type: string
             format: uint64
+            title: id of target pool
           pool_type_index:
             type: integer
             format: int64
+            description: >-
+              index of target pool type, only 1 is allowed on this version, Must
+              match the value in the pool.
           swap_type:
             type: integer
             format: int64
+            description: >-
+              id of swap type type, only 1 is allowed on this version, Must
+              match the value in the pool.
           offer_coin:
+            description: >-
+              offer sdk.coin for the swap request, Must match the denom in the
+              pool.
             type: object
             properties:
               denom:
                 type: string
               amount:
                 type: string
-            description: >-
-              Coin defines a coin with a denomination and an amount.
-
-
-              NOTE: The amount field is an Int which implements the custom
-              method
-
-              signatures required by gogoproto.
           demand_coin_denom:
             type: string
+            description: >-
+              denom of demand coin to be exchanged on the swap request, Must
+              match the denom in the pool.
           order_price:
             type: string
             format: byte
+            title: limit order price for this offer
+        description: >-
+          MsgSwap defines an sdk.Msg type that supports submitting swap offer
+          request to the batch of the liquidity pool
+
+          Swap offer to the Liquidity pool with the specified pool-id,
+          pool-type-index, swap-type,
+
+          demand-coin-denom with the coin and the price you're offering
+
+          this requests are stacked in the batch of the liquidity pool, not
+          immediately processed and
+
+          processed in the endblock at once with other requests
+
+          You should request the same each field as the pool
+
+          Currently, only the default swap-type 1 is available on this version
+
+          The detailed swap algorithm can be found here
+
+          https://github.com/tendermint/liquidity .
   tendermint.liquidity.BatchPoolWithdrawMsg:
     type: object
     properties:
@@ -2919,6 +4346,7 @@ definitions:
           pool_id:
             type: string
             format: uint64
+            title: id of target pool
           pool_coin:
             type: object
             properties:
@@ -2934,6 +4362,17 @@ definitions:
               method
 
               signatures required by gogoproto.
+        description: >-
+          MsgWithdrawFromLiquidityPool defines an sdk.Msg type that supports
+          submitting withdraw request to the batch of the liquidity pool
+
+          Withdraw submit to the batch from the Liquidity pool with the
+          specified pool-id, pool-coin of the pool
+
+          this requests are stacked in the batch of the liquidity pool, not
+          immediately processed and
+
+          processed in the endblock at once with other requests.
   tendermint.liquidity.LiquidityPool:
     type: object
     properties:
@@ -3090,6 +4529,9 @@ definitions:
             format: uint64
           executed:
             type: boolean
+    description: >-
+      QueryLiquidityPoolBatchResponse is the response type for the
+      QueryLiquidityPoolBatchResponse RPC method.
   tendermint.liquidity.QueryLiquidityPoolResponse:
     type: object
     properties:
@@ -3171,6 +4613,9 @@ definitions:
             format: uint64
           executed:
             type: boolean
+    description: >-
+      QueryLiquidityPoolResponse is the response type for the
+      QueryLiquidityPoolResponse RPC method.
   tendermint.liquidity.QueryLiquidityPoolsBatchResponse:
     type: object
     properties:
@@ -3202,7 +4647,11 @@ definitions:
                   format: uint64
                 executed:
                   type: boolean
+          description: >-
+            QueryLiquidityPoolBatchResponse is the response type for the
+            QueryLiquidityPoolBatchResponse RPC method.
       pagination:
+        description: pagination defines the pagination in the response.
         type: object
         properties:
           next_key:
@@ -3219,16 +4668,14 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
         title: >-
           PageResponse is to be embedded in gRPC response messages where the
           corresponding
 
           request message has used PageRequest
+    description: >-
+      QueryLiquidityPoolsBatchResponse is the response type for the
+      QueryLiquidityPoolsBatchResponse RPC method.
   tendermint.liquidity.QueryLiquidityPoolsResponse:
     type: object
     properties:
@@ -3315,7 +4762,11 @@ definitions:
                   format: uint64
                 executed:
                   type: boolean
+          description: >-
+            QueryLiquidityPoolResponse is the response type for the
+            QueryLiquidityPoolResponse RPC method.
       pagination:
+        description: pagination defines the pagination in the response.
         type: object
         properties:
           next_key:
@@ -3332,16 +4783,14 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
         title: >-
           PageResponse is to be embedded in gRPC response messages where the
           corresponding
 
           request message has used PageRequest
+    description: >-
+      QueryLiquidityPoolsResponse is the response type for the
+      QueryLiquidityPoolsResponse RPC method.
   tendermint.liquidity.QueryParamsResponse:
     type: object
     properties:
@@ -3391,7 +4840,9 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-    description: QueryParamsResponse is response type for the Query/Params RPC method.
+    description: >-
+      QueryParamsResponse is response type for the QueryParamsResponse RPC
+      method.
   tendermint.liquidity.QueryPoolBatchDepositMsgsResponse:
     type: object
     properties:
@@ -3420,6 +4871,7 @@ definitions:
                 pool_id:
                   type: string
                   format: uint64
+                  title: id of target pool
                 deposit_coins:
                   type: array
                   items:
@@ -3437,6 +4889,17 @@ definitions:
                       custom method
 
                       signatures required by gogoproto.
+              description: >-
+                MsgDepositToLiquidityPool defines an sdk.Msg type that supports
+                submitting deposit request to the batch of the liquidity pool
+
+                Deposit submit to the batch of the Liquidity pool with the
+                specified pool-id, deposit coins for reserve
+
+                this requests are stacked in the batch of the liquidity pool,
+                not immediately processed and
+
+                processed in the endblock at once with other requests.
       pagination:
         description: pagination defines the pagination in the response.
         type: object
@@ -3460,6 +4923,9 @@ definitions:
           corresponding
 
           request message has used PageRequest
+    description: >-
+      QueryPoolBatchDepositMsgsResponse is the response type for the
+      QueryPoolBatchDeposit RPC method.
   tendermint.liquidity.QueryPoolBatchSwapMsgsResponse:
     type: object
     properties:
@@ -3518,35 +4984,64 @@ definitions:
               properties:
                 swap_requester_address:
                   type: string
+                  title: address of swap requester
                 pool_id:
                   type: string
                   format: uint64
+                  title: id of target pool
                 pool_type_index:
                   type: integer
                   format: int64
+                  description: >-
+                    index of target pool type, only 1 is allowed on this
+                    version, Must match the value in the pool.
                 swap_type:
                   type: integer
                   format: int64
+                  description: >-
+                    id of swap type type, only 1 is allowed on this version,
+                    Must match the value in the pool.
                 offer_coin:
+                  description: >-
+                    offer sdk.coin for the swap request, Must match the denom in
+                    the pool.
                   type: object
                   properties:
                     denom:
                       type: string
                     amount:
                       type: string
-                  description: >-
-                    Coin defines a coin with a denomination and an amount.
-
-
-                    NOTE: The amount field is an Int which implements the custom
-                    method
-
-                    signatures required by gogoproto.
                 demand_coin_denom:
                   type: string
+                  description: >-
+                    denom of demand coin to be exchanged on the swap request,
+                    Must match the denom in the pool.
                 order_price:
                   type: string
                   format: byte
+                  title: limit order price for this offer
+              description: >-
+                MsgSwap defines an sdk.Msg type that supports submitting swap
+                offer request to the batch of the liquidity pool
+
+                Swap offer to the Liquidity pool with the specified pool-id,
+                pool-type-index, swap-type,
+
+                demand-coin-denom with the coin and the price you're offering
+
+                this requests are stacked in the batch of the liquidity pool,
+                not immediately processed and
+
+                processed in the endblock at once with other requests
+
+                You should request the same each field as the pool
+
+                Currently, only the default swap-type 1 is available on this
+                version
+
+                The detailed swap algorithm can be found here
+
+                https://github.com/tendermint/liquidity .
       pagination:
         description: pagination defines the pagination in the response.
         type: object
@@ -3570,6 +5065,9 @@ definitions:
           corresponding
 
           request message has used PageRequest
+    description: >-
+      QueryPoolBatchSwapMsgsResponse is the response type for the
+      QueryPoolBatchSwap RPC method.
   tendermint.liquidity.QueryPoolBatchWithdrawMsgsResponse:
     type: object
     properties:
@@ -3598,6 +5096,7 @@ definitions:
                 pool_id:
                   type: string
                   format: uint64
+                  title: id of target pool
                 pool_coin:
                   type: object
                   properties:
@@ -3613,6 +5112,18 @@ definitions:
                     method
 
                     signatures required by gogoproto.
+              description: >-
+                MsgWithdrawFromLiquidityPool defines an sdk.Msg type that
+                supports submitting withdraw request to the batch of the
+                liquidity pool
+
+                Withdraw submit to the batch from the Liquidity pool with the
+                specified pool-id, pool-coin of the pool
+
+                this requests are stacked in the batch of the liquidity pool,
+                not immediately processed and
+
+                processed in the endblock at once with other requests.
       pagination:
         description: pagination defines the pagination in the response.
         type: object
@@ -3636,3 +5147,916 @@ definitions:
           corresponding
 
           request message has used PageRequest
+    description: >-
+      QueryPoolBatchWithdrawMsgsResponse is the response type for the
+      QueryPoolBatchWithdraw RPC method.
+  CheckTxResult:
+    type: object
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      gas_used:
+        type: integer
+      gas_wanted:
+        type: integer
+      info:
+        type: string
+      log:
+        type: string
+      tags:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            value:
+              type: string
+    example:
+      code: 0
+      data: data
+      log: log
+      gas_used: 5000
+      gas_wanted: 10000
+      info: info
+      tags:
+        - ''
+        - ''
+  DeliverTxResult:
+    type: object
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      gas_used:
+        type: integer
+      gas_wanted:
+        type: integer
+      info:
+        type: string
+      log:
+        type: string
+      tags:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            value:
+              type: string
+    example:
+      code: 5
+      data: data
+      log: log
+      gas_used: 5000
+      gas_wanted: 10000
+      info: info
+      tags:
+        - ''
+        - ''
+  BroadcastTxCommitResult:
+    type: object
+    properties:
+      check_tx:
+        type: object
+        properties:
+          code:
+            type: integer
+          data:
+            type: string
+          gas_used:
+            type: integer
+          gas_wanted:
+            type: integer
+          info:
+            type: string
+          log:
+            type: string
+          tags:
+            type: array
+            items:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+        example:
+          code: 0
+          data: data
+          log: log
+          gas_used: 5000
+          gas_wanted: 10000
+          info: info
+          tags:
+            - ''
+            - ''
+      deliver_tx:
+        type: object
+        properties:
+          code:
+            type: integer
+          data:
+            type: string
+          gas_used:
+            type: integer
+          gas_wanted:
+            type: integer
+          info:
+            type: string
+          log:
+            type: string
+          tags:
+            type: array
+            items:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+        example:
+          code: 5
+          data: data
+          log: log
+          gas_used: 5000
+          gas_wanted: 10000
+          info: info
+          tags:
+            - ''
+            - ''
+      hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      height:
+        type: integer
+  KVPair:
+    type: object
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+  Msg:
+    type: string
+  Address:
+    type: string
+    description: bech32 encoded address
+    example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+  ValidatorAddress:
+    type: string
+    description: bech32 encoded address
+    example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+  Coin:
+    type: object
+    properties:
+      denom:
+        type: string
+        example: stake
+      amount:
+        type: string
+        example: '50'
+  Hash:
+    type: string
+    example: EE5F3404034C524501629B56E0DDC38FAD651F04
+  TxQuery:
+    type: object
+    properties:
+      hash:
+        type: string
+        example: D085138D913993919295FF4B0A9107F1F2CDE0D37A87CE0644E217CBF3B49656
+      height:
+        type: number
+        example: 368
+      tx:
+        type: object
+        properties:
+          msg:
+            type: array
+            items:
+              type: string
+          fee:
+            type: object
+            properties:
+              gas:
+                type: string
+              amount:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                      example: stake
+                    amount:
+                      type: string
+                      example: '50'
+          memo:
+            type: string
+          signature:
+            type: object
+            properties:
+              signature:
+                type: string
+                example: >-
+                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+              pub_key:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: tendermint/PubKeySecp256k1
+                  value:
+                    type: string
+                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+              account_number:
+                type: string
+                example: '0'
+              sequence:
+                type: string
+                example: '0'
+      result:
+        type: object
+        properties:
+          log:
+            type: string
+          gas_wanted:
+            type: string
+            example: '200000'
+          gas_used:
+            type: string
+            example: '26354'
+          tags:
+            type: array
+            items:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+  PaginatedQueryTxs:
+    type: object
+    properties:
+      total_count:
+        type: number
+        example: 1
+      count:
+        type: number
+        example: 1
+      page_number:
+        type: number
+        example: 1
+      page_total:
+        type: number
+        example: 1
+      limit:
+        type: number
+        example: 30
+      txs:
+        type: array
+        items:
+          type: object
+          properties:
+            hash:
+              type: string
+              example: D085138D913993919295FF4B0A9107F1F2CDE0D37A87CE0644E217CBF3B49656
+            height:
+              type: number
+              example: 368
+            tx:
+              type: object
+              properties:
+                msg:
+                  type: array
+                  items:
+                    type: string
+                fee:
+                  type: object
+                  properties:
+                    gas:
+                      type: string
+                    amount:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                            example: stake
+                          amount:
+                            type: string
+                            example: '50'
+                memo:
+                  type: string
+                signature:
+                  type: object
+                  properties:
+                    signature:
+                      type: string
+                      example: >-
+                        MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                    pub_key:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: tendermint/PubKeySecp256k1
+                        value:
+                          type: string
+                          example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                    account_number:
+                      type: string
+                      example: '0'
+                    sequence:
+                      type: string
+                      example: '0'
+            result:
+              type: object
+              properties:
+                log:
+                  type: string
+                gas_wanted:
+                  type: string
+                  example: '200000'
+                gas_used:
+                  type: string
+                  example: '26354'
+                tags:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+  StdTx:
+    type: object
+    properties:
+      msg:
+        type: array
+        items:
+          type: string
+      fee:
+        type: object
+        properties:
+          gas:
+            type: string
+          amount:
+            type: array
+            items:
+              type: object
+              properties:
+                denom:
+                  type: string
+                  example: stake
+                amount:
+                  type: string
+                  example: '50'
+      memo:
+        type: string
+      signature:
+        type: object
+        properties:
+          signature:
+            type: string
+            example: >-
+              MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+          pub_key:
+            type: object
+            properties:
+              type:
+                type: string
+                example: tendermint/PubKeySecp256k1
+              value:
+                type: string
+                example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+          account_number:
+            type: string
+            example: '0'
+          sequence:
+            type: string
+            example: '0'
+  BlockID:
+    type: object
+    properties:
+      hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      parts:
+        type: object
+        properties:
+          total:
+            type: number
+            example: 0
+          hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+  BlockHeader:
+    type: object
+    properties:
+      chain_id:
+        type: string
+        example: cosmoshub-2
+      height:
+        type: number
+        example: 1
+      time:
+        type: string
+        example: '2017-12-30T05:53:09.287+01:00'
+      num_txs:
+        type: number
+        example: 0
+      last_block_id:
+        type: object
+        properties:
+          hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          parts:
+            type: object
+            properties:
+              total:
+                type: number
+                example: 0
+              hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      total_txs:
+        type: number
+        example: 35
+      last_commit_hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      data_hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      validators_hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      next_validators_hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      consensus_hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      app_hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      last_results_hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      evidence_hash:
+        type: string
+        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      proposer_address:
+        type: string
+        description: bech32 encoded address
+        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+      version:
+        type: object
+        properties:
+          block:
+            type: string
+            example: 10
+          app:
+            type: string
+            example: 0
+  Block:
+    type: object
+    properties:
+      header:
+        type: object
+        properties:
+          chain_id:
+            type: string
+            example: cosmoshub-2
+          height:
+            type: number
+            example: 1
+          time:
+            type: string
+            example: '2017-12-30T05:53:09.287+01:00'
+          num_txs:
+            type: number
+            example: 0
+          last_block_id:
+            type: object
+            properties:
+              hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              parts:
+                type: object
+                properties:
+                  total:
+                    type: number
+                    example: 0
+                  hash:
+                    type: string
+                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          total_txs:
+            type: number
+            example: 35
+          last_commit_hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          data_hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          validators_hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          next_validators_hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          consensus_hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          app_hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          last_results_hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          evidence_hash:
+            type: string
+            example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          proposer_address:
+            type: string
+            description: bech32 encoded address
+            example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+          version:
+            type: object
+            properties:
+              block:
+                type: string
+                example: 10
+              app:
+                type: string
+                example: 0
+      txs:
+        type: array
+        items:
+          type: string
+      evidence:
+        type: array
+        items:
+          type: string
+      last_commit:
+        type: object
+        properties:
+          block_id:
+            type: object
+            properties:
+              hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              parts:
+                type: object
+                properties:
+                  total:
+                    type: number
+                    example: 0
+                  hash:
+                    type: string
+                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
+          precommits:
+            type: array
+            items:
+              type: object
+              properties:
+                validator_address:
+                  type: string
+                validator_index:
+                  type: string
+                  example: '0'
+                height:
+                  type: string
+                  example: '0'
+                round:
+                  type: string
+                  example: '0'
+                timestamp:
+                  type: string
+                  example: '2017-12-30T05:53:09.287+01:00'
+                type:
+                  type: number
+                  example: 2
+                block_id:
+                  type: object
+                  properties:
+                    hash:
+                      type: string
+                      example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                    parts:
+                      type: object
+                      properties:
+                        total:
+                          type: number
+                          example: 0
+                        hash:
+                          type: string
+                          example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                signature:
+                  type: string
+                  example: >-
+                    7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ==
+  BlockQuery:
+    type: object
+    properties:
+      block_meta:
+        type: object
+        properties:
+          header:
+            type: object
+            properties:
+              chain_id:
+                type: string
+                example: cosmoshub-2
+              height:
+                type: number
+                example: 1
+              time:
+                type: string
+                example: '2017-12-30T05:53:09.287+01:00'
+              num_txs:
+                type: number
+                example: 0
+              last_block_id:
+                type: object
+                properties:
+                  hash:
+                    type: string
+                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                  parts:
+                    type: object
+                    properties:
+                      total:
+                        type: number
+                        example: 0
+                      hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              total_txs:
+                type: number
+                example: 35
+              last_commit_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              data_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              validators_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              next_validators_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              consensus_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              app_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              last_results_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              evidence_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              proposer_address:
+                type: string
+                description: bech32 encoded address
+                example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+              version:
+                type: object
+                properties:
+                  block:
+                    type: string
+                    example: 10
+                  app:
+                    type: string
+                    example: 0
+          block_id:
+            type: object
+            properties:
+              hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              parts:
+                type: object
+                properties:
+                  total:
+                    type: number
+                    example: 0
+                  hash:
+                    type: string
+                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
+      block:
+        type: object
+        properties:
+          header:
+            type: object
+            properties:
+              chain_id:
+                type: string
+                example: cosmoshub-2
+              height:
+                type: number
+                example: 1
+              time:
+                type: string
+                example: '2017-12-30T05:53:09.287+01:00'
+              num_txs:
+                type: number
+                example: 0
+              last_block_id:
+                type: object
+                properties:
+                  hash:
+                    type: string
+                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                  parts:
+                    type: object
+                    properties:
+                      total:
+                        type: number
+                        example: 0
+                      hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              total_txs:
+                type: number
+                example: 35
+              last_commit_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              data_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              validators_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              next_validators_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              consensus_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              app_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              last_results_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              evidence_hash:
+                type: string
+                example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              proposer_address:
+                type: string
+                description: bech32 encoded address
+                example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+              version:
+                type: object
+                properties:
+                  block:
+                    type: string
+                    example: 10
+                  app:
+                    type: string
+                    example: 0
+          txs:
+            type: array
+            items:
+              type: string
+          evidence:
+            type: array
+            items:
+              type: string
+          last_commit:
+            type: object
+            properties:
+              block_id:
+                type: object
+                properties:
+                  hash:
+                    type: string
+                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                  parts:
+                    type: object
+                    properties:
+                      total:
+                        type: number
+                        example: 0
+                      hash:
+                        type: string
+                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
+              precommits:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    validator_address:
+                      type: string
+                    validator_index:
+                      type: string
+                      example: '0'
+                    height:
+                      type: string
+                      example: '0'
+                    round:
+                      type: string
+                      example: '0'
+                    timestamp:
+                      type: string
+                      example: '2017-12-30T05:53:09.287+01:00'
+                    type:
+                      type: number
+                      example: 2
+                    block_id:
+                      type: object
+                      properties:
+                        hash:
+                          type: string
+                          example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                        parts:
+                          type: object
+                          properties:
+                            total:
+                              type: number
+                              example: 0
+                            hash:
+                              type: string
+                              example: EE5F3404034C524501629B56E0DDC38FAD651F04
+                    signature:
+                      type: string
+                      example: >-
+                        7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ==
+  BaseReq:
+    type: object
+    properties:
+      from:
+        type: string
+        example: cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc
+        description: Sender address or Keybase name to generate a transaction
+      memo:
+        type: string
+        example: "Sent via Cosmos Voyager \U0001F680"
+      chain_id:
+        type: string
+        example: Cosmos-Hub
+      account_number:
+        type: string
+        example: '0'
+      sequence:
+        type: string
+        example: '1'
+      gas:
+        type: string
+        example: '200000'
+      gas_adjustment:
+        type: string
+        example: '1.2'
+      fees:
+        type: array
+        items:
+          type: object
+          properties:
+            denom:
+              type: string
+              example: stake
+            amount:
+              type: string
+              example: '50'
+      simulate:
+        type: boolean
+        example: false
+        description: >-
+          Estimate gas for a transaction (cannot be used in conjunction with
+          generate_only)
+  TendermintValidator:
+    type: object
+    properties:
+      address:
+        type: string
+        description: bech32 encoded address
+        example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
+      pub_key:
+        type: string
+        example: >-
+          cosmosvalconspub1zcjduepq0vu2zgkgk49efa0nqwzndanq5m4c7pa3u4apz4g2r9gspqg6g9cs3k9cuf
+      voting_power:
+        type: string
+        example: '1000'
+      proposer_priority:
+        type: string
+        example: '1000'
+securityDefinitions:
+  kms:
+    type: basic
