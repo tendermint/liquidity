@@ -10,7 +10,6 @@ import (
 	"testing"
 )
 
-// TODO: fix test for latest version of genesis state
 func TestGenesisState(t *testing.T) {
 	cdc := codec.NewLegacyAmino()
 	types.RegisterLegacyAminoCodec(cdc)

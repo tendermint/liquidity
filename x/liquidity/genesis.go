@@ -8,12 +8,13 @@ import (
 )
 
 // InitGenesis new liquidity genesis
-func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
-	k.SetParams(ctx, data.Params)
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState) {
+	keeper.SetParams(ctx, data.Params)
 	// validate logic on module.go/InitGenesis
 	for _, record := range data.LiquidityPoolRecords {
-		k.SetLiquidityPoolRecord(ctx, &record)
+		keeper.SetLiquidityPoolRecord(ctx, &record)
 	}
+	keeper.InitGenesis(ctx, data)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
