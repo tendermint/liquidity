@@ -3,8 +3,8 @@ package types
 // DONTCOVER
 // client is excluded from test coverage in the poc phase milestone 1 and will be included in milestone 2 with completeness
 
+// QueryLiquidityPool liquidity query endpoint supported by the liquidity querier
 const (
-	// QueryLiquidityPool liquidity query endpoint supported by the liquidity querier
 	QueryLiquidityPool  = "liquidityPool"
 	QueryLiquidityPools = "liquidityPools"
 )
@@ -14,6 +14,7 @@ type QueryLiquidityPoolParams struct {
 	PoolId uint64 `json:"pool_id" yaml:"pool_id"`
 }
 
+// return params of Liquidity Pool Query
 func NewQueryLiquidityPoolParams(poolId uint64) QueryLiquidityPoolParams {
 	return QueryLiquidityPoolParams{
 		PoolId: poolId,
@@ -26,6 +27,7 @@ type QueryLiquidityPoolsParams struct {
 	Page, Limit int
 }
 
+// return params of Liquidity Pools Query
 func NewQueryLiquidityPoolsParams(page, limit int) QueryLiquidityPoolsParams {
 	return QueryLiquidityPoolsParams{page, limit}
 }

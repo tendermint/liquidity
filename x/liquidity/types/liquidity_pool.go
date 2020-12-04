@@ -7,14 +7,17 @@ import (
 	"strings"
 )
 
+
+// Calculate unique Pool key of the liquidity pool
 // need to validate alphabetical ordering of ReserveCoinDenoms when New() and Store
 // Denominations can be 3 ~ 128 characters long and support letters, followed by either
 // a letter, a number or a separator ('/').
-// reDnmString = `[a-zA-Z][a-zA-Z0-9/]{2,127}`
+// reDnmString = `[a-zA-Z][a-zA-Z0-9/]{2,127}`.
 func (lp LiquidityPool) GetPoolKey() string {
 	return GetPoolKey(lp.ReserveCoinDenoms, lp.PoolTypeIndex)
 }
 
+// Validate each constraint of the liquidity pool
 func (lp LiquidityPool) Validate() error {
 	if lp.PoolId == 0 {
 		return ErrPoolNotExists
@@ -51,6 +54,7 @@ func (lp LiquidityPool) Validate() error {
 	return nil
 }
 
+// Calculate unique Pool key of the liquidity pool
 func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
 	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeIndex), 10)), "-")
 }
@@ -89,6 +93,7 @@ func UnmarshalLiquidityPool(cdc codec.BinaryMarshaler, value []byte) (liquidityP
 	return liquidityPool, err
 }
 
+// return sdk.AccAddress object of he address saved as string because of protobuf
 func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(lp.ReserveAccountAddress)
 	if err != nil {
@@ -96,14 +101,20 @@ func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
 	}
 	return addr
 }
+
+// return pool coin denom of the liquidity poool
 func (lp LiquidityPool) GetPoolCoinDenom() string { return lp.PoolCoinDenom }
+
+// return pool id of the liquidity poool
 func (lp LiquidityPool) GetPoolId() uint64        { return lp.PoolId }
 
 // LiquidityPools is a collection of liquidityPools
 type LiquidityPools []LiquidityPool
 
+// LiquidityPoolsBatch is a collection of liquidityPoolBatch
 type LiquidityPoolsBatch []LiquidityPoolBatch
 
+// get string of list of liquidity pool
 func (lps LiquidityPools) String() (out string) {
 	for _, del := range lps {
 		out += del.String() + "\n"

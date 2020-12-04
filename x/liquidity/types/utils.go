@@ -20,6 +20,8 @@ func GetPoolReserveAcc(poolKey string) sdk.AccAddress {
 }
 
 // TODO: tmp denom rule, It will fixed on milestone 2
+
+// Generation absolute denomination of the Pool Coin. This rule will be changed on next milestone
 func GetPoolCoinDenom(reserveAcc sdk.AccAddress) string {
 	return reserveAcc.String()
 }
@@ -28,6 +30,7 @@ func GetPoolCoinDenom(reserveAcc sdk.AccAddress) string {
 //func IsPoolCoin(coin sdk.Coin) bool {
 //}
 
+// Find A string is exists in the given list
 func StringInSlice(a string, list []string) bool {
 	for _, b := range list {
 		if b == a {
@@ -37,10 +40,8 @@ func StringInSlice(a string, list []string) bool {
 	return false
 }
 
+// Safe Sub function for Coin with subtracting amount
 func CoinSafeSubAmount(coinA sdk.Coin, coinBamt sdk.Int) sdk.Coin {
-	//fmt.Println("CoinSafeSubAmount")
-	//fmt.Println(coinA)
-	//fmt.Println(coinBamt)
 	var resCoin sdk.Coin
 	if coinA.Amount.Equal(coinBamt) {
 		resCoin = sdk.NewCoin(coinA.Denom, sdk.NewInt(0))

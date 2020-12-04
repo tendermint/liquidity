@@ -27,6 +27,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	}
 }
 
+// return query result data of the query liquidity pool
 func queryLiquidityPool(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	var params types.QueryLiquidityPoolParams
 
@@ -46,6 +47,7 @@ func queryLiquidityPool(ctx sdk.Context, _ []string, req abci.RequestQuery, k Ke
 	return bz, nil
 }
 
+// return query result data of the query liquidity pools
 func queryLiquidityPools(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	var params types.QueryLiquidityPoolsParams
 

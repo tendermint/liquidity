@@ -73,7 +73,7 @@ liquidity_pool_creation_fee:
 
 }
 
-func TestGetPoolCreationFeePoolAcc(t *testing.T) {
-	poolCreationFeePoolAcc := types.GetPoolCreationFeePoolAcc()
-	require.Equal(t, "cosmos1ux8lymc6af2cqzpzshyrjtcurnchlqyqclke67", poolCreationFeePoolAcc.String())
+func TestGetLiquidityModuleFeePoolAcc(t *testing.T) {
+	feePoolAcc := types.GetLiquidityModuleFeePoolAcc()
+	require.Equal(t, "cosmos18l9ktac2vf2qyf8a8hjahh47995ymknzg8my6t", feePoolAcc.String())
 }

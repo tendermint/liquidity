@@ -24,6 +24,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
+// Message server, handler for CreateLiquidityPool msg
 func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCreateLiquidityPool) (*types.MsgCreateLiquidityPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	err := k.Keeper.CreateLiquidityPool(ctx, msg)
@@ -48,6 +49,8 @@ func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCrea
 	)
 	return &types.MsgCreateLiquidityPoolResponse{}, nil
 }
+
+// Message server, handler for MsgDepositToLiquidityPool
 func (k msgServer) DepositToLiquidityPool(goCtx context.Context, msg *types.MsgDepositToLiquidityPool) (*types.MsgDepositToLiquidityPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	err := k.Keeper.DepositLiquidityPoolToBatch(ctx, msg)
@@ -65,6 +68,8 @@ func (k msgServer) DepositToLiquidityPool(goCtx context.Context, msg *types.MsgD
 	)
 	return &types.MsgDepositToLiquidityPoolResponse{}, nil
 }
+
+// Message server, handler for MsgWithdrawFromLiquidityPool
 func (k msgServer) WithdrawFromLiquidityPool(goCtx context.Context, msg *types.MsgWithdrawFromLiquidityPool) (*types.MsgWithdrawFromLiquidityPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	err := k.Keeper.WithdrawLiquidityPoolToBatch(ctx, msg)
@@ -82,6 +87,8 @@ func (k msgServer) WithdrawFromLiquidityPool(goCtx context.Context, msg *types.M
 	)
 	return &types.MsgWithdrawFromLiquidityPoolResponse{}, nil
 }
+
+// Message server, handler for MsgSwap
 func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSwapResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	k.Keeper.SwapLiquidityPoolToBatch(ctx, msg, 0)

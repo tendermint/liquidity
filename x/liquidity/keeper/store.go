@@ -6,7 +6,7 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// return a specific liquidityPool
+// read form kvstore and return a specific liquidityPool
 func (k Keeper) GetLiquidityPool(ctx sdk.Context, poolId uint64) (liquidityPool types.LiquidityPool, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetLiquidityPoolKey(poolId)
@@ -21,12 +21,14 @@ func (k Keeper) GetLiquidityPool(ctx sdk.Context, poolId uint64) (liquidityPool 
 	return liquidityPool, true
 }
 
+// store to kvstore a specific liquidityPool
 func (k Keeper) SetLiquidityPool(ctx sdk.Context, liquidityPool types.LiquidityPool) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalLiquidityPool(k.cdc, liquidityPool)
 	store.Set(types.GetLiquidityPoolKey(liquidityPool.PoolId), b)
 }
 
+// delete from kvstore a specific liquidityPool
 func (k Keeper) DeleteLiquidityPool(ctx sdk.Context, liquidityPool types.LiquidityPool) {
 	store := ctx.KVStore(k.storeKey)
 	Key := types.GetLiquidityPoolKey(liquidityPool.PoolId)
@@ -68,6 +70,7 @@ func (k Keeper) GetNextLiquidityPoolIdWithUpdate(ctx sdk.Context) uint64 {
 	return poolId
 }
 
+// return next liquidity pool id for new pool, using index of latest pool id
 func (k Keeper) GetNextLiquidityPoolId(ctx sdk.Context) uint64 {
 	var poolId uint64
 	store := ctx.KVStore(k.storeKey)
@@ -89,6 +92,7 @@ func (k Keeper) GetNextLiquidityPoolId(ctx sdk.Context) uint64 {
 	return poolId
 }
 
+// read form kvstore and return a specific liquidityPool indexed by given reserve account
 func (k Keeper) GetLiquidityPoolByReserveAccIndex(ctx sdk.Context, reserveAcc sdk.AccAddress) (liquidityPool types.LiquidityPool, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetLiquidityPoolByReserveAccIndexKey(reserveAcc)
@@ -131,6 +135,7 @@ func (k Keeper) GetLiquidityPoolBatchIndex(ctx sdk.Context, poolId uint64) (liqu
 	return liquidityPoolBatchIndex
 }
 
+// set index for liquidity pool batch, it should be increase after batch executed
 func (k Keeper) SetLiquidityPoolBatchIndex(ctx sdk.Context, poolId, batchIndex uint64) {
 	store := ctx.KVStore(k.storeKey)
 	b := sdk.Uint64ToBigEndian(batchIndex)
@@ -152,6 +157,7 @@ func (k Keeper) GetLiquidityPoolBatch(ctx sdk.Context, poolId uint64) (liquidity
 	return liquidityPoolBatch, true
 }
 
+// return next batch index, with set index increased
 func (k Keeper) GetNextBatchIndexWithUpdate(ctx sdk.Context, poolId uint64) (batchIndex uint64) {
 	batchIndex = k.GetLiquidityPoolBatchIndex(ctx, poolId)
 	batchIndex += 1
@@ -159,6 +165,7 @@ func (k Keeper) GetNextBatchIndexWithUpdate(ctx sdk.Context, poolId uint64) (bat
 	return
 }
 
+// Get All batches of the all existed liquidity pools
 func (k Keeper) GetAllLiquidityPoolBatches(ctx sdk.Context) (liquidityPoolBatches []types.LiquidityPoolBatch) {
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
 		liquidityPoolBatches = append(liquidityPoolBatches, liquidityPoolBatch)
@@ -183,12 +190,14 @@ func (k Keeper) IterateAllLiquidityPoolBatches(ctx sdk.Context, cb func(liquidit
 	}
 }
 
+// Delete batch of the liquidity pool, it used for test case
 func (k Keeper) DeleteLiquidityPoolBatch(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) {
 	store := ctx.KVStore(k.storeKey)
 	batchKey := types.GetLiquidityPoolBatchKey(liquidityPoolBatch.PoolId)
 	store.Delete(batchKey)
 }
 
+// set batch of the liquidity pool, with current state
 func (k Keeper) SetLiquidityPoolBatch(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalLiquidityPoolBatch(k.cdc, liquidityPoolBatch)
@@ -209,12 +218,14 @@ func (k Keeper) GetLiquidityPoolBatchDepositMsg(ctx sdk.Context, poolId, msgInde
 	return msg, true
 }
 
+// set deposit batch msg of the liquidity pool batch, with current state
 func (k Keeper) SetLiquidityPoolBatchDepositMsg(ctx sdk.Context, poolId uint64, msg types.BatchPoolDepositMsg) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalBatchPoolDepositMsg(k.cdc, msg)
 	store.Set(types.GetLiquidityPoolBatchDepositMsgIndexKey(poolId, msg.MsgIndex), b)
 }
 
+// set deposit batch msgs of the liquidity pool batch, with current state using pointers
 func (k Keeper) SetLiquidityPoolBatchDepositMsgsByPointer(ctx sdk.Context, poolId uint64, msgList []*types.BatchPoolDepositMsg) {
 	for _, msg := range msgList {
 		if poolId != msg.Msg.PoolId {
@@ -226,6 +237,7 @@ func (k Keeper) SetLiquidityPoolBatchDepositMsgsByPointer(ctx sdk.Context, poolI
 	}
 }
 
+// set deposit batch msgs of the liquidity pool batch, with current state
 func (k Keeper) SetLiquidityPoolBatchDepositMsgs(ctx sdk.Context, poolId uint64, msgList []types.BatchPoolDepositMsg) {
 	for _, msg := range msgList {
 		if poolId != msg.Msg.PoolId {
@@ -315,6 +327,7 @@ func (k Keeper) GetAllRemainingLiquidityPoolBatchDepositMsgs(ctx sdk.Context, li
 	return msgs
 }
 
+// delete deposit batch msgs of the liquidity pool batch which has state ToDelete
 func (k Keeper) DeleteAllReadyLiquidityPoolBatchDepositMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.GetLiquidityPoolBatchDepositMsgsPrefix(liquidityPoolBatch.PoolId))
@@ -341,12 +354,14 @@ func (k Keeper) GetLiquidityPoolBatchWithdrawMsg(ctx sdk.Context, poolId, msgInd
 	return msg, true
 }
 
+// set withdraw batch msg of the liquidity pool batch, with current state
 func (k Keeper) SetLiquidityPoolBatchWithdrawMsg(ctx sdk.Context, poolId uint64, msg types.BatchPoolWithdrawMsg) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalBatchPoolWithdrawMsg(k.cdc, msg)
 	store.Set(types.GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msg.MsgIndex), b)
 }
 
+// set withdraw batch msgs of the liquidity pool batch, with current state using pointers
 func (k Keeper) SetLiquidityPoolBatchWithdrawMsgsByPointer(ctx sdk.Context, poolId uint64, msgList []*types.BatchPoolWithdrawMsg) {
 	for _, msg := range msgList {
 		if poolId != msg.Msg.PoolId {
@@ -358,6 +373,7 @@ func (k Keeper) SetLiquidityPoolBatchWithdrawMsgsByPointer(ctx sdk.Context, pool
 	}
 }
 
+// set withdraw batch msgs of the liquidity pool batch, with current state
 func (k Keeper) SetLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, poolId uint64, msgList []types.BatchPoolWithdrawMsg) {
 	for _, msg := range msgList {
 		if poolId != msg.Msg.PoolId {
@@ -369,11 +385,11 @@ func (k Keeper) SetLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, poolId uint64
 	}
 }
 
-func (k Keeper) DeleteLiquidityPoolBatchWithdrawMsg(ctx sdk.Context, poolId uint64, msgIndex uint64) {
-	store := ctx.KVStore(k.storeKey)
-	batchKey := types.GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msgIndex)
-	store.Delete(batchKey)
-}
+//func (k Keeper) DeleteLiquidityPoolBatchWithdrawMsg(ctx sdk.Context, poolId uint64, msgIndex uint64) {
+//	store := ctx.KVStore(k.storeKey)
+//	batchKey := types.GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msgIndex)
+//	store.Delete(batchKey)
+//}
 
 // IterateAllLiquidityPoolBatchWithdrawMsgs iterate through all of the LiquidityPoolBatchWithdrawMsgs
 func (k Keeper) IterateAllLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch, cb func(msg types.BatchPoolWithdrawMsg) (stop bool)) {
@@ -447,6 +463,7 @@ func (k Keeper) GetAllRemainingLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, l
 	return msgs
 }
 
+// delete withdraw batch msgs of the liquidity pool batch which has state ToDelete
 func (k Keeper) DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.GetLiquidityPoolBatchWithdrawMsgsPrefix(liquidityPoolBatch.PoolId))
@@ -473,13 +490,14 @@ func (k Keeper) DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, li
 //	return msg, true
 //}
 
-// TODO: coverage
+// set swap batch msg of the liquidity pool batch, with current state
 func (k Keeper) SetLiquidityPoolBatchSwapMsg(ctx sdk.Context, poolId uint64, msg types.BatchPoolSwapMsg) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalBatchPoolSwapMsg(k.cdc, msg)
 	store.Set(types.GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msg.MsgIndex), b)
 }
 
+// Delete swap batch msg of the liquidity pool batch, it used for test case
 func (k Keeper) DeleteLiquidityPoolBatchSwapMsg(ctx sdk.Context, poolId uint64, msgIndex uint64) {
 	store := ctx.KVStore(k.storeKey)
 	batchKey := types.GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msgIndex)
@@ -527,6 +545,7 @@ func (k Keeper) GetAllBatchSwapMsgs(ctx sdk.Context) (msgs []types.BatchPoolSwap
 	return msgs
 }
 
+// delete swap batch msgs of the liquidity pool batch which has state ToDelete
 func (k Keeper) DeleteAllReadyLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) {
 	store := ctx.KVStore(k.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, types.GetLiquidityPoolBatchSwapMsgsPrefix(liquidityPoolBatch.PoolId))
@@ -590,6 +609,7 @@ func (k Keeper) GetAllNotToDeleteLiquidityPoolBatchSwapMsgs(ctx sdk.Context, liq
 	return msgs
 }
 
+// set swap batch msgs of the liquidity pool batch, with current state using pointers
 func (k Keeper) SetLiquidityPoolBatchSwapMsgPointers(ctx sdk.Context, poolId uint64, msgList []*types.BatchPoolSwapMsg) {
 	for _, msg := range msgList {
 		if poolId != msg.Msg.PoolId {
@@ -601,6 +621,7 @@ func (k Keeper) SetLiquidityPoolBatchSwapMsgPointers(ctx sdk.Context, poolId uin
 	}
 }
 
+// set swap batch msgs of the liquidity pool batch, with current state
 func (k Keeper) SetLiquidityPoolBatchSwapMsgs(ctx sdk.Context, poolId uint64, msgList []types.BatchPoolSwapMsg) {
 	for _, msg := range msgList {
 		if poolId != msg.Msg.PoolId {

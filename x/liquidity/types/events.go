@@ -1,7 +1,7 @@
 // nolint
 package types
 
-// liquidity module event types
+// liquidity module event types, it will be improve the completeness of Milestone 2.
 const (
 	EventTypeCreateLiquidityPool              = "create_liquidity_pool"
 	EventTypeDepositToLiquidityPoolToBatch    = "deposit_to_liquidity_pool_to_batch"

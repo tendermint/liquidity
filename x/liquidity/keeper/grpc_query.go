@@ -22,6 +22,7 @@ type Querier struct {
 
 var _ types.QueryServer = Querier{}
 
+// Make response of query liquidity pool
 func (k Keeper) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.LiquidityPool) (*types.QueryLiquidityPoolResponse, error) {
 	batch, found := k.GetLiquidityPoolBatch(ctx, pool.PoolId)
 	if !found {
@@ -33,6 +34,7 @@ func (k Keeper) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Liqui
 		LiquidityPoolBatch:    batch}, nil
 }
 
+// Make response of query liquidity pools
 func (k Keeper) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.LiquidityPools) (*[]types.QueryLiquidityPoolResponse, error) {
 	resp := make([]types.QueryLiquidityPoolResponse, len(pools))
 	for i, pool := range pools {
@@ -52,6 +54,7 @@ func (k Keeper) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Liq
 	return &resp, nil
 }
 
+// read data from kvstore for response of query liquidity pool
 func (k Keeper) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRequest) (*types.QueryLiquidityPoolResponse, error) {
 	empty := &types.QueryLiquidityPoolRequest{}
 	if req == nil || req == empty {
@@ -67,6 +70,7 @@ func (k Keeper) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRe
 	return k.MakeQueryLiquidityPoolResponse(ctx, pool)
 }
 
+// read data from kvstore for response of query liquidity pools
 func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPoolsRequest) (*types.QueryLiquidityPoolsResponse, error) {
 	empty := &types.QueryLiquidityPoolsRequest{}
 	if req == nil || req == empty {
@@ -97,6 +101,7 @@ func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPools
 	return &types.QueryLiquidityPoolsResponse{*response, pageRes}, nil
 }
 
+// read data from kvstore for response of query liquidity pools batch
 func (k Keeper) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidityPoolsBatchRequest) (*types.QueryLiquidityPoolsBatchResponse, error) {
 	empty := &types.QueryLiquidityPoolsBatchRequest{}
 	if req == nil || req == empty {
@@ -128,6 +133,7 @@ func (k Keeper) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidity
 	return &types.QueryLiquidityPoolsBatchResponse{response, pageRes}, nil
 }
 
+// read data from kvstore for response of query liquidity pools batc
 func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
 	empty := &types.QueryLiquidityPoolBatchRequest{}
 	if req == nil || *req == *empty {
@@ -142,6 +148,7 @@ func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityP
 	return &types.QueryLiquidityPoolBatchResponse{LiquidityPoolBatch: batch}, nil
 }
 
+// read data from kvstore for response of query batch swap messages of the liquidity pool batch
 func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSwapMsgsRequest) (*types.QueryPoolBatchSwapMsgsResponse, error) {
 	empty := &types.QueryPoolBatchSwapMsgsRequest{}
 	if req == nil || *req == *empty {
@@ -175,6 +182,7 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 	return nil, nil
 }
 
+// read data from kvstore for response of query batch deposit messages of the liquidity pool batch
 func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatchDepositMsgsRequest) (*types.QueryPoolBatchDepositMsgsResponse, error) {
 	empty := &types.QueryPoolBatchDepositMsgsRequest{}
 	if req == nil || *req == *empty {
@@ -207,7 +215,7 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 		Pagination:  pageRes,
 	}, nil
 }
-
+// read data from kvstore for response of query batch withdraw messages of the liquidity pool batch
 func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBatchWithdrawMsgsRequest) (*types.QueryPoolBatchWithdrawMsgsResponse, error) {
 	empty := &types.QueryPoolBatchWithdrawMsgsRequest{}
 	if req == nil || *req == *empty {
@@ -241,6 +249,7 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	}, nil
 }
 
+// read data from kvstore for response of query request for params set
 func (k Keeper) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)

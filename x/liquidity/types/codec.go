@@ -16,6 +16,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSwap{}, "liquidity/MsgSwap", nil)
 }
 
+// RegisterInterfaces registers the sdk.Tx interface.
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCreateLiquidityPool{},
@@ -23,10 +24,10 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgWithdrawFromLiquidityPool{},
 		&MsgSwap{},
 	)
-
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
+// legacy amino codecs
 var (
 	amino = codec.NewLegacyAmino()
 

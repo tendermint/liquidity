@@ -57,7 +57,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify PoolCreationFee pay successfully
-	feePoolAcc := types.GetPoolCreationFeePoolAcc()
+	feePoolAcc := types.GetLiquidityModuleFeePoolAcc()
 	feePoolBalance := simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
 	require.Equal(t, params.LiquidityPoolCreationFee, feePoolBalance)
 

@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// Routes, Keys for liquidity module
 const (
 	// ModuleName is the name of the module.
 	ModuleName = "liquidity"
@@ -18,8 +19,8 @@ const (
 	QuerierRoute = ModuleName
 )
 
+// prefix key of liquidity states for indexing when kvstore
 var (
-
 	// param key for global Liquidity Pool IDs
 	GlobalLiquidityPoolIdKey = []byte("globalLiquidityPoolId")
 
@@ -34,6 +35,7 @@ var (
 	LiquidityPoolBatchSwapMsgIndexKeyPrefix     = []byte{0x33}
 )
 
+// return kv indexing key of the pool
 func GetLiquidityPoolKey(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolKeyPrefix[0]
@@ -41,10 +43,12 @@ func GetLiquidityPoolKey(poolId uint64) []byte {
 	return key
 }
 
+// return kv indexing key of the pool indexed by reserve account
 func GetLiquidityPoolByReserveAccIndexKey(reserveAcc sdk.AccAddress) []byte {
 	return append(LiquidityPoolByReserveIndexKeyPrefix, reserveAcc.Bytes()...)
 }
 
+// return kv indexing key of the latest index value of the pool batch
 func GetLiquidityPoolBatchIndexKey(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchIndexKeyPrefix[0]
@@ -52,6 +56,7 @@ func GetLiquidityPoolBatchIndexKey(poolId uint64) []byte {
 	return key
 }
 
+// return kv indexing key of the pool batch indexed by pool id
 func GetLiquidityPoolBatchKey(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchKeyPrefix[0]
@@ -59,6 +64,7 @@ func GetLiquidityPoolBatchKey(poolId uint64) []byte {
 	return key
 }
 
+// Get prefix of the deposit batch messages that given pool for iteration
 func GetLiquidityPoolBatchDepositMsgsPrefix(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchDepositMsgIndexKeyPrefix[0]
@@ -66,6 +72,7 @@ func GetLiquidityPoolBatchDepositMsgsPrefix(poolId uint64) []byte {
 	return key
 }
 
+// Get prefix of the withdraw batch messages that given pool for iteration
 func GetLiquidityPoolBatchWithdrawMsgsPrefix(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchWithdrawMsgIndexKeyPrefix[0]
@@ -73,6 +80,7 @@ func GetLiquidityPoolBatchWithdrawMsgsPrefix(poolId uint64) []byte {
 	return key
 }
 
+// Get prefix of the swap batch messages that given pool for iteration
 func GetLiquidityPoolBatchSwapMsgsPrefix(poolId uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = LiquidityPoolBatchSwapMsgIndexKeyPrefix[0]
@@ -80,6 +88,7 @@ func GetLiquidityPoolBatchSwapMsgsPrefix(poolId uint64) []byte {
 	return key
 }
 
+// return kv indexing key of the latest index value of the msg index
 func GetLiquidityPoolBatchDepositMsgIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchDepositMsgIndexKeyPrefix[0]
@@ -88,6 +97,7 @@ func GetLiquidityPoolBatchDepositMsgIndexKey(poolId, msgIndex uint64) []byte {
 	return key
 }
 
+// return kv indexing key of the latest index value of the msg index
 func GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchWithdrawMsgIndexKeyPrefix[0]
@@ -96,6 +106,7 @@ func GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msgIndex uint64) []byte {
 	return key
 }
 
+// return kv indexing key of the latest index value of the msg index
 func GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = LiquidityPoolBatchSwapMsgIndexKeyPrefix[0]

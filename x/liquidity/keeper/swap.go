@@ -7,6 +7,7 @@ import (
 	"sort"
 )
 
+// Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.
 func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (uint64, error) {
 	// get All only not processed swap msgs, not executed, not succeed, not toDelete
 	swapMsgs := k.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
@@ -268,6 +269,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	return executedMsgCount, nil
 }
 
+// Update Buy, Sell swap batch messages using the result of match.
 func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, matchResultXtoY, matchResultYtoX []types.MatchResult) (
 	[]*types.BatchPoolSwapMsg, []*types.BatchPoolSwapMsg, sdk.Dec, sdk.Dec, sdk.Int, sdk.Int, int, int, sdk.Int, sdk.Int) {
 	sort.SliceStable(XtoY, func(i, j int) bool {

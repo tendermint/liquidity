@@ -152,7 +152,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	var outputs []banktypes.Output
 
 	// TODO: write test case
-	poolCreationFeePoolAcc := types.GetPoolCreationFeePoolAcc()
+	poolCreationFeePoolAcc := types.GetLiquidityModuleFeePoolAcc()
 	inputs = append(inputs, banktypes.NewInput(poolCreator, params.LiquidityPoolCreationFee))
 	outputs = append(outputs, banktypes.NewOutput(poolCreationFeePoolAcc, params.LiquidityPoolCreationFee))
 
@@ -189,17 +189,19 @@ func (k Keeper) GetReserveCoins(ctx sdk.Context, pool types.LiquidityPool) (rese
 	return
 }
 
+// Get total supply of pool coin of the pool as sdk.Int
 func (k Keeper) GetPoolCoinTotalSupply(ctx sdk.Context, pool types.LiquidityPool) sdk.Int {
 	supply := k.bankKeeper.GetSupply(ctx)
 	total := supply.GetTotal()
 	return total.AmountOf(pool.PoolCoinDenom)
 }
 
-// TODO: testcode, refactoring other case
+// Get total supply of pool coin of the pool as sdk.Coin
 func (k Keeper) GetPoolCoinTotal(ctx sdk.Context, pool types.LiquidityPool) sdk.Coin {
 	return sdk.NewCoin(pool.PoolCoinDenom, k.GetPoolCoinTotalSupply(ctx, pool))
 }
 
+// Get meta data of the pool, containing pool coin total supply, Reserved Coins, It used for result of queries
 func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.LiquidityPool) types.LiquidityPoolMetaData {
 	return types.LiquidityPoolMetaData{
 		PoolId:              pool.PoolId,
@@ -208,6 +210,7 @@ func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.LiquidityPool) types
 	}
 }
 
+// Get Liquidity Pool Record
 func (k Keeper) GetLiquidityPoolRecord(ctx sdk.Context, pool types.LiquidityPool) (*types.LiquidityPoolRecord, bool) {
 	batch, found := k.GetLiquidityPoolBatch(ctx, pool.PoolId)
 	if !found {
@@ -475,6 +478,7 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.Batc
 	return err
 }
 
+// execute transact, refund, expire, send coins with escrow, update state by TransactAndRefundSwapLiquidityPool
 func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []*types.BatchPoolSwapMsg,
 	matchResultMap map[uint64]types.MatchResult, pool types.LiquidityPool) error {
 

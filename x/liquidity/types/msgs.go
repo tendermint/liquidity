@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// Messages Type of Liquidity module
 var (
 	_ sdk.Msg = &MsgCreateLiquidityPool{}
 	_ sdk.Msg = &MsgDepositToLiquidityPool{}
@@ -11,6 +12,7 @@ var (
 	_ sdk.Msg = &MsgSwap{}
 )
 
+// Messages Type of Liquidity module
 const (
 	TypeMsgCreateLiquidityPool       = "create_liquidity_pool"
 	TypeMsgDepositToLiquidityPool    = "deposit_to_liquidity_pool"
