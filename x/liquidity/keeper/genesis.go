@@ -39,11 +39,12 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	pools := k.GetAllLiquidityPools(ctx)
 	for _, pool := range pools {
 		record, found := k.GetLiquidityPoolRecord(ctx, pool)
-		// TODO: verify LiquidityPoolRecord
 		if found {
 			poolRecords = append(poolRecords, *record)
 		}
 	}
-	//batchIndex := k.GetLiquidityPoolBatchIndex(ctx)
+	if len(poolRecords) == 0{
+		poolRecords = []types.LiquidityPoolRecord{}
+	}
 	return types.NewGenesisState(params, poolRecords)
 }

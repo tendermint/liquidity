@@ -20,7 +20,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 					msg.Executed = false
 					msg.Succeed = false
 				}
-				k.SetLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch.PoolId, depositMsgs)
+				k.SetLiquidityPoolBatchDepositMsgsByPointer(ctx, liquidityPoolBatch.PoolId, depositMsgs)
 			}
 
 			withdrawMsgs := k.GetAllRemainingLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch)
@@ -29,7 +29,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 					msg.Executed = false
 					msg.Succeed = false
 				}
-				k.SetLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch.PoolId, withdrawMsgs)
+				k.SetLiquidityPoolBatchWithdrawMsgsByPointer(ctx, liquidityPoolBatch.PoolId, withdrawMsgs)
 			}
 
 			height := ctx.BlockHeight()

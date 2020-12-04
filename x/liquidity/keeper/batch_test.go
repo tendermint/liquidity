@@ -751,3 +751,101 @@ func TestInitNextBatch(t *testing.T) {
 	require.Equal(t, uint64(2), batch.BatchIndex)
 
 }
+
+func TestDeleteAndInitPoolBatchDeposit(t *testing.T) {
+	simapp, ctx := createTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+
+	// define test denom X, Y for Liquidity Pool
+	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
+
+	X := sdk.NewInt(1000000000)
+	Y := sdk.NewInt(500000000)
+
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	batch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+	require.True(t, found)
+
+	depositsAll := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, batch)
+	require.Equal(t, 6, len(depositsAll))
+	depositsAll[0].Executed = true
+	depositsAll[0].ToDelete = false
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchDepositMsgs(ctx, poolId, depositsAll)
+	depositsRemaining := simapp.LiquidityKeeper.GetAllRemainingLiquidityPoolBatchDepositMsgs(ctx, batch)
+	batch.Executed = true
+	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, batch)
+	simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
+	depositsAfter := simapp.LiquidityKeeper.GetAllRemainingLiquidityPoolBatchDepositMsgs(ctx, batch)
+
+	fmt.Println(depositsAll)
+	fmt.Println(depositsRemaining)
+	fmt.Println(depositsAfter)
+	require.Equal(t, 1, len(depositsRemaining))
+	require.Equal(t, 0, len(depositsAfter))
+
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+}
+func TestDeleteAndInitPoolBatchWithdraw(t *testing.T) {
+	simapp, ctx := createTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+
+	// define test denom X, Y for Liquidity Pool
+	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
+
+	X := sdk.NewInt(1000000000)
+	Y := sdk.NewInt(500000000)
+
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+
+	// next block
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(5000), addrs[1:2], poolId, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[1:2], poolId, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[1:2], poolId, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(5000), addrs[2:3], poolId, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[2:3], poolId, false)
+	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[2:3], poolId, false)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	batch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+	require.True(t, found)
+
+	withdrawsAll := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, batch)
+	require.Equal(t, 6, len(withdrawsAll))
+	withdrawsAll[0].Executed = true
+	withdrawsAll[0].ToDelete = false
+	simapp.LiquidityKeeper.SetLiquidityPoolBatchWithdrawMsgs(ctx, poolId, withdrawsAll)
+	withdrawsRemaining := simapp.LiquidityKeeper.GetAllRemainingLiquidityPoolBatchWithdrawMsgs(ctx, batch)
+	batch.Executed = true
+	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, batch)
+	simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
+	withdrawsAfter := simapp.LiquidityKeeper.GetAllRemainingLiquidityPoolBatchWithdrawMsgs(ctx, batch)
+	require.Equal(t, 1, len(withdrawsRemaining))
+	require.Equal(t, 0, len(withdrawsAfter))
+
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+}
