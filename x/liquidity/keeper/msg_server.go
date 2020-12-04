@@ -84,6 +84,6 @@ func (k msgServer) WithdrawFromLiquidityPool(goCtx context.Context, msg *types.M
 }
 func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSwapResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	k.Keeper.SwapLiquidityPoolToBatch(ctx, msg)
+	k.Keeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
 	return &types.MsgSwapResponse{}, nil
 }

@@ -501,8 +501,14 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 	for i := 0; i < sizeXtoY; i++ {
 		GetRandFloats(0.1, 0.9)
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
-		offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
-		orderCoin := sdk.NewCoin(denomX, offerAmt.RoundInt())
+		//offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
+		orderAmt := sdk.ZeroDec()
+		if r.Intn(2) == 1 {
+			orderAmt = X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
+		} else {
+			orderAmt = sdk.NewDecFromIntWithPrec(GetRandRange(r, 1000, 10000), 0)
+		}
+		orderCoin := sdk.NewCoin(denomX, orderAmt.RoundInt())
 
 		XtoY = append(XtoY, &types.MsgSwap{
 			OfferCoin:       orderCoin,
@@ -513,8 +519,14 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 
 	for i := 0; i < sizeYtoX; i++ {
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
-		offerAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
-		orderCoin := sdk.NewCoin(denomY, offerAmt.RoundInt())
+		//offerAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
+		orderAmt := sdk.ZeroDec()
+		if r.Intn(2) == 1 {
+			orderAmt = Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
+		} else {
+			orderAmt = sdk.NewDecFromIntWithPrec(GetRandRange(r, 1000, 10000), 0)
+		}
+		orderCoin := sdk.NewCoin(denomY, orderAmt.RoundInt())
 
 		YtoX = append(YtoX, &types.MsgSwap{
 			OfferCoin:       orderCoin,
@@ -742,7 +754,7 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 		}
 
 		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i])
-		batchPoolSwapMsg, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg)
+		batchPoolSwapMsg, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg, 0)
 		require.NoError(t, err)
 
 		batchPoolSwapMsgList = append(batchPoolSwapMsgList, batchPoolSwapMsg)

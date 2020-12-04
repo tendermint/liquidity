@@ -5,7 +5,7 @@ package types
 
 const (
 	// QueryLiquidityPool liquidity query endpoint supported by the liquidity querier
-	QueryLiquidityPool = "liquidityPool"
+	QueryLiquidityPool  = "liquidityPool"
 	QueryLiquidityPools = "liquidityPools"
 )
 

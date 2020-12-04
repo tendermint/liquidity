@@ -73,10 +73,10 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 
 	// handle msgs, set order msgs to batch
 	for _, msg := range XtoY[:10] {
-		simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg)
+		simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
 	}
 	for _, msg := range YtoX[:10] {
-		simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg)
+		simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
 	}
 
 	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, poolBatch)
@@ -98,8 +98,8 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	poolBatch.SwapMsgIndex = uint64(18446744073709551610)
 	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, poolBatch)
 
-	simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, XtoY[10])
-	simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, YtoX[10])
+	simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, XtoY[10], 0)
+	simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, YtoX[10], 0)
 
 	msgs = simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, poolBatch)
 	require.Equal(t, 12, len(msgs))
@@ -234,7 +234,6 @@ func TestIterateAllBatchMsgs(t *testing.T) {
 	depositMsgsNotToDelete := simapp.LiquidityKeeper.GetAllNotToDeleteLiquidityPoolBatchDepositMsgs(ctx, batch)
 	require.Equal(t, 3, len(depositMsgsNotToDelete))
 
-
 	var withdrawMsgs []types.BatchPoolWithdrawMsg
 	simapp.LiquidityKeeper.IterateAllBatchWithdrawMsgs(ctx, func(msg types.BatchPoolWithdrawMsg) bool {
 		withdrawMsgs = append(withdrawMsgs, msg)
@@ -312,7 +311,6 @@ func TestIterateAllBatchMsgs(t *testing.T) {
 	})
 	require.Equal(t, 5, len(swapMsgsAllPool))
 
-
 	swapMsgsAllPool = simapp.LiquidityKeeper.GetAllBatchSwapMsgs(ctx)
 	require.Equal(t, 5, len(swapMsgsAllPool))
 	require.Equal(t, swapMsgsPool1, swapMsgsAllPool[:len(swapMsgsPool1)])
@@ -342,7 +340,6 @@ func TestIterateAllBatchMsgs(t *testing.T) {
 	simapp.LiquidityKeeper.InitGenesis(ctx, *genesis)
 	genesisNew := simapp.LiquidityKeeper.ExportGenesis(ctx)
 	require.Equal(t, genesis, genesisNew)
-
 
 	simapp.LiquidityKeeper.DeleteLiquidityPoolBatch(ctx, batch)
 	batch, found = simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, batch.PoolId)

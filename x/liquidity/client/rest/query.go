@@ -74,7 +74,7 @@ func queryLiquidityPoolsHandlerFn(clientCtx client.Context) http.HandlerFunc {
 		_, page, limit, err := rest.ParseHTTPArgsWithLimit(r, 0)
 		fmt.Println(page, limit, err)
 		if rest.CheckBadRequestError(w, err) {
-			fmt.Println("CheckBadRequestError", w,err)
+			fmt.Println("CheckBadRequestError", w, err)
 			return
 		}
 

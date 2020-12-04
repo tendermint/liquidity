@@ -80,7 +80,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 			if liquidityPoolBatch.Executed {
 				return false
 			}
-			executedMsgCount, err := k.SwapExecution(ctx, liquidityPoolBatch);
+			executedMsgCount, err := k.SwapExecution(ctx, liquidityPoolBatch)
 			if err != nil {
 				panic(err)
 			}
@@ -200,7 +200,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 }
 
 // In order to deal with the batch at once, Put the message in the batch and the coins of the msgs deposited in escrow.
-func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) (*types.BatchPoolSwapMsg, error) {
+func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap, OrderExpirySpanHeight int64) (*types.BatchPoolSwapMsg, error) {
 	if err := k.ValidateMsgSwap(ctx, *msg); err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap) (*
 		Msg:                msg,
 	}
 	// TODO: add logic if OrderExpiryHeight==0, pass on batch logic
-	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + types.CancelOrderLifeSpan
+	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + OrderExpirySpanHeight
 
 	if err := k.HoldEscrow(ctx, msg.GetSwapRequester(), sdk.NewCoins(msg.OfferCoin)); err != nil {
 		return nil, err
