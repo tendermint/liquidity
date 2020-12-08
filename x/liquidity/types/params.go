@@ -12,13 +12,20 @@ import (
 // Const value of liquidity module
 const (
 	CancelOrderLifeSpan int64  = 0
+
+	// min number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
 	MinReserveCoinNum   uint32 = 2
+
+	// max number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
 	MaxReserveCoinNum   uint32 = 2
 
 	// TODO: Develop a case larger than 1 on the next milestone
 	UnitBatchSize uint32 = 1
 
+	// index of target pool type, only 1 is allowed on this version.
 	DefaultPoolTypeIndex = uint32(1)
+
+	// swap type of available swap request, only 1 is allowed on this version.
 	DefaultSwapType      = uint32(1)
 )
 

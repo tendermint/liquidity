@@ -83,7 +83,7 @@ message QueryLiquidityPoolsRequest {
 // QueryLiquidityPoolsResponse is the response type for the QueryLiquidityPoolsResponse RPC method.
 message QueryLiquidityPoolsResponse {
     repeated QueryLiquidityPoolResponse liquidity_pools_response = 1 [(gogoproto.nullable) = false];
-    // pagination defines the pagination in the response.
+    // pagination defines the pagination in the response. not working on this version
     cosmos.query.PageResponse pagination = 2;
 }
 
@@ -96,7 +96,7 @@ message QueryLiquidityPoolsBatchRequest {
 // QueryLiquidityPoolsBatchResponse is the response type for the QueryLiquidityPoolsBatchResponse RPC method.
 message QueryLiquidityPoolsBatchResponse {
     repeated QueryLiquidityPoolBatchResponse liquidity_pools_batch_response = 1 [(gogoproto.nullable) = false];
-    // pagination defines the pagination in the response.
+    // pagination defines the pagination in the response. not working on this version
     cosmos.query.PageResponse pagination = 2;
 }
 
@@ -120,7 +120,7 @@ message QueryPoolBatchSwapMsgsRequest {
 // QueryPoolBatchSwapMsgsResponse is the response type for the QueryPoolBatchSwap RPC method.
 message QueryPoolBatchSwapMsgsResponse {
     repeated BatchPoolSwapMsg swap_msgs = 1 [(gogoproto.nullable) = false];
-    // pagination defines the pagination in the response.
+    // pagination defines the pagination in the response. not working on this version
     cosmos.query.PageResponse pagination = 2;
 }
 
@@ -135,7 +135,7 @@ message QueryPoolBatchDepositMsgsRequest {
 // QueryPoolBatchDepositMsgsResponse is the response type for the QueryPoolBatchDeposit RPC method.
 message QueryPoolBatchDepositMsgsResponse {
     repeated BatchPoolDepositMsg deposit_msgs = 1 [(gogoproto.nullable) = false];
-    // pagination defines the pagination in the response.
+    // pagination defines the pagination in the response. not working on this version
     cosmos.query.PageResponse pagination = 2;
 }
 
@@ -150,13 +150,6 @@ message QueryPoolBatchWithdrawMsgsRequest {
 // QueryPoolBatchWithdrawMsgsResponse is the response type for the QueryPoolBatchWithdraw RPC method.
 message QueryPoolBatchWithdrawMsgsResponse {
     repeated BatchPoolWithdrawMsg withdraw_msgs = 1 [(gogoproto.nullable) = false];
-    // pagination defines the pagination in the response.
+    // pagination defines the pagination in the response. not working on this version
     cosmos.query.PageResponse pagination = 2;
 }
-
-//message QueryParamsRequest {
-//
-//}
-//message QueryParamsResponse {
-//
-//}
