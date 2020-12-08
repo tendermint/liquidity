@@ -2,11 +2,16 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 1.2.1
+  version: 1.2.2
 paths:
   /liquidity/pools:
     post:
-      summary: Submit create liquidity pool message
+      summary: Submit create liquidity pool message.
+      description: >-
+        unsigned tx can be generated upon request through this POST endpoint,
+        you can broadcast adding signature to the generated tx, through endpoint
+        such as /txs or rpc, After broadcast, the result can be subscribe
+        through the event and please refer to the spec.
       operationId: CreateLiquidityPoolApi
       responses:
         '200':
@@ -19,16 +24,26 @@ paths:
                 properties:
                   msg:
                     type: array
+                    example:
+                      - MsgDepositToLiquidityPool
+                      - MsgSwap
                     items:
                       type: string
+                    title: Msgs
                   fee:
+                    title: Fee
                     type: object
                     properties:
                       gas:
                         type: string
                         format: uint64
+                        example: '200000'
                       amount:
                         type: array
+                        format: sdk.Coins
+                        example:
+                          - denom: uatom
+                            amount: '10'
                         items:
                           type: object
                           properties:
@@ -46,38 +61,44 @@ paths:
 
                             signatures required by gogoproto.
                         title: amount is the amount of coins to be paid as a fee
-                    title: Fee struct of cosmos-sdk
                   memo:
                     type: string
+                    title: Memo of the transaction
                   signature:
+                    title: Signature
                     type: object
                     properties:
                       signature:
                         type: string
-                        title: >-
-                          example:
+                        example: >-
                           MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                        title: signature base64
                       pub_key:
+                        title: PubKey
                         type: object
                         properties:
                           type:
                             type: string
-                            title: 'example: tendermint/PubKeySecp256k1'
+                            example: tendermint/PubKeySecp256k1
+                            title: type of pubkey algorithm
                           value:
                             type: string
-                            title: >-
-                              example:
-                              Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
-                        title: PubKey struct of tendermint/cosmos-sdk
+                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                            title: value of pubkey
                       account_number:
                         type: string
                         format: uint64
-                        title: 'example: 0'
+                        example: '1421'
+                        title: >-
+                          The account number of the signing account (offline
+                          mode only)
                       sequence:
                         type: string
                         format: uint64
-                        title: 'example: 0'
-                    title: signature struct of tendermint/cosmos-sdk
+                        example: '13'
+                        title: >-
+                          The sequence number of the signing account (offline
+                          mode only)
                 title: >-
                   Base response struct of result of the requested Tx, standard
                   of tendermint/cosmos-sdk
@@ -118,25 +139,44 @@ paths:
                 properties:
                   from:
                     type: string
+                    format: sdk.AccAddress
+                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
-                    title: 'example: Sent via Cosmos Voyager'
+                    example: Sent via Cosmos Voyager
+                    title: Memo to send along with transaction
                   chain_id:
                     type: string
-                    title: 'example: Cosmos-Hub'
+                    example: Cosmos-Hub
+                    title: Name or address of private key with which to sign
                   account_number:
                     type: string
                     format: uint64
-                    title: 'example: 0'
+                    example: '1421'
+                    title: >-
+                      The account number of the signing account (offline mode
+                      only)
                   sequence:
                     type: string
                     format: uint64
+                    example: '13'
+                    title: >-
+                      The sequence number of the signing account (offline mode
+                      only)
                   timeout_height:
                     type: string
                     format: uint64
+                    example: '200'
+                    title: >-
+                      Set a block timeout height to prevent the tx from being
+                      committed past a certain height
                   fees:
                     type: array
+                    format: sdk.Coins
+                    example:
+                      - denom: uatom
+                        amount: '10'
                     items:
                       type: object
                       properties:
@@ -152,8 +192,13 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: Fees to pay along with transaction
                   gas_prices:
                     type: array
+                    format: sdk.DecCoins
+                    example:
+                      - denom: uatom
+                        amount: '0.1'
                     items:
                       type: object
                       properties:
@@ -170,37 +215,63 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: >-
+                      Gas prices in decimal format to determine the transaction
+                      fee
                   gas:
                     type: string
                     format: uint64
-                    title: 'example: 200000'
+                    example: '200000'
+                    title: Gas amount to determine the transaction fee
                   gas_adjustment:
                     type: string
-                    title: 'example: 1.2'
+                    format: sdk.Dec
+                    example: '1.2'
+                    title: >-
+                      adjustment factor to be multiplied against the estimate
+                      returned by the tx simulation; if the gas limit is set
+                      manually this flag is ignored
                   simulate:
                     type: boolean
+                    example: false
                     title: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
-
-                      example: false
                 title: >-
                   Base Request struct for Post Tx, standard of
                   tendermint/cosmos-sdk
               msg:
+                title: MsgCreateLiquidityPool
                 type: object
                 properties:
                   pool_creator_address:
                     type: string
+                    format: sdk.AccAddress
+                    example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                    description: account address of the origin of this message
                   pool_type_index:
                     type: integer
-                    format: int64
+                    format: uint32
+                    example: '1'
+                    description: >-
+                      index of target pool type, only 1 is allowed on this
+                      version, Must match the value in the pool.
                   reserve_coin_denoms:
                     type: array
+                    example:
+                      - denomA
+                      - denomB
                     items:
                       type: string
+                    title: denoms of reserve coin pair of the pool
                   deposit_coins:
                     type: array
+                    format: sdk.Coins
+                    example:
+                      - denom: denomA
+                        amount: '1000000'
+                      - denom: denomB
+                        amount: '2000000'
                     items:
                       type: object
                       properties:
@@ -216,21 +287,15 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                title: >-
-                  MsgCreateLiquidityPool defines an sdk.Msg type that supports
-                  submitting create liquidity pool
+                    title: reserve coin pair of the pool to deposit
             description: >-
               MsgCreateLiquidityPoolRequest is the request type for the
-              Query/Deposits RPC method
-
-              with the specified pool-type-index, deposit coins for reserve
-
-              Currently, only the default pool-type-index 1 is available on this
-              version
-
-              the number of deposit coins must be two in the pool-type-index 1.
+              Msg/MsgCreateLiquidityPoolRequest RPC method.
       tags:
-        - MsgApi
+        - Liquidity Tx Generation
+      externalDocs:
+        description: Find out more message spec and response events here
+        url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all liquidity pools with each liquidity pool batch
       operationId: LiquidityPools
@@ -251,24 +316,44 @@ paths:
                         pool_id:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: id of the pool
                         pool_type_index:
                           type: integer
-                          format: int64
+                          format: uint32
+                          example: '1'
+                          title: index of the pool type
                         reserve_coin_denoms:
                           type: array
+                          example:
+                            - denomA
+                            - denomB
                           items:
                             type: string
+                          title: denoms of reserve coin pair of the pool
                         reserve_account_address:
                           type: string
+                          format: sdk.AccAddress
+                          example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                          title: reserve account address of the pool
                         pool_coin_denom:
                           type: string
+                          example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                          title: denom of pool coin of the pool
                     liquidity_pool_meta_data:
                       type: object
                       properties:
                         pool_id:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: id of the pool
                         pool_coin_total_supply:
+                          format: sdk.Coin
+                          example:
+                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                            amount: '1000000'
+                          title: pool coin issued at the pool
                           type: object
                           properties:
                             denom:
@@ -286,6 +371,12 @@ paths:
                             signatures required by gogoproto.
                         reserve_coins:
                           type: array
+                          format: sdk.Coins
+                          example:
+                            - denom: denomA
+                              amount: '1000000'
+                            - denom: denomB
+                              amount: '2000000'
                           items:
                             type: object
                             properties:
@@ -302,34 +393,51 @@ paths:
                               the custom method
 
                               signatures required by gogoproto.
+                          title: reserve coins deposited in the pool
                     liquidity_pool_batch:
                       type: object
                       properties:
                         pool_id:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: id of the pool
                         batch_index:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: index of this batch
                         begin_height:
                           type: string
                           format: int64
+                          example: '1000'
+                          title: height where this batch is begun
                         deposit_msg_index:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: last index of BatchPoolDepositMsgs
                         withdraw_msg_index:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: last index of BatchPoolWithdrawMsgs
                         swap_msg_index:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: last index of BatchPoolSwapMsgs
                         executed:
                           type: boolean
+                          example: true
+                          title: 'true if executed, false if not executed yet'
                   description: >-
                     QueryLiquidityPoolResponse is the response type for the
                     QueryLiquidityPoolResponse RPC method.
               pagination:
-                description: pagination defines the pagination in the response.
+                title: >-
+                  pagination defines the pagination in the response. not working
+                  on this version
                 type: object
                 properties:
                   next_key:
@@ -346,11 +454,11 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
+                description: |-
+                  message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QueryLiquidityPoolsResponse is the response type for the
               QueryLiquidityPoolsResponse RPC method.
@@ -426,6 +534,11 @@ paths:
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
       summary: Submit deposit to the liquidity pool batch
+      description: >-
+        unsigned tx can be generated upon request through this POST endpoint,
+        you can broadcast adding signature to the generated tx, through endpoint
+        such as /txs or rpc, After broadcast, the result can be subscribe
+        through the event and please refer to the spec.
       operationId: DepositToLiquidityPoolApi
       responses:
         '200':
@@ -438,16 +551,26 @@ paths:
                 properties:
                   msg:
                     type: array
+                    example:
+                      - MsgDepositToLiquidityPool
+                      - MsgSwap
                     items:
                       type: string
+                    title: Msgs
                   fee:
+                    title: Fee
                     type: object
                     properties:
                       gas:
                         type: string
                         format: uint64
+                        example: '200000'
                       amount:
                         type: array
+                        format: sdk.Coins
+                        example:
+                          - denom: uatom
+                            amount: '10'
                         items:
                           type: object
                           properties:
@@ -465,38 +588,44 @@ paths:
 
                             signatures required by gogoproto.
                         title: amount is the amount of coins to be paid as a fee
-                    title: Fee struct of cosmos-sdk
                   memo:
                     type: string
+                    title: Memo of the transaction
                   signature:
+                    title: Signature
                     type: object
                     properties:
                       signature:
                         type: string
-                        title: >-
-                          example:
+                        example: >-
                           MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                        title: signature base64
                       pub_key:
+                        title: PubKey
                         type: object
                         properties:
                           type:
                             type: string
-                            title: 'example: tendermint/PubKeySecp256k1'
+                            example: tendermint/PubKeySecp256k1
+                            title: type of pubkey algorithm
                           value:
                             type: string
-                            title: >-
-                              example:
-                              Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
-                        title: PubKey struct of tendermint/cosmos-sdk
+                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                            title: value of pubkey
                       account_number:
                         type: string
                         format: uint64
-                        title: 'example: 0'
+                        example: '1421'
+                        title: >-
+                          The account number of the signing account (offline
+                          mode only)
                       sequence:
                         type: string
                         format: uint64
-                        title: 'example: 0'
-                    title: signature struct of tendermint/cosmos-sdk
+                        example: '13'
+                        title: >-
+                          The sequence number of the signing account (offline
+                          mode only)
                 title: >-
                   Base response struct of result of the requested Tx, standard
                   of tendermint/cosmos-sdk
@@ -527,7 +656,7 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
-          description: id of target pool
+          description: id of the target pool
           in: path
           required: true
           type: string
@@ -543,25 +672,44 @@ paths:
                 properties:
                   from:
                     type: string
+                    format: sdk.AccAddress
+                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
-                    title: 'example: Sent via Cosmos Voyager'
+                    example: Sent via Cosmos Voyager
+                    title: Memo to send along with transaction
                   chain_id:
                     type: string
-                    title: 'example: Cosmos-Hub'
+                    example: Cosmos-Hub
+                    title: Name or address of private key with which to sign
                   account_number:
                     type: string
                     format: uint64
-                    title: 'example: 0'
+                    example: '1421'
+                    title: >-
+                      The account number of the signing account (offline mode
+                      only)
                   sequence:
                     type: string
                     format: uint64
+                    example: '13'
+                    title: >-
+                      The sequence number of the signing account (offline mode
+                      only)
                   timeout_height:
                     type: string
                     format: uint64
+                    example: '200'
+                    title: >-
+                      Set a block timeout height to prevent the tx from being
+                      committed past a certain height
                   fees:
                     type: array
+                    format: sdk.Coins
+                    example:
+                      - denom: uatom
+                        amount: '10'
                     items:
                       type: object
                       properties:
@@ -577,8 +725,13 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: Fees to pay along with transaction
                   gas_prices:
                     type: array
+                    format: sdk.DecCoins
+                    example:
+                      - denom: uatom
+                        amount: '0.1'
                     items:
                       type: object
                       properties:
@@ -595,38 +748,58 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: >-
+                      Gas prices in decimal format to determine the transaction
+                      fee
                   gas:
                     type: string
                     format: uint64
-                    title: 'example: 200000'
+                    example: '200000'
+                    title: Gas amount to determine the transaction fee
                   gas_adjustment:
                     type: string
-                    title: 'example: 1.2'
+                    format: sdk.Dec
+                    example: '1.2'
+                    title: >-
+                      adjustment factor to be multiplied against the estimate
+                      returned by the tx simulation; if the gas limit is set
+                      manually this flag is ignored
                   simulate:
                     type: boolean
+                    example: false
                     title: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
-
-                      example: false
                 title: >-
                   Base Request struct for Post Tx, standard of
                   tendermint/cosmos-sdk
               pool_id:
                 type: string
                 format: uint64
-                title: id of target pool
+                example: '1'
+                title: id of the target pool
               msg:
+                title: MsgDepositToLiquidityPool
                 type: object
                 properties:
                   depositor_address:
                     type: string
+                    format: sdk.AccAddress
+                    example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                    description: account address of the origin of this message
                   pool_id:
                     type: string
                     format: uint64
-                    title: id of target pool
+                    example: '1'
+                    title: id of the target pool
                   deposit_coins:
                     type: array
+                    format: sdk.Coins
+                    example:
+                      - denom: denomA
+                        amount: '1000000'
+                      - denom: denomB
+                        amount: '2000000'
                     items:
                       type: object
                       properties:
@@ -642,23 +815,31 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: reserve coin pair of the pool to deposit
                 description: >-
-                  MsgDepositToLiquidityPool defines an sdk.Msg type that
+                  `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that
                   supports submitting deposit request to the batch of the
                   liquidity pool
 
                   Deposit submit to the batch of the Liquidity pool with the
-                  specified pool-id, deposit coins for reserve
+                  specified `pool_id`, deposit coins for reserve
 
                   this requests are stacked in the batch of the liquidity pool,
                   not immediately processed and
 
-                  processed in the endblock at once with other requests.
+                  processed in the `endblock` at once with other requests.
+
+
+                  See:
+                  https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
             description: >-
               MsgDepositToLiquidityPoolRequest is the request type for the
               Msg/DepositToLiquidityPool RPC method.
       tags:
-        - MsgApi
+        - Liquidity Tx Generation
+      externalDocs:
+        description: Find out more message spec and response events here
+        url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all pool batch deposit messages of the liquidity pool
       operationId: PoolBatchDepositMsgs
@@ -676,26 +857,53 @@ paths:
                     msg_height:
                       type: string
                       format: int64
+                      example: '1000'
+                      title: height where this message is appended to the batch
                     msg_index:
                       type: string
                       format: uint64
+                      example: '1'
+                      title: index of this deposit message in this liquidity pool
                     executed:
                       type: boolean
+                      example: true
+                      title: >-
+                        true if executed on this batch, false if not executed
+                        yet
                     succeed:
                       type: boolean
+                      example: true
+                      title: >-
+                        true if executed successfully on this batch, false if
+                        failed
                     to_delete:
                       type: boolean
+                      example: true
+                      title: >-
+                        true if ready to delete on kvstore, false if not ready
+                        to delete
                     Msg:
+                      title: MsgDepositToLiquidityPool
                       type: object
                       properties:
                         depositor_address:
                           type: string
+                          format: sdk.AccAddress
+                          example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                          description: account address of the origin of this message
                         pool_id:
                           type: string
                           format: uint64
-                          title: id of target pool
+                          example: '1'
+                          title: id of the target pool
                         deposit_coins:
                           type: array
+                          format: sdk.Coins
+                          example:
+                            - denom: denomA
+                              amount: '1000000'
+                            - denom: denomB
+                              amount: '2000000'
                           items:
                             type: object
                             properties:
@@ -712,20 +920,27 @@ paths:
                               the custom method
 
                               signatures required by gogoproto.
+                          title: reserve coin pair of the pool to deposit
                       description: >-
-                        MsgDepositToLiquidityPool defines an sdk.Msg type that
-                        supports submitting deposit request to the batch of the
-                        liquidity pool
+                        `MsgDepositToLiquidityPool defines` an `sdk.Msg` type
+                        that supports submitting deposit request to the batch of
+                        the liquidity pool
 
                         Deposit submit to the batch of the Liquidity pool with
-                        the specified pool-id, deposit coins for reserve
+                        the specified `pool_id`, deposit coins for reserve
 
                         this requests are stacked in the batch of the liquidity
                         pool, not immediately processed and
 
-                        processed in the endblock at once with other requests.
+                        processed in the `endblock` at once with other requests.
+
+
+                        See:
+                        https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
               pagination:
-                description: pagination defines the pagination in the response.
+                title: >-
+                  pagination defines the pagination in the response. not working
+                  on this version
                 type: object
                 properties:
                   next_key:
@@ -742,11 +957,11 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
+                description: |-
+                  message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QueryPoolBatchDepositMsgsResponse is the response type for the
               QueryPoolBatchDeposit RPC method.
@@ -828,6 +1043,11 @@ paths:
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
       summary: Submit swap to the liquidity pool batch
+      description: >-
+        unsigned tx can be generated upon request through this POST endpoint,
+        you can broadcast adding signature to the generated tx, through endpoint
+        such as /txs or rpc, After broadcast, the result can be subscribe
+        through the event and please refer to the spec.
       operationId: SwapApi
       responses:
         '200':
@@ -840,16 +1060,26 @@ paths:
                 properties:
                   msg:
                     type: array
+                    example:
+                      - MsgDepositToLiquidityPool
+                      - MsgSwap
                     items:
                       type: string
+                    title: Msgs
                   fee:
+                    title: Fee
                     type: object
                     properties:
                       gas:
                         type: string
                         format: uint64
+                        example: '200000'
                       amount:
                         type: array
+                        format: sdk.Coins
+                        example:
+                          - denom: uatom
+                            amount: '10'
                         items:
                           type: object
                           properties:
@@ -867,38 +1097,44 @@ paths:
 
                             signatures required by gogoproto.
                         title: amount is the amount of coins to be paid as a fee
-                    title: Fee struct of cosmos-sdk
                   memo:
                     type: string
+                    title: Memo of the transaction
                   signature:
+                    title: Signature
                     type: object
                     properties:
                       signature:
                         type: string
-                        title: >-
-                          example:
+                        example: >-
                           MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                        title: signature base64
                       pub_key:
+                        title: PubKey
                         type: object
                         properties:
                           type:
                             type: string
-                            title: 'example: tendermint/PubKeySecp256k1'
+                            example: tendermint/PubKeySecp256k1
+                            title: type of pubkey algorithm
                           value:
                             type: string
-                            title: >-
-                              example:
-                              Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
-                        title: PubKey struct of tendermint/cosmos-sdk
+                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                            title: value of pubkey
                       account_number:
                         type: string
                         format: uint64
-                        title: 'example: 0'
+                        example: '1421'
+                        title: >-
+                          The account number of the signing account (offline
+                          mode only)
                       sequence:
                         type: string
                         format: uint64
-                        title: 'example: 0'
-                    title: signature struct of tendermint/cosmos-sdk
+                        example: '13'
+                        title: >-
+                          The sequence number of the signing account (offline
+                          mode only)
                 title: >-
                   Base response struct of result of the requested Tx, standard
                   of tendermint/cosmos-sdk
@@ -927,7 +1163,7 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
-          description: id of target pool
+          description: id of the target pool
           in: path
           required: true
           type: string
@@ -943,25 +1179,44 @@ paths:
                 properties:
                   from:
                     type: string
+                    format: sdk.AccAddress
+                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
-                    title: 'example: Sent via Cosmos Voyager'
+                    example: Sent via Cosmos Voyager
+                    title: Memo to send along with transaction
                   chain_id:
                     type: string
-                    title: 'example: Cosmos-Hub'
+                    example: Cosmos-Hub
+                    title: Name or address of private key with which to sign
                   account_number:
                     type: string
                     format: uint64
-                    title: 'example: 0'
+                    example: '1421'
+                    title: >-
+                      The account number of the signing account (offline mode
+                      only)
                   sequence:
                     type: string
                     format: uint64
+                    example: '13'
+                    title: >-
+                      The sequence number of the signing account (offline mode
+                      only)
                   timeout_height:
                     type: string
                     format: uint64
+                    example: '200'
+                    title: >-
+                      Set a block timeout height to prevent the tx from being
+                      committed past a certain height
                   fees:
                     type: array
+                    format: sdk.Coins
+                    example:
+                      - denom: uatom
+                        amount: '10'
                     items:
                       type: object
                       properties:
@@ -977,8 +1232,13 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: Fees to pay along with transaction
                   gas_prices:
                     type: array
+                    format: sdk.DecCoins
+                    example:
+                      - denom: uatom
+                        amount: '0.1'
                     items:
                       type: object
                       properties:
@@ -995,50 +1255,70 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: >-
+                      Gas prices in decimal format to determine the transaction
+                      fee
                   gas:
                     type: string
                     format: uint64
-                    title: 'example: 200000'
+                    example: '200000'
+                    title: Gas amount to determine the transaction fee
                   gas_adjustment:
                     type: string
-                    title: 'example: 1.2'
+                    format: sdk.Dec
+                    example: '1.2'
+                    title: >-
+                      adjustment factor to be multiplied against the estimate
+                      returned by the tx simulation; if the gas limit is set
+                      manually this flag is ignored
                   simulate:
                     type: boolean
+                    example: false
                     title: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
-
-                      example: false
                 title: >-
                   Base Request struct for Post Tx, standard of
                   tendermint/cosmos-sdk
               pool_id:
                 type: string
                 format: uint64
-                title: id of target pool
+                example: '1'
+                title: id of the target pool
               msg:
+                title: MsgSwap
                 type: object
                 properties:
                   swap_requester_address:
                     type: string
+                    format: sdk.AccAddress
+                    example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                    description: account address of the origin of this message
                     title: address of swap requester
                   pool_id:
                     type: string
                     format: uint64
-                    title: id of target pool
+                    example: '1'
+                    title: id of the target pool
                   pool_type_index:
                     type: integer
-                    format: int64
+                    format: uint32
+                    example: '1'
                     description: >-
                       index of target pool type, only 1 is allowed on this
                       version, Must match the value in the pool.
                   swap_type:
                     type: integer
-                    format: int64
+                    format: uint32
+                    example: '1'
                     description: >-
                       id of swap type type, only 1 is allowed on this version,
                       Must match the value in the pool.
                   offer_coin:
+                    format: sdk.Coin
+                    example:
+                      denom: denomA
+                      amount: '1000000'
                     description: >-
                       offer sdk.coin for the swap request, Must match the denom
                       in the pool.
@@ -1050,38 +1330,47 @@ paths:
                         type: string
                   demand_coin_denom:
                     type: string
+                    example: denomB
                     description: >-
                       denom of demand coin to be exchanged on the swap request,
                       Must match the denom in the pool.
                   order_price:
                     type: string
-                    format: byte
+                    format: sdk.Dec
+                    example: '1.1'
                     title: limit order price for this offer
                 description: >-
-                  MsgSwap defines an sdk.Msg type that supports submitting swap
-                  offer request to the batch of the liquidity pool
+                  `MsgSwap` defines an sdk.Msg type that supports submitting
+                  swap offer request to the batch of the liquidity pool
 
-                  Swap offer to the Liquidity pool with the specified pool-id,
-                  pool-type-index, swap-type,
+                  Swap offer to the Liquidity pool with the specified `pool_id`,
+                  `pool_type_index`, `swap_type`,
 
-                  demand-coin-denom with the coin and the price you're offering
+                  `demand_coin_denom` with the coin and the price you're
+                  offering
 
                   this requests are stacked in the batch of the liquidity pool,
                   not immediately processed and
 
-                  processed in the endblock at once with other requests
+                  processed in the `endblock` at once with other requests
 
                   You should request the same each field as the pool
 
-                  Currently, only the default swap-type 1 is available on this
+                  Currently, only the default `swap_type`1 is available on this
                   version
 
-                  The detailed swap algorithm can be found here
+                  The detailed swap algorithm can be found here.
 
-                  https://github.com/tendermint/liquidity .
+
+                  See: https://github.com/tendermint/liquidity/tree/develop/doc
+
+                  https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
             description: MsgSwapRequest is the request type for the Query/Swap RPC method.
       tags:
-        - MsgApi
+        - Liquidity Tx Generation
+      externalDocs:
+        description: Find out more message spec and response events here
+        url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all pool batch swap messages of the liquidity pool
       operationId: PoolBatchSwapMsgs
@@ -1099,19 +1388,44 @@ paths:
                     msg_height:
                       type: string
                       format: int64
+                      example: '1000'
+                      title: height where this message is appended to the batch
                     msg_index:
                       type: string
                       format: uint64
+                      example: '1'
+                      title: index of this swap message in this liquidity pool
                     executed:
                       type: boolean
+                      example: true
+                      title: >-
+                        true if executed on this batch, false if not executed
+                        yet
                     succeed:
                       type: boolean
+                      example: true
+                      title: >-
+                        true if executed successfully on this batch, false if
+                        failed
                     to_delete:
                       type: boolean
+                      example: true
+                      title: >-
+                        true if ready to delete on kvstore, false if not ready
+                        to delete
                     order_expiry_height:
                       type: string
                       format: int64
+                      example: '1000'
+                      title: >-
+                        swap orders are cancelled when current height is equal
+                        or higher than ExpiryHeight
                     exchanged_offer_coin:
+                      format: sdk.Coin
+                      example:
+                        denom: denomA
+                        amount: '600000'
+                      title: offer coin exchanged until now
                       type: object
                       properties:
                         denom:
@@ -1127,6 +1441,11 @@ paths:
 
                         signatures required by gogoproto.
                     remaining_offer_coin:
+                      format: sdk.Coin
+                      example:
+                        denom: denomA
+                        amount: '400000'
+                      title: offer coin currently remaining to be exchanged
                       type: object
                       properties:
                         denom:
@@ -1142,28 +1461,39 @@ paths:
 
                         signatures required by gogoproto.
                     msg:
+                      title: MsgSwap
                       type: object
                       properties:
                         swap_requester_address:
                           type: string
+                          format: sdk.AccAddress
+                          example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                          description: account address of the origin of this message
                           title: address of swap requester
                         pool_id:
                           type: string
                           format: uint64
-                          title: id of target pool
+                          example: '1'
+                          title: id of the target pool
                         pool_type_index:
                           type: integer
-                          format: int64
+                          format: uint32
+                          example: '1'
                           description: >-
                             index of target pool type, only 1 is allowed on this
                             version, Must match the value in the pool.
                         swap_type:
                           type: integer
-                          format: int64
+                          format: uint32
+                          example: '1'
                           description: >-
                             id of swap type type, only 1 is allowed on this
                             version, Must match the value in the pool.
                         offer_coin:
+                          format: sdk.Coin
+                          example:
+                            denom: denomA
+                            amount: '1000000'
                           description: >-
                             offer sdk.coin for the swap request, Must match the
                             denom in the pool.
@@ -1175,38 +1505,47 @@ paths:
                               type: string
                         demand_coin_denom:
                           type: string
+                          example: denomB
                           description: >-
                             denom of demand coin to be exchanged on the swap
                             request, Must match the denom in the pool.
                         order_price:
                           type: string
-                          format: byte
+                          format: sdk.Dec
+                          example: '1.1'
                           title: limit order price for this offer
                       description: >-
-                        MsgSwap defines an sdk.Msg type that supports submitting
-                        swap offer request to the batch of the liquidity pool
+                        `MsgSwap` defines an sdk.Msg type that supports
+                        submitting swap offer request to the batch of the
+                        liquidity pool
 
                         Swap offer to the Liquidity pool with the specified
-                        pool-id, pool-type-index, swap-type,
+                        `pool_id`, `pool_type_index`, `swap_type`,
 
-                        demand-coin-denom with the coin and the price you're
+                        `demand_coin_denom` with the coin and the price you're
                         offering
 
                         this requests are stacked in the batch of the liquidity
                         pool, not immediately processed and
 
-                        processed in the endblock at once with other requests
+                        processed in the `endblock` at once with other requests
 
                         You should request the same each field as the pool
 
-                        Currently, only the default swap-type 1 is available on
+                        Currently, only the default `swap_type`1 is available on
                         this version
 
-                        The detailed swap algorithm can be found here
+                        The detailed swap algorithm can be found here.
 
-                        https://github.com/tendermint/liquidity .
+
+                        See:
+                        https://github.com/tendermint/liquidity/tree/develop/doc
+
+                        https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
               pagination:
-                description: pagination defines the pagination in the response.
+                title: >-
+                  pagination defines the pagination in the response. not working
+                  on this version
                 type: object
                 properties:
                   next_key:
@@ -1223,11 +1562,11 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
+                description: |-
+                  message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QueryPoolBatchSwapMsgsResponse is the response type for the
               QueryPoolBatchSwap RPC method.
@@ -1309,6 +1648,11 @@ paths:
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
       summary: Submit withdraw from to the liquidity pool batch
+      description: >-
+        unsigned tx can be generated upon request through this POST endpoint,
+        you can broadcast adding signature to the generated tx, through endpoint
+        such as /txs or rpc, After broadcast, the result can be subscribe
+        through the event and please refer to the spec.
       operationId: WithdrawFromLiquidityPoolApi
       responses:
         '200':
@@ -1321,16 +1665,26 @@ paths:
                 properties:
                   msg:
                     type: array
+                    example:
+                      - MsgDepositToLiquidityPool
+                      - MsgSwap
                     items:
                       type: string
+                    title: Msgs
                   fee:
+                    title: Fee
                     type: object
                     properties:
                       gas:
                         type: string
                         format: uint64
+                        example: '200000'
                       amount:
                         type: array
+                        format: sdk.Coins
+                        example:
+                          - denom: uatom
+                            amount: '10'
                         items:
                           type: object
                           properties:
@@ -1348,38 +1702,44 @@ paths:
 
                             signatures required by gogoproto.
                         title: amount is the amount of coins to be paid as a fee
-                    title: Fee struct of cosmos-sdk
                   memo:
                     type: string
+                    title: Memo of the transaction
                   signature:
+                    title: Signature
                     type: object
                     properties:
                       signature:
                         type: string
-                        title: >-
-                          example:
+                        example: >-
                           MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                        title: signature base64
                       pub_key:
+                        title: PubKey
                         type: object
                         properties:
                           type:
                             type: string
-                            title: 'example: tendermint/PubKeySecp256k1'
+                            example: tendermint/PubKeySecp256k1
+                            title: type of pubkey algorithm
                           value:
                             type: string
-                            title: >-
-                              example:
-                              Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
-                        title: PubKey struct of tendermint/cosmos-sdk
+                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                            title: value of pubkey
                       account_number:
                         type: string
                         format: uint64
-                        title: 'example: 0'
+                        example: '1421'
+                        title: >-
+                          The account number of the signing account (offline
+                          mode only)
                       sequence:
                         type: string
                         format: uint64
-                        title: 'example: 0'
-                    title: signature struct of tendermint/cosmos-sdk
+                        example: '13'
+                        title: >-
+                          The sequence number of the signing account (offline
+                          mode only)
                 title: >-
                   Base response struct of result of the requested Tx, standard
                   of tendermint/cosmos-sdk
@@ -1410,7 +1770,7 @@ paths:
                       format: byte
       parameters:
         - name: pool_id
-          description: id of target pool
+          description: id of the target pool
           in: path
           required: true
           type: string
@@ -1426,25 +1786,44 @@ paths:
                 properties:
                   from:
                     type: string
+                    format: sdk.AccAddress
+                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
-                    title: 'example: Sent via Cosmos Voyager'
+                    example: Sent via Cosmos Voyager
+                    title: Memo to send along with transaction
                   chain_id:
                     type: string
-                    title: 'example: Cosmos-Hub'
+                    example: Cosmos-Hub
+                    title: Name or address of private key with which to sign
                   account_number:
                     type: string
                     format: uint64
-                    title: 'example: 0'
+                    example: '1421'
+                    title: >-
+                      The account number of the signing account (offline mode
+                      only)
                   sequence:
                     type: string
                     format: uint64
+                    example: '13'
+                    title: >-
+                      The sequence number of the signing account (offline mode
+                      only)
                   timeout_height:
                     type: string
                     format: uint64
+                    example: '200'
+                    title: >-
+                      Set a block timeout height to prevent the tx from being
+                      committed past a certain height
                   fees:
                     type: array
+                    format: sdk.Coins
+                    example:
+                      - denom: uatom
+                        amount: '10'
                     items:
                       type: object
                       properties:
@@ -1460,8 +1839,13 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: Fees to pay along with transaction
                   gas_prices:
                     type: array
+                    format: sdk.DecCoins
+                    example:
+                      - denom: uatom
+                        amount: '0.1'
                     items:
                       type: object
                       properties:
@@ -1478,37 +1862,55 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: >-
+                      Gas prices in decimal format to determine the transaction
+                      fee
                   gas:
                     type: string
                     format: uint64
-                    title: 'example: 200000'
+                    example: '200000'
+                    title: Gas amount to determine the transaction fee
                   gas_adjustment:
                     type: string
-                    title: 'example: 1.2'
+                    format: sdk.Dec
+                    example: '1.2'
+                    title: >-
+                      adjustment factor to be multiplied against the estimate
+                      returned by the tx simulation; if the gas limit is set
+                      manually this flag is ignored
                   simulate:
                     type: boolean
+                    example: false
                     title: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
-
-                      example: false
                 title: >-
                   Base Request struct for Post Tx, standard of
                   tendermint/cosmos-sdk
               pool_id:
                 type: string
                 format: uint64
-                title: id of target pool
+                example: '1'
+                title: id of the target pool
               msg:
+                title: MsgWithdrawFromLiquidityPool
                 type: object
                 properties:
                   withdrawer_address:
                     type: string
+                    format: sdk.AccAddress
+                    example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                    description: account address of the origin of this message
                   pool_id:
                     type: string
                     format: uint64
-                    title: id of target pool
+                    example: '1'
+                    title: id of the target pool
                   pool_coin:
+                    format: sdk.Coin
+                    example:
+                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      amount: '1000'
                     type: object
                     properties:
                       denom:
@@ -1524,22 +1926,29 @@ paths:
 
                       signatures required by gogoproto.
                 description: >-
-                  MsgWithdrawFromLiquidityPool defines an sdk.Msg type that
+                  `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that
                   supports submitting withdraw request to the batch of the
                   liquidity pool
 
                   Withdraw submit to the batch from the Liquidity pool with the
-                  specified pool-id, pool-coin of the pool
+                  specified `pool_id`, `pool_coin` of the pool
 
                   this requests are stacked in the batch of the liquidity pool,
                   not immediately processed and
 
-                  processed in the endblock at once with other requests.
+                  processed in the `endblock` at once with other requests.
+
+
+                  See:
+                  https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
             description: >-
               MsgWithdrawFromLiquidityPoolRequest is the request type for the
               Query/WithdrawFromLiquidityPool RPC method.
       tags:
-        - MsgApi
+        - Liquidity Tx Generation
+      externalDocs:
+        description: Find out more message spec and response events here
+        url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all pool batch withdraw messages of the liquidity pool
       operationId: PoolBatchWithdrawMsgs
@@ -1557,25 +1966,50 @@ paths:
                     msg_height:
                       type: string
                       format: int64
+                      example: '1000'
+                      title: height where this message is appended to the batch
                     msg_index:
                       type: string
                       format: uint64
+                      example: '1'
+                      title: index of this withdraw message in this liquidity pool
                     executed:
                       type: boolean
+                      example: true
+                      title: >-
+                        true if executed on this batch, false if not executed
+                        yet
                     succeed:
                       type: boolean
+                      example: true
+                      title: >-
+                        true if executed successfully on this batch, false if
+                        failed
                     to_delete:
                       type: boolean
+                      example: true
+                      title: >-
+                        true if ready to delete on kvstore, false if not ready
+                        to delete
                     msg:
+                      title: MsgWithdrawFromLiquidityPool
                       type: object
                       properties:
                         withdrawer_address:
                           type: string
+                          format: sdk.AccAddress
+                          example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                          description: account address of the origin of this message
                         pool_id:
                           type: string
                           format: uint64
-                          title: id of target pool
+                          example: '1'
+                          title: id of the target pool
                         pool_coin:
+                          format: sdk.Coin
+                          example:
+                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                            amount: '1000'
                           type: object
                           properties:
                             denom:
@@ -1592,19 +2026,25 @@ paths:
 
                             signatures required by gogoproto.
                       description: >-
-                        MsgWithdrawFromLiquidityPool defines an sdk.Msg type
+                        `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type
                         that supports submitting withdraw request to the batch
                         of the liquidity pool
 
                         Withdraw submit to the batch from the Liquidity pool
-                        with the specified pool-id, pool-coin of the pool
+                        with the specified `pool_id`, `pool_coin` of the pool
 
                         this requests are stacked in the batch of the liquidity
                         pool, not immediately processed and
 
-                        processed in the endblock at once with other requests.
+                        processed in the `endblock` at once with other requests.
+
+
+                        See:
+                        https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
               pagination:
-                description: pagination defines the pagination in the response.
+                title: >-
+                  pagination defines the pagination in the response. not working
+                  on this version
                 type: object
                 properties:
                   next_key:
@@ -1621,11 +2061,11 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
+                description: |-
+                  message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QueryPoolBatchWithdrawMsgsResponse is the response type for the
               QueryPoolBatchWithdraw RPC method.
@@ -1725,26 +2165,56 @@ paths:
                       properties:
                         pool_type_index:
                           type: integer
-                          format: int64
+                          format: uint32
+                          example: '1'
+                          description: >-
+                            index of target pool type, only 1 is allowed on this
+                            version.
                         name:
                           type: string
+                          example: ConstantProductLiquidityPool
+                          title: name of the pool type
                         min_reserve_coin_num:
                           type: integer
-                          format: int64
+                          format: uint32
+                          example: '2'
+                          title: >-
+                            min number of reserveCoins for LiquidityPoolType
+                            only 2 is allowed on this spec
                         max_reserve_coin_num:
                           type: integer
-                          format: int64
+                          format: uint32
+                          example: '2'
+                          title: >-
+                            max number of reserveCoins for LiquidityPoolType
+                            only 2 is allowed on this spec
                         description:
                           type: string
+                          title: description of the pool type
+                    title: list of available pool types
                   min_init_deposit_to_pool:
                     type: string
+                    format: sdk.Int
+                    example: '1000000'
+                    title: >-
+                      Minimum number of coins to be deposited to the liquidity
+                      pool upon pool creation
                   init_pool_coin_mint_amount:
                     type: string
+                    format: sdk.Int
+                    example: '1000000'
+                    title: Initial mint amount of pool coin upon pool creation
                   swap_fee_rate:
                     type: string
-                    format: byte
+                    format: sdk.Dec
+                    example: '0.003'
+                    title: Swap fee rate for every executed swap
                   liquidity_pool_creation_fee:
                     type: array
+                    format: sdk.Coins
+                    example:
+                      - denom: uatom
+                        amount: '100000000'
                     items:
                       type: object
                       properties:
@@ -1760,6 +2230,9 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: >-
+                      Fee paid for new LiquidityPool creation to prevent
+                      spamming
             description: >-
               QueryParamsResponse is response type for the QueryParamsResponse
               RPC method.
@@ -1808,28 +2281,44 @@ paths:
                         pool_id:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: id of the pool
                         batch_index:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: index of this batch
                         begin_height:
                           type: string
                           format: int64
+                          example: '1000'
+                          title: height where this batch is begun
                         deposit_msg_index:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: last index of BatchPoolDepositMsgs
                         withdraw_msg_index:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: last index of BatchPoolWithdrawMsgs
                         swap_msg_index:
                           type: string
                           format: uint64
+                          example: '1'
+                          title: last index of BatchPoolSwapMsgs
                         executed:
                           type: boolean
+                          example: true
+                          title: 'true if executed, false if not executed yet'
                   description: >-
                     QueryLiquidityPoolBatchResponse is the response type for the
                     QueryLiquidityPoolBatchResponse RPC method.
               pagination:
-                description: pagination defines the pagination in the response.
+                title: >-
+                  pagination defines the pagination in the response. not working
+                  on this version
                 type: object
                 properties:
                   next_key:
@@ -1846,11 +2335,11 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
+                description: |-
+                  message SomeResponse {
+                           repeated Bar results = 1;
+                           PageResponse page = 2;
+                   }
             description: >-
               QueryLiquidityPoolsBatchResponse is the response type for the
               QueryLiquidityPoolsBatchResponse RPC method.
@@ -1939,24 +2428,44 @@ paths:
                   pool_id:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: id of the pool
                   pool_type_index:
                     type: integer
-                    format: int64
+                    format: uint32
+                    example: '1'
+                    title: index of the pool type
                   reserve_coin_denoms:
                     type: array
+                    example:
+                      - denomA
+                      - denomB
                     items:
                       type: string
+                    title: denoms of reserve coin pair of the pool
                   reserve_account_address:
                     type: string
+                    format: sdk.AccAddress
+                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    title: reserve account address of the pool
                   pool_coin_denom:
                     type: string
+                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    title: denom of pool coin of the pool
               liquidity_pool_meta_data:
                 type: object
                 properties:
                   pool_id:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: id of the pool
                   pool_coin_total_supply:
+                    format: sdk.Coin
+                    example:
+                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      amount: '1000000'
+                    title: pool coin issued at the pool
                     type: object
                     properties:
                       denom:
@@ -1973,6 +2482,12 @@ paths:
                       signatures required by gogoproto.
                   reserve_coins:
                     type: array
+                    format: sdk.Coins
+                    example:
+                      - denom: denomA
+                        amount: '1000000'
+                      - denom: denomB
+                        amount: '2000000'
                     items:
                       type: object
                       properties:
@@ -1988,29 +2503,44 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
+                    title: reserve coins deposited in the pool
               liquidity_pool_batch:
                 type: object
                 properties:
                   pool_id:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: id of the pool
                   batch_index:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: index of this batch
                   begin_height:
                     type: string
                     format: int64
+                    example: '1000'
+                    title: height where this batch is begun
                   deposit_msg_index:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: last index of BatchPoolDepositMsgs
                   withdraw_msg_index:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: last index of BatchPoolWithdrawMsgs
                   swap_msg_index:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: last index of BatchPoolSwapMsgs
                   executed:
                     type: boolean
+                    example: true
+                    title: 'true if executed, false if not executed yet'
             description: >-
               QueryLiquidityPoolResponse is the response type for the
               QueryLiquidityPoolResponse RPC method.
@@ -2060,23 +2590,37 @@ paths:
                   pool_id:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: id of the pool
                   batch_index:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: index of this batch
                   begin_height:
                     type: string
                     format: int64
+                    example: '1000'
+                    title: height where this batch is begun
                   deposit_msg_index:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: last index of BatchPoolDepositMsgs
                   withdraw_msg_index:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: last index of BatchPoolWithdrawMsgs
                   swap_msg_index:
                     type: string
                     format: uint64
+                    example: '1'
+                    title: last index of BatchPoolSwapMsgs
                   executed:
                     type: boolean
+                    example: true
+                    title: 'true if executed, false if not executed yet'
             description: >-
               QueryLiquidityPoolBatchResponse is the response type for the
               QueryLiquidityPoolBatchResponse RPC method.
@@ -2991,27 +3535,41 @@ definitions:
     properties:
       from:
         type: string
+        format: sdk.AccAddress
+        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
         title: Sender address or Keybase name to generate a transaction
-        example: cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc
         description: Sender address or Keybase name to generate a transaction
       memo:
         type: string
-        title: 'example: Sent via Cosmos Voyager'
+        example: Sent via Cosmos Voyager
+        title: Memo to send along with transaction
       chain_id:
         type: string
-        title: 'example: Cosmos-Hub'
+        example: Cosmos-Hub
+        title: Name or address of private key with which to sign
       account_number:
         type: string
         format: uint64
-        title: 'example: 0'
+        example: '1421'
+        title: The account number of the signing account (offline mode only)
       sequence:
         type: string
         format: uint64
+        example: '13'
+        title: The sequence number of the signing account (offline mode only)
       timeout_height:
         type: string
         format: uint64
+        example: '200'
+        title: >-
+          Set a block timeout height to prevent the tx from being committed past
+          a certain height
       fees:
         type: array
+        format: sdk.Coins
+        example:
+          - denom: uatom
+            amount: '10'
         items:
           type: object
           properties:
@@ -3024,8 +3582,13 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
+        title: Fees to pay along with transaction
       gas_prices:
         type: array
+        format: sdk.DecCoins
+        example:
+          - denom: uatom
+            amount: '0.1'
         items:
           type: object
           properties:
@@ -3038,20 +3601,26 @@ definitions:
 
             NOTE: The amount field is an Dec which implements the custom method
             signatures required by gogoproto.
+        title: Gas prices in decimal format to determine the transaction fee
       gas:
         type: string
         format: uint64
-        title: 'example: 200000'
+        example: '200000'
+        title: Gas amount to determine the transaction fee
       gas_adjustment:
         type: string
-        title: 'example: 1.2'
+        format: sdk.Dec
+        example: '1.2'
+        title: >-
+          adjustment factor to be multiplied against the estimate returned by
+          the tx simulation; if the gas limit is set manually this flag is
+          ignored
       simulate:
         type: boolean
+        example: false
         title: >-
           Estimate gas for a transaction (cannot be used in conjunction with
           generate_only)
-
-          example: false
     title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
   tendermint.liquidity.Fee:
     type: object
@@ -3059,8 +3628,13 @@ definitions:
       gas:
         type: string
         format: uint64
+        example: '200000'
       amount:
         type: array
+        format: sdk.Coins
+        example:
+          - denom: uatom
+            amount: '10'
         items:
           type: object
           properties:
@@ -3080,15 +3654,32 @@ definitions:
     properties:
       pool_creator_address:
         type: string
+        format: sdk.AccAddress
+        example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+        description: account address of the origin of this message
       pool_type_index:
         type: integer
-        format: int64
+        format: uint32
+        example: '1'
+        description: >-
+          index of target pool type, only 1 is allowed on this version, Must
+          match the value in the pool.
       reserve_coin_denoms:
         type: array
+        example:
+          - denomA
+          - denomB
         items:
           type: string
+        title: denoms of reserve coin pair of the pool
       deposit_coins:
         type: array
+        format: sdk.Coins
+        example:
+          - denom: denomA
+            amount: '1000000'
+          - denom: denomB
+            amount: '2000000'
         items:
           type: object
           properties:
@@ -3101,6 +3692,7 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
+        title: reserve coin pair of the pool to deposit
     title: >-
       MsgCreateLiquidityPool defines an sdk.Msg type that supports submitting
       create liquidity pool
@@ -3112,25 +3704,40 @@ definitions:
         properties:
           from:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
-            title: 'example: Sent via Cosmos Voyager'
+            example: Sent via Cosmos Voyager
+            title: Memo to send along with transaction
           chain_id:
             type: string
-            title: 'example: Cosmos-Hub'
+            example: Cosmos-Hub
+            title: Name or address of private key with which to sign
           account_number:
             type: string
             format: uint64
-            title: 'example: 0'
+            example: '1421'
+            title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
+            example: '13'
+            title: The sequence number of the signing account (offline mode only)
           timeout_height:
             type: string
             format: uint64
+            example: '200'
+            title: >-
+              Set a block timeout height to prevent the tx from being committed
+              past a certain height
           fees:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: uatom
+                amount: '10'
             items:
               type: object
               properties:
@@ -3146,8 +3753,13 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: Fees to pay along with transaction
           gas_prices:
             type: array
+            format: sdk.DecCoins
+            example:
+              - denom: uatom
+                amount: '0.1'
             items:
               type: object
               properties:
@@ -3163,35 +3775,59 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: Gas prices in decimal format to determine the transaction fee
           gas:
             type: string
             format: uint64
-            title: 'example: 200000'
+            example: '200000'
+            title: Gas amount to determine the transaction fee
           gas_adjustment:
             type: string
-            title: 'example: 1.2'
+            format: sdk.Dec
+            example: '1.2'
+            title: >-
+              adjustment factor to be multiplied against the estimate returned
+              by the tx simulation; if the gas limit is set manually this flag
+              is ignored
           simulate:
             type: boolean
+            example: false
             title: >-
               Estimate gas for a transaction (cannot be used in conjunction with
               generate_only)
-
-              example: false
         title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
       msg:
+        title: MsgCreateLiquidityPool
         type: object
         properties:
           pool_creator_address:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+            description: account address of the origin of this message
           pool_type_index:
             type: integer
-            format: int64
+            format: uint32
+            example: '1'
+            description: >-
+              index of target pool type, only 1 is allowed on this version, Must
+              match the value in the pool.
           reserve_coin_denoms:
             type: array
+            example:
+              - denomA
+              - denomB
             items:
               type: string
+            title: denoms of reserve coin pair of the pool
           deposit_coins:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: denomA
+                amount: '1000000'
+              - denom: denomB
+                amount: '2000000'
             items:
               type: object
               properties:
@@ -3207,18 +3843,10 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-        title: >-
-          MsgCreateLiquidityPool defines an sdk.Msg type that supports
-          submitting create liquidity pool
+            title: reserve coin pair of the pool to deposit
     description: >-
-      MsgCreateLiquidityPoolRequest is the request type for the Query/Deposits
-      RPC method
-
-      with the specified pool-type-index, deposit coins for reserve
-
-      Currently, only the default pool-type-index 1 is available on this version
-
-      the number of deposit coins must be two in the pool-type-index 1.
+      MsgCreateLiquidityPoolRequest is the request type for the
+      Msg/MsgCreateLiquidityPoolRequest RPC method.
   tendermint.liquidity.MsgCreateLiquidityPoolResponse:
     type: object
     properties:
@@ -3227,16 +3855,26 @@ definitions:
         properties:
           msg:
             type: array
+            example:
+              - MsgDepositToLiquidityPool
+              - MsgSwap
             items:
               type: string
+            title: Msgs
           fee:
+            title: Fee
             type: object
             properties:
               gas:
                 type: string
                 format: uint64
+                example: '200000'
               amount:
                 type: array
+                format: sdk.Coins
+                example:
+                  - denom: uatom
+                    amount: '10'
                 items:
                   type: object
                   properties:
@@ -3253,36 +3891,40 @@ definitions:
 
                     signatures required by gogoproto.
                 title: amount is the amount of coins to be paid as a fee
-            title: Fee struct of cosmos-sdk
           memo:
             type: string
+            title: Memo of the transaction
           signature:
+            title: Signature
             type: object
             properties:
               signature:
                 type: string
-                title: >-
-                  example:
+                example: >-
                   MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                title: signature base64
               pub_key:
+                title: PubKey
                 type: object
                 properties:
                   type:
                     type: string
-                    title: 'example: tendermint/PubKeySecp256k1'
+                    example: tendermint/PubKeySecp256k1
+                    title: type of pubkey algorithm
                   value:
                     type: string
-                    title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
-                title: PubKey struct of tendermint/cosmos-sdk
+                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                    title: value of pubkey
               account_number:
                 type: string
                 format: uint64
-                title: 'example: 0'
+                example: '1421'
+                title: The account number of the signing account (offline mode only)
               sequence:
                 type: string
                 format: uint64
-                title: 'example: 0'
-            title: signature struct of tendermint/cosmos-sdk
+                example: '13'
+                title: The sequence number of the signing account (offline mode only)
         title: >-
           Base response struct of result of the requested Tx, standard of
           tendermint/cosmos-sdk
@@ -3294,12 +3936,22 @@ definitions:
     properties:
       depositor_address:
         type: string
+        format: sdk.AccAddress
+        example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+        description: account address of the origin of this message
       pool_id:
         type: string
         format: uint64
-        title: id of target pool
+        example: '1'
+        title: id of the target pool
       deposit_coins:
         type: array
+        format: sdk.Coins
+        example:
+          - denom: denomA
+            amount: '1000000'
+          - denom: denomB
+            amount: '2000000'
         items:
           type: object
           properties:
@@ -3312,17 +3964,22 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
+        title: reserve coin pair of the pool to deposit
     description: >-
-      MsgDepositToLiquidityPool defines an sdk.Msg type that supports submitting
-      deposit request to the batch of the liquidity pool
+      `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that supports
+      submitting deposit request to the batch of the liquidity pool
 
       Deposit submit to the batch of the Liquidity pool with the specified
-      pool-id, deposit coins for reserve
+      `pool_id`, deposit coins for reserve
 
       this requests are stacked in the batch of the liquidity pool, not
       immediately processed and
 
-      processed in the endblock at once with other requests.
+      processed in the `endblock` at once with other requests.
+
+
+      See:
+      https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
   tendermint.liquidity.MsgDepositToLiquidityPoolRequest:
     type: object
     properties:
@@ -3331,25 +3988,40 @@ definitions:
         properties:
           from:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
-            title: 'example: Sent via Cosmos Voyager'
+            example: Sent via Cosmos Voyager
+            title: Memo to send along with transaction
           chain_id:
             type: string
-            title: 'example: Cosmos-Hub'
+            example: Cosmos-Hub
+            title: Name or address of private key with which to sign
           account_number:
             type: string
             format: uint64
-            title: 'example: 0'
+            example: '1421'
+            title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
+            example: '13'
+            title: The sequence number of the signing account (offline mode only)
           timeout_height:
             type: string
             format: uint64
+            example: '200'
+            title: >-
+              Set a block timeout height to prevent the tx from being committed
+              past a certain height
           fees:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: uatom
+                amount: '10'
             items:
               type: object
               properties:
@@ -3365,8 +4037,13 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: Fees to pay along with transaction
           gas_prices:
             type: array
+            format: sdk.DecCoins
+            example:
+              - denom: uatom
+                amount: '0.1'
             items:
               type: object
               properties:
@@ -3382,36 +4059,54 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: Gas prices in decimal format to determine the transaction fee
           gas:
             type: string
             format: uint64
-            title: 'example: 200000'
+            example: '200000'
+            title: Gas amount to determine the transaction fee
           gas_adjustment:
             type: string
-            title: 'example: 1.2'
+            format: sdk.Dec
+            example: '1.2'
+            title: >-
+              adjustment factor to be multiplied against the estimate returned
+              by the tx simulation; if the gas limit is set manually this flag
+              is ignored
           simulate:
             type: boolean
+            example: false
             title: >-
               Estimate gas for a transaction (cannot be used in conjunction with
               generate_only)
-
-              example: false
         title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
       pool_id:
         type: string
         format: uint64
-        title: id of target pool
+        example: '1'
+        title: id of the target pool
       msg:
+        title: MsgDepositToLiquidityPool
         type: object
         properties:
           depositor_address:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+            description: account address of the origin of this message
           pool_id:
             type: string
             format: uint64
-            title: id of target pool
+            example: '1'
+            title: id of the target pool
           deposit_coins:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: denomA
+                amount: '1000000'
+              - denom: denomB
+                amount: '2000000'
             items:
               type: object
               properties:
@@ -3427,17 +4122,22 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: reserve coin pair of the pool to deposit
         description: >-
-          MsgDepositToLiquidityPool defines an sdk.Msg type that supports
+          `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that supports
           submitting deposit request to the batch of the liquidity pool
 
           Deposit submit to the batch of the Liquidity pool with the specified
-          pool-id, deposit coins for reserve
+          `pool_id`, deposit coins for reserve
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
 
-          processed in the endblock at once with other requests.
+          processed in the `endblock` at once with other requests.
+
+
+          See:
+          https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
     description: >-
       MsgDepositToLiquidityPoolRequest is the request type for the
       Msg/DepositToLiquidityPool RPC method.
@@ -3449,16 +4149,26 @@ definitions:
         properties:
           msg:
             type: array
+            example:
+              - MsgDepositToLiquidityPool
+              - MsgSwap
             items:
               type: string
+            title: Msgs
           fee:
+            title: Fee
             type: object
             properties:
               gas:
                 type: string
                 format: uint64
+                example: '200000'
               amount:
                 type: array
+                format: sdk.Coins
+                example:
+                  - denom: uatom
+                    amount: '10'
                 items:
                   type: object
                   properties:
@@ -3475,36 +4185,40 @@ definitions:
 
                     signatures required by gogoproto.
                 title: amount is the amount of coins to be paid as a fee
-            title: Fee struct of cosmos-sdk
           memo:
             type: string
+            title: Memo of the transaction
           signature:
+            title: Signature
             type: object
             properties:
               signature:
                 type: string
-                title: >-
-                  example:
+                example: >-
                   MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                title: signature base64
               pub_key:
+                title: PubKey
                 type: object
                 properties:
                   type:
                     type: string
-                    title: 'example: tendermint/PubKeySecp256k1'
+                    example: tendermint/PubKeySecp256k1
+                    title: type of pubkey algorithm
                   value:
                     type: string
-                    title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
-                title: PubKey struct of tendermint/cosmos-sdk
+                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                    title: value of pubkey
               account_number:
                 type: string
                 format: uint64
-                title: 'example: 0'
+                example: '1421'
+                title: The account number of the signing account (offline mode only)
               sequence:
                 type: string
                 format: uint64
-                title: 'example: 0'
-            title: signature struct of tendermint/cosmos-sdk
+                example: '13'
+                title: The sequence number of the signing account (offline mode only)
         title: >-
           Base response struct of result of the requested Tx, standard of
           tendermint/cosmos-sdk
@@ -3516,24 +4230,34 @@ definitions:
     properties:
       swap_requester_address:
         type: string
+        format: sdk.AccAddress
+        example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+        description: account address of the origin of this message
         title: address of swap requester
       pool_id:
         type: string
         format: uint64
-        title: id of target pool
+        example: '1'
+        title: id of the target pool
       pool_type_index:
         type: integer
-        format: int64
+        format: uint32
+        example: '1'
         description: >-
           index of target pool type, only 1 is allowed on this version, Must
           match the value in the pool.
       swap_type:
         type: integer
-        format: int64
+        format: uint32
+        example: '1'
         description: >-
           id of swap type type, only 1 is allowed on this version, Must match
           the value in the pool.
       offer_coin:
+        format: sdk.Coin
+        example:
+          denom: denomA
+          amount: '1000000'
         description: 'offer sdk.coin for the swap request, Must match the denom in the pool.'
         type: object
         properties:
@@ -3543,34 +4267,39 @@ definitions:
             type: string
       demand_coin_denom:
         type: string
+        example: denomB
         description: >-
           denom of demand coin to be exchanged on the swap request, Must match
           the denom in the pool.
       order_price:
         type: string
-        format: byte
+        format: sdk.Dec
+        example: '1.1'
         title: limit order price for this offer
     description: >-
-      MsgSwap defines an sdk.Msg type that supports submitting swap offer
+      `MsgSwap` defines an sdk.Msg type that supports submitting swap offer
       request to the batch of the liquidity pool
 
-      Swap offer to the Liquidity pool with the specified pool-id,
-      pool-type-index, swap-type,
+      Swap offer to the Liquidity pool with the specified `pool_id`,
+      `pool_type_index`, `swap_type`,
 
-      demand-coin-denom with the coin and the price you're offering
+      `demand_coin_denom` with the coin and the price you're offering
 
       this requests are stacked in the batch of the liquidity pool, not
       immediately processed and
 
-      processed in the endblock at once with other requests
+      processed in the `endblock` at once with other requests
 
       You should request the same each field as the pool
 
-      Currently, only the default swap-type 1 is available on this version
+      Currently, only the default `swap_type`1 is available on this version
 
-      The detailed swap algorithm can be found here
+      The detailed swap algorithm can be found here.
 
-      https://github.com/tendermint/liquidity .
+
+      See: https://github.com/tendermint/liquidity/tree/develop/doc
+
+      https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
   tendermint.liquidity.MsgSwapRequest:
     type: object
     properties:
@@ -3579,25 +4308,40 @@ definitions:
         properties:
           from:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
-            title: 'example: Sent via Cosmos Voyager'
+            example: Sent via Cosmos Voyager
+            title: Memo to send along with transaction
           chain_id:
             type: string
-            title: 'example: Cosmos-Hub'
+            example: Cosmos-Hub
+            title: Name or address of private key with which to sign
           account_number:
             type: string
             format: uint64
-            title: 'example: 0'
+            example: '1421'
+            title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
+            example: '13'
+            title: The sequence number of the signing account (offline mode only)
           timeout_height:
             type: string
             format: uint64
+            example: '200'
+            title: >-
+              Set a block timeout height to prevent the tx from being committed
+              past a certain height
           fees:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: uatom
+                amount: '10'
             items:
               type: object
               properties:
@@ -3613,8 +4357,13 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: Fees to pay along with transaction
           gas_prices:
             type: array
+            format: sdk.DecCoins
+            example:
+              - denom: uatom
+                amount: '0.1'
             items:
               type: object
               properties:
@@ -3630,48 +4379,66 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: Gas prices in decimal format to determine the transaction fee
           gas:
             type: string
             format: uint64
-            title: 'example: 200000'
+            example: '200000'
+            title: Gas amount to determine the transaction fee
           gas_adjustment:
             type: string
-            title: 'example: 1.2'
+            format: sdk.Dec
+            example: '1.2'
+            title: >-
+              adjustment factor to be multiplied against the estimate returned
+              by the tx simulation; if the gas limit is set manually this flag
+              is ignored
           simulate:
             type: boolean
+            example: false
             title: >-
               Estimate gas for a transaction (cannot be used in conjunction with
               generate_only)
-
-              example: false
         title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
       pool_id:
         type: string
         format: uint64
-        title: id of target pool
+        example: '1'
+        title: id of the target pool
       msg:
+        title: MsgSwap
         type: object
         properties:
           swap_requester_address:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+            description: account address of the origin of this message
             title: address of swap requester
           pool_id:
             type: string
             format: uint64
-            title: id of target pool
+            example: '1'
+            title: id of the target pool
           pool_type_index:
             type: integer
-            format: int64
+            format: uint32
+            example: '1'
             description: >-
               index of target pool type, only 1 is allowed on this version, Must
               match the value in the pool.
           swap_type:
             type: integer
-            format: int64
+            format: uint32
+            example: '1'
             description: >-
               id of swap type type, only 1 is allowed on this version, Must
               match the value in the pool.
           offer_coin:
+            format: sdk.Coin
+            example:
+              denom: denomA
+              amount: '1000000'
             description: >-
               offer sdk.coin for the swap request, Must match the denom in the
               pool.
@@ -3683,34 +4450,39 @@ definitions:
                 type: string
           demand_coin_denom:
             type: string
+            example: denomB
             description: >-
               denom of demand coin to be exchanged on the swap request, Must
               match the denom in the pool.
           order_price:
             type: string
-            format: byte
+            format: sdk.Dec
+            example: '1.1'
             title: limit order price for this offer
         description: >-
-          MsgSwap defines an sdk.Msg type that supports submitting swap offer
+          `MsgSwap` defines an sdk.Msg type that supports submitting swap offer
           request to the batch of the liquidity pool
 
-          Swap offer to the Liquidity pool with the specified pool-id,
-          pool-type-index, swap-type,
+          Swap offer to the Liquidity pool with the specified `pool_id`,
+          `pool_type_index`, `swap_type`,
 
-          demand-coin-denom with the coin and the price you're offering
+          `demand_coin_denom` with the coin and the price you're offering
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
 
-          processed in the endblock at once with other requests
+          processed in the `endblock` at once with other requests
 
           You should request the same each field as the pool
 
-          Currently, only the default swap-type 1 is available on this version
+          Currently, only the default `swap_type`1 is available on this version
 
-          The detailed swap algorithm can be found here
+          The detailed swap algorithm can be found here.
 
-          https://github.com/tendermint/liquidity .
+
+          See: https://github.com/tendermint/liquidity/tree/develop/doc
+
+          https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
     description: MsgSwapRequest is the request type for the Query/Swap RPC method.
   tendermint.liquidity.MsgSwapResponse:
     type: object
@@ -3720,16 +4492,26 @@ definitions:
         properties:
           msg:
             type: array
+            example:
+              - MsgDepositToLiquidityPool
+              - MsgSwap
             items:
               type: string
+            title: Msgs
           fee:
+            title: Fee
             type: object
             properties:
               gas:
                 type: string
                 format: uint64
+                example: '200000'
               amount:
                 type: array
+                format: sdk.Coins
+                example:
+                  - denom: uatom
+                    amount: '10'
                 items:
                   type: object
                   properties:
@@ -3746,36 +4528,40 @@ definitions:
 
                     signatures required by gogoproto.
                 title: amount is the amount of coins to be paid as a fee
-            title: Fee struct of cosmos-sdk
           memo:
             type: string
+            title: Memo of the transaction
           signature:
+            title: Signature
             type: object
             properties:
               signature:
                 type: string
-                title: >-
-                  example:
+                example: >-
                   MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                title: signature base64
               pub_key:
+                title: PubKey
                 type: object
                 properties:
                   type:
                     type: string
-                    title: 'example: tendermint/PubKeySecp256k1'
+                    example: tendermint/PubKeySecp256k1
+                    title: type of pubkey algorithm
                   value:
                     type: string
-                    title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
-                title: PubKey struct of tendermint/cosmos-sdk
+                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                    title: value of pubkey
               account_number:
                 type: string
                 format: uint64
-                title: 'example: 0'
+                example: '1421'
+                title: The account number of the signing account (offline mode only)
               sequence:
                 type: string
                 format: uint64
-                title: 'example: 0'
-            title: signature struct of tendermint/cosmos-sdk
+                example: '13'
+                title: The sequence number of the signing account (offline mode only)
         title: >-
           Base response struct of result of the requested Tx, standard of
           tendermint/cosmos-sdk
@@ -3785,11 +4571,19 @@ definitions:
     properties:
       withdrawer_address:
         type: string
+        format: sdk.AccAddress
+        example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+        description: account address of the origin of this message
       pool_id:
         type: string
         format: uint64
-        title: id of target pool
+        example: '1'
+        title: id of the target pool
       pool_coin:
+        format: sdk.Coin
+        example:
+          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+          amount: '1000'
         type: object
         properties:
           denom:
@@ -3802,16 +4596,20 @@ definitions:
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
     description: >-
-      MsgWithdrawFromLiquidityPool defines an sdk.Msg type that supports
+      `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports
       submitting withdraw request to the batch of the liquidity pool
 
       Withdraw submit to the batch from the Liquidity pool with the specified
-      pool-id, pool-coin of the pool
+      `pool_id`, `pool_coin` of the pool
 
       this requests are stacked in the batch of the liquidity pool, not
       immediately processed and
 
-      processed in the endblock at once with other requests.
+      processed in the `endblock` at once with other requests.
+
+
+      See:
+      https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
   tendermint.liquidity.MsgWithdrawFromLiquidityPoolRequest:
     type: object
     properties:
@@ -3820,25 +4618,40 @@ definitions:
         properties:
           from:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
-            title: 'example: Sent via Cosmos Voyager'
+            example: Sent via Cosmos Voyager
+            title: Memo to send along with transaction
           chain_id:
             type: string
-            title: 'example: Cosmos-Hub'
+            example: Cosmos-Hub
+            title: Name or address of private key with which to sign
           account_number:
             type: string
             format: uint64
-            title: 'example: 0'
+            example: '1421'
+            title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
+            example: '13'
+            title: The sequence number of the signing account (offline mode only)
           timeout_height:
             type: string
             format: uint64
+            example: '200'
+            title: >-
+              Set a block timeout height to prevent the tx from being committed
+              past a certain height
           fees:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: uatom
+                amount: '10'
             items:
               type: object
               properties:
@@ -3854,8 +4667,13 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: Fees to pay along with transaction
           gas_prices:
             type: array
+            format: sdk.DecCoins
+            example:
+              - denom: uatom
+                amount: '0.1'
             items:
               type: object
               properties:
@@ -3871,35 +4689,51 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: Gas prices in decimal format to determine the transaction fee
           gas:
             type: string
             format: uint64
-            title: 'example: 200000'
+            example: '200000'
+            title: Gas amount to determine the transaction fee
           gas_adjustment:
             type: string
-            title: 'example: 1.2'
+            format: sdk.Dec
+            example: '1.2'
+            title: >-
+              adjustment factor to be multiplied against the estimate returned
+              by the tx simulation; if the gas limit is set manually this flag
+              is ignored
           simulate:
             type: boolean
+            example: false
             title: >-
               Estimate gas for a transaction (cannot be used in conjunction with
               generate_only)
-
-              example: false
         title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
       pool_id:
         type: string
         format: uint64
-        title: id of target pool
+        example: '1'
+        title: id of the target pool
       msg:
+        title: MsgWithdrawFromLiquidityPool
         type: object
         properties:
           withdrawer_address:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+            description: account address of the origin of this message
           pool_id:
             type: string
             format: uint64
-            title: id of target pool
+            example: '1'
+            title: id of the target pool
           pool_coin:
+            format: sdk.Coin
+            example:
+              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              amount: '1000'
             type: object
             properties:
               denom:
@@ -3915,16 +4749,20 @@ definitions:
 
               signatures required by gogoproto.
         description: >-
-          MsgWithdrawFromLiquidityPool defines an sdk.Msg type that supports
+          `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports
           submitting withdraw request to the batch of the liquidity pool
 
           Withdraw submit to the batch from the Liquidity pool with the
-          specified pool-id, pool-coin of the pool
+          specified `pool_id`, `pool_coin` of the pool
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
 
-          processed in the endblock at once with other requests.
+          processed in the `endblock` at once with other requests.
+
+
+          See:
+          https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
     description: >-
       MsgWithdrawFromLiquidityPoolRequest is the request type for the
       Query/WithdrawFromLiquidityPool RPC method.
@@ -3936,16 +4774,26 @@ definitions:
         properties:
           msg:
             type: array
+            example:
+              - MsgDepositToLiquidityPool
+              - MsgSwap
             items:
               type: string
+            title: Msgs
           fee:
+            title: Fee
             type: object
             properties:
               gas:
                 type: string
                 format: uint64
+                example: '200000'
               amount:
                 type: array
+                format: sdk.Coins
+                example:
+                  - denom: uatom
+                    amount: '10'
                 items:
                   type: object
                   properties:
@@ -3962,36 +4810,40 @@ definitions:
 
                     signatures required by gogoproto.
                 title: amount is the amount of coins to be paid as a fee
-            title: Fee struct of cosmos-sdk
           memo:
             type: string
+            title: Memo of the transaction
           signature:
+            title: Signature
             type: object
             properties:
               signature:
                 type: string
-                title: >-
-                  example:
+                example: >-
                   MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+                title: signature base64
               pub_key:
+                title: PubKey
                 type: object
                 properties:
                   type:
                     type: string
-                    title: 'example: tendermint/PubKeySecp256k1'
+                    example: tendermint/PubKeySecp256k1
+                    title: type of pubkey algorithm
                   value:
                     type: string
-                    title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
-                title: PubKey struct of tendermint/cosmos-sdk
+                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                    title: value of pubkey
               account_number:
                 type: string
                 format: uint64
-                title: 'example: 0'
+                example: '1421'
+                title: The account number of the signing account (offline mode only)
               sequence:
                 type: string
                 format: uint64
-                title: 'example: 0'
-            title: signature struct of tendermint/cosmos-sdk
+                example: '13'
+                title: The sequence number of the signing account (offline mode only)
         title: >-
           Base response struct of result of the requested Tx, standard of
           tendermint/cosmos-sdk
@@ -4003,53 +4855,69 @@ definitions:
     properties:
       type:
         type: string
-        title: 'example: tendermint/PubKeySecp256k1'
+        example: tendermint/PubKeySecp256k1
+        title: type of pubkey algorithm
       value:
         type: string
-        title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
+        example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+        title: value of pubkey
     title: PubKey struct of tendermint/cosmos-sdk
   tendermint.liquidity.Signature:
     type: object
     properties:
       signature:
         type: string
-        title: >-
-          example:
+        example: >-
           MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+        title: signature base64
       pub_key:
+        title: PubKey
         type: object
         properties:
           type:
             type: string
-            title: 'example: tendermint/PubKeySecp256k1'
+            example: tendermint/PubKeySecp256k1
+            title: type of pubkey algorithm
           value:
             type: string
-            title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
-        title: PubKey struct of tendermint/cosmos-sdk
+            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+            title: value of pubkey
       account_number:
         type: string
         format: uint64
-        title: 'example: 0'
+        example: '1421'
+        title: The account number of the signing account (offline mode only)
       sequence:
         type: string
         format: uint64
-        title: 'example: 0'
+        example: '13'
+        title: The sequence number of the signing account (offline mode only)
     title: signature struct of tendermint/cosmos-sdk
   tendermint.liquidity.StdTx:
     type: object
     properties:
       msg:
         type: array
+        example:
+          - MsgDepositToLiquidityPool
+          - MsgSwap
         items:
           type: string
+        title: Msgs
       fee:
+        title: Fee
         type: object
         properties:
           gas:
             type: string
             format: uint64
+            example: '200000'
           amount:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: uatom
+                amount: '10'
             items:
               type: object
               properties:
@@ -4066,36 +4934,40 @@ definitions:
 
                 signatures required by gogoproto.
             title: amount is the amount of coins to be paid as a fee
-        title: Fee struct of cosmos-sdk
       memo:
         type: string
+        title: Memo of the transaction
       signature:
+        title: Signature
         type: object
         properties:
           signature:
             type: string
-            title: >-
-              example:
+            example: >-
               MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
+            title: signature base64
           pub_key:
+            title: PubKey
             type: object
             properties:
               type:
                 type: string
-                title: 'example: tendermint/PubKeySecp256k1'
+                example: tendermint/PubKeySecp256k1
+                title: type of pubkey algorithm
               value:
                 type: string
-                title: 'example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH'
-            title: PubKey struct of tendermint/cosmos-sdk
+                example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
+                title: value of pubkey
           account_number:
             type: string
             format: uint64
-            title: 'example: 0'
+            example: '1421'
+            title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
-            title: 'example: 0'
-        title: signature struct of tendermint/cosmos-sdk
+            example: '13'
+            title: The sequence number of the signing account (offline mode only)
     title: >-
       Base response struct of result of the requested Tx, standard of
       tendermint/cosmos-sdk
@@ -4173,26 +5045,47 @@ definitions:
       msg_height:
         type: string
         format: int64
+        example: '1000'
+        title: height where this message is appended to the batch
       msg_index:
         type: string
         format: uint64
+        example: '1'
+        title: index of this deposit message in this liquidity pool
       executed:
         type: boolean
+        example: true
+        title: 'true if executed on this batch, false if not executed yet'
       succeed:
         type: boolean
+        example: true
+        title: 'true if executed successfully on this batch, false if failed'
       to_delete:
         type: boolean
+        example: true
+        title: 'true if ready to delete on kvstore, false if not ready to delete'
       Msg:
+        title: MsgDepositToLiquidityPool
         type: object
         properties:
           depositor_address:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+            description: account address of the origin of this message
           pool_id:
             type: string
             format: uint64
-            title: id of target pool
+            example: '1'
+            title: id of the target pool
           deposit_coins:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: denomA
+                amount: '1000000'
+              - denom: denomB
+                amount: '2000000'
             items:
               type: object
               properties:
@@ -4208,36 +5101,60 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: reserve coin pair of the pool to deposit
         description: >-
-          MsgDepositToLiquidityPool defines an sdk.Msg type that supports
+          `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that supports
           submitting deposit request to the batch of the liquidity pool
 
           Deposit submit to the batch of the Liquidity pool with the specified
-          pool-id, deposit coins for reserve
+          `pool_id`, deposit coins for reserve
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
 
-          processed in the endblock at once with other requests.
+          processed in the `endblock` at once with other requests.
+
+
+          See:
+          https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
   tendermint.liquidity.BatchPoolSwapMsg:
     type: object
     properties:
       msg_height:
         type: string
         format: int64
+        example: '1000'
+        title: height where this message is appended to the batch
       msg_index:
         type: string
         format: uint64
+        example: '1'
+        title: index of this swap message in this liquidity pool
       executed:
         type: boolean
+        example: true
+        title: 'true if executed on this batch, false if not executed yet'
       succeed:
         type: boolean
+        example: true
+        title: 'true if executed successfully on this batch, false if failed'
       to_delete:
         type: boolean
+        example: true
+        title: 'true if ready to delete on kvstore, false if not ready to delete'
       order_expiry_height:
         type: string
         format: int64
+        example: '1000'
+        title: >-
+          swap orders are cancelled when current height is equal or higher than
+          ExpiryHeight
       exchanged_offer_coin:
+        format: sdk.Coin
+        example:
+          denom: denomA
+          amount: '600000'
+        title: offer coin exchanged until now
         type: object
         properties:
           denom:
@@ -4250,6 +5167,11 @@ definitions:
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
       remaining_offer_coin:
+        format: sdk.Coin
+        example:
+          denom: denomA
+          amount: '400000'
+        title: offer coin currently remaining to be exchanged
         type: object
         properties:
           denom:
@@ -4262,28 +5184,39 @@ definitions:
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
       msg:
+        title: MsgSwap
         type: object
         properties:
           swap_requester_address:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+            description: account address of the origin of this message
             title: address of swap requester
           pool_id:
             type: string
             format: uint64
-            title: id of target pool
+            example: '1'
+            title: id of the target pool
           pool_type_index:
             type: integer
-            format: int64
+            format: uint32
+            example: '1'
             description: >-
               index of target pool type, only 1 is allowed on this version, Must
               match the value in the pool.
           swap_type:
             type: integer
-            format: int64
+            format: uint32
+            example: '1'
             description: >-
               id of swap type type, only 1 is allowed on this version, Must
               match the value in the pool.
           offer_coin:
+            format: sdk.Coin
+            example:
+              denom: denomA
+              amount: '1000000'
             description: >-
               offer sdk.coin for the swap request, Must match the denom in the
               pool.
@@ -4295,59 +5228,83 @@ definitions:
                 type: string
           demand_coin_denom:
             type: string
+            example: denomB
             description: >-
               denom of demand coin to be exchanged on the swap request, Must
               match the denom in the pool.
           order_price:
             type: string
-            format: byte
+            format: sdk.Dec
+            example: '1.1'
             title: limit order price for this offer
         description: >-
-          MsgSwap defines an sdk.Msg type that supports submitting swap offer
+          `MsgSwap` defines an sdk.Msg type that supports submitting swap offer
           request to the batch of the liquidity pool
 
-          Swap offer to the Liquidity pool with the specified pool-id,
-          pool-type-index, swap-type,
+          Swap offer to the Liquidity pool with the specified `pool_id`,
+          `pool_type_index`, `swap_type`,
 
-          demand-coin-denom with the coin and the price you're offering
+          `demand_coin_denom` with the coin and the price you're offering
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
 
-          processed in the endblock at once with other requests
+          processed in the `endblock` at once with other requests
 
           You should request the same each field as the pool
 
-          Currently, only the default swap-type 1 is available on this version
+          Currently, only the default `swap_type`1 is available on this version
 
-          The detailed swap algorithm can be found here
+          The detailed swap algorithm can be found here.
 
-          https://github.com/tendermint/liquidity .
+
+          See: https://github.com/tendermint/liquidity/tree/develop/doc
+
+          https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
   tendermint.liquidity.BatchPoolWithdrawMsg:
     type: object
     properties:
       msg_height:
         type: string
         format: int64
+        example: '1000'
+        title: height where this message is appended to the batch
       msg_index:
         type: string
         format: uint64
+        example: '1'
+        title: index of this withdraw message in this liquidity pool
       executed:
         type: boolean
+        example: true
+        title: 'true if executed on this batch, false if not executed yet'
       succeed:
         type: boolean
+        example: true
+        title: 'true if executed successfully on this batch, false if failed'
       to_delete:
         type: boolean
+        example: true
+        title: 'true if ready to delete on kvstore, false if not ready to delete'
       msg:
+        title: MsgWithdrawFromLiquidityPool
         type: object
         properties:
           withdrawer_address:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+            description: account address of the origin of this message
           pool_id:
             type: string
             format: uint64
-            title: id of target pool
+            example: '1'
+            title: id of the target pool
           pool_coin:
+            format: sdk.Coin
+            example:
+              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              amount: '1000'
             type: object
             properties:
               denom:
@@ -4363,63 +5320,101 @@ definitions:
 
               signatures required by gogoproto.
         description: >-
-          MsgWithdrawFromLiquidityPool defines an sdk.Msg type that supports
+          `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports
           submitting withdraw request to the batch of the liquidity pool
 
           Withdraw submit to the batch from the Liquidity pool with the
-          specified pool-id, pool-coin of the pool
+          specified `pool_id`, `pool_coin` of the pool
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
 
-          processed in the endblock at once with other requests.
+          processed in the `endblock` at once with other requests.
+
+
+          See:
+          https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
   tendermint.liquidity.LiquidityPool:
     type: object
     properties:
       pool_id:
         type: string
         format: uint64
+        example: '1'
+        title: id of the pool
       pool_type_index:
         type: integer
-        format: int64
+        format: uint32
+        example: '1'
+        title: index of the pool type
       reserve_coin_denoms:
         type: array
+        example:
+          - denomA
+          - denomB
         items:
           type: string
+        title: denoms of reserve coin pair of the pool
       reserve_account_address:
         type: string
+        format: sdk.AccAddress
+        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+        title: reserve account address of the pool
       pool_coin_denom:
         type: string
+        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+        title: denom of pool coin of the pool
   tendermint.liquidity.LiquidityPoolBatch:
     type: object
     properties:
       pool_id:
         type: string
         format: uint64
+        example: '1'
+        title: id of the pool
       batch_index:
         type: string
         format: uint64
+        example: '1'
+        title: index of this batch
       begin_height:
         type: string
         format: int64
+        example: '1000'
+        title: height where this batch is begun
       deposit_msg_index:
         type: string
         format: uint64
+        example: '1'
+        title: last index of BatchPoolDepositMsgs
       withdraw_msg_index:
         type: string
         format: uint64
+        example: '1'
+        title: last index of BatchPoolWithdrawMsgs
       swap_msg_index:
         type: string
         format: uint64
+        example: '1'
+        title: last index of BatchPoolSwapMsgs
       executed:
         type: boolean
+        example: true
+        title: 'true if executed, false if not executed yet'
   tendermint.liquidity.LiquidityPoolMetaData:
     type: object
     properties:
       pool_id:
         type: string
         format: uint64
+        example: '1'
+        title: id of the pool
       pool_coin_total_supply:
+        format: sdk.Coin
+        example:
+          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+          amount: '1000000'
+        title: pool coin issued at the pool
         type: object
         properties:
           denom:
@@ -4433,6 +5428,12 @@ definitions:
           signatures required by gogoproto.
       reserve_coins:
         type: array
+        format: sdk.Coins
+        example:
+          - denom: denomA
+            amount: '1000000'
+          - denom: denomB
+            amount: '2000000'
         items:
           type: object
           properties:
@@ -4445,22 +5446,36 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
+        title: reserve coins deposited in the pool
   tendermint.liquidity.LiquidityPoolType:
     type: object
     properties:
       pool_type_index:
         type: integer
-        format: int64
+        format: uint32
+        example: '1'
+        description: 'index of target pool type, only 1 is allowed on this version.'
       name:
         type: string
+        example: ConstantProductLiquidityPool
+        title: name of the pool type
       min_reserve_coin_num:
         type: integer
-        format: int64
+        format: uint32
+        example: '2'
+        title: >-
+          min number of reserveCoins for LiquidityPoolType only 2 is allowed on
+          this spec
       max_reserve_coin_num:
         type: integer
-        format: int64
+        format: uint32
+        example: '2'
+        title: >-
+          max number of reserveCoins for LiquidityPoolType only 2 is allowed on
+          this spec
       description:
         type: string
+        title: description of the pool type
   tendermint.liquidity.Params:
     type: object
     properties:
@@ -4471,26 +5486,54 @@ definitions:
           properties:
             pool_type_index:
               type: integer
-              format: int64
+              format: uint32
+              example: '1'
+              description: 'index of target pool type, only 1 is allowed on this version.'
             name:
               type: string
+              example: ConstantProductLiquidityPool
+              title: name of the pool type
             min_reserve_coin_num:
               type: integer
-              format: int64
+              format: uint32
+              example: '2'
+              title: >-
+                min number of reserveCoins for LiquidityPoolType only 2 is
+                allowed on this spec
             max_reserve_coin_num:
               type: integer
-              format: int64
+              format: uint32
+              example: '2'
+              title: >-
+                max number of reserveCoins for LiquidityPoolType only 2 is
+                allowed on this spec
             description:
               type: string
+              title: description of the pool type
+        title: list of available pool types
       min_init_deposit_to_pool:
         type: string
+        format: sdk.Int
+        example: '1000000'
+        title: >-
+          Minimum number of coins to be deposited to the liquidity pool upon
+          pool creation
       init_pool_coin_mint_amount:
         type: string
+        format: sdk.Int
+        example: '1000000'
+        title: Initial mint amount of pool coin upon pool creation
       swap_fee_rate:
         type: string
-        format: byte
+        format: sdk.Dec
+        example: '0.003'
+        title: Swap fee rate for every executed swap
       liquidity_pool_creation_fee:
         type: array
+        format: sdk.Coins
+        example:
+          - denom: uatom
+            amount: '100000000'
         items:
           type: object
           properties:
@@ -4503,6 +5546,7 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
+        title: Fee paid for new LiquidityPool creation to prevent spamming
   tendermint.liquidity.QueryLiquidityPoolBatchResponse:
     type: object
     properties:
@@ -4512,23 +5556,37 @@ definitions:
           pool_id:
             type: string
             format: uint64
+            example: '1'
+            title: id of the pool
           batch_index:
             type: string
             format: uint64
+            example: '1'
+            title: index of this batch
           begin_height:
             type: string
             format: int64
+            example: '1000'
+            title: height where this batch is begun
           deposit_msg_index:
             type: string
             format: uint64
+            example: '1'
+            title: last index of BatchPoolDepositMsgs
           withdraw_msg_index:
             type: string
             format: uint64
+            example: '1'
+            title: last index of BatchPoolWithdrawMsgs
           swap_msg_index:
             type: string
             format: uint64
+            example: '1'
+            title: last index of BatchPoolSwapMsgs
           executed:
             type: boolean
+            example: true
+            title: 'true if executed, false if not executed yet'
     description: >-
       QueryLiquidityPoolBatchResponse is the response type for the
       QueryLiquidityPoolBatchResponse RPC method.
@@ -4541,24 +5599,44 @@ definitions:
           pool_id:
             type: string
             format: uint64
+            example: '1'
+            title: id of the pool
           pool_type_index:
             type: integer
-            format: int64
+            format: uint32
+            example: '1'
+            title: index of the pool type
           reserve_coin_denoms:
             type: array
+            example:
+              - denomA
+              - denomB
             items:
               type: string
+            title: denoms of reserve coin pair of the pool
           reserve_account_address:
             type: string
+            format: sdk.AccAddress
+            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+            title: reserve account address of the pool
           pool_coin_denom:
             type: string
+            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+            title: denom of pool coin of the pool
       liquidity_pool_meta_data:
         type: object
         properties:
           pool_id:
             type: string
             format: uint64
+            example: '1'
+            title: id of the pool
           pool_coin_total_supply:
+            format: sdk.Coin
+            example:
+              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              amount: '1000000'
+            title: pool coin issued at the pool
             type: object
             properties:
               denom:
@@ -4575,6 +5653,12 @@ definitions:
               signatures required by gogoproto.
           reserve_coins:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: denomA
+                amount: '1000000'
+              - denom: denomB
+                amount: '2000000'
             items:
               type: object
               properties:
@@ -4590,29 +5674,44 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: reserve coins deposited in the pool
       liquidity_pool_batch:
         type: object
         properties:
           pool_id:
             type: string
             format: uint64
+            example: '1'
+            title: id of the pool
           batch_index:
             type: string
             format: uint64
+            example: '1'
+            title: index of this batch
           begin_height:
             type: string
             format: int64
+            example: '1000'
+            title: height where this batch is begun
           deposit_msg_index:
             type: string
             format: uint64
+            example: '1'
+            title: last index of BatchPoolDepositMsgs
           withdraw_msg_index:
             type: string
             format: uint64
+            example: '1'
+            title: last index of BatchPoolWithdrawMsgs
           swap_msg_index:
             type: string
             format: uint64
+            example: '1'
+            title: last index of BatchPoolSwapMsgs
           executed:
             type: boolean
+            example: true
+            title: 'true if executed, false if not executed yet'
     description: >-
       QueryLiquidityPoolResponse is the response type for the
       QueryLiquidityPoolResponse RPC method.
@@ -4630,28 +5729,44 @@ definitions:
                 pool_id:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: id of the pool
                 batch_index:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: index of this batch
                 begin_height:
                   type: string
                   format: int64
+                  example: '1000'
+                  title: height where this batch is begun
                 deposit_msg_index:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: last index of BatchPoolDepositMsgs
                 withdraw_msg_index:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: last index of BatchPoolWithdrawMsgs
                 swap_msg_index:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: last index of BatchPoolSwapMsgs
                 executed:
                   type: boolean
+                  example: true
+                  title: 'true if executed, false if not executed yet'
           description: >-
             QueryLiquidityPoolBatchResponse is the response type for the
             QueryLiquidityPoolBatchResponse RPC method.
       pagination:
-        description: pagination defines the pagination in the response.
+        title: >-
+          pagination defines the pagination in the response. not working on this
+          version
         type: object
         properties:
           next_key:
@@ -4668,11 +5783,11 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
+        description: |-
+          message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QueryLiquidityPoolsBatchResponse is the response type for the
       QueryLiquidityPoolsBatchResponse RPC method.
@@ -4690,24 +5805,44 @@ definitions:
                 pool_id:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: id of the pool
                 pool_type_index:
                   type: integer
-                  format: int64
+                  format: uint32
+                  example: '1'
+                  title: index of the pool type
                 reserve_coin_denoms:
                   type: array
+                  example:
+                    - denomA
+                    - denomB
                   items:
                     type: string
+                  title: denoms of reserve coin pair of the pool
                 reserve_account_address:
                   type: string
+                  format: sdk.AccAddress
+                  example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                  title: reserve account address of the pool
                 pool_coin_denom:
                   type: string
+                  example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                  title: denom of pool coin of the pool
             liquidity_pool_meta_data:
               type: object
               properties:
                 pool_id:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: id of the pool
                 pool_coin_total_supply:
+                  format: sdk.Coin
+                  example:
+                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    amount: '1000000'
+                  title: pool coin issued at the pool
                   type: object
                   properties:
                     denom:
@@ -4724,6 +5859,12 @@ definitions:
                     signatures required by gogoproto.
                 reserve_coins:
                   type: array
+                  format: sdk.Coins
+                  example:
+                    - denom: denomA
+                      amount: '1000000'
+                    - denom: denomB
+                      amount: '2000000'
                   items:
                     type: object
                     properties:
@@ -4739,34 +5880,51 @@ definitions:
                       custom method
 
                       signatures required by gogoproto.
+                  title: reserve coins deposited in the pool
             liquidity_pool_batch:
               type: object
               properties:
                 pool_id:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: id of the pool
                 batch_index:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: index of this batch
                 begin_height:
                   type: string
                   format: int64
+                  example: '1000'
+                  title: height where this batch is begun
                 deposit_msg_index:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: last index of BatchPoolDepositMsgs
                 withdraw_msg_index:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: last index of BatchPoolWithdrawMsgs
                 swap_msg_index:
                   type: string
                   format: uint64
+                  example: '1'
+                  title: last index of BatchPoolSwapMsgs
                 executed:
                   type: boolean
+                  example: true
+                  title: 'true if executed, false if not executed yet'
           description: >-
             QueryLiquidityPoolResponse is the response type for the
             QueryLiquidityPoolResponse RPC method.
       pagination:
-        description: pagination defines the pagination in the response.
+        title: >-
+          pagination defines the pagination in the response. not working on this
+          version
         type: object
         properties:
           next_key:
@@ -4783,11 +5941,11 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
+        description: |-
+          message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QueryLiquidityPoolsResponse is the response type for the
       QueryLiquidityPoolsResponse RPC method.
@@ -4805,26 +5963,56 @@ definitions:
               properties:
                 pool_type_index:
                   type: integer
-                  format: int64
+                  format: uint32
+                  example: '1'
+                  description: >-
+                    index of target pool type, only 1 is allowed on this
+                    version.
                 name:
                   type: string
+                  example: ConstantProductLiquidityPool
+                  title: name of the pool type
                 min_reserve_coin_num:
                   type: integer
-                  format: int64
+                  format: uint32
+                  example: '2'
+                  title: >-
+                    min number of reserveCoins for LiquidityPoolType only 2 is
+                    allowed on this spec
                 max_reserve_coin_num:
                   type: integer
-                  format: int64
+                  format: uint32
+                  example: '2'
+                  title: >-
+                    max number of reserveCoins for LiquidityPoolType only 2 is
+                    allowed on this spec
                 description:
                   type: string
+                  title: description of the pool type
+            title: list of available pool types
           min_init_deposit_to_pool:
             type: string
+            format: sdk.Int
+            example: '1000000'
+            title: >-
+              Minimum number of coins to be deposited to the liquidity pool upon
+              pool creation
           init_pool_coin_mint_amount:
             type: string
+            format: sdk.Int
+            example: '1000000'
+            title: Initial mint amount of pool coin upon pool creation
           swap_fee_rate:
             type: string
-            format: byte
+            format: sdk.Dec
+            example: '0.003'
+            title: Swap fee rate for every executed swap
           liquidity_pool_creation_fee:
             type: array
+            format: sdk.Coins
+            example:
+              - denom: uatom
+                amount: '100000000'
             items:
               type: object
               properties:
@@ -4840,6 +6028,7 @@ definitions:
                 method
 
                 signatures required by gogoproto.
+            title: Fee paid for new LiquidityPool creation to prevent spamming
     description: >-
       QueryParamsResponse is response type for the QueryParamsResponse RPC
       method.
@@ -4854,26 +6043,47 @@ definitions:
             msg_height:
               type: string
               format: int64
+              example: '1000'
+              title: height where this message is appended to the batch
             msg_index:
               type: string
               format: uint64
+              example: '1'
+              title: index of this deposit message in this liquidity pool
             executed:
               type: boolean
+              example: true
+              title: 'true if executed on this batch, false if not executed yet'
             succeed:
               type: boolean
+              example: true
+              title: 'true if executed successfully on this batch, false if failed'
             to_delete:
               type: boolean
+              example: true
+              title: 'true if ready to delete on kvstore, false if not ready to delete'
             Msg:
+              title: MsgDepositToLiquidityPool
               type: object
               properties:
                 depositor_address:
                   type: string
+                  format: sdk.AccAddress
+                  example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                  description: account address of the origin of this message
                 pool_id:
                   type: string
                   format: uint64
-                  title: id of target pool
+                  example: '1'
+                  title: id of the target pool
                 deposit_coins:
                   type: array
+                  format: sdk.Coins
+                  example:
+                    - denom: denomA
+                      amount: '1000000'
+                    - denom: denomB
+                      amount: '2000000'
                   items:
                     type: object
                     properties:
@@ -4889,19 +6099,27 @@ definitions:
                       custom method
 
                       signatures required by gogoproto.
+                  title: reserve coin pair of the pool to deposit
               description: >-
-                MsgDepositToLiquidityPool defines an sdk.Msg type that supports
-                submitting deposit request to the batch of the liquidity pool
+                `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that
+                supports submitting deposit request to the batch of the
+                liquidity pool
 
                 Deposit submit to the batch of the Liquidity pool with the
-                specified pool-id, deposit coins for reserve
+                specified `pool_id`, deposit coins for reserve
 
                 this requests are stacked in the batch of the liquidity pool,
                 not immediately processed and
 
-                processed in the endblock at once with other requests.
+                processed in the `endblock` at once with other requests.
+
+
+                See:
+                https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
       pagination:
-        description: pagination defines the pagination in the response.
+        title: >-
+          pagination defines the pagination in the response. not working on this
+          version
         type: object
         properties:
           next_key:
@@ -4918,11 +6136,11 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
+        description: |-
+          message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QueryPoolBatchDepositMsgsResponse is the response type for the
       QueryPoolBatchDeposit RPC method.
@@ -4937,19 +6155,38 @@ definitions:
             msg_height:
               type: string
               format: int64
+              example: '1000'
+              title: height where this message is appended to the batch
             msg_index:
               type: string
               format: uint64
+              example: '1'
+              title: index of this swap message in this liquidity pool
             executed:
               type: boolean
+              example: true
+              title: 'true if executed on this batch, false if not executed yet'
             succeed:
               type: boolean
+              example: true
+              title: 'true if executed successfully on this batch, false if failed'
             to_delete:
               type: boolean
+              example: true
+              title: 'true if ready to delete on kvstore, false if not ready to delete'
             order_expiry_height:
               type: string
               format: int64
+              example: '1000'
+              title: >-
+                swap orders are cancelled when current height is equal or higher
+                than ExpiryHeight
             exchanged_offer_coin:
+              format: sdk.Coin
+              example:
+                denom: denomA
+                amount: '600000'
+              title: offer coin exchanged until now
               type: object
               properties:
                 denom:
@@ -4965,6 +6202,11 @@ definitions:
 
                 signatures required by gogoproto.
             remaining_offer_coin:
+              format: sdk.Coin
+              example:
+                denom: denomA
+                amount: '400000'
+              title: offer coin currently remaining to be exchanged
               type: object
               properties:
                 denom:
@@ -4980,28 +6222,39 @@ definitions:
 
                 signatures required by gogoproto.
             msg:
+              title: MsgSwap
               type: object
               properties:
                 swap_requester_address:
                   type: string
+                  format: sdk.AccAddress
+                  example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                  description: account address of the origin of this message
                   title: address of swap requester
                 pool_id:
                   type: string
                   format: uint64
-                  title: id of target pool
+                  example: '1'
+                  title: id of the target pool
                 pool_type_index:
                   type: integer
-                  format: int64
+                  format: uint32
+                  example: '1'
                   description: >-
                     index of target pool type, only 1 is allowed on this
                     version, Must match the value in the pool.
                 swap_type:
                   type: integer
-                  format: int64
+                  format: uint32
+                  example: '1'
                   description: >-
                     id of swap type type, only 1 is allowed on this version,
                     Must match the value in the pool.
                 offer_coin:
+                  format: sdk.Coin
+                  example:
+                    denom: denomA
+                    amount: '1000000'
                   description: >-
                     offer sdk.coin for the swap request, Must match the denom in
                     the pool.
@@ -5013,37 +6266,44 @@ definitions:
                       type: string
                 demand_coin_denom:
                   type: string
+                  example: denomB
                   description: >-
                     denom of demand coin to be exchanged on the swap request,
                     Must match the denom in the pool.
                 order_price:
                   type: string
-                  format: byte
+                  format: sdk.Dec
+                  example: '1.1'
                   title: limit order price for this offer
               description: >-
-                MsgSwap defines an sdk.Msg type that supports submitting swap
+                `MsgSwap` defines an sdk.Msg type that supports submitting swap
                 offer request to the batch of the liquidity pool
 
-                Swap offer to the Liquidity pool with the specified pool-id,
-                pool-type-index, swap-type,
+                Swap offer to the Liquidity pool with the specified `pool_id`,
+                `pool_type_index`, `swap_type`,
 
-                demand-coin-denom with the coin and the price you're offering
+                `demand_coin_denom` with the coin and the price you're offering
 
                 this requests are stacked in the batch of the liquidity pool,
                 not immediately processed and
 
-                processed in the endblock at once with other requests
+                processed in the `endblock` at once with other requests
 
                 You should request the same each field as the pool
 
-                Currently, only the default swap-type 1 is available on this
+                Currently, only the default `swap_type`1 is available on this
                 version
 
-                The detailed swap algorithm can be found here
+                The detailed swap algorithm can be found here.
 
-                https://github.com/tendermint/liquidity .
+
+                See: https://github.com/tendermint/liquidity/tree/develop/doc
+
+                https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
       pagination:
-        description: pagination defines the pagination in the response.
+        title: >-
+          pagination defines the pagination in the response. not working on this
+          version
         type: object
         properties:
           next_key:
@@ -5060,11 +6320,11 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
+        description: |-
+          message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QueryPoolBatchSwapMsgsResponse is the response type for the
       QueryPoolBatchSwap RPC method.
@@ -5079,25 +6339,44 @@ definitions:
             msg_height:
               type: string
               format: int64
+              example: '1000'
+              title: height where this message is appended to the batch
             msg_index:
               type: string
               format: uint64
+              example: '1'
+              title: index of this withdraw message in this liquidity pool
             executed:
               type: boolean
+              example: true
+              title: 'true if executed on this batch, false if not executed yet'
             succeed:
               type: boolean
+              example: true
+              title: 'true if executed successfully on this batch, false if failed'
             to_delete:
               type: boolean
+              example: true
+              title: 'true if ready to delete on kvstore, false if not ready to delete'
             msg:
+              title: MsgWithdrawFromLiquidityPool
               type: object
               properties:
                 withdrawer_address:
                   type: string
+                  format: sdk.AccAddress
+                  example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+                  description: account address of the origin of this message
                 pool_id:
                   type: string
                   format: uint64
-                  title: id of target pool
+                  example: '1'
+                  title: id of the target pool
                 pool_coin:
+                  format: sdk.Coin
+                  example:
+                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    amount: '1000'
                   type: object
                   properties:
                     denom:
@@ -5113,19 +6392,25 @@ definitions:
 
                     signatures required by gogoproto.
               description: >-
-                MsgWithdrawFromLiquidityPool defines an sdk.Msg type that
+                `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that
                 supports submitting withdraw request to the batch of the
                 liquidity pool
 
                 Withdraw submit to the batch from the Liquidity pool with the
-                specified pool-id, pool-coin of the pool
+                specified `pool_id`, `pool_coin` of the pool
 
                 this requests are stacked in the batch of the liquidity pool,
                 not immediately processed and
 
-                processed in the endblock at once with other requests.
+                processed in the `endblock` at once with other requests.
+
+
+                See:
+                https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
       pagination:
-        description: pagination defines the pagination in the response.
+        title: >-
+          pagination defines the pagination in the response. not working on this
+          version
         type: object
         properties:
           next_key:
@@ -5142,11 +6427,11 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
+        description: |-
+          message SomeResponse {
+                   repeated Bar results = 1;
+                   PageResponse page = 2;
+           }
     description: >-
       QueryPoolBatchWithdrawMsgsResponse is the response type for the
       QueryPoolBatchWithdraw RPC method.

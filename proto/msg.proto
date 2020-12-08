@@ -2,6 +2,7 @@ syntax = "proto3";
 package tendermint.liquidity;
 
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "tx.proto";
 
 option go_package = "github.com/tendermint/liquidity/types";
@@ -12,11 +13,31 @@ option go_package = "github.com/tendermint/liquidity/types";
 
 // Msg defines the staking Msg service.
 service MsgApi {
-  // Submit create liquidity pool message
+  // Submit create liquidity pool message.
   rpc CreateLiquidityPoolApi(MsgCreateLiquidityPoolRequest) returns (MsgCreateLiquidityPoolResponse) {
     option (google.api.http) = {
       post: "/liquidity/pools"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
+      tags: "Liquidity Tx Generation";
+      external_docs: {
+        url: "https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec";
+        description: "Find out more message spec and response events here";
+      }
+//      responses: {
+//        key: "500";
+//        value: {
+//          description: "Server internal error";
+//        }
+//      }
+//      responses: {
+//        key: "400";
+//        value: {
+//          description: "Invalid request";
+//        }
+//      }
     };
   };
 
@@ -26,6 +47,14 @@ service MsgApi {
       post: "/liquidity/pools/{pool_id}/batch/deposits"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
+      tags: "Liquidity Tx Generation";
+      external_docs: {
+        url: "https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec";
+        description: "Find out more message spec and response events here";
+      }
+    };
   };
 
   // Submit withdraw from to the liquidity pool batch
@@ -34,6 +63,14 @@ service MsgApi {
       post: "/liquidity/pools/{pool_id}/batch/withdraws"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
+      tags: "Liquidity Tx Generation";
+      external_docs: {
+        url: "https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec";
+        description: "Find out more message spec and response events here";
+      }
+    };
   };
 
   // Submit swap to the liquidity pool batch
@@ -41,6 +78,14 @@ service MsgApi {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/swaps"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
+      tags: "Liquidity Tx Generation";
+      external_docs: {
+        url: "https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec";
+        description: "Find out more message spec and response events here";
+      }
     };
   };
 }

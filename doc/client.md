@@ -22,8 +22,8 @@ Implemented query cli
 Progress REST/API
 
 - [x] some querys of REST api using grpc model
+- [ ] query pagination
 - [ ] txs
-- [ ] pagenation
 
 
 ## Tx

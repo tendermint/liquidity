@@ -276,7 +276,7 @@ func (m *QueryLiquidityPoolsRequest) GetPagination() *query.PageRequest {
 // QueryLiquidityPoolsResponse is the response type for the QueryLiquidityPoolsResponse RPC method.
 type QueryLiquidityPoolsResponse struct {
 	LiquidityPoolsResponse []QueryLiquidityPoolResponse `protobuf:"bytes,1,rep,name=liquidity_pools_response,json=liquidityPoolsResponse,proto3" json:"liquidity_pools_response"`
-	// pagination defines the pagination in the response.
+	// pagination defines the pagination in the response. not working on this version
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -376,7 +376,7 @@ func (m *QueryLiquidityPoolsBatchRequest) GetPagination() *query.PageRequest {
 // QueryLiquidityPoolsBatchResponse is the response type for the QueryLiquidityPoolsBatchResponse RPC method.
 type QueryLiquidityPoolsBatchResponse struct {
 	LiquidityPoolsBatchResponse []QueryLiquidityPoolBatchResponse `protobuf:"bytes,1,rep,name=liquidity_pools_batch_response,json=liquidityPoolsBatchResponse,proto3" json:"liquidity_pools_batch_response"`
-	// pagination defines the pagination in the response.
+	// pagination defines the pagination in the response. not working on this version
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -568,7 +568,7 @@ func (m *QueryPoolBatchSwapMsgsRequest) GetPagination() *query.PageRequest {
 // QueryPoolBatchSwapMsgsResponse is the response type for the QueryPoolBatchSwap RPC method.
 type QueryPoolBatchSwapMsgsResponse struct {
 	SwapMsgs []BatchPoolSwapMsg `protobuf:"bytes,1,rep,name=swap_msgs,json=swapMsgs,proto3" json:"swap_msgs"`
-	// pagination defines the pagination in the response.
+	// pagination defines the pagination in the response. not working on this version
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -677,7 +677,7 @@ func (m *QueryPoolBatchDepositMsgsRequest) GetPagination() *query.PageRequest {
 // QueryPoolBatchDepositMsgsResponse is the response type for the QueryPoolBatchDeposit RPC method.
 type QueryPoolBatchDepositMsgsResponse struct {
 	DepositMsgs []BatchPoolDepositMsg `protobuf:"bytes,1,rep,name=deposit_msgs,json=depositMsgs,proto3" json:"deposit_msgs"`
-	// pagination defines the pagination in the response.
+	// pagination defines the pagination in the response. not working on this version
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -786,7 +786,7 @@ func (m *QueryPoolBatchWithdrawMsgsRequest) GetPagination() *query.PageRequest {
 // QueryPoolBatchWithdrawMsgsResponse is the response type for the QueryPoolBatchWithdraw RPC method.
 type QueryPoolBatchWithdrawMsgsResponse struct {
 	WithdrawMsgs []BatchPoolWithdrawMsg `protobuf:"bytes,1,rep,name=withdraw_msgs,json=withdrawMsgs,proto3" json:"withdraw_msgs"`
-	// pagination defines the pagination in the response.
+	// pagination defines the pagination in the response. not working on this version
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
