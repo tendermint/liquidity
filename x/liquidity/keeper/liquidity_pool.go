@@ -387,7 +387,6 @@ func (k Keeper) ValidateMsgSwap(ctx sdk.Context, msg types.MsgSwap) error {
 	}
 
 	if !msg.OfferCoinFee.Equal(types.GetOfferCoinFee(msg.OfferCoin)) {
-		fmt.Println(msg.OfferCoinFee, types.GetOfferCoinFee(msg.OfferCoin))
 		return types.ErrBadOfferCoinFee
 	}
 
@@ -683,19 +682,6 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 		return err
 	}
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
-		// TODO: delete debugging log
-		for _, i := range inputs {
-			fmt.Println("input", i.Address, i.Coins)
-			acc, _ := sdk.AccAddressFromBech32(i.Address)
-			fmt.Println(k.bankKeeper.GetAllBalances(ctx, acc))
-		}
-		for _, i := range outputs {
-			fmt.Println("output", i.Address, i.Coins)
-			acc, _ := sdk.AccAddressFromBech32(i.Address)
-			fmt.Println(k.bankKeeper.GetAllBalances(ctx, acc))
-		}
-		//fmt.Println(inputs)
-		//fmt.Println(outputs)
 		return err
 	}
 	k.SetLiquidityPoolBatchSwapMsgPointers(ctx, pool.PoolId, batchMsgs)
