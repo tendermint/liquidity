@@ -47,10 +47,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
 	result := types.MatchOrderbook(X, Y, currentYPriceOverX, orderBook)
-	fmt.Println("batch Result before", result)
 
 	// find order match, calculate pool delta with the total x, y amount for the invariant check
-	fmt.Println("before XtoY, YtoX", len(XtoY), len(YtoX))
 	beforeXtoYLen := len(XtoY)
 	beforeYtoXLen := len(YtoX)
 	var matchResultXtoY, matchResultYtoX []types.MatchResult
@@ -70,9 +68,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		k.UpdateState(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
 	lastPrice := X.Quo(Y)
-	fmt.Println("lastPrice ", lastPrice)
 
-	fmt.Println("result.SwapPrice, X, Y, currentYPriceOverX", result.SwapPrice, X, Y, currentYPriceOverX)
 	if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != (types.MsgList)(XtoY).CountNotMatchedMsgs()+(types.MsgList)(XtoY).CountFractionalMatchedMsgs() {
 		panic(beforeXtoYLen)
 	}
@@ -84,7 +80,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	totalAmtY := sdk.ZeroInt()
 
 	for _, mr := range matchResultXtoY {
-		fmt.Println("matchResultXtoY", mr)
 		totalAmtX = totalAmtX.Sub(mr.TransactedCoinAmt)
 		totalAmtY = totalAmtY.Add(mr.ExchangedDemandCoinAmt)
 	}
@@ -96,7 +91,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	totalAmtY = sdk.ZeroInt()
 
 	for _, mr := range matchResultYtoX {
-		fmt.Println("matchResultYtoX", mr)
 		totalAmtY = totalAmtY.Sub(mr.TransactedCoinAmt)
 		totalAmtX = totalAmtX.Add(mr.ExchangedDemandCoinAmt)
 	}
@@ -109,25 +103,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	// print the invariant check and validity with swap, match result
 	if invariantCheckX.IsZero() && invariantCheckY.IsZero() {
-		fmt.Println("swap execution invariant check: True")
 	} else {
-		fmt.Println("swap execution invariant check: False", invariantCheckX, invariantCheckY)
 		panic(invariantCheckX)
 	}
-
-	if result.MatchType == 1 {
-		fmt.Println("matchType: ", "ExactMatch")
-	} else if result.MatchType == 2 {
-		fmt.Println("matchType: ", "No Match")
-	} else if result.MatchType == 3 {
-		fmt.Println("matchType: ", "FractionalMatch")
-	}
-
-	fmt.Println("swapPrice: ", result.SwapPrice)
-	fmt.Println("matchResultXtoY: ", matchResultXtoY)
-	fmt.Println("matchResultYtoX: ", matchResultYtoX)
-	fmt.Println("matched totalAmtX, totalAmtY", totalAmtX, totalAmtY)
-	fmt.Println("poolXdelta, poolYdelta", poolXdelta, poolYdelta, poolXdelta2, poolYdelta2)
 
 	if !poolXdelta.Add(decimalErrorX).Equal(poolXdelta2) || !poolYdelta.Add(decimalErrorY).Equal(poolYdelta2) {
 		panic(poolXdelta)
@@ -138,12 +116,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
-	fmt.Println("orderbook after batch")
 	orderBookValidity := types.CheckValidityOrderBook(orderBookExecuted, lastPrice)
-	for _, v := range orderBookExecuted {
-		fmt.Println(v)
-	}
-	fmt.Println("orderBookValidity:", orderBookValidity)
 	if !orderBookValidity {
 		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity")
 		panic(types.ErrOrderBookInvalidity)
@@ -151,7 +124,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	// TODO: WIP new validity
 	validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
-	fmt.Println("validitySwapPrice:", validitySwapPrice)
 	if !validitySwapPrice {
 		panic("validitySwapPrice")
 	}
@@ -297,9 +269,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 			// full match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
 				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt))
-			fmt.Println(match)
-			fmt.Println(match.BatchMsg)
-			fmt.Println(match.BatchMsg.RemainingOfferCoin, sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt))
 
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
 			match.BatchMsg.OfferCoinFeeReserve = types.CoinSafeSubAmount(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt)
@@ -355,9 +324,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 			// full match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
 				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt))
-			fmt.Println(match)
-			fmt.Println(match.BatchMsg)
-			fmt.Println(match.BatchMsg.RemainingOfferCoin, sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
 			match.BatchMsg.OfferCoinFeeReserve = types.CoinSafeSubAmount(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt)
 			if match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).

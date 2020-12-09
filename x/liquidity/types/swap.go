@@ -197,15 +197,12 @@ func MatchOrderbook(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result Bat
 	priceDirection := GetPriceDirection(currentPrice, orderBook)
 
 	if priceDirection == Stay {
-		fmt.Println("priceDirection: stay")
 		return CalculateMatchStay(currentPrice, orderBook)
 	} else { // Increase, Decrease
 		if priceDirection == Decrease {
 			orderBook.Reverse()
-			fmt.Println("priceDirection: decrease")
-		} else {
-			fmt.Println("priceDirection: increase")
 		}
+
 		return CalculateMatch(priceDirection, X, Y, currentPrice, orderBook)
 	}
 }
@@ -226,11 +223,6 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 	// TODO: fix naive error rate
 	oneOverWithErr, _ := sdk.NewDecFromStr("1.10")
 	oneUnderWithErr, _ := sdk.NewDecFromStr("0.90")
-
-	fmt.Println(maxBuyOrderPrice.GT(minSellOrderPrice),
-		maxBuyOrderPrice.Quo(currentPrice).GT(oneOverWithErr),
-		minSellOrderPrice.Quo(currentPrice).LT(oneUnderWithErr), maxBuyOrderPrice, minSellOrderPrice, currentPrice,
-		maxBuyOrderPrice.Quo(currentPrice), minSellOrderPrice.Quo(currentPrice))
 
 	if maxBuyOrderPrice.GT(minSellOrderPrice) ||
 		maxBuyOrderPrice.Quo(currentPrice).GT(oneOverWithErr) ||
