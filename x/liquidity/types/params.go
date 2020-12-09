@@ -43,6 +43,17 @@ var (
 	DefaultOfferCoinAmount          = sdk.NewInt(1000)
 	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultLiquidityPoolCreationFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
+
+	// It will be variables as params on Milestone 2
+	DefaultLiquidityModuleMessageFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(50000)))
+	defaultWithdrawalFeeRate, _ = sdk.NewDecFromStr("0.1")
+	DefaultWithdrawalFeeRate = defaultWithdrawalFeeRate
+
+	halfRatio, _ = sdk.NewDecFromStr("0.5")
+	HalfRatio = halfRatio
+
+	DecimalErrThreshold = sdk.NewDecFromIntWithPrec(sdk.OneInt(), 10)
+
 	DefaultLiquidityPoolType        = LiquidityPoolType{
 		PoolTypeIndex:     1,
 		Name:              "DefaultPoolType",

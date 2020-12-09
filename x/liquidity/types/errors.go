@@ -40,4 +40,5 @@ var (
 	ErrBadBatchMsgIndex             = sdkerrors.Register(ModuleName, 32, "bad msg index of the batch")
 	ErrSwapTypeNotExists            = sdkerrors.Register(ModuleName, 33, "swap type not exists")
 	ErrLessThanMinOfferAmount       = sdkerrors.Register(ModuleName, 34, "offer amount should over 1000 micro")
+	ErrBadOfferCoinFee       = sdkerrors.Register(ModuleName, 35, "bad offer coin fee")
 )

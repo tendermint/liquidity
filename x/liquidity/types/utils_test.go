@@ -52,3 +52,37 @@ func TestGetPoolReserveAcc(t *testing.T) {
 	require.Equal(t, "cosmos18gvpvm3lrzx6rs6yq5c6klnye2t5qumm3v3re8", reserveAcc.String())
 	require.Equal(t, "cosmos18gvpvm3lrzx6rs6yq5c6klnye2t5qumm3v3re8", types.GetPoolCoinDenom(reserveAcc))
 }
+
+// WIP for check equal approximately OfferCoinFee
+//func TestEqualApprox(t *testing.T) {
+//	decA, err := sdk.NewDecFromStr("10000000000000000.0000000001")
+//	require.NoError(t, err)
+//	decB, err := sdk.NewDecFromStr("10000000000000000.00000000021")
+//	require.NoError(t, err)
+//
+//	decC, err := sdk.NewDecFromStr("10000000000000000.00000000001")
+//	require.NoError(t, err)
+//	decD, err := sdk.NewDecFromStr("10000000000000000.00000000002")
+//	require.NoError(t, err)
+//
+//	decE, err := sdk.NewDecFromStr("10000000000000000.000000001")
+//	require.NoError(t, err)
+//	decF, err := sdk.NewDecFromStr("10000000000000000.000000002")
+//	require.NoError(t, err)
+//
+//	// TODO: fix
+//	require.False(t, decA.Equal(decB))
+//	require.False(t, types.EqualApprox(decA, decB))
+//
+//	require.False(t, decC.Equal(decD))
+//	require.True(t, types.EqualApprox(decC, decD))
+//
+//	require.False(t, decE.Equal(decF))
+//	require.True(t, types.EqualApprox(decE, decF))
+//
+//	fmt.Println(decA)
+//	fmt.Println(decB)
+//	fmt.Println(sdk.NewDecWithPrec(1, 10).MulInt64(10000000000))
+//	fmt.Println(sdk.NewDecWithPrec(1, 10).MulInt64(10000000000))
+//	fmt.Println(sdk.NewDecWithPrec(1, 11).MulInt64(10000000000))
+//}

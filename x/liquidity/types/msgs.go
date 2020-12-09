@@ -230,9 +230,19 @@ func NewMsgSwap(
 		PoolTypeIndex:        poolTypeIndex,
 		SwapType:             swapType,
 		OfferCoin:            offerCoin,
+		OfferCoinFee:         GetOfferCoinFee(offerCoin),
 		DemandCoinDenom:      demandCoinDenom,
 		OrderPrice:           orderPrice,
 	}
+}
+
+// TODO: half-half fee
+func (msg MsgSwap) GetOfferCoinFee() sdk.Coin {
+	return GetOfferCoinFee(msg.OfferCoin)
+}
+// TODO: half-half fee
+func GetOfferCoinFee(offerCoin sdk.Coin) sdk.Coin {
+	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(DefaultSwapFeeRate.Mul(HalfRatio)).TruncateInt())
 }
 
 // Route implements Msg.
