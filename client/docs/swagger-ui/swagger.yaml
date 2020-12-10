@@ -24,9 +24,6 @@ paths:
                 properties:
                   msg:
                     type: array
-                    example:
-                      - MsgDepositToLiquidityPool
-                      - MsgSwap
                     items:
                       type: string
                     title: Msgs
@@ -37,13 +34,8 @@ paths:
                       gas:
                         type: string
                         format: uint64
-                        example: '200000'
                       amount:
                         type: array
-                        format: sdk.Coins
-                        example:
-                          - denom: uatom
-                            amount: '10'
                         items:
                           type: object
                           properties:
@@ -70,8 +62,6 @@ paths:
                     properties:
                       signature:
                         type: string
-                        example: >-
-                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                         title: signature base64
                       pub_key:
                         title: PubKey
@@ -79,23 +69,19 @@ paths:
                         properties:
                           type:
                             type: string
-                            example: tendermint/PubKeySecp256k1
                             title: type of pubkey algorithm
                           value:
                             type: string
-                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
                             title: value of pubkey
                       account_number:
                         type: string
                         format: uint64
-                        example: '1421'
                         title: >-
                           The account number of the signing account (offline
                           mode only)
                       sequence:
                         type: string
                         format: uint64
-                        example: '13'
                         title: >-
                           The sequence number of the signing account (offline
                           mode only)
@@ -139,44 +125,33 @@ paths:
                 properties:
                   from:
                     type: string
-                    format: sdk.AccAddress
-                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
-                    example: Sent via Cosmos Voyager
                     title: Memo to send along with transaction
                   chain_id:
                     type: string
-                    example: Cosmos-Hub
                     title: Name or address of private key with which to sign
                   account_number:
                     type: string
                     format: uint64
-                    example: '1421'
                     title: >-
                       The account number of the signing account (offline mode
                       only)
                   sequence:
                     type: string
                     format: uint64
-                    example: '13'
                     title: >-
                       The sequence number of the signing account (offline mode
                       only)
                   timeout_height:
                     type: string
                     format: uint64
-                    example: '200'
                     title: >-
                       Set a block timeout height to prevent the tx from being
                       committed past a certain height
                   fees:
                     type: array
-                    format: sdk.Coins
-                    example:
-                      - denom: uatom
-                        amount: '10'
                     items:
                       type: object
                       properties:
@@ -195,10 +170,6 @@ paths:
                     title: Fees to pay along with transaction
                   gas_prices:
                     type: array
-                    format: sdk.DecCoins
-                    example:
-                      - denom: uatom
-                        amount: '0.1'
                     items:
                       type: object
                       properties:
@@ -221,19 +192,15 @@ paths:
                   gas:
                     type: string
                     format: uint64
-                    example: '200000'
                     title: Gas amount to determine the transaction fee
                   gas_adjustment:
                     type: string
-                    format: sdk.Dec
-                    example: '1.2'
                     title: >-
                       adjustment factor to be multiplied against the estimate
                       returned by the tx simulation; if the gas limit is set
                       manually this flag is ignored
                   simulate:
                     type: boolean
-                    example: false
                     title: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
@@ -246,32 +213,20 @@ paths:
                 properties:
                   pool_creator_address:
                     type: string
-                    format: sdk.AccAddress
-                    example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                     description: account address of the origin of this message
                   pool_type_index:
                     type: integer
-                    format: uint32
-                    example: '1'
+                    format: int64
                     description: >-
                       index of target pool type, only 1 is allowed on this
                       version, Must match the value in the pool.
                   reserve_coin_denoms:
                     type: array
-                    example:
-                      - denomA
-                      - denomB
                     items:
                       type: string
                     title: denoms of reserve coin pair of the pool
                   deposit_coins:
                     type: array
-                    format: sdk.Coins
-                    example:
-                      - denom: denomA
-                        amount: '1000000'
-                      - denom: denomB
-                        amount: '2000000'
                     items:
                       type: object
                       properties:
@@ -316,29 +271,21 @@ paths:
                         pool_id:
                           type: string
                           format: uint64
-                          example: '1'
                           title: id of the pool
                         pool_type_index:
                           type: integer
-                          format: uint32
-                          example: '1'
+                          format: int64
                           title: index of the pool type
                         reserve_coin_denoms:
                           type: array
-                          example:
-                            - denomA
-                            - denomB
                           items:
                             type: string
                           title: denoms of reserve coin pair of the pool
                         reserve_account_address:
                           type: string
-                          format: sdk.AccAddress
-                          example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                           title: reserve account address of the pool
                         pool_coin_denom:
                           type: string
-                          example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                           title: denom of pool coin of the pool
                     liquidity_pool_meta_data:
                       type: object
@@ -346,13 +293,8 @@ paths:
                         pool_id:
                           type: string
                           format: uint64
-                          example: '1'
                           title: id of the pool
                         pool_coin_total_supply:
-                          format: sdk.Coin
-                          example:
-                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                            amount: '1000000'
                           title: pool coin issued at the pool
                           type: object
                           properties:
@@ -371,12 +313,6 @@ paths:
                             signatures required by gogoproto.
                         reserve_coins:
                           type: array
-                          format: sdk.Coins
-                          example:
-                            - denom: denomA
-                              amount: '1000000'
-                            - denom: denomB
-                              amount: '2000000'
                           items:
                             type: object
                             properties:
@@ -400,36 +336,29 @@ paths:
                         pool_id:
                           type: string
                           format: uint64
-                          example: '1'
                           title: id of the pool
                         batch_index:
                           type: string
                           format: uint64
-                          example: '1'
                           title: index of this batch
                         begin_height:
                           type: string
                           format: int64
-                          example: '1000'
                           title: height where this batch is begun
                         deposit_msg_index:
                           type: string
                           format: uint64
-                          example: '1'
                           title: last index of BatchPoolDepositMsgs
                         withdraw_msg_index:
                           type: string
                           format: uint64
-                          example: '1'
                           title: last index of BatchPoolWithdrawMsgs
                         swap_msg_index:
                           type: string
                           format: uint64
-                          example: '1'
                           title: last index of BatchPoolSwapMsgs
                         executed:
                           type: boolean
-                          example: true
                           title: 'true if executed, false if not executed yet'
                   description: >-
                     QueryLiquidityPoolResponse is the response type for the
@@ -551,9 +480,6 @@ paths:
                 properties:
                   msg:
                     type: array
-                    example:
-                      - MsgDepositToLiquidityPool
-                      - MsgSwap
                     items:
                       type: string
                     title: Msgs
@@ -564,13 +490,8 @@ paths:
                       gas:
                         type: string
                         format: uint64
-                        example: '200000'
                       amount:
                         type: array
-                        format: sdk.Coins
-                        example:
-                          - denom: uatom
-                            amount: '10'
                         items:
                           type: object
                           properties:
@@ -597,8 +518,6 @@ paths:
                     properties:
                       signature:
                         type: string
-                        example: >-
-                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                         title: signature base64
                       pub_key:
                         title: PubKey
@@ -606,23 +525,19 @@ paths:
                         properties:
                           type:
                             type: string
-                            example: tendermint/PubKeySecp256k1
                             title: type of pubkey algorithm
                           value:
                             type: string
-                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
                             title: value of pubkey
                       account_number:
                         type: string
                         format: uint64
-                        example: '1421'
                         title: >-
                           The account number of the signing account (offline
                           mode only)
                       sequence:
                         type: string
                         format: uint64
-                        example: '13'
                         title: >-
                           The sequence number of the signing account (offline
                           mode only)
@@ -672,44 +587,33 @@ paths:
                 properties:
                   from:
                     type: string
-                    format: sdk.AccAddress
-                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
-                    example: Sent via Cosmos Voyager
                     title: Memo to send along with transaction
                   chain_id:
                     type: string
-                    example: Cosmos-Hub
                     title: Name or address of private key with which to sign
                   account_number:
                     type: string
                     format: uint64
-                    example: '1421'
                     title: >-
                       The account number of the signing account (offline mode
                       only)
                   sequence:
                     type: string
                     format: uint64
-                    example: '13'
                     title: >-
                       The sequence number of the signing account (offline mode
                       only)
                   timeout_height:
                     type: string
                     format: uint64
-                    example: '200'
                     title: >-
                       Set a block timeout height to prevent the tx from being
                       committed past a certain height
                   fees:
                     type: array
-                    format: sdk.Coins
-                    example:
-                      - denom: uatom
-                        amount: '10'
                     items:
                       type: object
                       properties:
@@ -728,10 +632,6 @@ paths:
                     title: Fees to pay along with transaction
                   gas_prices:
                     type: array
-                    format: sdk.DecCoins
-                    example:
-                      - denom: uatom
-                        amount: '0.1'
                     items:
                       type: object
                       properties:
@@ -754,19 +654,15 @@ paths:
                   gas:
                     type: string
                     format: uint64
-                    example: '200000'
                     title: Gas amount to determine the transaction fee
                   gas_adjustment:
                     type: string
-                    format: sdk.Dec
-                    example: '1.2'
                     title: >-
                       adjustment factor to be multiplied against the estimate
                       returned by the tx simulation; if the gas limit is set
                       manually this flag is ignored
                   simulate:
                     type: boolean
-                    example: false
                     title: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
@@ -776,7 +672,6 @@ paths:
               pool_id:
                 type: string
                 format: uint64
-                example: '1'
                 title: id of the target pool
               msg:
                 title: MsgDepositToLiquidityPool
@@ -784,22 +679,13 @@ paths:
                 properties:
                   depositor_address:
                     type: string
-                    format: sdk.AccAddress
-                    example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                     description: account address of the origin of this message
                   pool_id:
                     type: string
                     format: uint64
-                    example: '1'
                     title: id of the target pool
                   deposit_coins:
                     type: array
-                    format: sdk.Coins
-                    example:
-                      - denom: denomA
-                        amount: '1000000'
-                      - denom: denomB
-                        amount: '2000000'
                     items:
                       type: object
                       properties:
@@ -857,28 +743,23 @@ paths:
                     msg_height:
                       type: string
                       format: int64
-                      example: '1000'
                       title: height where this message is appended to the batch
                     msg_index:
                       type: string
                       format: uint64
-                      example: '1'
                       title: index of this deposit message in this liquidity pool
                     executed:
                       type: boolean
-                      example: true
                       title: >-
                         true if executed on this batch, false if not executed
                         yet
                     succeed:
                       type: boolean
-                      example: true
                       title: >-
                         true if executed successfully on this batch, false if
                         failed
                     to_delete:
                       type: boolean
-                      example: true
                       title: >-
                         true if ready to delete on kvstore, false if not ready
                         to delete
@@ -888,22 +769,13 @@ paths:
                       properties:
                         depositor_address:
                           type: string
-                          format: sdk.AccAddress
-                          example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                           description: account address of the origin of this message
                         pool_id:
                           type: string
                           format: uint64
-                          example: '1'
                           title: id of the target pool
                         deposit_coins:
                           type: array
-                          format: sdk.Coins
-                          example:
-                            - denom: denomA
-                              amount: '1000000'
-                            - denom: denomB
-                              amount: '2000000'
                           items:
                             type: object
                             properties:
@@ -1060,9 +932,6 @@ paths:
                 properties:
                   msg:
                     type: array
-                    example:
-                      - MsgDepositToLiquidityPool
-                      - MsgSwap
                     items:
                       type: string
                     title: Msgs
@@ -1073,13 +942,8 @@ paths:
                       gas:
                         type: string
                         format: uint64
-                        example: '200000'
                       amount:
                         type: array
-                        format: sdk.Coins
-                        example:
-                          - denom: uatom
-                            amount: '10'
                         items:
                           type: object
                           properties:
@@ -1106,8 +970,6 @@ paths:
                     properties:
                       signature:
                         type: string
-                        example: >-
-                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                         title: signature base64
                       pub_key:
                         title: PubKey
@@ -1115,23 +977,19 @@ paths:
                         properties:
                           type:
                             type: string
-                            example: tendermint/PubKeySecp256k1
                             title: type of pubkey algorithm
                           value:
                             type: string
-                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
                             title: value of pubkey
                       account_number:
                         type: string
                         format: uint64
-                        example: '1421'
                         title: >-
                           The account number of the signing account (offline
                           mode only)
                       sequence:
                         type: string
                         format: uint64
-                        example: '13'
                         title: >-
                           The sequence number of the signing account (offline
                           mode only)
@@ -1179,44 +1037,33 @@ paths:
                 properties:
                   from:
                     type: string
-                    format: sdk.AccAddress
-                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
-                    example: Sent via Cosmos Voyager
                     title: Memo to send along with transaction
                   chain_id:
                     type: string
-                    example: Cosmos-Hub
                     title: Name or address of private key with which to sign
                   account_number:
                     type: string
                     format: uint64
-                    example: '1421'
                     title: >-
                       The account number of the signing account (offline mode
                       only)
                   sequence:
                     type: string
                     format: uint64
-                    example: '13'
                     title: >-
                       The sequence number of the signing account (offline mode
                       only)
                   timeout_height:
                     type: string
                     format: uint64
-                    example: '200'
                     title: >-
                       Set a block timeout height to prevent the tx from being
                       committed past a certain height
                   fees:
                     type: array
-                    format: sdk.Coins
-                    example:
-                      - denom: uatom
-                        amount: '10'
                     items:
                       type: object
                       properties:
@@ -1235,10 +1082,6 @@ paths:
                     title: Fees to pay along with transaction
                   gas_prices:
                     type: array
-                    format: sdk.DecCoins
-                    example:
-                      - denom: uatom
-                        amount: '0.1'
                     items:
                       type: object
                       properties:
@@ -1261,19 +1104,15 @@ paths:
                   gas:
                     type: string
                     format: uint64
-                    example: '200000'
                     title: Gas amount to determine the transaction fee
                   gas_adjustment:
                     type: string
-                    format: sdk.Dec
-                    example: '1.2'
                     title: >-
                       adjustment factor to be multiplied against the estimate
                       returned by the tx simulation; if the gas limit is set
                       manually this flag is ignored
                   simulate:
                     type: boolean
-                    example: false
                     title: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
@@ -1283,7 +1122,6 @@ paths:
               pool_id:
                 type: string
                 format: uint64
-                example: '1'
                 title: id of the target pool
               msg:
                 title: MsgSwap
@@ -1291,34 +1129,25 @@ paths:
                 properties:
                   swap_requester_address:
                     type: string
-                    format: sdk.AccAddress
-                    example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                     description: account address of the origin of this message
                     title: address of swap requester
                   pool_id:
                     type: string
                     format: uint64
-                    example: '1'
                     title: id of the target pool
                   pool_type_index:
                     type: integer
-                    format: uint32
-                    example: '1'
+                    format: int64
                     description: >-
                       index of target pool type, only 1 is allowed on this
                       version, Must match the value in the pool.
                   swap_type:
                     type: integer
-                    format: uint32
-                    example: '1'
+                    format: int64
                     description: >-
                       id of swap type type, only 1 is allowed on this version,
                       Must match the value in the pool.
                   offer_coin:
-                    format: sdk.Coin
-                    example:
-                      denom: denomA
-                      amount: '1000000'
                     description: >-
                       offer sdk.coin for the swap request, Must match the denom
                       in the pool.
@@ -1330,14 +1159,28 @@ paths:
                         type: string
                   demand_coin_denom:
                     type: string
-                    example: denomB
                     description: >-
                       denom of demand coin to be exchanged on the swap request,
                       Must match the denom in the pool.
+                  offer_coin_fee:
+                    title: offer coin fee for pay fees in half offer coin
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a coin with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
                   order_price:
                     type: string
-                    format: sdk.Dec
-                    example: '1.1'
+                    format: byte
                     title: limit order price for this offer
                 description: >-
                   `MsgSwap` defines an sdk.Msg type that supports submitting
@@ -1388,43 +1231,33 @@ paths:
                     msg_height:
                       type: string
                       format: int64
-                      example: '1000'
                       title: height where this message is appended to the batch
                     msg_index:
                       type: string
                       format: uint64
-                      example: '1'
                       title: index of this swap message in this liquidity pool
                     executed:
                       type: boolean
-                      example: true
                       title: >-
                         true if executed on this batch, false if not executed
                         yet
                     succeed:
                       type: boolean
-                      example: true
                       title: >-
                         true if executed successfully on this batch, false if
                         failed
                     to_delete:
                       type: boolean
-                      example: true
                       title: >-
                         true if ready to delete on kvstore, false if not ready
                         to delete
                     order_expiry_height:
                       type: string
                       format: int64
-                      example: '1000'
                       title: >-
                         swap orders are cancelled when current height is equal
                         or higher than ExpiryHeight
                     exchanged_offer_coin:
-                      format: sdk.Coin
-                      example:
-                        denom: denomA
-                        amount: '600000'
                       title: offer coin exchanged until now
                       type: object
                       properties:
@@ -1441,10 +1274,6 @@ paths:
 
                         signatures required by gogoproto.
                     remaining_offer_coin:
-                      format: sdk.Coin
-                      example:
-                        denom: denomA
-                        amount: '400000'
                       title: offer coin currently remaining to be exchanged
                       type: object
                       properties:
@@ -1460,40 +1289,47 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                    msg:
+                    OfferCoinFeeReserve:
+                      title: reserve fee for pays fee in half offer coin
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    Msg:
                       title: MsgSwap
                       type: object
                       properties:
                         swap_requester_address:
                           type: string
-                          format: sdk.AccAddress
-                          example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                           description: account address of the origin of this message
                           title: address of swap requester
                         pool_id:
                           type: string
                           format: uint64
-                          example: '1'
                           title: id of the target pool
                         pool_type_index:
                           type: integer
-                          format: uint32
-                          example: '1'
+                          format: int64
                           description: >-
                             index of target pool type, only 1 is allowed on this
                             version, Must match the value in the pool.
                         swap_type:
                           type: integer
-                          format: uint32
-                          example: '1'
+                          format: int64
                           description: >-
                             id of swap type type, only 1 is allowed on this
                             version, Must match the value in the pool.
                         offer_coin:
-                          format: sdk.Coin
-                          example:
-                            denom: denomA
-                            amount: '1000000'
                           description: >-
                             offer sdk.coin for the swap request, Must match the
                             denom in the pool.
@@ -1505,14 +1341,29 @@ paths:
                               type: string
                         demand_coin_denom:
                           type: string
-                          example: denomB
                           description: >-
                             denom of demand coin to be exchanged on the swap
                             request, Must match the denom in the pool.
+                        offer_coin_fee:
+                          title: offer coin fee for pay fees in half offer coin
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a coin with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         order_price:
                           type: string
-                          format: sdk.Dec
-                          example: '1.1'
+                          format: byte
                           title: limit order price for this offer
                       description: >-
                         `MsgSwap` defines an sdk.Msg type that supports
@@ -1665,9 +1516,6 @@ paths:
                 properties:
                   msg:
                     type: array
-                    example:
-                      - MsgDepositToLiquidityPool
-                      - MsgSwap
                     items:
                       type: string
                     title: Msgs
@@ -1678,13 +1526,8 @@ paths:
                       gas:
                         type: string
                         format: uint64
-                        example: '200000'
                       amount:
                         type: array
-                        format: sdk.Coins
-                        example:
-                          - denom: uatom
-                            amount: '10'
                         items:
                           type: object
                           properties:
@@ -1711,8 +1554,6 @@ paths:
                     properties:
                       signature:
                         type: string
-                        example: >-
-                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                         title: signature base64
                       pub_key:
                         title: PubKey
@@ -1720,23 +1561,19 @@ paths:
                         properties:
                           type:
                             type: string
-                            example: tendermint/PubKeySecp256k1
                             title: type of pubkey algorithm
                           value:
                             type: string
-                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
                             title: value of pubkey
                       account_number:
                         type: string
                         format: uint64
-                        example: '1421'
                         title: >-
                           The account number of the signing account (offline
                           mode only)
                       sequence:
                         type: string
                         format: uint64
-                        example: '13'
                         title: >-
                           The sequence number of the signing account (offline
                           mode only)
@@ -1786,44 +1623,33 @@ paths:
                 properties:
                   from:
                     type: string
-                    format: sdk.AccAddress
-                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: Sender address or Keybase name to generate a transaction
                   memo:
                     type: string
-                    example: Sent via Cosmos Voyager
                     title: Memo to send along with transaction
                   chain_id:
                     type: string
-                    example: Cosmos-Hub
                     title: Name or address of private key with which to sign
                   account_number:
                     type: string
                     format: uint64
-                    example: '1421'
                     title: >-
                       The account number of the signing account (offline mode
                       only)
                   sequence:
                     type: string
                     format: uint64
-                    example: '13'
                     title: >-
                       The sequence number of the signing account (offline mode
                       only)
                   timeout_height:
                     type: string
                     format: uint64
-                    example: '200'
                     title: >-
                       Set a block timeout height to prevent the tx from being
                       committed past a certain height
                   fees:
                     type: array
-                    format: sdk.Coins
-                    example:
-                      - denom: uatom
-                        amount: '10'
                     items:
                       type: object
                       properties:
@@ -1842,10 +1668,6 @@ paths:
                     title: Fees to pay along with transaction
                   gas_prices:
                     type: array
-                    format: sdk.DecCoins
-                    example:
-                      - denom: uatom
-                        amount: '0.1'
                     items:
                       type: object
                       properties:
@@ -1868,19 +1690,15 @@ paths:
                   gas:
                     type: string
                     format: uint64
-                    example: '200000'
                     title: Gas amount to determine the transaction fee
                   gas_adjustment:
                     type: string
-                    format: sdk.Dec
-                    example: '1.2'
                     title: >-
                       adjustment factor to be multiplied against the estimate
                       returned by the tx simulation; if the gas limit is set
                       manually this flag is ignored
                   simulate:
                     type: boolean
-                    example: false
                     title: >-
                       Estimate gas for a transaction (cannot be used in
                       conjunction with generate_only)
@@ -1890,7 +1708,6 @@ paths:
               pool_id:
                 type: string
                 format: uint64
-                example: '1'
                 title: id of the target pool
               msg:
                 title: MsgWithdrawFromLiquidityPool
@@ -1898,19 +1715,12 @@ paths:
                 properties:
                   withdrawer_address:
                     type: string
-                    format: sdk.AccAddress
-                    example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                     description: account address of the origin of this message
                   pool_id:
                     type: string
                     format: uint64
-                    example: '1'
                     title: id of the target pool
                   pool_coin:
-                    format: sdk.Coin
-                    example:
-                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                      amount: '1000'
                     type: object
                     properties:
                       denom:
@@ -1966,28 +1776,23 @@ paths:
                     msg_height:
                       type: string
                       format: int64
-                      example: '1000'
                       title: height where this message is appended to the batch
                     msg_index:
                       type: string
                       format: uint64
-                      example: '1'
                       title: index of this withdraw message in this liquidity pool
                     executed:
                       type: boolean
-                      example: true
                       title: >-
                         true if executed on this batch, false if not executed
                         yet
                     succeed:
                       type: boolean
-                      example: true
                       title: >-
                         true if executed successfully on this batch, false if
                         failed
                     to_delete:
                       type: boolean
-                      example: true
                       title: >-
                         true if ready to delete on kvstore, false if not ready
                         to delete
@@ -1997,19 +1802,12 @@ paths:
                       properties:
                         withdrawer_address:
                           type: string
-                          format: sdk.AccAddress
-                          example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                           description: account address of the origin of this message
                         pool_id:
                           type: string
                           format: uint64
-                          example: '1'
                           title: id of the target pool
                         pool_coin:
-                          format: sdk.Coin
-                          example:
-                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                            amount: '1000'
                           type: object
                           properties:
                             denom:
@@ -2165,26 +1963,22 @@ paths:
                       properties:
                         pool_type_index:
                           type: integer
-                          format: uint32
-                          example: '1'
+                          format: int64
                           description: >-
                             index of target pool type, only 1 is allowed on this
                             version.
                         name:
                           type: string
-                          example: ConstantProductLiquidityPool
                           title: name of the pool type
                         min_reserve_coin_num:
                           type: integer
-                          format: uint32
-                          example: '2'
+                          format: int64
                           title: >-
                             min number of reserveCoins for LiquidityPoolType
                             only 2 is allowed on this spec
                         max_reserve_coin_num:
                           type: integer
-                          format: uint32
-                          example: '2'
+                          format: int64
                           title: >-
                             max number of reserveCoins for LiquidityPoolType
                             only 2 is allowed on this spec
@@ -2194,27 +1988,18 @@ paths:
                     title: list of available pool types
                   min_init_deposit_to_pool:
                     type: string
-                    format: sdk.Int
-                    example: '1000000'
                     title: >-
                       Minimum number of coins to be deposited to the liquidity
                       pool upon pool creation
                   init_pool_coin_mint_amount:
                     type: string
-                    format: sdk.Int
-                    example: '1000000'
                     title: Initial mint amount of pool coin upon pool creation
                   swap_fee_rate:
                     type: string
-                    format: sdk.Dec
-                    example: '0.003'
+                    format: byte
                     title: Swap fee rate for every executed swap
                   liquidity_pool_creation_fee:
                     type: array
-                    format: sdk.Coins
-                    example:
-                      - denom: uatom
-                        amount: '100000000'
                     items:
                       type: object
                       properties:
@@ -2281,36 +2066,29 @@ paths:
                         pool_id:
                           type: string
                           format: uint64
-                          example: '1'
                           title: id of the pool
                         batch_index:
                           type: string
                           format: uint64
-                          example: '1'
                           title: index of this batch
                         begin_height:
                           type: string
                           format: int64
-                          example: '1000'
                           title: height where this batch is begun
                         deposit_msg_index:
                           type: string
                           format: uint64
-                          example: '1'
                           title: last index of BatchPoolDepositMsgs
                         withdraw_msg_index:
                           type: string
                           format: uint64
-                          example: '1'
                           title: last index of BatchPoolWithdrawMsgs
                         swap_msg_index:
                           type: string
                           format: uint64
-                          example: '1'
                           title: last index of BatchPoolSwapMsgs
                         executed:
                           type: boolean
-                          example: true
                           title: 'true if executed, false if not executed yet'
                   description: >-
                     QueryLiquidityPoolBatchResponse is the response type for the
@@ -2428,29 +2206,21 @@ paths:
                   pool_id:
                     type: string
                     format: uint64
-                    example: '1'
                     title: id of the pool
                   pool_type_index:
                     type: integer
-                    format: uint32
-                    example: '1'
+                    format: int64
                     title: index of the pool type
                   reserve_coin_denoms:
                     type: array
-                    example:
-                      - denomA
-                      - denomB
                     items:
                       type: string
                     title: denoms of reserve coin pair of the pool
                   reserve_account_address:
                     type: string
-                    format: sdk.AccAddress
-                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: reserve account address of the pool
                   pool_coin_denom:
                     type: string
-                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: denom of pool coin of the pool
               liquidity_pool_meta_data:
                 type: object
@@ -2458,13 +2228,8 @@ paths:
                   pool_id:
                     type: string
                     format: uint64
-                    example: '1'
                     title: id of the pool
                   pool_coin_total_supply:
-                    format: sdk.Coin
-                    example:
-                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                      amount: '1000000'
                     title: pool coin issued at the pool
                     type: object
                     properties:
@@ -2482,12 +2247,6 @@ paths:
                       signatures required by gogoproto.
                   reserve_coins:
                     type: array
-                    format: sdk.Coins
-                    example:
-                      - denom: denomA
-                        amount: '1000000'
-                      - denom: denomB
-                        amount: '2000000'
                     items:
                       type: object
                       properties:
@@ -2510,36 +2269,29 @@ paths:
                   pool_id:
                     type: string
                     format: uint64
-                    example: '1'
                     title: id of the pool
                   batch_index:
                     type: string
                     format: uint64
-                    example: '1'
                     title: index of this batch
                   begin_height:
                     type: string
                     format: int64
-                    example: '1000'
                     title: height where this batch is begun
                   deposit_msg_index:
                     type: string
                     format: uint64
-                    example: '1'
                     title: last index of BatchPoolDepositMsgs
                   withdraw_msg_index:
                     type: string
                     format: uint64
-                    example: '1'
                     title: last index of BatchPoolWithdrawMsgs
                   swap_msg_index:
                     type: string
                     format: uint64
-                    example: '1'
                     title: last index of BatchPoolSwapMsgs
                   executed:
                     type: boolean
-                    example: true
                     title: 'true if executed, false if not executed yet'
             description: >-
               QueryLiquidityPoolResponse is the response type for the
@@ -2590,36 +2342,29 @@ paths:
                   pool_id:
                     type: string
                     format: uint64
-                    example: '1'
                     title: id of the pool
                   batch_index:
                     type: string
                     format: uint64
-                    example: '1'
                     title: index of this batch
                   begin_height:
                     type: string
                     format: int64
-                    example: '1000'
                     title: height where this batch is begun
                   deposit_msg_index:
                     type: string
                     format: uint64
-                    example: '1'
                     title: last index of BatchPoolDepositMsgs
                   withdraw_msg_index:
                     type: string
                     format: uint64
-                    example: '1'
                     title: last index of BatchPoolWithdrawMsgs
                   swap_msg_index:
                     type: string
                     format: uint64
-                    example: '1'
                     title: last index of BatchPoolSwapMsgs
                   executed:
                     type: boolean
-                    example: true
                     title: 'true if executed, false if not executed yet'
             description: >-
               QueryLiquidityPoolBatchResponse is the response type for the
@@ -3535,41 +3280,31 @@ definitions:
     properties:
       from:
         type: string
-        format: sdk.AccAddress
-        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
         title: Sender address or Keybase name to generate a transaction
+        example: cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc
         description: Sender address or Keybase name to generate a transaction
       memo:
         type: string
-        example: Sent via Cosmos Voyager
         title: Memo to send along with transaction
       chain_id:
         type: string
-        example: Cosmos-Hub
         title: Name or address of private key with which to sign
       account_number:
         type: string
         format: uint64
-        example: '1421'
         title: The account number of the signing account (offline mode only)
       sequence:
         type: string
         format: uint64
-        example: '13'
         title: The sequence number of the signing account (offline mode only)
       timeout_height:
         type: string
         format: uint64
-        example: '200'
         title: >-
           Set a block timeout height to prevent the tx from being committed past
           a certain height
       fees:
         type: array
-        format: sdk.Coins
-        example:
-          - denom: uatom
-            amount: '10'
         items:
           type: object
           properties:
@@ -3585,10 +3320,6 @@ definitions:
         title: Fees to pay along with transaction
       gas_prices:
         type: array
-        format: sdk.DecCoins
-        example:
-          - denom: uatom
-            amount: '0.1'
         items:
           type: object
           properties:
@@ -3605,19 +3336,15 @@ definitions:
       gas:
         type: string
         format: uint64
-        example: '200000'
         title: Gas amount to determine the transaction fee
       gas_adjustment:
         type: string
-        format: sdk.Dec
-        example: '1.2'
         title: >-
           adjustment factor to be multiplied against the estimate returned by
           the tx simulation; if the gas limit is set manually this flag is
           ignored
       simulate:
         type: boolean
-        example: false
         title: >-
           Estimate gas for a transaction (cannot be used in conjunction with
           generate_only)
@@ -3628,13 +3355,8 @@ definitions:
       gas:
         type: string
         format: uint64
-        example: '200000'
       amount:
         type: array
-        format: sdk.Coins
-        example:
-          - denom: uatom
-            amount: '10'
         items:
           type: object
           properties:
@@ -3654,32 +3376,20 @@ definitions:
     properties:
       pool_creator_address:
         type: string
-        format: sdk.AccAddress
-        example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
         description: account address of the origin of this message
       pool_type_index:
         type: integer
-        format: uint32
-        example: '1'
+        format: int64
         description: >-
           index of target pool type, only 1 is allowed on this version, Must
           match the value in the pool.
       reserve_coin_denoms:
         type: array
-        example:
-          - denomA
-          - denomB
         items:
           type: string
         title: denoms of reserve coin pair of the pool
       deposit_coins:
         type: array
-        format: sdk.Coins
-        example:
-          - denom: denomA
-            amount: '1000000'
-          - denom: denomB
-            amount: '2000000'
         items:
           type: object
           properties:
@@ -3704,40 +3414,29 @@ definitions:
         properties:
           from:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
-            example: Sent via Cosmos Voyager
             title: Memo to send along with transaction
           chain_id:
             type: string
-            example: Cosmos-Hub
             title: Name or address of private key with which to sign
           account_number:
             type: string
             format: uint64
-            example: '1421'
             title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
-            example: '13'
             title: The sequence number of the signing account (offline mode only)
           timeout_height:
             type: string
             format: uint64
-            example: '200'
             title: >-
               Set a block timeout height to prevent the tx from being committed
               past a certain height
           fees:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: uatom
-                amount: '10'
             items:
               type: object
               properties:
@@ -3756,10 +3455,6 @@ definitions:
             title: Fees to pay along with transaction
           gas_prices:
             type: array
-            format: sdk.DecCoins
-            example:
-              - denom: uatom
-                amount: '0.1'
             items:
               type: object
               properties:
@@ -3779,19 +3474,15 @@ definitions:
           gas:
             type: string
             format: uint64
-            example: '200000'
             title: Gas amount to determine the transaction fee
           gas_adjustment:
             type: string
-            format: sdk.Dec
-            example: '1.2'
             title: >-
               adjustment factor to be multiplied against the estimate returned
               by the tx simulation; if the gas limit is set manually this flag
               is ignored
           simulate:
             type: boolean
-            example: false
             title: >-
               Estimate gas for a transaction (cannot be used in conjunction with
               generate_only)
@@ -3802,32 +3493,20 @@ definitions:
         properties:
           pool_creator_address:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
             description: account address of the origin of this message
           pool_type_index:
             type: integer
-            format: uint32
-            example: '1'
+            format: int64
             description: >-
               index of target pool type, only 1 is allowed on this version, Must
               match the value in the pool.
           reserve_coin_denoms:
             type: array
-            example:
-              - denomA
-              - denomB
             items:
               type: string
             title: denoms of reserve coin pair of the pool
           deposit_coins:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: denomA
-                amount: '1000000'
-              - denom: denomB
-                amount: '2000000'
             items:
               type: object
               properties:
@@ -3855,9 +3534,6 @@ definitions:
         properties:
           msg:
             type: array
-            example:
-              - MsgDepositToLiquidityPool
-              - MsgSwap
             items:
               type: string
             title: Msgs
@@ -3868,13 +3544,8 @@ definitions:
               gas:
                 type: string
                 format: uint64
-                example: '200000'
               amount:
                 type: array
-                format: sdk.Coins
-                example:
-                  - denom: uatom
-                    amount: '10'
                 items:
                   type: object
                   properties:
@@ -3900,8 +3571,6 @@ definitions:
             properties:
               signature:
                 type: string
-                example: >-
-                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                 title: signature base64
               pub_key:
                 title: PubKey
@@ -3909,21 +3578,17 @@ definitions:
                 properties:
                   type:
                     type: string
-                    example: tendermint/PubKeySecp256k1
                     title: type of pubkey algorithm
                   value:
                     type: string
-                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
                     title: value of pubkey
               account_number:
                 type: string
                 format: uint64
-                example: '1421'
                 title: The account number of the signing account (offline mode only)
               sequence:
                 type: string
                 format: uint64
-                example: '13'
                 title: The sequence number of the signing account (offline mode only)
         title: >-
           Base response struct of result of the requested Tx, standard of
@@ -3936,22 +3601,13 @@ definitions:
     properties:
       depositor_address:
         type: string
-        format: sdk.AccAddress
-        example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
         description: account address of the origin of this message
       pool_id:
         type: string
         format: uint64
-        example: '1'
         title: id of the target pool
       deposit_coins:
         type: array
-        format: sdk.Coins
-        example:
-          - denom: denomA
-            amount: '1000000'
-          - denom: denomB
-            amount: '2000000'
         items:
           type: object
           properties:
@@ -3988,40 +3644,29 @@ definitions:
         properties:
           from:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
-            example: Sent via Cosmos Voyager
             title: Memo to send along with transaction
           chain_id:
             type: string
-            example: Cosmos-Hub
             title: Name or address of private key with which to sign
           account_number:
             type: string
             format: uint64
-            example: '1421'
             title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
-            example: '13'
             title: The sequence number of the signing account (offline mode only)
           timeout_height:
             type: string
             format: uint64
-            example: '200'
             title: >-
               Set a block timeout height to prevent the tx from being committed
               past a certain height
           fees:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: uatom
-                amount: '10'
             items:
               type: object
               properties:
@@ -4040,10 +3685,6 @@ definitions:
             title: Fees to pay along with transaction
           gas_prices:
             type: array
-            format: sdk.DecCoins
-            example:
-              - denom: uatom
-                amount: '0.1'
             items:
               type: object
               properties:
@@ -4063,19 +3704,15 @@ definitions:
           gas:
             type: string
             format: uint64
-            example: '200000'
             title: Gas amount to determine the transaction fee
           gas_adjustment:
             type: string
-            format: sdk.Dec
-            example: '1.2'
             title: >-
               adjustment factor to be multiplied against the estimate returned
               by the tx simulation; if the gas limit is set manually this flag
               is ignored
           simulate:
             type: boolean
-            example: false
             title: >-
               Estimate gas for a transaction (cannot be used in conjunction with
               generate_only)
@@ -4083,7 +3720,6 @@ definitions:
       pool_id:
         type: string
         format: uint64
-        example: '1'
         title: id of the target pool
       msg:
         title: MsgDepositToLiquidityPool
@@ -4091,22 +3727,13 @@ definitions:
         properties:
           depositor_address:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
             description: account address of the origin of this message
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the target pool
           deposit_coins:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: denomA
-                amount: '1000000'
-              - denom: denomB
-                amount: '2000000'
             items:
               type: object
               properties:
@@ -4149,9 +3776,6 @@ definitions:
         properties:
           msg:
             type: array
-            example:
-              - MsgDepositToLiquidityPool
-              - MsgSwap
             items:
               type: string
             title: Msgs
@@ -4162,13 +3786,8 @@ definitions:
               gas:
                 type: string
                 format: uint64
-                example: '200000'
               amount:
                 type: array
-                format: sdk.Coins
-                example:
-                  - denom: uatom
-                    amount: '10'
                 items:
                   type: object
                   properties:
@@ -4194,8 +3813,6 @@ definitions:
             properties:
               signature:
                 type: string
-                example: >-
-                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                 title: signature base64
               pub_key:
                 title: PubKey
@@ -4203,21 +3820,17 @@ definitions:
                 properties:
                   type:
                     type: string
-                    example: tendermint/PubKeySecp256k1
                     title: type of pubkey algorithm
                   value:
                     type: string
-                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
                     title: value of pubkey
               account_number:
                 type: string
                 format: uint64
-                example: '1421'
                 title: The account number of the signing account (offline mode only)
               sequence:
                 type: string
                 format: uint64
-                example: '13'
                 title: The sequence number of the signing account (offline mode only)
         title: >-
           Base response struct of result of the requested Tx, standard of
@@ -4230,34 +3843,25 @@ definitions:
     properties:
       swap_requester_address:
         type: string
-        format: sdk.AccAddress
-        example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
         description: account address of the origin of this message
         title: address of swap requester
       pool_id:
         type: string
         format: uint64
-        example: '1'
         title: id of the target pool
       pool_type_index:
         type: integer
-        format: uint32
-        example: '1'
+        format: int64
         description: >-
           index of target pool type, only 1 is allowed on this version, Must
           match the value in the pool.
       swap_type:
         type: integer
-        format: uint32
-        example: '1'
+        format: int64
         description: >-
           id of swap type type, only 1 is allowed on this version, Must match
           the value in the pool.
       offer_coin:
-        format: sdk.Coin
-        example:
-          denom: denomA
-          amount: '1000000'
         description: 'offer sdk.coin for the swap request, Must match the denom in the pool.'
         type: object
         properties:
@@ -4267,14 +3871,25 @@ definitions:
             type: string
       demand_coin_denom:
         type: string
-        example: denomB
         description: >-
           denom of demand coin to be exchanged on the swap request, Must match
           the denom in the pool.
+      offer_coin_fee:
+        title: offer coin fee for pay fees in half offer coin
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a coin with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
       order_price:
         type: string
-        format: sdk.Dec
-        example: '1.1'
+        format: byte
         title: limit order price for this offer
     description: >-
       `MsgSwap` defines an sdk.Msg type that supports submitting swap offer
@@ -4308,40 +3923,29 @@ definitions:
         properties:
           from:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
-            example: Sent via Cosmos Voyager
             title: Memo to send along with transaction
           chain_id:
             type: string
-            example: Cosmos-Hub
             title: Name or address of private key with which to sign
           account_number:
             type: string
             format: uint64
-            example: '1421'
             title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
-            example: '13'
             title: The sequence number of the signing account (offline mode only)
           timeout_height:
             type: string
             format: uint64
-            example: '200'
             title: >-
               Set a block timeout height to prevent the tx from being committed
               past a certain height
           fees:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: uatom
-                amount: '10'
             items:
               type: object
               properties:
@@ -4360,10 +3964,6 @@ definitions:
             title: Fees to pay along with transaction
           gas_prices:
             type: array
-            format: sdk.DecCoins
-            example:
-              - denom: uatom
-                amount: '0.1'
             items:
               type: object
               properties:
@@ -4383,19 +3983,15 @@ definitions:
           gas:
             type: string
             format: uint64
-            example: '200000'
             title: Gas amount to determine the transaction fee
           gas_adjustment:
             type: string
-            format: sdk.Dec
-            example: '1.2'
             title: >-
               adjustment factor to be multiplied against the estimate returned
               by the tx simulation; if the gas limit is set manually this flag
               is ignored
           simulate:
             type: boolean
-            example: false
             title: >-
               Estimate gas for a transaction (cannot be used in conjunction with
               generate_only)
@@ -4403,7 +3999,6 @@ definitions:
       pool_id:
         type: string
         format: uint64
-        example: '1'
         title: id of the target pool
       msg:
         title: MsgSwap
@@ -4411,34 +4006,25 @@ definitions:
         properties:
           swap_requester_address:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
             description: account address of the origin of this message
             title: address of swap requester
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the target pool
           pool_type_index:
             type: integer
-            format: uint32
-            example: '1'
+            format: int64
             description: >-
               index of target pool type, only 1 is allowed on this version, Must
               match the value in the pool.
           swap_type:
             type: integer
-            format: uint32
-            example: '1'
+            format: int64
             description: >-
               id of swap type type, only 1 is allowed on this version, Must
               match the value in the pool.
           offer_coin:
-            format: sdk.Coin
-            example:
-              denom: denomA
-              amount: '1000000'
             description: >-
               offer sdk.coin for the swap request, Must match the denom in the
               pool.
@@ -4450,14 +4036,28 @@ definitions:
                 type: string
           demand_coin_denom:
             type: string
-            example: denomB
             description: >-
               denom of demand coin to be exchanged on the swap request, Must
               match the denom in the pool.
+          offer_coin_fee:
+            title: offer coin fee for pay fees in half offer coin
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
           order_price:
             type: string
-            format: sdk.Dec
-            example: '1.1'
+            format: byte
             title: limit order price for this offer
         description: >-
           `MsgSwap` defines an sdk.Msg type that supports submitting swap offer
@@ -4492,9 +4092,6 @@ definitions:
         properties:
           msg:
             type: array
-            example:
-              - MsgDepositToLiquidityPool
-              - MsgSwap
             items:
               type: string
             title: Msgs
@@ -4505,13 +4102,8 @@ definitions:
               gas:
                 type: string
                 format: uint64
-                example: '200000'
               amount:
                 type: array
-                format: sdk.Coins
-                example:
-                  - denom: uatom
-                    amount: '10'
                 items:
                   type: object
                   properties:
@@ -4537,8 +4129,6 @@ definitions:
             properties:
               signature:
                 type: string
-                example: >-
-                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                 title: signature base64
               pub_key:
                 title: PubKey
@@ -4546,21 +4136,17 @@ definitions:
                 properties:
                   type:
                     type: string
-                    example: tendermint/PubKeySecp256k1
                     title: type of pubkey algorithm
                   value:
                     type: string
-                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
                     title: value of pubkey
               account_number:
                 type: string
                 format: uint64
-                example: '1421'
                 title: The account number of the signing account (offline mode only)
               sequence:
                 type: string
                 format: uint64
-                example: '13'
                 title: The sequence number of the signing account (offline mode only)
         title: >-
           Base response struct of result of the requested Tx, standard of
@@ -4571,19 +4157,12 @@ definitions:
     properties:
       withdrawer_address:
         type: string
-        format: sdk.AccAddress
-        example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
         description: account address of the origin of this message
       pool_id:
         type: string
         format: uint64
-        example: '1'
         title: id of the target pool
       pool_coin:
-        format: sdk.Coin
-        example:
-          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-          amount: '1000'
         type: object
         properties:
           denom:
@@ -4618,40 +4197,29 @@ definitions:
         properties:
           from:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: Sender address or Keybase name to generate a transaction
           memo:
             type: string
-            example: Sent via Cosmos Voyager
             title: Memo to send along with transaction
           chain_id:
             type: string
-            example: Cosmos-Hub
             title: Name or address of private key with which to sign
           account_number:
             type: string
             format: uint64
-            example: '1421'
             title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
-            example: '13'
             title: The sequence number of the signing account (offline mode only)
           timeout_height:
             type: string
             format: uint64
-            example: '200'
             title: >-
               Set a block timeout height to prevent the tx from being committed
               past a certain height
           fees:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: uatom
-                amount: '10'
             items:
               type: object
               properties:
@@ -4670,10 +4238,6 @@ definitions:
             title: Fees to pay along with transaction
           gas_prices:
             type: array
-            format: sdk.DecCoins
-            example:
-              - denom: uatom
-                amount: '0.1'
             items:
               type: object
               properties:
@@ -4693,19 +4257,15 @@ definitions:
           gas:
             type: string
             format: uint64
-            example: '200000'
             title: Gas amount to determine the transaction fee
           gas_adjustment:
             type: string
-            format: sdk.Dec
-            example: '1.2'
             title: >-
               adjustment factor to be multiplied against the estimate returned
               by the tx simulation; if the gas limit is set manually this flag
               is ignored
           simulate:
             type: boolean
-            example: false
             title: >-
               Estimate gas for a transaction (cannot be used in conjunction with
               generate_only)
@@ -4713,7 +4273,6 @@ definitions:
       pool_id:
         type: string
         format: uint64
-        example: '1'
         title: id of the target pool
       msg:
         title: MsgWithdrawFromLiquidityPool
@@ -4721,19 +4280,12 @@ definitions:
         properties:
           withdrawer_address:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
             description: account address of the origin of this message
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the target pool
           pool_coin:
-            format: sdk.Coin
-            example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-              amount: '1000'
             type: object
             properties:
               denom:
@@ -4774,9 +4326,6 @@ definitions:
         properties:
           msg:
             type: array
-            example:
-              - MsgDepositToLiquidityPool
-              - MsgSwap
             items:
               type: string
             title: Msgs
@@ -4787,13 +4336,8 @@ definitions:
               gas:
                 type: string
                 format: uint64
-                example: '200000'
               amount:
                 type: array
-                format: sdk.Coins
-                example:
-                  - denom: uatom
-                    amount: '10'
                 items:
                   type: object
                   properties:
@@ -4819,8 +4363,6 @@ definitions:
             properties:
               signature:
                 type: string
-                example: >-
-                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
                 title: signature base64
               pub_key:
                 title: PubKey
@@ -4828,21 +4370,17 @@ definitions:
                 properties:
                   type:
                     type: string
-                    example: tendermint/PubKeySecp256k1
                     title: type of pubkey algorithm
                   value:
                     type: string
-                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
                     title: value of pubkey
               account_number:
                 type: string
                 format: uint64
-                example: '1421'
                 title: The account number of the signing account (offline mode only)
               sequence:
                 type: string
                 format: uint64
-                example: '13'
                 title: The sequence number of the signing account (offline mode only)
         title: >-
           Base response struct of result of the requested Tx, standard of
@@ -4855,11 +4393,9 @@ definitions:
     properties:
       type:
         type: string
-        example: tendermint/PubKeySecp256k1
         title: type of pubkey algorithm
       value:
         type: string
-        example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
         title: value of pubkey
     title: PubKey struct of tendermint/cosmos-sdk
   tendermint.liquidity.Signature:
@@ -4867,8 +4403,6 @@ definitions:
     properties:
       signature:
         type: string
-        example: >-
-          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
         title: signature base64
       pub_key:
         title: PubKey
@@ -4876,21 +4410,17 @@ definitions:
         properties:
           type:
             type: string
-            example: tendermint/PubKeySecp256k1
             title: type of pubkey algorithm
           value:
             type: string
-            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
             title: value of pubkey
       account_number:
         type: string
         format: uint64
-        example: '1421'
         title: The account number of the signing account (offline mode only)
       sequence:
         type: string
         format: uint64
-        example: '13'
         title: The sequence number of the signing account (offline mode only)
     title: signature struct of tendermint/cosmos-sdk
   tendermint.liquidity.StdTx:
@@ -4898,9 +4428,6 @@ definitions:
     properties:
       msg:
         type: array
-        example:
-          - MsgDepositToLiquidityPool
-          - MsgSwap
         items:
           type: string
         title: Msgs
@@ -4911,13 +4438,8 @@ definitions:
           gas:
             type: string
             format: uint64
-            example: '200000'
           amount:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: uatom
-                amount: '10'
             items:
               type: object
               properties:
@@ -4943,8 +4465,6 @@ definitions:
         properties:
           signature:
             type: string
-            example: >-
-              MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
             title: signature base64
           pub_key:
             title: PubKey
@@ -4952,21 +4472,17 @@ definitions:
             properties:
               type:
                 type: string
-                example: tendermint/PubKeySecp256k1
                 title: type of pubkey algorithm
               value:
                 type: string
-                example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
                 title: value of pubkey
           account_number:
             type: string
             format: uint64
-            example: '1421'
             title: The account number of the signing account (offline mode only)
           sequence:
             type: string
             format: uint64
-            example: '13'
             title: The sequence number of the signing account (offline mode only)
     title: >-
       Base response struct of result of the requested Tx, standard of
@@ -5045,24 +4561,19 @@ definitions:
       msg_height:
         type: string
         format: int64
-        example: '1000'
         title: height where this message is appended to the batch
       msg_index:
         type: string
         format: uint64
-        example: '1'
         title: index of this deposit message in this liquidity pool
       executed:
         type: boolean
-        example: true
         title: 'true if executed on this batch, false if not executed yet'
       succeed:
         type: boolean
-        example: true
         title: 'true if executed successfully on this batch, false if failed'
       to_delete:
         type: boolean
-        example: true
         title: 'true if ready to delete on kvstore, false if not ready to delete'
       Msg:
         title: MsgDepositToLiquidityPool
@@ -5070,22 +4581,13 @@ definitions:
         properties:
           depositor_address:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
             description: account address of the origin of this message
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the target pool
           deposit_coins:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: denomA
-                amount: '1000000'
-              - denom: denomB
-                amount: '2000000'
             items:
               type: object
               properties:
@@ -5123,37 +4625,27 @@ definitions:
       msg_height:
         type: string
         format: int64
-        example: '1000'
         title: height where this message is appended to the batch
       msg_index:
         type: string
         format: uint64
-        example: '1'
         title: index of this swap message in this liquidity pool
       executed:
         type: boolean
-        example: true
         title: 'true if executed on this batch, false if not executed yet'
       succeed:
         type: boolean
-        example: true
         title: 'true if executed successfully on this batch, false if failed'
       to_delete:
         type: boolean
-        example: true
         title: 'true if ready to delete on kvstore, false if not ready to delete'
       order_expiry_height:
         type: string
         format: int64
-        example: '1000'
         title: >-
           swap orders are cancelled when current height is equal or higher than
           ExpiryHeight
       exchanged_offer_coin:
-        format: sdk.Coin
-        example:
-          denom: denomA
-          amount: '600000'
         title: offer coin exchanged until now
         type: object
         properties:
@@ -5167,10 +4659,6 @@ definitions:
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
       remaining_offer_coin:
-        format: sdk.Coin
-        example:
-          denom: denomA
-          amount: '400000'
         title: offer coin currently remaining to be exchanged
         type: object
         properties:
@@ -5183,40 +4671,44 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
-      msg:
+      OfferCoinFeeReserve:
+        title: reserve fee for pays fee in half offer coin
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a coin with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      Msg:
         title: MsgSwap
         type: object
         properties:
           swap_requester_address:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
             description: account address of the origin of this message
             title: address of swap requester
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the target pool
           pool_type_index:
             type: integer
-            format: uint32
-            example: '1'
+            format: int64
             description: >-
               index of target pool type, only 1 is allowed on this version, Must
               match the value in the pool.
           swap_type:
             type: integer
-            format: uint32
-            example: '1'
+            format: int64
             description: >-
               id of swap type type, only 1 is allowed on this version, Must
               match the value in the pool.
           offer_coin:
-            format: sdk.Coin
-            example:
-              denom: denomA
-              amount: '1000000'
             description: >-
               offer sdk.coin for the swap request, Must match the denom in the
               pool.
@@ -5228,14 +4720,28 @@ definitions:
                 type: string
           demand_coin_denom:
             type: string
-            example: denomB
             description: >-
               denom of demand coin to be exchanged on the swap request, Must
               match the denom in the pool.
+          offer_coin_fee:
+            title: offer coin fee for pay fees in half offer coin
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
           order_price:
             type: string
-            format: sdk.Dec
-            example: '1.1'
+            format: byte
             title: limit order price for this offer
         description: >-
           `MsgSwap` defines an sdk.Msg type that supports submitting swap offer
@@ -5267,24 +4773,19 @@ definitions:
       msg_height:
         type: string
         format: int64
-        example: '1000'
         title: height where this message is appended to the batch
       msg_index:
         type: string
         format: uint64
-        example: '1'
         title: index of this withdraw message in this liquidity pool
       executed:
         type: boolean
-        example: true
         title: 'true if executed on this batch, false if not executed yet'
       succeed:
         type: boolean
-        example: true
         title: 'true if executed successfully on this batch, false if failed'
       to_delete:
         type: boolean
-        example: true
         title: 'true if ready to delete on kvstore, false if not ready to delete'
       msg:
         title: MsgWithdrawFromLiquidityPool
@@ -5292,19 +4793,12 @@ definitions:
         properties:
           withdrawer_address:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
             description: account address of the origin of this message
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the target pool
           pool_coin:
-            format: sdk.Coin
-            example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-              amount: '1000'
             type: object
             properties:
               denom:
@@ -5340,29 +4834,21 @@ definitions:
       pool_id:
         type: string
         format: uint64
-        example: '1'
         title: id of the pool
       pool_type_index:
         type: integer
-        format: uint32
-        example: '1'
+        format: int64
         title: index of the pool type
       reserve_coin_denoms:
         type: array
-        example:
-          - denomA
-          - denomB
         items:
           type: string
         title: denoms of reserve coin pair of the pool
       reserve_account_address:
         type: string
-        format: sdk.AccAddress
-        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
         title: reserve account address of the pool
       pool_coin_denom:
         type: string
-        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
         title: denom of pool coin of the pool
   tendermint.liquidity.LiquidityPoolBatch:
     type: object
@@ -5370,36 +4856,29 @@ definitions:
       pool_id:
         type: string
         format: uint64
-        example: '1'
         title: id of the pool
       batch_index:
         type: string
         format: uint64
-        example: '1'
         title: index of this batch
       begin_height:
         type: string
         format: int64
-        example: '1000'
         title: height where this batch is begun
       deposit_msg_index:
         type: string
         format: uint64
-        example: '1'
         title: last index of BatchPoolDepositMsgs
       withdraw_msg_index:
         type: string
         format: uint64
-        example: '1'
         title: last index of BatchPoolWithdrawMsgs
       swap_msg_index:
         type: string
         format: uint64
-        example: '1'
         title: last index of BatchPoolSwapMsgs
       executed:
         type: boolean
-        example: true
         title: 'true if executed, false if not executed yet'
   tendermint.liquidity.LiquidityPoolMetaData:
     type: object
@@ -5407,13 +4886,8 @@ definitions:
       pool_id:
         type: string
         format: uint64
-        example: '1'
         title: id of the pool
       pool_coin_total_supply:
-        format: sdk.Coin
-        example:
-          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-          amount: '1000000'
         title: pool coin issued at the pool
         type: object
         properties:
@@ -5428,12 +4902,6 @@ definitions:
           signatures required by gogoproto.
       reserve_coins:
         type: array
-        format: sdk.Coins
-        example:
-          - denom: denomA
-            amount: '1000000'
-          - denom: denomB
-            amount: '2000000'
         items:
           type: object
           properties:
@@ -5452,24 +4920,20 @@ definitions:
     properties:
       pool_type_index:
         type: integer
-        format: uint32
-        example: '1'
+        format: int64
         description: 'index of target pool type, only 1 is allowed on this version.'
       name:
         type: string
-        example: ConstantProductLiquidityPool
         title: name of the pool type
       min_reserve_coin_num:
         type: integer
-        format: uint32
-        example: '2'
+        format: int64
         title: >-
           min number of reserveCoins for LiquidityPoolType only 2 is allowed on
           this spec
       max_reserve_coin_num:
         type: integer
-        format: uint32
-        example: '2'
+        format: int64
         title: >-
           max number of reserveCoins for LiquidityPoolType only 2 is allowed on
           this spec
@@ -5486,24 +4950,20 @@ definitions:
           properties:
             pool_type_index:
               type: integer
-              format: uint32
-              example: '1'
+              format: int64
               description: 'index of target pool type, only 1 is allowed on this version.'
             name:
               type: string
-              example: ConstantProductLiquidityPool
               title: name of the pool type
             min_reserve_coin_num:
               type: integer
-              format: uint32
-              example: '2'
+              format: int64
               title: >-
                 min number of reserveCoins for LiquidityPoolType only 2 is
                 allowed on this spec
             max_reserve_coin_num:
               type: integer
-              format: uint32
-              example: '2'
+              format: int64
               title: >-
                 max number of reserveCoins for LiquidityPoolType only 2 is
                 allowed on this spec
@@ -5513,27 +4973,18 @@ definitions:
         title: list of available pool types
       min_init_deposit_to_pool:
         type: string
-        format: sdk.Int
-        example: '1000000'
         title: >-
           Minimum number of coins to be deposited to the liquidity pool upon
           pool creation
       init_pool_coin_mint_amount:
         type: string
-        format: sdk.Int
-        example: '1000000'
         title: Initial mint amount of pool coin upon pool creation
       swap_fee_rate:
         type: string
-        format: sdk.Dec
-        example: '0.003'
+        format: byte
         title: Swap fee rate for every executed swap
       liquidity_pool_creation_fee:
         type: array
-        format: sdk.Coins
-        example:
-          - denom: uatom
-            amount: '100000000'
         items:
           type: object
           properties:
@@ -5556,36 +5007,29 @@ definitions:
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the pool
           batch_index:
             type: string
             format: uint64
-            example: '1'
             title: index of this batch
           begin_height:
             type: string
             format: int64
-            example: '1000'
             title: height where this batch is begun
           deposit_msg_index:
             type: string
             format: uint64
-            example: '1'
             title: last index of BatchPoolDepositMsgs
           withdraw_msg_index:
             type: string
             format: uint64
-            example: '1'
             title: last index of BatchPoolWithdrawMsgs
           swap_msg_index:
             type: string
             format: uint64
-            example: '1'
             title: last index of BatchPoolSwapMsgs
           executed:
             type: boolean
-            example: true
             title: 'true if executed, false if not executed yet'
     description: >-
       QueryLiquidityPoolBatchResponse is the response type for the
@@ -5599,29 +5043,21 @@ definitions:
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the pool
           pool_type_index:
             type: integer
-            format: uint32
-            example: '1'
+            format: int64
             title: index of the pool type
           reserve_coin_denoms:
             type: array
-            example:
-              - denomA
-              - denomB
             items:
               type: string
             title: denoms of reserve coin pair of the pool
           reserve_account_address:
             type: string
-            format: sdk.AccAddress
-            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: reserve account address of the pool
           pool_coin_denom:
             type: string
-            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: denom of pool coin of the pool
       liquidity_pool_meta_data:
         type: object
@@ -5629,13 +5065,8 @@ definitions:
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the pool
           pool_coin_total_supply:
-            format: sdk.Coin
-            example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-              amount: '1000000'
             title: pool coin issued at the pool
             type: object
             properties:
@@ -5653,12 +5084,6 @@ definitions:
               signatures required by gogoproto.
           reserve_coins:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: denomA
-                amount: '1000000'
-              - denom: denomB
-                amount: '2000000'
             items:
               type: object
               properties:
@@ -5681,36 +5106,29 @@ definitions:
           pool_id:
             type: string
             format: uint64
-            example: '1'
             title: id of the pool
           batch_index:
             type: string
             format: uint64
-            example: '1'
             title: index of this batch
           begin_height:
             type: string
             format: int64
-            example: '1000'
             title: height where this batch is begun
           deposit_msg_index:
             type: string
             format: uint64
-            example: '1'
             title: last index of BatchPoolDepositMsgs
           withdraw_msg_index:
             type: string
             format: uint64
-            example: '1'
             title: last index of BatchPoolWithdrawMsgs
           swap_msg_index:
             type: string
             format: uint64
-            example: '1'
             title: last index of BatchPoolSwapMsgs
           executed:
             type: boolean
-            example: true
             title: 'true if executed, false if not executed yet'
     description: >-
       QueryLiquidityPoolResponse is the response type for the
@@ -5729,36 +5147,29 @@ definitions:
                 pool_id:
                   type: string
                   format: uint64
-                  example: '1'
                   title: id of the pool
                 batch_index:
                   type: string
                   format: uint64
-                  example: '1'
                   title: index of this batch
                 begin_height:
                   type: string
                   format: int64
-                  example: '1000'
                   title: height where this batch is begun
                 deposit_msg_index:
                   type: string
                   format: uint64
-                  example: '1'
                   title: last index of BatchPoolDepositMsgs
                 withdraw_msg_index:
                   type: string
                   format: uint64
-                  example: '1'
                   title: last index of BatchPoolWithdrawMsgs
                 swap_msg_index:
                   type: string
                   format: uint64
-                  example: '1'
                   title: last index of BatchPoolSwapMsgs
                 executed:
                   type: boolean
-                  example: true
                   title: 'true if executed, false if not executed yet'
           description: >-
             QueryLiquidityPoolBatchResponse is the response type for the
@@ -5805,29 +5216,21 @@ definitions:
                 pool_id:
                   type: string
                   format: uint64
-                  example: '1'
                   title: id of the pool
                 pool_type_index:
                   type: integer
-                  format: uint32
-                  example: '1'
+                  format: int64
                   title: index of the pool type
                 reserve_coin_denoms:
                   type: array
-                  example:
-                    - denomA
-                    - denomB
                   items:
                     type: string
                   title: denoms of reserve coin pair of the pool
                 reserve_account_address:
                   type: string
-                  format: sdk.AccAddress
-                  example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                   title: reserve account address of the pool
                 pool_coin_denom:
                   type: string
-                  example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                   title: denom of pool coin of the pool
             liquidity_pool_meta_data:
               type: object
@@ -5835,13 +5238,8 @@ definitions:
                 pool_id:
                   type: string
                   format: uint64
-                  example: '1'
                   title: id of the pool
                 pool_coin_total_supply:
-                  format: sdk.Coin
-                  example:
-                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                    amount: '1000000'
                   title: pool coin issued at the pool
                   type: object
                   properties:
@@ -5859,12 +5257,6 @@ definitions:
                     signatures required by gogoproto.
                 reserve_coins:
                   type: array
-                  format: sdk.Coins
-                  example:
-                    - denom: denomA
-                      amount: '1000000'
-                    - denom: denomB
-                      amount: '2000000'
                   items:
                     type: object
                     properties:
@@ -5887,36 +5279,29 @@ definitions:
                 pool_id:
                   type: string
                   format: uint64
-                  example: '1'
                   title: id of the pool
                 batch_index:
                   type: string
                   format: uint64
-                  example: '1'
                   title: index of this batch
                 begin_height:
                   type: string
                   format: int64
-                  example: '1000'
                   title: height where this batch is begun
                 deposit_msg_index:
                   type: string
                   format: uint64
-                  example: '1'
                   title: last index of BatchPoolDepositMsgs
                 withdraw_msg_index:
                   type: string
                   format: uint64
-                  example: '1'
                   title: last index of BatchPoolWithdrawMsgs
                 swap_msg_index:
                   type: string
                   format: uint64
-                  example: '1'
                   title: last index of BatchPoolSwapMsgs
                 executed:
                   type: boolean
-                  example: true
                   title: 'true if executed, false if not executed yet'
           description: >-
             QueryLiquidityPoolResponse is the response type for the
@@ -5963,26 +5348,22 @@ definitions:
               properties:
                 pool_type_index:
                   type: integer
-                  format: uint32
-                  example: '1'
+                  format: int64
                   description: >-
                     index of target pool type, only 1 is allowed on this
                     version.
                 name:
                   type: string
-                  example: ConstantProductLiquidityPool
                   title: name of the pool type
                 min_reserve_coin_num:
                   type: integer
-                  format: uint32
-                  example: '2'
+                  format: int64
                   title: >-
                     min number of reserveCoins for LiquidityPoolType only 2 is
                     allowed on this spec
                 max_reserve_coin_num:
                   type: integer
-                  format: uint32
-                  example: '2'
+                  format: int64
                   title: >-
                     max number of reserveCoins for LiquidityPoolType only 2 is
                     allowed on this spec
@@ -5992,27 +5373,18 @@ definitions:
             title: list of available pool types
           min_init_deposit_to_pool:
             type: string
-            format: sdk.Int
-            example: '1000000'
             title: >-
               Minimum number of coins to be deposited to the liquidity pool upon
               pool creation
           init_pool_coin_mint_amount:
             type: string
-            format: sdk.Int
-            example: '1000000'
             title: Initial mint amount of pool coin upon pool creation
           swap_fee_rate:
             type: string
-            format: sdk.Dec
-            example: '0.003'
+            format: byte
             title: Swap fee rate for every executed swap
           liquidity_pool_creation_fee:
             type: array
-            format: sdk.Coins
-            example:
-              - denom: uatom
-                amount: '100000000'
             items:
               type: object
               properties:
@@ -6043,24 +5415,19 @@ definitions:
             msg_height:
               type: string
               format: int64
-              example: '1000'
               title: height where this message is appended to the batch
             msg_index:
               type: string
               format: uint64
-              example: '1'
               title: index of this deposit message in this liquidity pool
             executed:
               type: boolean
-              example: true
               title: 'true if executed on this batch, false if not executed yet'
             succeed:
               type: boolean
-              example: true
               title: 'true if executed successfully on this batch, false if failed'
             to_delete:
               type: boolean
-              example: true
               title: 'true if ready to delete on kvstore, false if not ready to delete'
             Msg:
               title: MsgDepositToLiquidityPool
@@ -6068,22 +5435,13 @@ definitions:
               properties:
                 depositor_address:
                   type: string
-                  format: sdk.AccAddress
-                  example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                   description: account address of the origin of this message
                 pool_id:
                   type: string
                   format: uint64
-                  example: '1'
                   title: id of the target pool
                 deposit_coins:
                   type: array
-                  format: sdk.Coins
-                  example:
-                    - denom: denomA
-                      amount: '1000000'
-                    - denom: denomB
-                      amount: '2000000'
                   items:
                     type: object
                     properties:
@@ -6155,37 +5513,27 @@ definitions:
             msg_height:
               type: string
               format: int64
-              example: '1000'
               title: height where this message is appended to the batch
             msg_index:
               type: string
               format: uint64
-              example: '1'
               title: index of this swap message in this liquidity pool
             executed:
               type: boolean
-              example: true
               title: 'true if executed on this batch, false if not executed yet'
             succeed:
               type: boolean
-              example: true
               title: 'true if executed successfully on this batch, false if failed'
             to_delete:
               type: boolean
-              example: true
               title: 'true if ready to delete on kvstore, false if not ready to delete'
             order_expiry_height:
               type: string
               format: int64
-              example: '1000'
               title: >-
                 swap orders are cancelled when current height is equal or higher
                 than ExpiryHeight
             exchanged_offer_coin:
-              format: sdk.Coin
-              example:
-                denom: denomA
-                amount: '600000'
               title: offer coin exchanged until now
               type: object
               properties:
@@ -6202,10 +5550,6 @@ definitions:
 
                 signatures required by gogoproto.
             remaining_offer_coin:
-              format: sdk.Coin
-              example:
-                denom: denomA
-                amount: '400000'
               title: offer coin currently remaining to be exchanged
               type: object
               properties:
@@ -6221,40 +5565,47 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            msg:
+            OfferCoinFeeReserve:
+              title: reserve fee for pays fee in half offer coin
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+            Msg:
               title: MsgSwap
               type: object
               properties:
                 swap_requester_address:
                   type: string
-                  format: sdk.AccAddress
-                  example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                   description: account address of the origin of this message
                   title: address of swap requester
                 pool_id:
                   type: string
                   format: uint64
-                  example: '1'
                   title: id of the target pool
                 pool_type_index:
                   type: integer
-                  format: uint32
-                  example: '1'
+                  format: int64
                   description: >-
                     index of target pool type, only 1 is allowed on this
                     version, Must match the value in the pool.
                 swap_type:
                   type: integer
-                  format: uint32
-                  example: '1'
+                  format: int64
                   description: >-
                     id of swap type type, only 1 is allowed on this version,
                     Must match the value in the pool.
                 offer_coin:
-                  format: sdk.Coin
-                  example:
-                    denom: denomA
-                    amount: '1000000'
                   description: >-
                     offer sdk.coin for the swap request, Must match the denom in
                     the pool.
@@ -6266,14 +5617,28 @@ definitions:
                       type: string
                 demand_coin_denom:
                   type: string
-                  example: denomB
                   description: >-
                     denom of demand coin to be exchanged on the swap request,
                     Must match the denom in the pool.
+                offer_coin_fee:
+                  title: offer coin fee for pay fees in half offer coin
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
                 order_price:
                   type: string
-                  format: sdk.Dec
-                  example: '1.1'
+                  format: byte
                   title: limit order price for this offer
               description: >-
                 `MsgSwap` defines an sdk.Msg type that supports submitting swap
@@ -6339,24 +5704,19 @@ definitions:
             msg_height:
               type: string
               format: int64
-              example: '1000'
               title: height where this message is appended to the batch
             msg_index:
               type: string
               format: uint64
-              example: '1'
               title: index of this withdraw message in this liquidity pool
             executed:
               type: boolean
-              example: true
               title: 'true if executed on this batch, false if not executed yet'
             succeed:
               type: boolean
-              example: true
               title: 'true if executed successfully on this batch, false if failed'
             to_delete:
               type: boolean
-              example: true
               title: 'true if ready to delete on kvstore, false if not ready to delete'
             msg:
               title: MsgWithdrawFromLiquidityPool
@@ -6364,19 +5724,12 @@ definitions:
               properties:
                 withdrawer_address:
                   type: string
-                  format: sdk.AccAddress
-                  example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
                   description: account address of the origin of this message
                 pool_id:
                   type: string
                   format: uint64
-                  example: '1'
                   title: id of the target pool
                 pool_coin:
-                  format: sdk.Coin
-                  example:
-                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                    amount: '1000'
                   type: object
                   properties:
                     denom:
