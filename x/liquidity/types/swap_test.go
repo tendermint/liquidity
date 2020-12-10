@@ -215,7 +215,7 @@ func TestMaxOrderRatio(t *testing.T) {
 	app.SaveAccount(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY))
 
 	msgBuy := types.NewMsgSwap(addrs[1], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoin, DenomY, priceBuy)
-	msgSell := types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomY, priceSell)
+	msgSell := types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomX, priceSell)
 
 	_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgBuy, 0)
 	require.NoError(t, err)
@@ -231,7 +231,7 @@ func TestMaxOrderRatio(t *testing.T) {
 	app.SaveAccount(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY))
 
 	msgBuy = types.NewMsgSwap(addrs[1], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoin, DenomY, priceBuy)
-	msgSell = types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomY, priceSell)
+	msgSell = types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomX, priceSell)
 
 	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgBuy, 0)
 	require.Equal(t, types.ErrExceededMaxOrderable, err)
@@ -247,7 +247,7 @@ func TestMaxOrderRatio(t *testing.T) {
 	app.SaveAccount(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY))
 
 	msgBuy = types.NewMsgSwap(addrs[1], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoin, DenomY, priceBuy)
-	msgSell = types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomY, priceSell)
+	msgSell = types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomX, priceSell)
 
 	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgBuy, 0)
 	require.NoError(t, err)
@@ -265,7 +265,7 @@ func TestMaxOrderRatio(t *testing.T) {
 	app.SaveAccount(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY))
 
 	msgBuy = types.NewMsgSwap(addrs[1], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoin, DenomY, priceBuy)
-	msgSell = types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomY, priceSell)
+	msgSell = types.NewMsgSwap(addrs[2], poolId, DefaultPoolTypeIndex, DefaultSwapType, offerCoinY, DenomX, priceSell)
 
 	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msgBuy, 0)
 	require.Equal(t, types.ErrExceededMaxOrderable, err)
