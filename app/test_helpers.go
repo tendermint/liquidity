@@ -564,7 +564,7 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 				OfferCoin:       orderCoin,
 				DemandCoinDenom: denomY,
 				OrderPrice:      orderPrice,
-				OfferCoinFee: types.GetOfferCoinFee(orderCoin),
+				OfferCoinFee:    types.GetOfferCoinFee(orderCoin),
 			},
 		})
 	}
@@ -579,7 +579,7 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 				OfferCoin:       orderCoin,
 				DemandCoinDenom: denomX,
 				OrderPrice:      orderPrice,
-				OfferCoinFee: types.GetOfferCoinFee(orderCoin),
+				OfferCoinFee:    types.GetOfferCoinFee(orderCoin),
 			},
 		})
 	}

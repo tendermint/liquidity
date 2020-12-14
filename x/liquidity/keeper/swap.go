@@ -276,11 +276,11 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
 				!match.BatchMsg.OfferCoinFeeReserve.Equal(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.ZeroInt())) {
-					fmt.Println(match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
-						GT(match.BatchMsg.Msg.OfferCoin.Amount),
-						!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())),
-						!match.BatchMsg.OfferCoinFeeReserve.Equal(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.ZeroInt())))
-					fmt.Println(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt)
+				fmt.Println(match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
+					GT(match.BatchMsg.Msg.OfferCoin.Amount),
+					!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())),
+					!match.BatchMsg.OfferCoinFeeReserve.Equal(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.ZeroInt())))
+				fmt.Println(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt)
 				panic("remaining not matched")
 			} else {
 				match.BatchMsg.Succeed = true
@@ -330,10 +330,10 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
 				!match.BatchMsg.OfferCoinFeeReserve.Equal(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.ZeroInt())) {
-					fmt.Println(match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
-						GT(match.BatchMsg.Msg.OfferCoin.Amount),
-						!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())),
-						!match.BatchMsg.OfferCoinFeeReserve.Equal(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.ZeroInt())))
+				fmt.Println(match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
+					GT(match.BatchMsg.Msg.OfferCoin.Amount),
+					!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())),
+					!match.BatchMsg.OfferCoinFeeReserve.Equal(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.ZeroInt())))
 				panic("remaining not matched")
 			} else {
 				match.BatchMsg.Succeed = true

@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-
 // Calculate unique Pool key of the liquidity pool
 // need to validate alphabetical ordering of ReserveCoinDenoms when New() and Store
 // Denominations can be 3 ~ 128 characters long and support letters, followed by either
@@ -106,7 +105,7 @@ func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
 func (lp LiquidityPool) GetPoolCoinDenom() string { return lp.PoolCoinDenom }
 
 // return pool id of the liquidity poool
-func (lp LiquidityPool) GetPoolId() uint64        { return lp.PoolId }
+func (lp LiquidityPool) GetPoolId() uint64 { return lp.PoolId }
 
 // LiquidityPools is a collection of liquidityPools
 type LiquidityPools []LiquidityPool

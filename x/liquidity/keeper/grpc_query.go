@@ -215,6 +215,7 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 		Pagination:  pageRes,
 	}, nil
 }
+
 // read data from kvstore for response of query batch withdraw messages of the liquidity pool batch
 func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBatchWithdrawMsgsRequest) (*types.QueryPoolBatchWithdrawMsgsResponse, error) {
 	empty := &types.QueryPoolBatchWithdrawMsgsRequest{}

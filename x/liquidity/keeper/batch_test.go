@@ -817,7 +817,6 @@ func TestDeleteAndInitPoolBatchWithdraw(t *testing.T) {
 	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, false)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
-
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)

@@ -240,6 +240,7 @@ func NewMsgSwap(
 func (msg MsgSwap) GetOfferCoinFee() sdk.Coin {
 	return GetOfferCoinFee(msg.OfferCoin)
 }
+
 // TODO: half-half fee
 func GetOfferCoinFee(offerCoin sdk.Coin) sdk.Coin {
 	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(DefaultSwapFeeRate.Mul(HalfRatio)).TruncateInt())

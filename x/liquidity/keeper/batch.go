@@ -215,15 +215,15 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap, Or
 	// TODO: OfferCoinFee
 
 	batchPoolMsg := types.BatchPoolSwapMsg{
-		MsgHeight:          ctx.BlockHeight(),
-		MsgIndex:           poolBatch.SwapMsgIndex,
-		Executed:           false,
-		Succeed:            false,
-		ToDelete:           false,
-		ExchangedOfferCoin: sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
-		RemainingOfferCoin: msg.OfferCoin,
+		MsgHeight:           ctx.BlockHeight(),
+		MsgIndex:            poolBatch.SwapMsgIndex,
+		Executed:            false,
+		Succeed:             false,
+		ToDelete:            false,
+		ExchangedOfferCoin:  sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
+		RemainingOfferCoin:  msg.OfferCoin,
 		OfferCoinFeeReserve: msg.OfferCoinFee,
-		Msg:                msg,
+		Msg:                 msg,
 	}
 	// TODO: add logic if OrderExpiryHeight==0, pass on batch logic
 	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + OrderExpirySpanHeight
