@@ -21,6 +21,9 @@ service Msg {
       post: "/liquidity/pools"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      deprecated: true
+    };
   };
 
   // Submit deposit to the liquidity pool batch.
@@ -28,6 +31,9 @@ service Msg {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/deposits"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      deprecated: true
     };
   };
 
@@ -37,6 +43,9 @@ service Msg {
       post: "/liquidity/pools/{pool_id}/batch/withdraws"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      deprecated: true
+    };
   };
 
   // Submit swap to the liquidity pool batch.
@@ -44,6 +53,9 @@ service Msg {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/swaps"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      deprecated: true
     };
   };
 }
@@ -440,10 +452,11 @@ message Signature {
 // Base response struct of result of the requested Tx, standard of tendermint/cosmos-sdk
 message StdTx {
   // Msgs
-  repeated string msg = 1 [(gogoproto.moretags) = "yaml:\"msg\"",
-    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "[\"MsgDepositToLiquidityPool\",\"MsgSwap\"]"
-    }];
+  repeated string msg = 1 [(gogoproto.moretags) = "yaml:\"msg\""];
+//  repeated string msg = 1 [(gogoproto.moretags) = "yaml:\"msg\"",
+//    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//      example: "[\"string\"]"
+//    }];
 
   // Fee
   Fee fee = 2 [(gogoproto.moretags) = "yaml:\"fee\""];

@@ -278,8 +278,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) {
 				panic("remaining not matched")
 			} else {
-				match.BatchMsg.Succeed = true
-				match.BatchMsg.ToDelete = true
+				match.BatchMsg.Succeeded = true
+				match.BatchMsg.ToBeDeleted = true
 			}
 		} else if match.BatchMsg.Msg.OfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) ||
 			match.BatchMsg.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) {
@@ -297,8 +297,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) {
 				panic("remaining not matched")
 			} else {
-				match.BatchMsg.Succeed = true
-				match.BatchMsg.ToDelete = true
+				match.BatchMsg.Succeeded = true
+				match.BatchMsg.ToBeDeleted = true
 			}
 		} else {
 			// fractional match
@@ -306,8 +306,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
 			//match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
 			matchedIndexMapXtoY[match.BatchMsg.MsgIndex] = match.BatchMsg.RemainingOfferCoin
-			match.BatchMsg.Succeed = true
-			match.BatchMsg.ToDelete = false
+			match.BatchMsg.Succeeded = true
+			match.BatchMsg.ToBeDeleted = false
 			fractionalCntX += 1
 		}
 	}
@@ -327,8 +327,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) {
 				panic("remaining not matched")
 			} else {
-				match.BatchMsg.Succeed = true
-				match.BatchMsg.ToDelete = true
+				match.BatchMsg.Succeeded = true
+				match.BatchMsg.ToBeDeleted = true
 			}
 		} else if match.BatchMsg.Msg.OfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) ||
 			match.BatchMsg.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt).Equal(sdk.OneInt()) {
@@ -348,8 +348,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) {
 				panic("remaining not matched")
 			} else {
-				match.BatchMsg.Succeed = true
-				match.BatchMsg.ToDelete = true
+				match.BatchMsg.Succeeded = true
+				match.BatchMsg.ToBeDeleted = true
 			}
 		} else {
 			// fractional match
@@ -357,8 +357,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
 			//match.BatchMsg.RemainingOfferCoin = match.BatchMsg.RemainingOfferCoin.Sub(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt))
 			matchedIndexMapYtoX[match.BatchMsg.MsgIndex] = match.BatchMsg.RemainingOfferCoin
-			match.BatchMsg.Succeed = true
-			match.BatchMsg.ToDelete = false
+			match.BatchMsg.Succeeded = true
+			match.BatchMsg.ToBeDeleted = false
 			fractionalCntY += 1
 		}
 	}

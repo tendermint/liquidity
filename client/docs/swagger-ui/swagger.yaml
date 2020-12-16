@@ -2,10 +2,11 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 1.2.2
+  version: 1.2.3
 paths:
   /liquidity/pools:
     post:
+      deprecated: true
       summary: Submit create liquidity pool message.
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -24,9 +25,6 @@ paths:
                 properties:
                   msg:
                     type: array
-                    example:
-                      - MsgDepositToLiquidityPool
-                      - MsgSwap
                     items:
                       type: string
                     title: Msgs
@@ -292,12 +290,17 @@ paths:
               MsgCreateLiquidityPoolRequest is the request type for the
               Msg/MsgCreateLiquidityPoolRequest RPC method.
       tags:
-        - Liquidity Tx Generation
+        - Tx
       externalDocs:
         description: Find out more message spec and response events here
         url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
-      summary: Get all liquidity pools with each liquidity pool batch
+      summary: >-
+        Get all liquidity pools currently existed with each liquidity pool with
+        batch and metadata
+      description: >-
+        It returns list of all liquidity pools currently existed with batch,
+        metadata and paging results containing next_key and total count.
       operationId: LiquidityPools
       responses:
         '200':
@@ -305,7 +308,7 @@ paths:
           schema:
             type: object
             properties:
-              liquidity_pools_response:
+              pools:
                 type: array
                 items:
                   type: object
@@ -340,7 +343,7 @@ paths:
                           type: string
                           example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                           title: denom of pool coin of the pool
-                    liquidity_pool_meta_data:
+                    liquidity_pool_metadata:
                       type: object
                       properties:
                         pool_id:
@@ -432,12 +435,14 @@ paths:
                           example: true
                           title: 'true if executed, false if not executed yet'
                   description: >-
-                    QueryLiquidityPoolResponse is the response type for the
-                    QueryLiquidityPoolResponse RPC method.
+                    the response type for the QueryLiquidityPoolResponse RPC
+                    method. It returns the liquidity pool with batch and
+                    metadata containing total pool coin supply and reserved
+                    coins corresponding to the requested pool_id.
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -454,14 +459,29 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryLiquidityPoolsResponse is the response type for the
-              QueryLiquidityPoolsResponse RPC method.
+              the response type for the QueryLiquidityPoolsResponse RPC method.
+              This includes list of all liquidity pools currently existed and
+              paging results containing next_key and total count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -531,8 +551,12 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
+      deprecated: true
       summary: Submit deposit to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -551,9 +575,6 @@ paths:
                 properties:
                   msg:
                     type: array
-                    example:
-                      - MsgDepositToLiquidityPool
-                      - MsgSwap
                     items:
                       type: string
                     title: Msgs
@@ -836,12 +857,15 @@ paths:
               MsgDepositToLiquidityPoolRequest is the request type for the
               Msg/DepositToLiquidityPool RPC method.
       tags:
-        - Liquidity Tx Generation
+        - Tx
       externalDocs:
         description: Find out more message spec and response events here
         url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all pool batch deposit messages of the liquidity pool
+      description: >-
+        It returns list of all currently existing deposit messages of the batch
+        and paging results containing next_key and total count.
       operationId: PoolBatchDepositMsgs
       responses:
         '200':
@@ -849,7 +873,7 @@ paths:
           schema:
             type: object
             properties:
-              deposit_msgs:
+              deposits:
                 type: array
                 items:
                   type: object
@@ -870,19 +894,19 @@ paths:
                       title: >-
                         true if executed on this batch, false if not executed
                         yet
-                    succeed:
+                    succeeded:
                       type: boolean
                       example: true
                       title: >-
                         true if executed successfully on this batch, false if
                         failed
-                    to_delete:
+                    to_be_deleted:
                       type: boolean
                       example: true
                       title: >-
-                        true if ready to delete on kvstore, false if not ready
-                        to delete
-                    Msg:
+                        true if ready to be deleted on kvstore, false if not
+                        ready to be deleted
+                    msg:
                       title: MsgDepositToLiquidityPool
                       type: object
                       properties:
@@ -938,9 +962,9 @@ paths:
                         See:
                         https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -957,14 +981,29 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryPoolBatchDepositMsgsResponse is the response type for the
-              QueryPoolBatchDeposit RPC method.
+              the response type for the QueryPoolBatchDeposit RPC method. This
+              includes a list of all currently existing deposit messages of the
+              batch and paging results containing next_key and total count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -1040,8 +1079,12 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
+      deprecated: true
       summary: Submit swap to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1060,9 +1103,6 @@ paths:
                 properties:
                   msg:
                     type: array
-                    example:
-                      - MsgDepositToLiquidityPool
-                      - MsgSwap
                     items:
                       type: string
                     title: Msgs
@@ -1367,12 +1407,15 @@ paths:
                   https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
             description: MsgSwapRequest is the request type for the Query/Swap RPC method.
       tags:
-        - Liquidity Tx Generation
+        - Tx
       externalDocs:
         description: Find out more message spec and response events here
         url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all pool batch swap messages of the liquidity pool
+      description: >-
+        It returns list of all currently existing swap messages of the batch and
+        paging results containing next_key and total count.
       operationId: PoolBatchSwapMsgs
       responses:
         '200':
@@ -1380,7 +1423,7 @@ paths:
           schema:
             type: object
             properties:
-              swap_msgs:
+              swaps:
                 type: array
                 items:
                   type: object
@@ -1401,18 +1444,18 @@ paths:
                       title: >-
                         true if executed on this batch, false if not executed
                         yet
-                    succeed:
+                    succeeded:
                       type: boolean
                       example: true
                       title: >-
                         true if executed successfully on this batch, false if
                         failed
-                    to_delete:
+                    to_be_deleted:
                       type: boolean
                       example: true
                       title: >-
-                        true if ready to delete on kvstore, false if not ready
-                        to delete
+                        true if ready to be deleted on kvstore, false if not
+                        ready to be deleted
                     order_expiry_height:
                       type: string
                       format: int64
@@ -1543,9 +1586,9 @@ paths:
 
                         https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -1562,14 +1605,29 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryPoolBatchSwapMsgsResponse is the response type for the
-              QueryPoolBatchSwap RPC method.
+              the response type for the QueryPoolBatchSwap RPC method. This
+              includes list of all currently existing swap messages of the batch
+              and paging results containing next_key and total count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -1645,8 +1703,12 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
+      deprecated: true
       summary: Submit withdraw from to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1665,9 +1727,6 @@ paths:
                 properties:
                   msg:
                     type: array
-                    example:
-                      - MsgDepositToLiquidityPool
-                      - MsgSwap
                     items:
                       type: string
                     title: Msgs
@@ -1945,12 +2004,15 @@ paths:
               MsgWithdrawFromLiquidityPoolRequest is the request type for the
               Query/WithdrawFromLiquidityPool RPC method.
       tags:
-        - Liquidity Tx Generation
+        - Tx
       externalDocs:
         description: Find out more message spec and response events here
         url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all pool batch withdraw messages of the liquidity pool
+      description: >-
+        It returns list of all currently existing withdraw messages of the batch
+        and paging results containing next_key and total count.
       operationId: PoolBatchWithdrawMsgs
       responses:
         '200':
@@ -1958,7 +2020,7 @@ paths:
           schema:
             type: object
             properties:
-              withdraw_msgs:
+              withdraws:
                 type: array
                 items:
                   type: object
@@ -1979,18 +2041,18 @@ paths:
                       title: >-
                         true if executed on this batch, false if not executed
                         yet
-                    succeed:
+                    succeeded:
                       type: boolean
                       example: true
                       title: >-
                         true if executed successfully on this batch, false if
                         failed
-                    to_delete:
+                    to_be_deleted:
                       type: boolean
                       example: true
                       title: >-
-                        true if ready to delete on kvstore, false if not ready
-                        to delete
+                        true if ready to be deleted on kvstore, false if not
+                        ready to be deleted
                     msg:
                       title: MsgWithdrawFromLiquidityPool
                       type: object
@@ -2042,9 +2104,9 @@ paths:
                         See:
                         https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -2061,14 +2123,29 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryPoolBatchWithdrawMsgsResponse is the response type for the
-              QueryPoolBatchWithdraw RPC method.
+              the response type for the QueryPoolBatchWithdraw RPC method. This
+              includes a list of all currently existing withdraw messages of the
+              batch and paging results containing next_key and total count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2144,9 +2221,13 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   /liquidity/params:
     get:
       summary: Parameters queries the liquidity parameters.
+      description: returns current parameter of the liquidity module.
       operationId: LiquidityQueries
       responses:
         '200':
@@ -2234,8 +2315,22 @@ paths:
                       Fee paid for new LiquidityPool creation to prevent
                       spamming
             description: >-
-              QueryParamsResponse is response type for the QueryParamsResponse
-              RPC method.
+              the response type for the QueryParamsResponse RPC method. This
+              includes current parameter of the liquidity module.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2260,9 +2355,16 @@ paths:
                       format: byte
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the params
+        url: >-
+          https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md
   /liquidity/pools/batch:
     get:
       summary: Get all liquidity pools batch
+      description: >-
+        It returns list of all batch that all currently existing pools and
+        paging results containing next_key and total count.
       operationId: LiquidityPoolsBatch
       responses:
         '200':
@@ -2270,12 +2372,12 @@ paths:
           schema:
             type: object
             properties:
-              liquidity_pools_batch_response:
+              pools_batch:
                 type: array
                 items:
                   type: object
                   properties:
-                    liquidity_pool_batch:
+                    batch:
                       type: object
                       properties:
                         pool_id:
@@ -2313,12 +2415,13 @@ paths:
                           example: true
                           title: 'true if executed, false if not executed yet'
                   description: >-
-                    QueryLiquidityPoolBatchResponse is the response type for the
-                    QueryLiquidityPoolBatchResponse RPC method.
+                    the response type for the QueryLiquidityPoolBatchResponse
+                    RPC method. It returns the liquidity pool batch
+                    corresponding to the requested pool_id.
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -2335,14 +2438,30 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryLiquidityPoolsBatchResponse is the response type for the
-              QueryLiquidityPoolsBatchResponse RPC method.
+              the response type for the QueryLiquidityPoolsBatchResponse RPC
+              method. This includes list of all batches that all currently
+              existing pools and paging results containing next_key and total
+              count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2412,9 +2531,16 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}':
     get:
       summary: Get a liquidity pool with liquidity pool batch by pool_id
+      description: >-
+        It returns the liquidity pool with batch and metadata containing total
+        pool coin supply and reserved coins corresponding to the requested
+        pool_id.
       operationId: LiquidityPool
       responses:
         '200':
@@ -2452,7 +2578,7 @@ paths:
                     type: string
                     example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     title: denom of pool coin of the pool
-              liquidity_pool_meta_data:
+              liquidity_pool_metadata:
                 type: object
                 properties:
                   pool_id:
@@ -2542,8 +2668,24 @@ paths:
                     example: true
                     title: 'true if executed, false if not executed yet'
             description: >-
-              QueryLiquidityPoolResponse is the response type for the
-              QueryLiquidityPoolResponse RPC method.
+              the response type for the QueryLiquidityPoolResponse RPC method.
+              It returns the liquidity pool with batch and metadata containing
+              total pool coin supply and reserved coins corresponding to the
+              requested pool_id.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2574,9 +2716,15 @@ paths:
           format: uint64
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch':
     get:
       summary: Get a liquidity pool batch by pool_id
+      description: >-
+        It returns the liquidity pool batch corresponding to the requested
+        pool_id.
       operationId: LiquidityPoolBatch
       responses:
         '200':
@@ -2584,7 +2732,7 @@ paths:
           schema:
             type: object
             properties:
-              liquidity_pool_batch:
+              batch:
                 type: object
                 properties:
                   pool_id:
@@ -2622,8 +2770,23 @@ paths:
                     example: true
                     title: 'true if executed, false if not executed yet'
             description: >-
-              QueryLiquidityPoolBatchResponse is the response type for the
-              QueryLiquidityPoolBatchResponse RPC method.
+              the response type for the QueryLiquidityPoolBatchResponse RPC
+              method. It returns the liquidity pool batch corresponding to the
+              requested pool_id.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2655,828 +2818,9 @@ paths:
           format: uint64
       tags:
         - Query
-  /node_info:
-    get:
-      description: Information about the connected node
-      summary: The properties of the connected node
-      tags:
-        - Gaia REST
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Node status
-          schema:
-            type: object
-            properties:
-              application_version:
-                properties:
-                  build_tags:
-                    type: string
-                  client_name:
-                    type: string
-                  commit:
-                    type: string
-                  go:
-                    type: string
-                  name:
-                    type: string
-                  server_name:
-                    type: string
-                  version:
-                    type: string
-              node_info:
-                properties:
-                  id:
-                    type: string
-                  moniker:
-                    type: string
-                    example: validator-name
-                  protocol_version:
-                    properties:
-                      p2p:
-                        type: string
-                        example: 7
-                      block:
-                        type: string
-                        example: 10
-                      app:
-                        type: string
-                        example: 0
-                  network:
-                    type: string
-                    example: gaia-2
-                  channels:
-                    type: string
-                  listen_addr:
-                    type: string
-                    example: '192.168.56.1:26656'
-                  version:
-                    description: Tendermint version
-                    type: string
-                    example: 0.15.0
-                  other:
-                    description: more information on versions
-                    type: object
-                    properties:
-                      tx_index:
-                        type: string
-                        example: 'on'
-                      rpc_address:
-                        type: string
-                        example: 'tcp://0.0.0.0:26657'
-        '500':
-          description: Failed to query node status
-  /syncing:
-    get:
-      summary: Syncing state of node
-      tags:
-        - Tendermint RPC
-      description: Get if the node is currently syning with other nodes
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Node syncing status
-          schema:
-            type: object
-            properties:
-              syncing:
-                type: boolean
-        '500':
-          description: Server internal error
-  /blocks/latest:
-    get:
-      summary: Get the latest block
-      tags:
-        - Tendermint RPC
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: The latest block
-          schema:
-            type: object
-            properties:
-              block_meta:
-                type: object
-                properties:
-                  header:
-                    type: object
-                    properties:
-                      chain_id:
-                        type: string
-                        example: cosmoshub-2
-                      height:
-                        type: number
-                        example: 1
-                      time:
-                        type: string
-                        example: '2017-12-30T05:53:09.287+01:00'
-                      num_txs:
-                        type: number
-                        example: 0
-                      last_block_id:
-                        type: object
-                        properties:
-                          hash:
-                            type: string
-                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                          parts:
-                            type: object
-                            properties:
-                              total:
-                                type: number
-                                example: 0
-                              hash:
-                                type: string
-                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      total_txs:
-                        type: number
-                        example: 35
-                      last_commit_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      data_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      validators_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      next_validators_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      consensus_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      app_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      last_results_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      evidence_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      proposer_address:
-                        type: string
-                        description: bech32 encoded address
-                        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
-                      version:
-                        type: object
-                        properties:
-                          block:
-                            type: string
-                            example: 10
-                          app:
-                            type: string
-                            example: 0
-                  block_id:
-                    type: object
-                    properties:
-                      hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      parts:
-                        type: object
-                        properties:
-                          total:
-                            type: number
-                            example: 0
-                          hash:
-                            type: string
-                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              block:
-                type: object
-                properties:
-                  header:
-                    type: object
-                    properties:
-                      chain_id:
-                        type: string
-                        example: cosmoshub-2
-                      height:
-                        type: number
-                        example: 1
-                      time:
-                        type: string
-                        example: '2017-12-30T05:53:09.287+01:00'
-                      num_txs:
-                        type: number
-                        example: 0
-                      last_block_id:
-                        type: object
-                        properties:
-                          hash:
-                            type: string
-                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                          parts:
-                            type: object
-                            properties:
-                              total:
-                                type: number
-                                example: 0
-                              hash:
-                                type: string
-                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      total_txs:
-                        type: number
-                        example: 35
-                      last_commit_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      data_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      validators_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      next_validators_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      consensus_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      app_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      last_results_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      evidence_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      proposer_address:
-                        type: string
-                        description: bech32 encoded address
-                        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
-                      version:
-                        type: object
-                        properties:
-                          block:
-                            type: string
-                            example: 10
-                          app:
-                            type: string
-                            example: 0
-                  txs:
-                    type: array
-                    items:
-                      type: string
-                  evidence:
-                    type: array
-                    items:
-                      type: string
-                  last_commit:
-                    type: object
-                    properties:
-                      block_id:
-                        type: object
-                        properties:
-                          hash:
-                            type: string
-                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                          parts:
-                            type: object
-                            properties:
-                              total:
-                                type: number
-                                example: 0
-                              hash:
-                                type: string
-                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      precommits:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            validator_address:
-                              type: string
-                            validator_index:
-                              type: string
-                              example: '0'
-                            height:
-                              type: string
-                              example: '0'
-                            round:
-                              type: string
-                              example: '0'
-                            timestamp:
-                              type: string
-                              example: '2017-12-30T05:53:09.287+01:00'
-                            type:
-                              type: number
-                              example: 2
-                            block_id:
-                              type: object
-                              properties:
-                                hash:
-                                  type: string
-                                  example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                                parts:
-                                  type: object
-                                  properties:
-                                    total:
-                                      type: number
-                                      example: 0
-                                    hash:
-                                      type: string
-                                      example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                            signature:
-                              type: string
-                              example: >-
-                                7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ==
-        '500':
-          description: Server internal error
-  '/blocks/{height}':
-    get:
-      summary: Get a block at a certain height
-      tags:
-        - Tendermint RPC
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: height
-          description: Block height
-          required: true
-          type: number
-          x-example: 1
-      responses:
-        '200':
-          description: The block at a specific height
-          schema:
-            type: object
-            properties:
-              block_meta:
-                type: object
-                properties:
-                  header:
-                    type: object
-                    properties:
-                      chain_id:
-                        type: string
-                        example: cosmoshub-2
-                      height:
-                        type: number
-                        example: 1
-                      time:
-                        type: string
-                        example: '2017-12-30T05:53:09.287+01:00'
-                      num_txs:
-                        type: number
-                        example: 0
-                      last_block_id:
-                        type: object
-                        properties:
-                          hash:
-                            type: string
-                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                          parts:
-                            type: object
-                            properties:
-                              total:
-                                type: number
-                                example: 0
-                              hash:
-                                type: string
-                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      total_txs:
-                        type: number
-                        example: 35
-                      last_commit_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      data_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      validators_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      next_validators_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      consensus_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      app_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      last_results_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      evidence_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      proposer_address:
-                        type: string
-                        description: bech32 encoded address
-                        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
-                      version:
-                        type: object
-                        properties:
-                          block:
-                            type: string
-                            example: 10
-                          app:
-                            type: string
-                            example: 0
-                  block_id:
-                    type: object
-                    properties:
-                      hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      parts:
-                        type: object
-                        properties:
-                          total:
-                            type: number
-                            example: 0
-                          hash:
-                            type: string
-                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              block:
-                type: object
-                properties:
-                  header:
-                    type: object
-                    properties:
-                      chain_id:
-                        type: string
-                        example: cosmoshub-2
-                      height:
-                        type: number
-                        example: 1
-                      time:
-                        type: string
-                        example: '2017-12-30T05:53:09.287+01:00'
-                      num_txs:
-                        type: number
-                        example: 0
-                      last_block_id:
-                        type: object
-                        properties:
-                          hash:
-                            type: string
-                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                          parts:
-                            type: object
-                            properties:
-                              total:
-                                type: number
-                                example: 0
-                              hash:
-                                type: string
-                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      total_txs:
-                        type: number
-                        example: 35
-                      last_commit_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      data_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      validators_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      next_validators_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      consensus_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      app_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      last_results_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      evidence_hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      proposer_address:
-                        type: string
-                        description: bech32 encoded address
-                        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
-                      version:
-                        type: object
-                        properties:
-                          block:
-                            type: string
-                            example: 10
-                          app:
-                            type: string
-                            example: 0
-                  txs:
-                    type: array
-                    items:
-                      type: string
-                  evidence:
-                    type: array
-                    items:
-                      type: string
-                  last_commit:
-                    type: object
-                    properties:
-                      block_id:
-                        type: object
-                        properties:
-                          hash:
-                            type: string
-                            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                          parts:
-                            type: object
-                            properties:
-                              total:
-                                type: number
-                                example: 0
-                              hash:
-                                type: string
-                                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                      precommits:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            validator_address:
-                              type: string
-                            validator_index:
-                              type: string
-                              example: '0'
-                            height:
-                              type: string
-                              example: '0'
-                            round:
-                              type: string
-                              example: '0'
-                            timestamp:
-                              type: string
-                              example: '2017-12-30T05:53:09.287+01:00'
-                            type:
-                              type: number
-                              example: 2
-                            block_id:
-                              type: object
-                              properties:
-                                hash:
-                                  type: string
-                                  example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                                parts:
-                                  type: object
-                                  properties:
-                                    total:
-                                      type: number
-                                      example: 0
-                                    hash:
-                                      type: string
-                                      example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                            signature:
-                              type: string
-                              example: >-
-                                7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ==
-        '400':
-          description: Invalid height
-        '404':
-          description: Request block height doesn't
-        '500':
-          description: Server internal error
-  /validatorsets/latest:
-    get:
-      summary: Get the latest validator set
-      tags:
-        - Tendermint RPC
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: The validator set at the latest block height
-          schema:
-            type: object
-            properties:
-              block_height:
-                type: string
-              validators:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    address:
-                      type: string
-                      description: bech32 encoded address
-                      example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
-                    pub_key:
-                      type: string
-                      example: >-
-                        cosmosvalconspub1zcjduepq0vu2zgkgk49efa0nqwzndanq5m4c7pa3u4apz4g2r9gspqg6g9cs3k9cuf
-                    voting_power:
-                      type: string
-                      example: '1000'
-                    proposer_priority:
-                      type: string
-                      example: '1000'
-        '500':
-          description: Server internal error
-  '/validatorsets/{height}':
-    get:
-      summary: Get a validator set a certain height
-      tags:
-        - Tendermint RPC
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: height
-          description: Block height
-          required: true
-          type: number
-          x-example: 1
-      responses:
-        '200':
-          description: The validator set at a specific block height
-          schema:
-            type: object
-            properties:
-              block_height:
-                type: string
-              validators:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    address:
-                      type: string
-                      description: bech32 encoded address
-                      example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
-                    pub_key:
-                      type: string
-                      example: >-
-                        cosmosvalconspub1zcjduepq0vu2zgkgk49efa0nqwzndanq5m4c7pa3u4apz4g2r9gspqg6g9cs3k9cuf
-                    voting_power:
-                      type: string
-                      example: '1000'
-                    proposer_priority:
-                      type: string
-                      example: '1000'
-        '400':
-          description: Invalid height
-        '404':
-          description: Block at height not available
-        '500':
-          description: Server internal error
-  /txs:
-    post:
-      tags:
-        - Transactions
-      summary: Broadcast a signed tx
-      description: Broadcast a signed tx to a full node
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: txBroadcast
-          description: >-
-            The tx must be a signed StdTx. The supported broadcast modes include
-            `"block"`(return after tx commit), `"sync"`(return afer CheckTx) and
-            `"async"`(return right away).
-          required: true
-          schema:
-            type: object
-            properties:
-              tx:
-                type: object
-                properties:
-                  msg:
-                    type: array
-                    items:
-                      type: string
-                  fee:
-                    type: object
-                    properties:
-                      gas:
-                        type: string
-                      amount:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            denom:
-                              type: string
-                              example: stake
-                            amount:
-                              type: string
-                              example: '50'
-                  memo:
-                    type: string
-                  signature:
-                    type: object
-                    properties:
-                      signature:
-                        type: string
-                        example: >-
-                          MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
-                      pub_key:
-                        type: object
-                        properties:
-                          type:
-                            type: string
-                            example: tendermint/PubKeySecp256k1
-                          value:
-                            type: string
-                            example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
-                      account_number:
-                        type: string
-                        example: '0'
-                      sequence:
-                        type: string
-                        example: '0'
-              mode:
-                type: string
-                example: block
-      responses:
-        '200':
-          description: Tx broadcasting result
-          schema:
-            type: object
-            properties:
-              check_tx:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  data:
-                    type: string
-                  gas_used:
-                    type: integer
-                  gas_wanted:
-                    type: integer
-                  info:
-                    type: string
-                  log:
-                    type: string
-                  tags:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        key:
-                          type: string
-                        value:
-                          type: string
-                example:
-                  code: 0
-                  data: data
-                  log: log
-                  gas_used: 5000
-                  gas_wanted: 10000
-                  info: info
-                  tags:
-                    - ''
-                    - ''
-              deliver_tx:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                  data:
-                    type: string
-                  gas_used:
-                    type: integer
-                  gas_wanted:
-                    type: integer
-                  info:
-                    type: string
-                  log:
-                    type: string
-                  tags:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        key:
-                          type: string
-                        value:
-                          type: string
-                example:
-                  code: 5
-                  data: data
-                  log: log
-                  gas_used: 5000
-                  gas_wanted: 10000
-                  info: info
-                  tags:
-                    - ''
-                    - ''
-              hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              height:
-                type: integer
-        '500':
-          description: Internal Server Error
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
 definitions:
   cosmos.base.v1beta1.Coin:
     type: object
@@ -3538,7 +2882,6 @@ definitions:
         format: sdk.AccAddress
         example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
         title: Sender address or Keybase name to generate a transaction
-        description: Sender address or Keybase name to generate a transaction
       memo:
         type: string
         example: Sent via Cosmos Voyager
@@ -3855,9 +3198,6 @@ definitions:
         properties:
           msg:
             type: array
-            example:
-              - MsgDepositToLiquidityPool
-              - MsgSwap
             items:
               type: string
             title: Msgs
@@ -4149,9 +3489,6 @@ definitions:
         properties:
           msg:
             type: array
-            example:
-              - MsgDepositToLiquidityPool
-              - MsgSwap
             items:
               type: string
             title: Msgs
@@ -4492,9 +3829,6 @@ definitions:
         properties:
           msg:
             type: array
-            example:
-              - MsgDepositToLiquidityPool
-              - MsgSwap
             items:
               type: string
             title: Msgs
@@ -4774,9 +4108,6 @@ definitions:
         properties:
           msg:
             type: array
-            example:
-              - MsgDepositToLiquidityPool
-              - MsgSwap
             items:
               type: string
             title: Msgs
@@ -4898,9 +4229,6 @@ definitions:
     properties:
       msg:
         type: array
-        example:
-          - MsgDepositToLiquidityPool
-          - MsgSwap
         items:
           type: string
         title: Msgs
@@ -5056,15 +4384,17 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed on this batch, false if not executed yet'
-      succeed:
+      succeeded:
         type: boolean
         example: true
         title: 'true if executed successfully on this batch, false if failed'
-      to_delete:
+      to_be_deleted:
         type: boolean
         example: true
-        title: 'true if ready to delete on kvstore, false if not ready to delete'
-      Msg:
+        title: >-
+          true if ready to be deleted on kvstore, false if not ready to be
+          deleted
+      msg:
         title: MsgDepositToLiquidityPool
         type: object
         properties:
@@ -5134,14 +4464,16 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed on this batch, false if not executed yet'
-      succeed:
+      succeeded:
         type: boolean
         example: true
         title: 'true if executed successfully on this batch, false if failed'
-      to_delete:
+      to_be_deleted:
         type: boolean
         example: true
-        title: 'true if ready to delete on kvstore, false if not ready to delete'
+        title: >-
+          true if ready to be deleted on kvstore, false if not ready to be
+          deleted
       order_expiry_height:
         type: string
         format: int64
@@ -5278,14 +4610,16 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed on this batch, false if not executed yet'
-      succeed:
+      succeeded:
         type: boolean
         example: true
         title: 'true if executed successfully on this batch, false if failed'
-      to_delete:
+      to_be_deleted:
         type: boolean
         example: true
-        title: 'true if ready to delete on kvstore, false if not ready to delete'
+        title: >-
+          true if ready to be deleted on kvstore, false if not ready to be
+          deleted
       msg:
         title: MsgWithdrawFromLiquidityPool
         type: object
@@ -5401,7 +4735,7 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed, false if not executed yet'
-  tendermint.liquidity.LiquidityPoolMetaData:
+  tendermint.liquidity.LiquidityPoolMetadata:
     type: object
     properties:
       pool_id:
@@ -5550,7 +4884,7 @@ definitions:
   tendermint.liquidity.QueryLiquidityPoolBatchResponse:
     type: object
     properties:
-      liquidity_pool_batch:
+      batch:
         type: object
         properties:
           pool_id:
@@ -5588,8 +4922,8 @@ definitions:
             example: true
             title: 'true if executed, false if not executed yet'
     description: >-
-      QueryLiquidityPoolBatchResponse is the response type for the
-      QueryLiquidityPoolBatchResponse RPC method.
+      the response type for the QueryLiquidityPoolBatchResponse RPC method. It
+      returns the liquidity pool batch corresponding to the requested pool_id.
   tendermint.liquidity.QueryLiquidityPoolResponse:
     type: object
     properties:
@@ -5623,7 +4957,7 @@ definitions:
             type: string
             example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
             title: denom of pool coin of the pool
-      liquidity_pool_meta_data:
+      liquidity_pool_metadata:
         type: object
         properties:
           pool_id:
@@ -5713,17 +5047,18 @@ definitions:
             example: true
             title: 'true if executed, false if not executed yet'
     description: >-
-      QueryLiquidityPoolResponse is the response type for the
-      QueryLiquidityPoolResponse RPC method.
+      the response type for the QueryLiquidityPoolResponse RPC method. It
+      returns the liquidity pool with batch and metadata containing total pool
+      coin supply and reserved coins corresponding to the requested pool_id.
   tendermint.liquidity.QueryLiquidityPoolsBatchResponse:
     type: object
     properties:
-      liquidity_pools_batch_response:
+      pools_batch:
         type: array
         items:
           type: object
           properties:
-            liquidity_pool_batch:
+            batch:
               type: object
               properties:
                 pool_id:
@@ -5761,12 +5096,13 @@ definitions:
                   example: true
                   title: 'true if executed, false if not executed yet'
           description: >-
-            QueryLiquidityPoolBatchResponse is the response type for the
-            QueryLiquidityPoolBatchResponse RPC method.
+            the response type for the QueryLiquidityPoolBatchResponse RPC
+            method. It returns the liquidity pool batch corresponding to the
+            requested pool_id.
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -5783,18 +5119,19 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryLiquidityPoolsBatchResponse is the response type for the
-      QueryLiquidityPoolsBatchResponse RPC method.
+      the response type for the QueryLiquidityPoolsBatchResponse RPC method.
+      This includes list of all batches that all currently existing pools and
+      paging results containing next_key and total count.
   tendermint.liquidity.QueryLiquidityPoolsResponse:
     type: object
     properties:
-      liquidity_pools_response:
+      pools:
         type: array
         items:
           type: object
@@ -5829,7 +5166,7 @@ definitions:
                   type: string
                   example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                   title: denom of pool coin of the pool
-            liquidity_pool_meta_data:
+            liquidity_pool_metadata:
               type: object
               properties:
                 pool_id:
@@ -5919,12 +5256,14 @@ definitions:
                   example: true
                   title: 'true if executed, false if not executed yet'
           description: >-
-            QueryLiquidityPoolResponse is the response type for the
-            QueryLiquidityPoolResponse RPC method.
+            the response type for the QueryLiquidityPoolResponse RPC method. It
+            returns the liquidity pool with batch and metadata containing total
+            pool coin supply and reserved coins corresponding to the requested
+            pool_id.
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -5941,14 +5280,15 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryLiquidityPoolsResponse is the response type for the
-      QueryLiquidityPoolsResponse RPC method.
+      the response type for the QueryLiquidityPoolsResponse RPC method. This
+      includes list of all liquidity pools currently existed and paging results
+      containing next_key and total count.
   tendermint.liquidity.QueryParamsResponse:
     type: object
     properties:
@@ -6030,12 +5370,12 @@ definitions:
                 signatures required by gogoproto.
             title: Fee paid for new LiquidityPool creation to prevent spamming
     description: >-
-      QueryParamsResponse is response type for the QueryParamsResponse RPC
-      method.
+      the response type for the QueryParamsResponse RPC method. This includes
+      current parameter of the liquidity module.
   tendermint.liquidity.QueryPoolBatchDepositMsgsResponse:
     type: object
     properties:
-      deposit_msgs:
+      deposits:
         type: array
         items:
           type: object
@@ -6054,15 +5394,17 @@ definitions:
               type: boolean
               example: true
               title: 'true if executed on this batch, false if not executed yet'
-            succeed:
+            succeeded:
               type: boolean
               example: true
               title: 'true if executed successfully on this batch, false if failed'
-            to_delete:
+            to_be_deleted:
               type: boolean
               example: true
-              title: 'true if ready to delete on kvstore, false if not ready to delete'
-            Msg:
+              title: >-
+                true if ready to be deleted on kvstore, false if not ready to be
+                deleted
+            msg:
               title: MsgDepositToLiquidityPool
               type: object
               properties:
@@ -6117,9 +5459,9 @@ definitions:
                 See:
                 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -6136,18 +5478,19 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryPoolBatchDepositMsgsResponse is the response type for the
-      QueryPoolBatchDeposit RPC method.
+      the response type for the QueryPoolBatchDeposit RPC method. This includes
+      a list of all currently existing deposit messages of the batch and paging
+      results containing next_key and total count.
   tendermint.liquidity.QueryPoolBatchSwapMsgsResponse:
     type: object
     properties:
-      swap_msgs:
+      swaps:
         type: array
         items:
           type: object
@@ -6166,14 +5509,16 @@ definitions:
               type: boolean
               example: true
               title: 'true if executed on this batch, false if not executed yet'
-            succeed:
+            succeeded:
               type: boolean
               example: true
               title: 'true if executed successfully on this batch, false if failed'
-            to_delete:
+            to_be_deleted:
               type: boolean
               example: true
-              title: 'true if ready to delete on kvstore, false if not ready to delete'
+              title: >-
+                true if ready to be deleted on kvstore, false if not ready to be
+                deleted
             order_expiry_height:
               type: string
               format: int64
@@ -6301,9 +5646,9 @@ definitions:
 
                 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -6320,18 +5665,19 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryPoolBatchSwapMsgsResponse is the response type for the
-      QueryPoolBatchSwap RPC method.
+      the response type for the QueryPoolBatchSwap RPC method. This includes
+      list of all currently existing swap messages of the batch and paging
+      results containing next_key and total count.
   tendermint.liquidity.QueryPoolBatchWithdrawMsgsResponse:
     type: object
     properties:
-      withdraw_msgs:
+      withdraws:
         type: array
         items:
           type: object
@@ -6350,14 +5696,16 @@ definitions:
               type: boolean
               example: true
               title: 'true if executed on this batch, false if not executed yet'
-            succeed:
+            succeeded:
               type: boolean
               example: true
               title: 'true if executed successfully on this batch, false if failed'
-            to_delete:
+            to_be_deleted:
               type: boolean
               example: true
-              title: 'true if ready to delete on kvstore, false if not ready to delete'
+              title: >-
+                true if ready to be deleted on kvstore, false if not ready to be
+                deleted
             msg:
               title: MsgWithdrawFromLiquidityPool
               type: object
@@ -6408,9 +5756,9 @@ definitions:
                 See:
                 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -6427,921 +5775,12 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryPoolBatchWithdrawMsgsResponse is the response type for the
-      QueryPoolBatchWithdraw RPC method.
-  CheckTxResult:
-    type: object
-    properties:
-      code:
-        type: integer
-      data:
-        type: string
-      gas_used:
-        type: integer
-      gas_wanted:
-        type: integer
-      info:
-        type: string
-      log:
-        type: string
-      tags:
-        type: array
-        items:
-          type: object
-          properties:
-            key:
-              type: string
-            value:
-              type: string
-    example:
-      code: 0
-      data: data
-      log: log
-      gas_used: 5000
-      gas_wanted: 10000
-      info: info
-      tags:
-        - ''
-        - ''
-  DeliverTxResult:
-    type: object
-    properties:
-      code:
-        type: integer
-      data:
-        type: string
-      gas_used:
-        type: integer
-      gas_wanted:
-        type: integer
-      info:
-        type: string
-      log:
-        type: string
-      tags:
-        type: array
-        items:
-          type: object
-          properties:
-            key:
-              type: string
-            value:
-              type: string
-    example:
-      code: 5
-      data: data
-      log: log
-      gas_used: 5000
-      gas_wanted: 10000
-      info: info
-      tags:
-        - ''
-        - ''
-  BroadcastTxCommitResult:
-    type: object
-    properties:
-      check_tx:
-        type: object
-        properties:
-          code:
-            type: integer
-          data:
-            type: string
-          gas_used:
-            type: integer
-          gas_wanted:
-            type: integer
-          info:
-            type: string
-          log:
-            type: string
-          tags:
-            type: array
-            items:
-              type: object
-              properties:
-                key:
-                  type: string
-                value:
-                  type: string
-        example:
-          code: 0
-          data: data
-          log: log
-          gas_used: 5000
-          gas_wanted: 10000
-          info: info
-          tags:
-            - ''
-            - ''
-      deliver_tx:
-        type: object
-        properties:
-          code:
-            type: integer
-          data:
-            type: string
-          gas_used:
-            type: integer
-          gas_wanted:
-            type: integer
-          info:
-            type: string
-          log:
-            type: string
-          tags:
-            type: array
-            items:
-              type: object
-              properties:
-                key:
-                  type: string
-                value:
-                  type: string
-        example:
-          code: 5
-          data: data
-          log: log
-          gas_used: 5000
-          gas_wanted: 10000
-          info: info
-          tags:
-            - ''
-            - ''
-      hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      height:
-        type: integer
-  KVPair:
-    type: object
-    properties:
-      key:
-        type: string
-      value:
-        type: string
-  Msg:
-    type: string
-  Address:
-    type: string
-    description: bech32 encoded address
-    example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
-  ValidatorAddress:
-    type: string
-    description: bech32 encoded address
-    example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
-  Coin:
-    type: object
-    properties:
-      denom:
-        type: string
-        example: stake
-      amount:
-        type: string
-        example: '50'
-  Hash:
-    type: string
-    example: EE5F3404034C524501629B56E0DDC38FAD651F04
-  TxQuery:
-    type: object
-    properties:
-      hash:
-        type: string
-        example: D085138D913993919295FF4B0A9107F1F2CDE0D37A87CE0644E217CBF3B49656
-      height:
-        type: number
-        example: 368
-      tx:
-        type: object
-        properties:
-          msg:
-            type: array
-            items:
-              type: string
-          fee:
-            type: object
-            properties:
-              gas:
-                type: string
-              amount:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    denom:
-                      type: string
-                      example: stake
-                    amount:
-                      type: string
-                      example: '50'
-          memo:
-            type: string
-          signature:
-            type: object
-            properties:
-              signature:
-                type: string
-                example: >-
-                  MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
-              pub_key:
-                type: object
-                properties:
-                  type:
-                    type: string
-                    example: tendermint/PubKeySecp256k1
-                  value:
-                    type: string
-                    example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
-              account_number:
-                type: string
-                example: '0'
-              sequence:
-                type: string
-                example: '0'
-      result:
-        type: object
-        properties:
-          log:
-            type: string
-          gas_wanted:
-            type: string
-            example: '200000'
-          gas_used:
-            type: string
-            example: '26354'
-          tags:
-            type: array
-            items:
-              type: object
-              properties:
-                key:
-                  type: string
-                value:
-                  type: string
-  PaginatedQueryTxs:
-    type: object
-    properties:
-      total_count:
-        type: number
-        example: 1
-      count:
-        type: number
-        example: 1
-      page_number:
-        type: number
-        example: 1
-      page_total:
-        type: number
-        example: 1
-      limit:
-        type: number
-        example: 30
-      txs:
-        type: array
-        items:
-          type: object
-          properties:
-            hash:
-              type: string
-              example: D085138D913993919295FF4B0A9107F1F2CDE0D37A87CE0644E217CBF3B49656
-            height:
-              type: number
-              example: 368
-            tx:
-              type: object
-              properties:
-                msg:
-                  type: array
-                  items:
-                    type: string
-                fee:
-                  type: object
-                  properties:
-                    gas:
-                      type: string
-                    amount:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          denom:
-                            type: string
-                            example: stake
-                          amount:
-                            type: string
-                            example: '50'
-                memo:
-                  type: string
-                signature:
-                  type: object
-                  properties:
-                    signature:
-                      type: string
-                      example: >-
-                        MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
-                    pub_key:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                          example: tendermint/PubKeySecp256k1
-                        value:
-                          type: string
-                          example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
-                    account_number:
-                      type: string
-                      example: '0'
-                    sequence:
-                      type: string
-                      example: '0'
-            result:
-              type: object
-              properties:
-                log:
-                  type: string
-                gas_wanted:
-                  type: string
-                  example: '200000'
-                gas_used:
-                  type: string
-                  example: '26354'
-                tags:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      key:
-                        type: string
-                      value:
-                        type: string
-  StdTx:
-    type: object
-    properties:
-      msg:
-        type: array
-        items:
-          type: string
-      fee:
-        type: object
-        properties:
-          gas:
-            type: string
-          amount:
-            type: array
-            items:
-              type: object
-              properties:
-                denom:
-                  type: string
-                  example: stake
-                amount:
-                  type: string
-                  example: '50'
-      memo:
-        type: string
-      signature:
-        type: object
-        properties:
-          signature:
-            type: string
-            example: >-
-              MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
-          pub_key:
-            type: object
-            properties:
-              type:
-                type: string
-                example: tendermint/PubKeySecp256k1
-              value:
-                type: string
-                example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
-          account_number:
-            type: string
-            example: '0'
-          sequence:
-            type: string
-            example: '0'
-  BlockID:
-    type: object
-    properties:
-      hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      parts:
-        type: object
-        properties:
-          total:
-            type: number
-            example: 0
-          hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-  BlockHeader:
-    type: object
-    properties:
-      chain_id:
-        type: string
-        example: cosmoshub-2
-      height:
-        type: number
-        example: 1
-      time:
-        type: string
-        example: '2017-12-30T05:53:09.287+01:00'
-      num_txs:
-        type: number
-        example: 0
-      last_block_id:
-        type: object
-        properties:
-          hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          parts:
-            type: object
-            properties:
-              total:
-                type: number
-                example: 0
-              hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      total_txs:
-        type: number
-        example: 35
-      last_commit_hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      data_hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      validators_hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      next_validators_hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      consensus_hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      app_hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      last_results_hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      evidence_hash:
-        type: string
-        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      proposer_address:
-        type: string
-        description: bech32 encoded address
-        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
-      version:
-        type: object
-        properties:
-          block:
-            type: string
-            example: 10
-          app:
-            type: string
-            example: 0
-  Block:
-    type: object
-    properties:
-      header:
-        type: object
-        properties:
-          chain_id:
-            type: string
-            example: cosmoshub-2
-          height:
-            type: number
-            example: 1
-          time:
-            type: string
-            example: '2017-12-30T05:53:09.287+01:00'
-          num_txs:
-            type: number
-            example: 0
-          last_block_id:
-            type: object
-            properties:
-              hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              parts:
-                type: object
-                properties:
-                  total:
-                    type: number
-                    example: 0
-                  hash:
-                    type: string
-                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          total_txs:
-            type: number
-            example: 35
-          last_commit_hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          data_hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          validators_hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          next_validators_hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          consensus_hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          app_hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          last_results_hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          evidence_hash:
-            type: string
-            example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          proposer_address:
-            type: string
-            description: bech32 encoded address
-            example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
-          version:
-            type: object
-            properties:
-              block:
-                type: string
-                example: 10
-              app:
-                type: string
-                example: 0
-      txs:
-        type: array
-        items:
-          type: string
-      evidence:
-        type: array
-        items:
-          type: string
-      last_commit:
-        type: object
-        properties:
-          block_id:
-            type: object
-            properties:
-              hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              parts:
-                type: object
-                properties:
-                  total:
-                    type: number
-                    example: 0
-                  hash:
-                    type: string
-                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
-          precommits:
-            type: array
-            items:
-              type: object
-              properties:
-                validator_address:
-                  type: string
-                validator_index:
-                  type: string
-                  example: '0'
-                height:
-                  type: string
-                  example: '0'
-                round:
-                  type: string
-                  example: '0'
-                timestamp:
-                  type: string
-                  example: '2017-12-30T05:53:09.287+01:00'
-                type:
-                  type: number
-                  example: 2
-                block_id:
-                  type: object
-                  properties:
-                    hash:
-                      type: string
-                      example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                    parts:
-                      type: object
-                      properties:
-                        total:
-                          type: number
-                          example: 0
-                        hash:
-                          type: string
-                          example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                signature:
-                  type: string
-                  example: >-
-                    7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ==
-  BlockQuery:
-    type: object
-    properties:
-      block_meta:
-        type: object
-        properties:
-          header:
-            type: object
-            properties:
-              chain_id:
-                type: string
-                example: cosmoshub-2
-              height:
-                type: number
-                example: 1
-              time:
-                type: string
-                example: '2017-12-30T05:53:09.287+01:00'
-              num_txs:
-                type: number
-                example: 0
-              last_block_id:
-                type: object
-                properties:
-                  hash:
-                    type: string
-                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                  parts:
-                    type: object
-                    properties:
-                      total:
-                        type: number
-                        example: 0
-                      hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              total_txs:
-                type: number
-                example: 35
-              last_commit_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              data_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              validators_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              next_validators_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              consensus_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              app_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              last_results_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              evidence_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              proposer_address:
-                type: string
-                description: bech32 encoded address
-                example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
-              version:
-                type: object
-                properties:
-                  block:
-                    type: string
-                    example: 10
-                  app:
-                    type: string
-                    example: 0
-          block_id:
-            type: object
-            properties:
-              hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              parts:
-                type: object
-                properties:
-                  total:
-                    type: number
-                    example: 0
-                  hash:
-                    type: string
-                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
-      block:
-        type: object
-        properties:
-          header:
-            type: object
-            properties:
-              chain_id:
-                type: string
-                example: cosmoshub-2
-              height:
-                type: number
-                example: 1
-              time:
-                type: string
-                example: '2017-12-30T05:53:09.287+01:00'
-              num_txs:
-                type: number
-                example: 0
-              last_block_id:
-                type: object
-                properties:
-                  hash:
-                    type: string
-                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                  parts:
-                    type: object
-                    properties:
-                      total:
-                        type: number
-                        example: 0
-                      hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              total_txs:
-                type: number
-                example: 35
-              last_commit_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              data_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              validators_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              next_validators_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              consensus_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              app_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              last_results_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              evidence_hash:
-                type: string
-                example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              proposer_address:
-                type: string
-                description: bech32 encoded address
-                example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
-              version:
-                type: object
-                properties:
-                  block:
-                    type: string
-                    example: 10
-                  app:
-                    type: string
-                    example: 0
-          txs:
-            type: array
-            items:
-              type: string
-          evidence:
-            type: array
-            items:
-              type: string
-          last_commit:
-            type: object
-            properties:
-              block_id:
-                type: object
-                properties:
-                  hash:
-                    type: string
-                    example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                  parts:
-                    type: object
-                    properties:
-                      total:
-                        type: number
-                        example: 0
-                      hash:
-                        type: string
-                        example: EE5F3404034C524501629B56E0DDC38FAD651F04
-              precommits:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    validator_address:
-                      type: string
-                    validator_index:
-                      type: string
-                      example: '0'
-                    height:
-                      type: string
-                      example: '0'
-                    round:
-                      type: string
-                      example: '0'
-                    timestamp:
-                      type: string
-                      example: '2017-12-30T05:53:09.287+01:00'
-                    type:
-                      type: number
-                      example: 2
-                    block_id:
-                      type: object
-                      properties:
-                        hash:
-                          type: string
-                          example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                        parts:
-                          type: object
-                          properties:
-                            total:
-                              type: number
-                              example: 0
-                            hash:
-                              type: string
-                              example: EE5F3404034C524501629B56E0DDC38FAD651F04
-                    signature:
-                      type: string
-                      example: >-
-                        7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ==
-  BaseReq:
-    type: object
-    properties:
-      from:
-        type: string
-        example: cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc
-        description: Sender address or Keybase name to generate a transaction
-      memo:
-        type: string
-        example: "Sent via Cosmos Voyager \U0001F680"
-      chain_id:
-        type: string
-        example: Cosmos-Hub
-      account_number:
-        type: string
-        example: '0'
-      sequence:
-        type: string
-        example: '1'
-      gas:
-        type: string
-        example: '200000'
-      gas_adjustment:
-        type: string
-        example: '1.2'
-      fees:
-        type: array
-        items:
-          type: object
-          properties:
-            denom:
-              type: string
-              example: stake
-            amount:
-              type: string
-              example: '50'
-      simulate:
-        type: boolean
-        example: false
-        description: >-
-          Estimate gas for a transaction (cannot be used in conjunction with
-          generate_only)
-  TendermintValidator:
-    type: object
-    properties:
-      address:
-        type: string
-        description: bech32 encoded address
-        example: cosmosvaloper16xyempempp92x9hyzz9wrgf94r6j9h5f2w4n2l
-      pub_key:
-        type: string
-        example: >-
-          cosmosvalconspub1zcjduepq0vu2zgkgk49efa0nqwzndanq5m4c7pa3u4apz4g2r9gspqg6g9cs3k9cuf
-      voting_power:
-        type: string
-        example: '1000'
-      proposer_priority:
-        type: string
-        example: '1000'
-securityDefinitions:
-  kms:
-    type: basic
+      the response type for the QueryPoolBatchWithdraw RPC method. This includes
+      a list of all currently existing withdraw messages of the batch and paging
+      results containing next_key and total count.

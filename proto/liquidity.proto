@@ -134,7 +134,7 @@ message LiquidityPool {
         }];
 }
 
-message LiquidityPoolMetaData {
+message LiquidityPoolMetadata {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
 
@@ -241,19 +241,19 @@ message BatchPoolDepositMsg {
         }];
 
     // true if executed successfully on this batch, false if failed
-    bool succeed = 4 [(gogoproto.moretags) = "yaml:\"succeed\"",
+    bool succeeded = 4 [(gogoproto.moretags) = "yaml:\"succeeded\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
         }];
 
-    // true if ready to delete on kvstore, false if not ready to delete
-    bool to_delete = 5 [(gogoproto.moretags) = "yaml:\"to_delete\"",
+    // true if ready to be deleted on kvstore, false if not ready to be deleted
+    bool to_be_deleted = 5 [(gogoproto.moretags) = "yaml:\"to_be_deleted\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
         }];
 
     // MsgDepositToLiquidityPool
-    MsgDepositToLiquidityPool Msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
+    MsgDepositToLiquidityPool msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message BatchPoolWithdrawMsg {
@@ -279,13 +279,13 @@ message BatchPoolWithdrawMsg {
         }];
 
     // true if executed successfully on this batch, false if failed
-    bool succeed = 4 [(gogoproto.moretags) = "yaml:\"succeed\"",
+    bool succeeded = 4 [(gogoproto.moretags) = "yaml:\"succeeded\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
         }];
 
-    // true if ready to delete on kvstore, false if not ready to delete
-    bool to_delete = 5 [(gogoproto.moretags) = "yaml:\"to_delete\"",
+    // true if ready to be deleted on kvstore, false if not ready to be deleted
+    bool to_be_deleted = 5 [(gogoproto.moretags) = "yaml:\"to_be_deleted\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
         }];
@@ -317,13 +317,13 @@ message BatchPoolSwapMsg {
         }];
 
     // true if executed successfully on this batch, false if failed
-    bool succeed = 4 [(gogoproto.moretags) = "yaml:\"succeed\"",
+    bool succeeded = 4 [(gogoproto.moretags) = "yaml:\"succeeded\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
         }];
 
-    // true if ready to delete on kvstore, false if not ready to delete
-    bool to_delete = 5 [(gogoproto.moretags) = "yaml:\"to_delete\"",
+    // true if ready to be deleted on kvstore, false if not ready to be deleted
+    bool to_be_deleted = 5 [(gogoproto.moretags) = "yaml:\"to_be_deleted\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
         }];

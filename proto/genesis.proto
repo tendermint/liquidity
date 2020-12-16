@@ -8,7 +8,7 @@ option go_package = "github.com/tendermint/liquidity/types";
 
 message LiquidityPoolRecord {
     LiquidityPool liquidity_pool = 1 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"liquidity_pool\""];
-    LiquidityPoolMetaData liquidity_pool_meta_data = 2 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"liquidity_pool_meta_data\""];
+    LiquidityPoolMetadata liquidity_pool_metadata = 2 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"liquidity_pool_metadata\""];
     LiquidityPoolBatch liquidity_pool_batch = 3 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"liquidity_pool_batch\""];
     repeated BatchPoolDepositMsg batch_pool_deposit_msgs = 4  [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"batch_pool_deposit_msgs\""];
     repeated BatchPoolWithdrawMsg batch_pool_withdraw_msgs = 5   [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"batch_pool_withdraw_msgs\""];

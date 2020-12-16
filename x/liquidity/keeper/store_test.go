@@ -138,8 +138,8 @@ func TestGetAllNotProcessedPoolBatchSwapMsgs(t *testing.T) {
 	require.Equal(t, 3, len(batchMsgs))
 	for _, msg := range batchMsgs2 {
 		msg.Executed = true
-		msg.Succeed = true
-		msg.ToDelete = true
+		msg.Succeeded = true
+		msg.ToBeDeleted = true
 	}
 	require.Equal(t, 3, len(batchMsgs2))
 	simapp.LiquidityKeeper.SetLiquidityPoolBatchSwapMsgPointers(ctx, poolId, batchMsgs2)
@@ -229,7 +229,7 @@ func TestIterateAllBatchMsgs(t *testing.T) {
 	})
 	require.Equal(t, 4, len(depositMsgs))
 
-	depositMsgs[0].ToDelete = true
+	depositMsgs[0].ToBeDeleted = true
 	simapp.LiquidityKeeper.SetLiquidityPoolBatchDepositMsgs(ctx, poolId, []types.BatchPoolDepositMsg{depositMsgs[0]})
 	depositMsgsNotToDelete := simapp.LiquidityKeeper.GetAllNotToDeleteLiquidityPoolBatchDepositMsgs(ctx, batch)
 	require.Equal(t, 3, len(depositMsgsNotToDelete))
@@ -239,7 +239,7 @@ func TestIterateAllBatchMsgs(t *testing.T) {
 		withdrawMsgs = append(withdrawMsgs, msg)
 		return false
 	})
-	withdrawMsgs[0].ToDelete = true
+	withdrawMsgs[0].ToBeDeleted = true
 	simapp.LiquidityKeeper.SetLiquidityPoolBatchWithdrawMsgs(ctx, poolId, withdrawMsgs[0:1])
 
 	withdrawMsgsNotToDelete := simapp.LiquidityKeeper.GetAllNotToDeleteLiquidityPoolBatchWithdrawMsgs(ctx, batch)

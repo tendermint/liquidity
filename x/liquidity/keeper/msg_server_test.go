@@ -174,7 +174,7 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 
 }
 
-func TestMsgGetLiquidityPoolMetaData(t *testing.T) {
+func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
