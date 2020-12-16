@@ -11,13 +11,13 @@ import (
 
 // Const value of liquidity module
 const (
-	CancelOrderLifeSpan int64  = 0
+	CancelOrderLifeSpan int64 = 0
 
 	// min number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
-	MinReserveCoinNum   uint32 = 2
+	MinReserveCoinNum uint32 = 2
 
 	// max number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
-	MaxReserveCoinNum   uint32 = 2
+	MaxReserveCoinNum uint32 = 2
 
 	// TODO: Develop a case larger than 1 on the next milestone
 	UnitBatchSize uint32 = 1
@@ -26,7 +26,7 @@ const (
 	DefaultPoolTypeIndex = uint32(1)
 
 	// swap type of available swap request, only 1 is allowed on this version.
-	DefaultSwapType      = uint32(1)
+	DefaultSwapType = uint32(1)
 )
 
 // Parameter store keys
@@ -156,7 +156,7 @@ func validateLiquidityPoolTypes(i interface{}) error {
 	if len(v) < 1 {
 		return fmt.Errorf("need to default pool type")
 	}
-	if !v[0].Equal(DefaultLiquidityPoolType)  {
+	if !v[0].Equal(DefaultLiquidityPoolType) {
 		return fmt.Errorf("only default pool type allowed")
 	}
 	return nil
@@ -184,7 +184,7 @@ func validateInitPoolCoinMintAmount(i interface{}) error {
 	if !v.IsPositive() {
 		return fmt.Errorf("InitPoolCoinMintAmount must be positive: %d", v)
 	}
-	if v.LT(DefaultInitPoolCoinMintAmount){
+	if v.LT(DefaultInitPoolCoinMintAmount) {
 		return fmt.Errorf("InitPoolCoinMintAmount should over default value: %d", v)
 	}
 	return nil

@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	_ "github.com/tendermint/liquidity/client/docs/statik"
 	"github.com/tendermint/liquidity/cmd/liquidityd/cmd"
 )
 

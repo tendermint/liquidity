@@ -89,6 +89,9 @@ import (
 	liquidityparams "github.com/tendermint/liquidity/app/params"
 	liquiditykeeper "github.com/tendermint/liquidity/x/liquidity/keeper"
 	liquiditytypes "github.com/tendermint/liquidity/x/liquidity/types"
+
+	// unnamed import of statik for swagger UI support
+	_ "github.com/tendermint/liquidity/client/docs/statik"
 )
 
 const appName = "LiquidityApp"
@@ -596,7 +599,7 @@ func RegisterSwaggerAPI(ctx client.Context, rtr *mux.Router) {
 	}
 
 	staticServer := http.FileServer(statikFS)
-	rtr.PathPrefix("/swagger/").Handler(http.StripPrefix("/swagger/", staticServer))
+	rtr.PathPrefix("/swagger-liquidity/").Handler(http.StripPrefix("/swagger-liquidity/", staticServer))
 }
 
 // GetMaccPerms returns a copy of the module account permissions

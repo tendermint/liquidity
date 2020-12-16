@@ -176,7 +176,7 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 	}
 
 	return &types.QueryPoolBatchSwapMsgsResponse{
-		Swaps:   msgs,
+		Swaps:      msgs,
 		Pagination: pageRes,
 	}, nil
 	return nil, nil
@@ -211,10 +211,11 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 	}
 
 	return &types.QueryPoolBatchDepositMsgsResponse{
-		Deposits: msgs,
-		Pagination:  pageRes,
+		Deposits:   msgs,
+		Pagination: pageRes,
 	}, nil
 }
+
 // read data from kvstore for response of query batch withdraw messages of the liquidity pool batch
 func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBatchWithdrawMsgsRequest) (*types.QueryPoolBatchWithdrawMsgsResponse, error) {
 	empty := &types.QueryPoolBatchWithdrawMsgsRequest{}
@@ -244,8 +245,8 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	}
 
 	return &types.QueryPoolBatchWithdrawMsgsResponse{
-		Withdraws: msgs,
-		Pagination:   pageRes,
+		Withdraws:  msgs,
+		Pagination: pageRes,
 	}, nil
 }
 

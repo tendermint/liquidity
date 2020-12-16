@@ -46,7 +46,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 			poolRecords = append(poolRecords, *record)
 		}
 	}
-	if len(poolRecords) == 0{
+	if len(poolRecords) == 0 {
 		poolRecords = []types.LiquidityPoolRecord{}
 	}
 	return types.NewGenesisState(params, poolRecords)

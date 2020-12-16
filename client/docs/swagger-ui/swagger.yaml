@@ -6,6 +6,7 @@ info:
 paths:
   /liquidity/pools:
     post:
+      deprecated: true
       summary: Submit create liquidity pool message.
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -294,7 +295,12 @@ paths:
         description: Find out more message spec and response events here
         url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
-      summary: Get all liquidity pools with each liquidity pool batch
+      summary: >-
+        Get all liquidity pools currently existed with each liquidity pool with
+        batch and metadata
+      description: >-
+        It returns list of all liquidity pools currently existed with batch,
+        metadata and paging results containing next_key and total count.
       operationId: LiquidityPools
       responses:
         '200':
@@ -429,12 +435,14 @@ paths:
                           example: true
                           title: 'true if executed, false if not executed yet'
                   description: >-
-                    QueryLiquidityPoolResponse is the response type for the
-                    QueryLiquidityPoolResponse RPC method.
+                    the response type for the QueryLiquidityPoolResponse RPC
+                    method. It returns the liquidity pool with batch and
+                    metadata containing total pool coin supply and reserved
+                    coins corresponding to the requested pool_id.
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -451,14 +459,29 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryLiquidityPoolsResponse is the response type for the
-              QueryLiquidityPoolsResponse RPC method.
+              the response type for the QueryLiquidityPoolsResponse RPC method.
+              This includes list of all liquidity pools currently existed and
+              paging results containing next_key and total count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -528,8 +551,12 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
+      deprecated: true
       summary: Submit deposit to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -836,6 +863,9 @@ paths:
         url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all pool batch deposit messages of the liquidity pool
+      description: >-
+        It returns list of all currently existing deposit messages of the batch
+        and paging results containing next_key and total count.
       operationId: PoolBatchDepositMsgs
       responses:
         '200':
@@ -864,18 +894,18 @@ paths:
                       title: >-
                         true if executed on this batch, false if not executed
                         yet
-                    succeed:
+                    succeeded:
                       type: boolean
                       example: true
                       title: >-
                         true if executed successfully on this batch, false if
                         failed
-                    to_delete:
+                    to_be_deleted:
                       type: boolean
                       example: true
                       title: >-
-                        true if ready to delete on kvstore, false if not ready
-                        to delete
+                        true if ready to be deleted on kvstore, false if not
+                        ready to be deleted
                     msg:
                       title: MsgDepositToLiquidityPool
                       type: object
@@ -932,9 +962,9 @@ paths:
                         See:
                         https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -951,14 +981,29 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryPoolBatchDepositMsgsResponse is the response type for the
-              QueryPoolBatchDeposit RPC method.
+              the response type for the QueryPoolBatchDeposit RPC method. This
+              includes a list of all currently existing deposit messages of the
+              batch and paging results containing next_key and total count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -1034,8 +1079,12 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
+      deprecated: true
       summary: Submit swap to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1364,6 +1413,9 @@ paths:
         url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all pool batch swap messages of the liquidity pool
+      description: >-
+        It returns list of all currently existing swap messages of the batch and
+        paging results containing next_key and total count.
       operationId: PoolBatchSwapMsgs
       responses:
         '200':
@@ -1392,18 +1444,18 @@ paths:
                       title: >-
                         true if executed on this batch, false if not executed
                         yet
-                    succeed:
+                    succeeded:
                       type: boolean
                       example: true
                       title: >-
                         true if executed successfully on this batch, false if
                         failed
-                    to_delete:
+                    to_be_deleted:
                       type: boolean
                       example: true
                       title: >-
-                        true if ready to delete on kvstore, false if not ready
-                        to delete
+                        true if ready to be deleted on kvstore, false if not
+                        ready to be deleted
                     order_expiry_height:
                       type: string
                       format: int64
@@ -1534,9 +1586,9 @@ paths:
 
                         https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -1553,14 +1605,29 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryPoolBatchSwapMsgsResponse is the response type for the
-              QueryPoolBatchSwap RPC method.
+              the response type for the QueryPoolBatchSwap RPC method. This
+              includes list of all currently existing swap messages of the batch
+              and paging results containing next_key and total count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -1636,8 +1703,12 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
+      deprecated: true
       summary: Submit withdraw from to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1939,6 +2010,9 @@ paths:
         url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
     get:
       summary: Get all pool batch withdraw messages of the liquidity pool
+      description: >-
+        It returns list of all currently existing withdraw messages of the batch
+        and paging results containing next_key and total count.
       operationId: PoolBatchWithdrawMsgs
       responses:
         '200':
@@ -1967,18 +2041,18 @@ paths:
                       title: >-
                         true if executed on this batch, false if not executed
                         yet
-                    succeed:
+                    succeeded:
                       type: boolean
                       example: true
                       title: >-
                         true if executed successfully on this batch, false if
                         failed
-                    to_delete:
+                    to_be_deleted:
                       type: boolean
                       example: true
                       title: >-
-                        true if ready to delete on kvstore, false if not ready
-                        to delete
+                        true if ready to be deleted on kvstore, false if not
+                        ready to be deleted
                     msg:
                       title: MsgWithdrawFromLiquidityPool
                       type: object
@@ -2030,9 +2104,9 @@ paths:
                         See:
                         https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -2049,14 +2123,29 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryPoolBatchWithdrawMsgsResponse is the response type for the
-              QueryPoolBatchWithdraw RPC method.
+              the response type for the QueryPoolBatchWithdraw RPC method. This
+              includes a list of all currently existing withdraw messages of the
+              batch and paging results containing next_key and total count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2132,9 +2221,13 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   /liquidity/params:
     get:
       summary: Parameters queries the liquidity parameters.
+      description: returns current parameter of the liquidity module.
       operationId: LiquidityQueries
       responses:
         '200':
@@ -2222,8 +2315,22 @@ paths:
                       Fee paid for new LiquidityPool creation to prevent
                       spamming
             description: >-
-              QueryParamsResponse is response type for the QueryParamsResponse
-              RPC method.
+              the response type for the QueryParamsResponse RPC method. This
+              includes current parameter of the liquidity module.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2248,9 +2355,16 @@ paths:
                       format: byte
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the params
+        url: >-
+          https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md
   /liquidity/pools/batch:
     get:
       summary: Get all liquidity pools batch
+      description: >-
+        It returns list of all batch that all currently existing pools and
+        paging results containing next_key and total count.
       operationId: LiquidityPoolsBatch
       responses:
         '200':
@@ -2301,12 +2415,13 @@ paths:
                           example: true
                           title: 'true if executed, false if not executed yet'
                   description: >-
-                    QueryLiquidityPoolBatchResponse is the response type for the
-                    QueryLiquidityPoolBatchResponse RPC method.
+                    the response type for the QueryLiquidityPoolBatchResponse
+                    RPC method. It returns the liquidity pool batch
+                    corresponding to the requested pool_id.
               pagination:
-                title: >-
+                description: >-
                   pagination defines the pagination in the response. not working
-                  on this version
+                  on this version.
                 type: object
                 properties:
                   next_key:
@@ -2323,14 +2438,30 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                description: |-
-                  message SomeResponse {
-                           repeated Bar results = 1;
-                           PageResponse page = 2;
-                   }
+                title: >-
+                  PageResponse is to be embedded in gRPC response messages where
+                  the corresponding
+
+                  request message has used PageRequest
             description: >-
-              QueryLiquidityPoolsBatchResponse is the response type for the
-              QueryLiquidityPoolsBatchResponse RPC method.
+              the response type for the QueryLiquidityPoolsBatchResponse RPC
+              method. This includes list of all batches that all currently
+              existing pools and paging results containing next_key and total
+              count.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2400,9 +2531,16 @@ paths:
           type: boolean
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}':
     get:
       summary: Get a liquidity pool with liquidity pool batch by pool_id
+      description: >-
+        It returns the liquidity pool with batch and metadata containing total
+        pool coin supply and reserved coins corresponding to the requested
+        pool_id.
       operationId: LiquidityPool
       responses:
         '200':
@@ -2530,8 +2668,24 @@ paths:
                     example: true
                     title: 'true if executed, false if not executed yet'
             description: >-
-              QueryLiquidityPoolResponse is the response type for the
-              QueryLiquidityPoolResponse RPC method.
+              the response type for the QueryLiquidityPoolResponse RPC method.
+              It returns the liquidity pool with batch and metadata containing
+              total pool coin supply and reserved coins corresponding to the
+              requested pool_id.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2562,9 +2716,15 @@ paths:
           format: uint64
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch':
     get:
       summary: Get a liquidity pool batch by pool_id
+      description: >-
+        It returns the liquidity pool batch corresponding to the requested
+        pool_id.
       operationId: LiquidityPoolBatch
       responses:
         '200':
@@ -2610,8 +2770,23 @@ paths:
                     example: true
                     title: 'true if executed, false if not executed yet'
             description: >-
-              QueryLiquidityPoolBatchResponse is the response type for the
-              QueryLiquidityPoolBatchResponse RPC method.
+              the response type for the QueryLiquidityPoolBatchResponse RPC
+              method. It returns the liquidity pool batch corresponding to the
+              requested pool_id.
+        '400':
+          description: Bad Request
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
+        '500':
+          description: Internal Server Error
+          schema: {}
+          examples:
+            application/json:
+              code: 0
+              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2643,6 +2818,9 @@ paths:
           format: uint64
       tags:
         - Query
+      externalDocs:
+        description: Find out more about the query and error codes
+        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
 definitions:
   cosmos.base.v1beta1.Coin:
     type: object
@@ -4206,14 +4384,16 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed on this batch, false if not executed yet'
-      succeed:
+      succeeded:
         type: boolean
         example: true
         title: 'true if executed successfully on this batch, false if failed'
-      to_delete:
+      to_be_deleted:
         type: boolean
         example: true
-        title: 'true if ready to delete on kvstore, false if not ready to delete'
+        title: >-
+          true if ready to be deleted on kvstore, false if not ready to be
+          deleted
       msg:
         title: MsgDepositToLiquidityPool
         type: object
@@ -4284,14 +4464,16 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed on this batch, false if not executed yet'
-      succeed:
+      succeeded:
         type: boolean
         example: true
         title: 'true if executed successfully on this batch, false if failed'
-      to_delete:
+      to_be_deleted:
         type: boolean
         example: true
-        title: 'true if ready to delete on kvstore, false if not ready to delete'
+        title: >-
+          true if ready to be deleted on kvstore, false if not ready to be
+          deleted
       order_expiry_height:
         type: string
         format: int64
@@ -4428,14 +4610,16 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed on this batch, false if not executed yet'
-      succeed:
+      succeeded:
         type: boolean
         example: true
         title: 'true if executed successfully on this batch, false if failed'
-      to_delete:
+      to_be_deleted:
         type: boolean
         example: true
-        title: 'true if ready to delete on kvstore, false if not ready to delete'
+        title: >-
+          true if ready to be deleted on kvstore, false if not ready to be
+          deleted
       msg:
         title: MsgWithdrawFromLiquidityPool
         type: object
@@ -4738,8 +4922,8 @@ definitions:
             example: true
             title: 'true if executed, false if not executed yet'
     description: >-
-      QueryLiquidityPoolBatchResponse is the response type for the
-      QueryLiquidityPoolBatchResponse RPC method.
+      the response type for the QueryLiquidityPoolBatchResponse RPC method. It
+      returns the liquidity pool batch corresponding to the requested pool_id.
   tendermint.liquidity.QueryLiquidityPoolResponse:
     type: object
     properties:
@@ -4863,8 +5047,9 @@ definitions:
             example: true
             title: 'true if executed, false if not executed yet'
     description: >-
-      QueryLiquidityPoolResponse is the response type for the
-      QueryLiquidityPoolResponse RPC method.
+      the response type for the QueryLiquidityPoolResponse RPC method. It
+      returns the liquidity pool with batch and metadata containing total pool
+      coin supply and reserved coins corresponding to the requested pool_id.
   tendermint.liquidity.QueryLiquidityPoolsBatchResponse:
     type: object
     properties:
@@ -4911,12 +5096,13 @@ definitions:
                   example: true
                   title: 'true if executed, false if not executed yet'
           description: >-
-            QueryLiquidityPoolBatchResponse is the response type for the
-            QueryLiquidityPoolBatchResponse RPC method.
+            the response type for the QueryLiquidityPoolBatchResponse RPC
+            method. It returns the liquidity pool batch corresponding to the
+            requested pool_id.
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -4933,14 +5119,15 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryLiquidityPoolsBatchResponse is the response type for the
-      QueryLiquidityPoolsBatchResponse RPC method.
+      the response type for the QueryLiquidityPoolsBatchResponse RPC method.
+      This includes list of all batches that all currently existing pools and
+      paging results containing next_key and total count.
   tendermint.liquidity.QueryLiquidityPoolsResponse:
     type: object
     properties:
@@ -5069,12 +5256,14 @@ definitions:
                   example: true
                   title: 'true if executed, false if not executed yet'
           description: >-
-            QueryLiquidityPoolResponse is the response type for the
-            QueryLiquidityPoolResponse RPC method.
+            the response type for the QueryLiquidityPoolResponse RPC method. It
+            returns the liquidity pool with batch and metadata containing total
+            pool coin supply and reserved coins corresponding to the requested
+            pool_id.
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -5091,14 +5280,15 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryLiquidityPoolsResponse is the response type for the
-      QueryLiquidityPoolsResponse RPC method.
+      the response type for the QueryLiquidityPoolsResponse RPC method. This
+      includes list of all liquidity pools currently existed and paging results
+      containing next_key and total count.
   tendermint.liquidity.QueryParamsResponse:
     type: object
     properties:
@@ -5180,8 +5370,8 @@ definitions:
                 signatures required by gogoproto.
             title: Fee paid for new LiquidityPool creation to prevent spamming
     description: >-
-      QueryParamsResponse is response type for the QueryParamsResponse RPC
-      method.
+      the response type for the QueryParamsResponse RPC method. This includes
+      current parameter of the liquidity module.
   tendermint.liquidity.QueryPoolBatchDepositMsgsResponse:
     type: object
     properties:
@@ -5204,14 +5394,16 @@ definitions:
               type: boolean
               example: true
               title: 'true if executed on this batch, false if not executed yet'
-            succeed:
+            succeeded:
               type: boolean
               example: true
               title: 'true if executed successfully on this batch, false if failed'
-            to_delete:
+            to_be_deleted:
               type: boolean
               example: true
-              title: 'true if ready to delete on kvstore, false if not ready to delete'
+              title: >-
+                true if ready to be deleted on kvstore, false if not ready to be
+                deleted
             msg:
               title: MsgDepositToLiquidityPool
               type: object
@@ -5267,9 +5459,9 @@ definitions:
                 See:
                 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -5286,14 +5478,15 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryPoolBatchDepositMsgsResponse is the response type for the
-      QueryPoolBatchDeposit RPC method.
+      the response type for the QueryPoolBatchDeposit RPC method. This includes
+      a list of all currently existing deposit messages of the batch and paging
+      results containing next_key and total count.
   tendermint.liquidity.QueryPoolBatchSwapMsgsResponse:
     type: object
     properties:
@@ -5316,14 +5509,16 @@ definitions:
               type: boolean
               example: true
               title: 'true if executed on this batch, false if not executed yet'
-            succeed:
+            succeeded:
               type: boolean
               example: true
               title: 'true if executed successfully on this batch, false if failed'
-            to_delete:
+            to_be_deleted:
               type: boolean
               example: true
-              title: 'true if ready to delete on kvstore, false if not ready to delete'
+              title: >-
+                true if ready to be deleted on kvstore, false if not ready to be
+                deleted
             order_expiry_height:
               type: string
               format: int64
@@ -5451,9 +5646,9 @@ definitions:
 
                 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -5470,14 +5665,15 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryPoolBatchSwapMsgsResponse is the response type for the
-      QueryPoolBatchSwap RPC method.
+      the response type for the QueryPoolBatchSwap RPC method. This includes
+      list of all currently existing swap messages of the batch and paging
+      results containing next_key and total count.
   tendermint.liquidity.QueryPoolBatchWithdrawMsgsResponse:
     type: object
     properties:
@@ -5500,14 +5696,16 @@ definitions:
               type: boolean
               example: true
               title: 'true if executed on this batch, false if not executed yet'
-            succeed:
+            succeeded:
               type: boolean
               example: true
               title: 'true if executed successfully on this batch, false if failed'
-            to_delete:
+            to_be_deleted:
               type: boolean
               example: true
-              title: 'true if ready to delete on kvstore, false if not ready to delete'
+              title: >-
+                true if ready to be deleted on kvstore, false if not ready to be
+                deleted
             msg:
               title: MsgWithdrawFromLiquidityPool
               type: object
@@ -5558,9 +5756,9 @@ definitions:
                 See:
                 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
       pagination:
-        title: >-
+        description: >-
           pagination defines the pagination in the response. not working on this
-          version
+          version.
         type: object
         properties:
           next_key:
@@ -5577,11 +5775,12 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        description: |-
-          message SomeResponse {
-                   repeated Bar results = 1;
-                   PageResponse page = 2;
-           }
+        title: >-
+          PageResponse is to be embedded in gRPC response messages where the
+          corresponding
+
+          request message has used PageRequest
     description: >-
-      QueryPoolBatchWithdrawMsgsResponse is the response type for the
-      QueryPoolBatchWithdraw RPC method.
+      the response type for the QueryPoolBatchWithdraw RPC method. This includes
+      a list of all currently existing withdraw messages of the batch and paging
+      results containing next_key and total count.

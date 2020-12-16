@@ -44,7 +44,7 @@ Available Commands:
   withdraw    Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
 ```
 
-
+See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
 
 ### tx create-pool
 
@@ -663,6 +663,8 @@ Global Flags:
 Use "liquidityd query liquidity [command] --help" for more information about a command.
 ```
 
+See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
+
 ### query batch
 `$ ./liquidityd query liquidity batch --help`
 ```bash
@@ -749,8 +751,8 @@ example query command with result
       "msg_height": "1232",
       "msg_index": "1",
       "executed": true,
-      "succeed": true,
-      "to_delete": true,
+      "succeeded": true,
+      "to_be_delete": true,
       "Msg": {
         "depositor_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
         "pool_id": "1",
@@ -958,8 +960,8 @@ example query command with result
        "msg_height": "1863",
        "msg_index": "1",
        "executed": true,
-       "succeed": true,
-       "to_delete": true,
+       "succeeded": true,
+       "to_be_delete": true,
        "order_expiry_height": "1863",
        "exchanged_offer_coin": {
          "denom": "reservecoin1",
@@ -1029,8 +1031,8 @@ example query command with result
       "msg_height": "1804",
       "msg_index": "1",
       "executed": true,
-      "succeed": true,
-      "to_delete": true,
+      "succeeded": true,
+      "to_be_delete": true,
       "msg": {
         "withdrawer_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
         "pool_id": "1",

@@ -312,8 +312,8 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 			return err
 		}
 
-		msg.Succeed = true
-		msg.ToDelete = true
+		msg.Succeeded = true
+		msg.ToBeDeleted = true
 		k.SetLiquidityPoolBatchDepositMsg(ctx, msg.Msg.PoolId, msg)
 
 		// TODO: remove result state check, debugging
@@ -383,8 +383,8 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 		return err
 	}
 
-	msg.Succeed = true
-	msg.ToDelete = true
+	msg.Succeeded = true
+	msg.ToBeDeleted = true
 	k.SetLiquidityPoolBatchDepositMsg(ctx, msg.Msg.PoolId, msg)
 	// TODO: add events for batch result, each err cases
 
@@ -484,8 +484,8 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 		panic(err)
 	}
 
-	msg.Succeed = true
-	msg.ToDelete = true
+	msg.Succeeded = true
+	msg.ToBeDeleted = true
 	k.SetLiquidityPoolBatchWithdrawMsg(ctx, msg.Msg.PoolId, msg)
 	// TODO: add events for batch result, each err cases
 
@@ -505,14 +505,14 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 
 func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoolDepositMsg) error {
 	batchMsg, _ = k.GetLiquidityPoolBatchDepositMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
-	if !batchMsg.Executed || batchMsg.Succeed {
+	if !batchMsg.Executed || batchMsg.Succeeded {
 		panic("can't refund not executed or or already succeed msg")
 	}
 	err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetDepositor(), batchMsg.Msg.DepositCoins)
 	if err != nil {
 		panic(err)
 	}
-	batchMsg.ToDelete = true
+	batchMsg.ToBeDeleted = true
 	k.SetLiquidityPoolBatchDepositMsg(ctx, batchMsg.Msg.PoolId, batchMsg)
 	//k.DeleteLiquidityPoolBatchDepositMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	// TODO: not delete now, set toDelete, executed, succeed fail,  delete on next block beginblock
@@ -521,14 +521,14 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Batch
 
 func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoolWithdrawMsg) error {
 	batchMsg, _ = k.GetLiquidityPoolBatchWithdrawMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
-	if !batchMsg.Executed || batchMsg.Succeed {
+	if !batchMsg.Executed || batchMsg.Succeeded {
 		panic("can't refund not executed or already succeed msg")
 	}
 	err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetWithdrawer(), sdk.NewCoins(batchMsg.Msg.PoolCoin))
 	if err != nil {
 		panic(err)
 	}
-	batchMsg.ToDelete = true
+	batchMsg.ToBeDeleted = true
 	k.SetLiquidityPoolBatchWithdrawMsg(ctx, batchMsg.Msg.PoolId, batchMsg)
 	// not delete now, set toDelete, executed, succeed fail,  delete on next block beginblock
 	//k.DeleteLiquidityPoolBatchWithdrawMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
@@ -545,7 +545,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 	poolReserveAcc := pool.GetReserveAccount()
 	for _, batchMsg := range batchMsgs {
 		// TODO: make Validate function to batchMsg
-		if !batchMsg.Executed && batchMsg.Succeed {
+		if !batchMsg.Executed && batchMsg.Succeeded {
 			panic("can't refund not executed with succeed msg")
 		}
 		if pool.PoolId != batchMsg.Msg.PoolId {
@@ -569,10 +569,10 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 			// fractional match, but expired order case
 			if batchMsg.RemainingOfferCoin.IsPositive() {
 				// not to delete, but expired case
-				if !batchMsg.ToDelete && batchMsg.OrderExpiryHeight <= ctx.BlockHeight() {
+				if !batchMsg.ToBeDeleted && batchMsg.OrderExpiryHeight <= ctx.BlockHeight() {
 					panic("impossible case")
 					// TODO: set to Delete
-				} else if !batchMsg.ToDelete && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
+				} else if !batchMsg.ToBeDeleted && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
 					// fractional matched, to be remaining order, not refund, only transact fractional exchange amt
 					// Add transacted coins to multisend
 					// TODO: coverage
@@ -591,9 +591,9 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
 						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.FeeAmt))))
 
-					batchMsg.Succeed = true
+					batchMsg.Succeeded = true
 
-				} else if batchMsg.ToDelete || batchMsg.OrderExpiryHeight == ctx.BlockHeight() {
+				} else if batchMsg.ToBeDeleted || batchMsg.OrderExpiryHeight == ctx.BlockHeight() {
 					// fractional matched, but expired order, transact with refund remaining offer coin
 
 					// Add transacted coins to multisend
@@ -620,8 +620,8 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 						inputs = append(inputs, input)
 						outputs = append(outputs, output)
 					}
-					batchMsg.Succeed = true
-					batchMsg.ToDelete = true
+					batchMsg.Succeeded = true
+					batchMsg.ToBeDeleted = true
 				} else {
 					panic("impossible case ")
 					// TODO: set to Delete
@@ -643,15 +643,15 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 				outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
 					sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.FeeAmt))))
 
-				batchMsg.Succeed = true
-				batchMsg.ToDelete = true
+				batchMsg.Succeeded = true
+				batchMsg.ToBeDeleted = true
 			} else {
 				panic("impossible case")
 			}
 
 		} else {
 			// not matched, remaining
-			if !batchMsg.ToDelete && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
+			if !batchMsg.ToBeDeleted && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
 				// have fractional matching history, not matched and expired, remaining refund
 				// refund remaining coins
 				// TODO: coverage
@@ -663,10 +663,10 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					outputs = append(outputs, output)
 				}
 
-				batchMsg.Succeed = false
-				batchMsg.ToDelete = true
+				batchMsg.Succeeded = false
+				batchMsg.ToBeDeleted = true
 
-			} else if batchMsg.ToDelete && batchMsg.OrderExpiryHeight == ctx.BlockHeight() {
+			} else if batchMsg.ToBeDeleted && batchMsg.OrderExpiryHeight == ctx.BlockHeight() {
 				// not matched and expired, remaining refund
 				// refund remaining coins
 				if input, output, err := k.ReleaseEscrowForMultiSend(batchMsg.Msg.GetSwapRequester(),
@@ -677,8 +677,8 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					outputs = append(outputs, output)
 				}
 
-				batchMsg.Succeed = false
-				batchMsg.ToDelete = true
+				batchMsg.Succeeded = false
+				batchMsg.ToBeDeleted = true
 
 			} else {
 				panic("impossible case")

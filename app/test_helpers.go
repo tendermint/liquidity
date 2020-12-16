@@ -652,8 +652,8 @@ func TestDepositPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y s
 			require.NotEqual(t, sdk.ZeroInt(), poolCoin)
 
 			require.True(t, msgs[i].Executed)
-			require.True(t, msgs[i].Succeed)
-			require.True(t, msgs[i].ToDelete)
+			require.True(t, msgs[i].Succeeded)
+			require.True(t, msgs[i].ToBeDeleted)
 
 			// error balance after endblock
 			depositorBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.ReserveCoinDenoms[0])
@@ -718,8 +718,8 @@ func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolC
 
 			withdrawMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, batch)
 			require.True(t, withdrawMsgs[i].Executed)
-			require.True(t, withdrawMsgs[i].Succeed)
-			require.True(t, withdrawMsgs[i].ToDelete)
+			require.True(t, withdrawMsgs[i].Succeeded)
+			require.True(t, withdrawMsgs[i].ToBeDeleted)
 		}
 	}
 }
