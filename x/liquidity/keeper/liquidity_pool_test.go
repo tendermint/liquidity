@@ -267,7 +267,7 @@ func TestReinitializePool(t *testing.T) {
 	require.True(t, reserveCoins.IsEqual(deposit))
 }
 
-func TestGetLiquidityPoolMetaData(t *testing.T) {
+func TestGetLiquidityPoolMetadata(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)

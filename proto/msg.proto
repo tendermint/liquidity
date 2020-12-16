@@ -21,7 +21,7 @@ service MsgApi {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
-      tags: "Liquidity Tx Generation";
+      tags: "Tx";
       external_docs: {
         url: "https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec";
         description: "Find out more message spec and response events here";
@@ -49,7 +49,7 @@ service MsgApi {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
-      tags: "Liquidity Tx Generation";
+      tags: "Tx";
       external_docs: {
         url: "https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec";
         description: "Find out more message spec and response events here";
@@ -65,7 +65,7 @@ service MsgApi {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
-      tags: "Liquidity Tx Generation";
+      tags: "Tx";
       external_docs: {
         url: "https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec";
         description: "Find out more message spec and response events here";
@@ -81,7 +81,7 @@ service MsgApi {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       description: "unsigned tx can be generated upon request through this POST endpoint, you can broadcast adding signature to the generated tx, through endpoint such as /txs or rpc, After broadcast, the result can be subscribe through the event and please refer to the spec."
-      tags: "Liquidity Tx Generation";
+      tags: "Tx";
       external_docs: {
         url: "https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec";
         description: "Find out more message spec and response events here";

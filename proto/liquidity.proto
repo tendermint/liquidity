@@ -134,7 +134,7 @@ message LiquidityPool {
         }];
 }
 
-message LiquidityPoolMetaData {
+message LiquidityPoolMetadata {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
 
@@ -253,7 +253,7 @@ message BatchPoolDepositMsg {
         }];
 
     // MsgDepositToLiquidityPool
-    MsgDepositToLiquidityPool Msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
+    MsgDepositToLiquidityPool msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message BatchPoolWithdrawMsg {

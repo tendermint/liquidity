@@ -30,7 +30,7 @@ func (k Keeper) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Liqui
 	}
 
 	return &types.QueryLiquidityPoolResponse{LiquidityPool: pool,
-		LiquidityPoolMetaData: k.GetPoolMetaData(ctx, pool),
+		LiquidityPoolMetadata: k.GetPoolMetaData(ctx, pool),
 		LiquidityPoolBatch:    batch}, nil
 }
 
@@ -45,7 +45,7 @@ func (k Keeper) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Liq
 		meta := k.GetPoolMetaData(ctx, pool)
 		res := types.QueryLiquidityPoolResponse{
 			LiquidityPool:         pool,
-			LiquidityPoolMetaData: meta,
+			LiquidityPoolMetadata: meta,
 			LiquidityPoolBatch:    batch,
 		}
 		resp[i] = res
@@ -120,7 +120,7 @@ func (k Keeper) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidity
 			return err
 		}
 		res := &types.QueryLiquidityPoolBatchResponse{
-			LiquidityPoolBatch: batch,
+			Batch: batch,
 		}
 		response = append(response, *res)
 		return nil
@@ -145,7 +145,7 @@ func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityP
 	if !found {
 		return nil, status.Errorf(codes.NotFound, "liquidity pool batch %d doesn't exist", req.PoolId)
 	}
-	return &types.QueryLiquidityPoolBatchResponse{LiquidityPoolBatch: batch}, nil
+	return &types.QueryLiquidityPoolBatchResponse{Batch: batch}, nil
 }
 
 // read data from kvstore for response of query batch swap messages of the liquidity pool batch
@@ -176,7 +176,7 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 	}
 
 	return &types.QueryPoolBatchSwapMsgsResponse{
-		SwapMsgs:   msgs,
+		Swaps:   msgs,
 		Pagination: pageRes,
 	}, nil
 	return nil, nil
@@ -211,7 +211,7 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 	}
 
 	return &types.QueryPoolBatchDepositMsgsResponse{
-		DepositMsgs: msgs,
+		Deposits: msgs,
 		Pagination:  pageRes,
 	}, nil
 }
@@ -244,7 +244,7 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	}
 
 	return &types.QueryPoolBatchWithdrawMsgsResponse{
-		WithdrawMsgs: msgs,
+		Withdraws: msgs,
 		Pagination:   pageRes,
 	}, nil
 }

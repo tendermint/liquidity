@@ -205,8 +205,8 @@ func (k Keeper) GetPoolCoinTotal(ctx sdk.Context, pool types.LiquidityPool) sdk.
 }
 
 // Get meta data of the pool, containing pool coin total supply, Reserved Coins, It used for result of queries
-func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.LiquidityPool) types.LiquidityPoolMetaData {
-	return types.LiquidityPoolMetaData{
+func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.LiquidityPool) types.LiquidityPoolMetadata {
+	return types.LiquidityPoolMetadata{
 		PoolId:              pool.PoolId,
 		PoolCoinTotalSupply: k.GetPoolCoinTotal(ctx, pool),
 		ReserveCoins:        k.GetReserveCoins(ctx, pool),
@@ -221,7 +221,7 @@ func (k Keeper) GetLiquidityPoolRecord(ctx sdk.Context, pool types.LiquidityPool
 	}
 	return &types.LiquidityPoolRecord{
 		LiquidityPool:         pool,
-		LiquidityPoolMetaData: k.GetPoolMetaData(ctx, pool),
+		LiquidityPoolMetadata: k.GetPoolMetaData(ctx, pool),
 		LiquidityPoolBatch:    batch,
 		BatchPoolDepositMsgs:  k.GetAllLiquidityPoolBatchDepositMsgs(ctx, batch),
 		BatchPoolWithdrawMsgs: k.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, batch),
@@ -720,13 +720,13 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 	return nil
 }
 
-//func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.LiquidityPool) *types.LiquidityPoolMetaData {
+//func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.LiquidityPool) *types.LiquidityPoolMetadata {
 //	totalSupply := sdk.NewCoin(pool.PoolCoinDenom, k.GetPoolCoinTotalSupply(ctx, pool))
 //	reserveCoin := k.GetReserveCoins(ctx, pool).Sort()
-//	return &types.LiquidityPoolMetaData{PoolId: pool.PoolId, PoolCoinTotalSupply: totalSupply, ReserveCoins: reserveCoin}
+//	return &types.LiquidityPoolMetadata{PoolId: pool.PoolId, PoolCoinTotalSupply: totalSupply, ReserveCoins: reserveCoin}
 //}
 
-func (k Keeper) ValidateLiquidityPoolMetaData(ctx sdk.Context, pool *types.LiquidityPool, metaData *types.LiquidityPoolMetaData) error {
+func (k Keeper) ValidateLiquidityPoolMetadata(ctx sdk.Context, pool *types.LiquidityPool, metaData *types.LiquidityPoolMetadata) error {
 	if !metaData.ReserveCoins.Sort().IsEqual(metaData.ReserveCoins) {
 		return types.ErrBadOrderingReserveCoin
 	}
@@ -755,7 +755,7 @@ func (k Keeper) ValidateLiquidityPoolRecord(ctx sdk.Context, record *types.Liqui
 	}
 
 	// validate metadata
-	if err := k.ValidateLiquidityPoolMetaData(ctx, &record.LiquidityPool, &record.LiquidityPoolMetaData); err != nil {
+	if err := k.ValidateLiquidityPoolMetadata(ctx, &record.LiquidityPool, &record.LiquidityPoolMetadata); err != nil {
 		return err
 	}
 
