@@ -57,8 +57,7 @@ $ %s query liquidity params
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -70,7 +69,7 @@ $ %s query liquidity params
 				return err
 			}
 
-			return clientCtx.PrintOutput(&res.Params)
+			return clientCtx.PrintProto(&res.Params)
 		},
 	}
 
@@ -93,8 +92,7 @@ $ %s query liquidity pool 1
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -120,7 +118,7 @@ $ %s query liquidity pool 1
 				return err
 			}
 
-			return clientCtx.PrintOutput(res)
+			return clientCtx.PrintProto(res)
 		},
 	}
 
@@ -143,8 +141,7 @@ $ %s query liquidity pools
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -158,7 +155,7 @@ $ %s query liquidity pools
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintOutput(result)
+			return clientCtx.PrintProto(result)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
@@ -180,8 +177,7 @@ $ %s query liquidity batch 1
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -193,7 +189,7 @@ $ %s query liquidity batch 1
 			}
 
 			// Query the pool
-			res, err := queryClient.LiquidityPoolBatch(
+			result, err := queryClient.LiquidityPoolBatch(
 				context.Background(),
 				&types.QueryLiquidityPoolBatchRequest{PoolId: poolId},
 			)
@@ -202,12 +198,12 @@ $ %s query liquidity batch 1
 			}
 
 			params := &types.QueryLiquidityPoolBatchRequest{PoolId: poolId}
-			res, err = queryClient.LiquidityPoolBatch(context.Background(), params)
+			result, err = queryClient.LiquidityPoolBatch(context.Background(), params)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintOutput(res)
+			return clientCtx.PrintProto(result)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
@@ -228,8 +224,7 @@ $ %s query liquidity batches
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -243,7 +238,7 @@ $ %s query liquidity batches
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintOutput(result)
+			return clientCtx.PrintProto(result)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
@@ -269,8 +264,7 @@ $ %s query liquidity deposits
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -284,7 +278,7 @@ $ %s query liquidity deposits
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintOutput(result)
+			return clientCtx.PrintProto(result)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
@@ -310,8 +304,7 @@ $ %s query liquidity withdraws
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -325,7 +318,7 @@ $ %s query liquidity withdraws
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintOutput(result)
+			return clientCtx.PrintProto(result)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
@@ -351,8 +344,7 @@ $ %s query liquidity swaps
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -366,7 +358,7 @@ $ %s query liquidity swaps
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintOutput(result)
+			return clientCtx.PrintProto(result)
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)

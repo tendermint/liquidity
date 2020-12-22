@@ -68,7 +68,7 @@ type MsgList []*BatchPoolSwapMsg
 func (msgList MsgList) CountNotMatchedMsgs() int {
 	cnt := 0
 	for _, m := range msgList {
-		if m.Executed && !m.Succeed {
+		if m.Executed && !m.Succeeded {
 			cnt++
 		}
 	}
@@ -79,7 +79,7 @@ func (msgList MsgList) CountNotMatchedMsgs() int {
 func (msgList MsgList) CountFractionalMatchedMsgs() int {
 	cnt := 0
 	for _, m := range msgList {
-		if m.Executed && m.Succeed && !m.ToDelete {
+		if m.Executed && m.Succeeded && !m.ToBeDeleted {
 			cnt++
 		}
 	}
@@ -244,24 +244,24 @@ func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int
 			continue
 		}
 		if order.RemainingOfferCoin.IsZero() {
-			if !order.Succeed || !order.ToDelete {
+			if !order.Succeeded || !order.ToBeDeleted {
 				panic("broken state consistency for not matched order")
 			}
-			order.Succeed = true
-			order.ToDelete = true
+			order.Succeeded = true
+			order.ToBeDeleted = true
 			continue
 		}
 		// set toDelete, expired msgs
 		if currentHeight > order.OrderExpiryHeight {
-			if order.Succeed || !order.ToDelete {
+			if order.Succeeded || !order.ToBeDeleted {
 				panic("broken state consistency for fractional matched order")
 			}
-			order.Succeed = false
-			order.ToDelete = true
+			order.Succeeded = false
+			order.ToBeDeleted = true
 			continue
 		}
 		if expireThisHeight && currentHeight == order.OrderExpiryHeight {
-			order.ToDelete = true
+			order.ToBeDeleted = true
 		}
 	}
 	return msgList
@@ -606,7 +606,7 @@ func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMat
 	var XtoY []*BatchPoolSwapMsg // buying Y from X
 	var YtoX []*BatchPoolSwapMsg // selling Y for X
 	for _, m := range swapMsgs {
-		if onlyNotMatched && (m.ToDelete || m.RemainingOfferCoin.IsZero()) {
+		if onlyNotMatched && (m.ToBeDeleted || m.RemainingOfferCoin.IsZero()) {
 			continue
 		}
 		if m.Msg.OfferCoin.Denom == denomX { // buying Y from X

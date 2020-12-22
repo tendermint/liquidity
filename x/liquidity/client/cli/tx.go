@@ -57,8 +57,7 @@ the number of deposit coins must be two in the pool-type-index 1
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadTxCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -71,7 +70,7 @@ the number of deposit coins must be two in the pool-type-index 1
 			}
 
 			// Get deposit coins
-			depositCoins, err := sdk.ParseCoins(args[1])
+			depositCoins, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return err
 			}
@@ -124,8 +123,7 @@ You should deposit the same coin as the reserve coin.
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadTxCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -138,7 +136,7 @@ You should deposit the same coin as the reserve coin.
 			}
 
 			// Get deposit coins
-			depositCoins, err := sdk.ParseCoins(args[1])
+			depositCoins, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return err
 			}
@@ -186,8 +184,7 @@ You should request the matched pool-coin as the pool.
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadTxCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -200,7 +197,7 @@ You should request the matched pool-coin as the pool.
 			}
 
 			// Get pool coin of the target pool
-			poolCoin, err := sdk.ParseCoin(args[1])
+			poolCoin, err := sdk.ParseCoinNormalized(args[1])
 			if err != nil {
 				return err
 			}
@@ -250,8 +247,7 @@ https://github.com/tendermint/liquidity
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadTxCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -284,7 +280,7 @@ https://github.com/tendermint/liquidity
 			}
 
 			// Get offer coin
-			offerCoin, err := sdk.ParseCoin(args[3])
+			offerCoin, err := sdk.ParseCoinNormalized(args[3])
 			if err != nil {
 				return err
 			}

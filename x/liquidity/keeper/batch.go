@@ -13,12 +13,12 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 		if liquidityPoolBatch.Executed {
 
 			// On the other hand, BatchDeposit, BatchWithdraw, is all handled by the endblock if there is no error.
-			// If there are BatchMsgs left, reset the Executed, Succeed flag so that it can be executed in the next batch.
+			// If there are BatchMsgs left, reset the Executed, Succeeded flag so that it can be executed in the next batch.
 			depositMsgs := k.GetAllRemainingLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch)
 			if len(depositMsgs) > 0 {
 				for _, msg := range depositMsgs {
 					msg.Executed = false
-					msg.Succeed = false
+					msg.Succeeded = false
 				}
 				k.SetLiquidityPoolBatchDepositMsgsByPointer(ctx, liquidityPoolBatch.PoolId, depositMsgs)
 			}
@@ -27,7 +27,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 			if len(withdrawMsgs) > 0 {
 				for _, msg := range withdrawMsgs {
 					msg.Executed = false
-					msg.Succeed = false
+					msg.Succeeded = false
 				}
 				k.SetLiquidityPoolBatchWithdrawMsgsByPointer(ctx, liquidityPoolBatch.PoolId, withdrawMsgs)
 			}
@@ -39,10 +39,10 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 			if len(swapMsgs) > 0 {
 				for _, msg := range swapMsgs {
 					if height > msg.OrderExpiryHeight {
-						msg.ToDelete = true
+						msg.ToBeDeleted = true
 					} else {
 						msg.Executed = false
-						msg.Succeed = false
+						msg.Succeeded = false
 					}
 				}
 				k.SetLiquidityPoolBatchSwapMsgPointers(ctx, liquidityPoolBatch.PoolId, swapMsgs)
@@ -215,15 +215,15 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap, Or
 	// TODO: OfferCoinFee
 
 	batchPoolMsg := types.BatchPoolSwapMsg{
-		MsgHeight:           ctx.BlockHeight(),
-		MsgIndex:            poolBatch.SwapMsgIndex,
-		Executed:            false,
-		Succeed:             false,
-		ToDelete:            false,
-		ExchangedOfferCoin:  sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
-		RemainingOfferCoin:  msg.OfferCoin,
+		MsgHeight:          ctx.BlockHeight(),
+		MsgIndex:           poolBatch.SwapMsgIndex,
+		Executed:           false,
+		Succeeded:          false,
+		ToBeDeleted:        false,
+		ExchangedOfferCoin: sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
+		RemainingOfferCoin: msg.OfferCoin,
 		OfferCoinFeeReserve: msg.OfferCoinFee,
-		Msg:                 msg,
+		Msg:                msg,
 	}
 	// TODO: add logic if OrderExpiryHeight==0, pass on batch logic
 	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + OrderExpirySpanHeight

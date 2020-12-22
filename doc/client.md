@@ -21,9 +21,9 @@ Implemented query cli
 
 Progress REST/API
 
-- [x] some querys of REST api using grpc model
-- [ ] query pagination
-- [ ] txs
+- [x] liquidity query endpoints of REST api using grpc model
+- [x] broadcast txs using the new REST endpoint (via gRPC-gateway, beta1)
+- [ ] query with pagination
 
 
 ## Tx
@@ -44,7 +44,7 @@ Available Commands:
   withdraw    Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
 ```
 
-
+See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
 
 ### tx create-pool
 
@@ -663,6 +663,8 @@ Global Flags:
 Use "liquidityd query liquidity [command] --help" for more information about a command.
 ```
 
+See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
+
 ### query batch
 `$ ./liquidityd query liquidity batch --help`
 ```bash
@@ -749,8 +751,8 @@ example query command with result
       "msg_height": "1232",
       "msg_index": "1",
       "executed": true,
-      "succeed": true,
-      "to_delete": true,
+      "succeeded": true,
+      "to_be_delete": true,
       "Msg": {
         "depositor_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
         "pool_id": "1",
@@ -958,8 +960,8 @@ example query command with result
        "msg_height": "1863",
        "msg_index": "1",
        "executed": true,
-       "succeed": true,
-       "to_delete": true,
+       "succeeded": true,
+       "to_be_delete": true,
        "order_expiry_height": "1863",
        "exchanged_offer_coin": {
          "denom": "reservecoin1",
@@ -1029,8 +1031,8 @@ example query command with result
       "msg_height": "1804",
       "msg_index": "1",
       "executed": true,
-      "succeed": true,
-      "to_delete": true,
+      "succeeded": true,
+      "to_be_delete": true,
       "msg": {
         "withdrawer_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
         "pool_id": "1",
@@ -1058,138 +1060,15 @@ withdraw_msgs: []
 
 ```
 
+## REST/API
 
-## Export, Genesis State
+You can check local swagger doc page on `YOUR_API_SERVER(ex:127.0.0.1:1317)/swagger-liquidity/` if set `swagger = true` from `app.toml`
+or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
 
-### export empty state case
-`./liquidityd testnet --v 1` 
+According to [migrating-to-new-rest-endpoints](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints), the POST endpoints of the New gGPC-gateway REST are N/A and guided directly to use Protobuf, need to use `cli` or `localhost:1317/cosmos/tx/v1beta1/txs` for broadcast txs temporarily
 
-`./liquidityd start --home ./output/node0/liquidityd/`
+example of broadcasting txs using the [new REST endpoint (via gRPC-gateway, beta1)](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints)
 
-`./liquidityd export  --home ./output/node0/liquidityd/`
-
-```json
-...
-"liquidity": {
-      "liquidity_pool_records": [],
-      "params": {
-        "init_pool_coin_mint_amount": "1000000",
-        "liquidity_pool_creation_fee": [
-          {
-            "amount": "100000000",
-            "denom": "stake"
-          }
-        ],
-        "liquidity_pool_types": [
-          {
-            "description": "",
-            "max_reserve_coin_num": 2,
-            "min_reserve_coin_num": 2,
-            "name": "DefaultPoolType",
-            "pool_type_index": 1
-          }
-        ],
-        "min_init_deposit_to_pool": "1000000",
-        "swap_fee_rate": "0.003000000000000000"
-      }
-    },
-    "mint": {
-      "minter": {
-        "annual_provisions": "130000037.646079971921585420",
-        "inflation": "0.130000035046079271"
-      },
-      "params": {
-        "blocks_per_year": "6311520",
-        "goal_bonded": "0.670000000000000000",
-        "inflation_max": "0.200000000000000000",
-        "inflation_min": "0.070000000000000000",
-        "inflation_rate_change": "0.130000000000000000",
-        "mint_denom": "stake"
-      }
-    },
-
-...
-```
-
-### pool created state export case
-
-`./liquidityd testnet --v 1`
-
-`./liquidityd start --home ./output/node0/liquidityd/`
-
-`cat output/node0/liquidityd/config/genesis.json | grep chain_id`
-
-`./liquidityd tx liquidity create-pool 1 100000000reservecoin1,100000000reservecoin2 --from node0  --home ./output/node0/liquidityd/ --fees 2stake --chain-id <CHAIN-ID>`
-
-`./liquidityd export --home ./output/node0/liquidityd/`
-
-```json
-...
-"liquidity": {
-      "liquidity_pool_records": [
-        {
-          "batch_pool_deposit_msgs": [],
-          "batch_pool_swap_msg_records": [],
-          "batch_pool_swap_msgs": [],
-          "batch_pool_withdraw_msgs": [],
-          "liquidity_pool": {
-            "pool_coin_denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
-            "pool_id": "1",
-            "pool_type_index": 1,
-            "reserve_account_address": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
-            "reserve_coin_denoms": [
-              "reservecoin1",
-              "reservecoin2"
-            ]
-          },
-          "liquidity_pool_batch": {
-            "batch_index": "4",
-            "begin_height": "12",
-            "deposit_msg_index": "1",
-            "executed": true,
-            "pool_id": "1",
-            "swap_msg_index": "1",
-            "withdraw_msg_index": "1"
-          },
-          "liquidity_pool_meta_data": {
-            "pool_coin_total_supply": {
-              "amount": "1000000",
-              "denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs"
-            },
-            "pool_id": "1",
-            "reserve_coins": [
-              {
-                "amount": "100000000",
-                "denom": "reservecoin1"
-              },
-              {
-                "amount": "100000000",
-                "denom": "reservecoin2"
-              }
-            ]
-          }
-        }
-      ],
-      "params": {
-        "init_pool_coin_mint_amount": "1000000",
-        "liquidity_pool_creation_fee": [
-          {
-            "amount": "100000000",
-            "denom": "stake"
-          }
-        ],
-        "liquidity_pool_types": [
-          {
-            "description": "",
-            "max_reserve_coin_num": 2,
-            "min_reserve_coin_num": 2,
-            "name": "DefaultPoolType",
-            "pool_type_index": 1
-          }
-        ],
-        "min_init_deposit_to_pool": "1000000",
-        "swap_fee_rate": "0.003000000000000000"
-      }
-    },
-...
+```bash
+curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"CoMBCoABCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJfCi1jb3Ntb3MxN3dncHpyNGd2YzN1aHBmcnUyNmVhYTJsc203NzJlMnEydjBtZXgQAhgBIAEqDQoFc3Rha2USBDEwMDAyBGF0b206EzExNTAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAqzfoAEi0cFg0zqwBuGNvHml4XJNS3EQuVti8/yGH88NEgQKAgh/GAgSBBDAmgwaQGTRN67x2WYF/L5DsRD3ZY1Kt9cVpg3rW+YbXtihxcB6bJWhMxuFr0u9SnGkCuAgOuLH9YU8ROFUo1gGS1RpTz0=","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
 ```
