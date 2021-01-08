@@ -284,7 +284,6 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	}, nil
 }
 
-
 // read data from kvstore for response of query a batch withdraw message of the liquidity pool batch given msg_index
 func (k Keeper) PoolBatchWithdrawMsg(c context.Context, req *types.QueryPoolBatchWithdrawMsgRequest) (*types.QueryPoolBatchWithdrawMsgResponse, error) {
 	empty := &types.QueryPoolBatchWithdrawMsgRequest{}
@@ -301,7 +300,6 @@ func (k Keeper) PoolBatchWithdrawMsg(c context.Context, req *types.QueryPoolBatc
 		Withdraws: msg,
 	}, nil
 }
-
 
 // read data from kvstore for response of query request for params set
 func (k Keeper) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {

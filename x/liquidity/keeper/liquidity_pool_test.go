@@ -109,7 +109,7 @@ func TestDepositLiquidityPool(t *testing.T) {
 	poolCoinBefore := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lp)
 
 	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[1], lp.PoolId, deposit)
-	err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
+	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.NoError(t, err)
 
 	poolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, depositMsg.PoolId)
@@ -163,7 +163,7 @@ func TestWithdrawLiquidityPool(t *testing.T) {
 	require.Equal(t, poolCoinBefore, withdrawerPoolCoinBefore.Amount)
 	withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[0], lp.PoolId, sdk.NewCoin(lp.PoolCoinDenom, poolCoinBefore))
 
-	err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
 	require.NoError(t, err)
 
 	poolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, withdrawMsg.PoolId)
@@ -226,7 +226,7 @@ func TestReinitializePool(t *testing.T) {
 	require.Equal(t, poolCoinBefore, withdrawerPoolCoinBefore.Amount)
 	withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[0], lp.PoolId, sdk.NewCoin(lp.PoolCoinDenom, poolCoinBefore))
 
-	err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
 	require.NoError(t, err)
 
 	poolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, withdrawMsg.PoolId)
@@ -250,7 +250,7 @@ func TestReinitializePool(t *testing.T) {
 	require.True(t, reserveCoins.IsZero())
 
 	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[0], lp.PoolId, deposit)
-	err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
+	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.NoError(t, err)
 
 	depositMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, poolBatch)

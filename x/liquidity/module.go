@@ -36,7 +36,6 @@ var (
 	_ module.AppModuleSimulation = AppModule{}
 )
 
-
 // AppModuleBasic defines the basic application module used by the liquidity module.
 type AppModuleBasic struct {
 	cdc codec.Marshaler

@@ -21,7 +21,7 @@ func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	r.HandleFunc(
 		fmt.Sprintf("liquidity/legacy/pools/{%s}", RestPoolId),
 		queryLiquidityPoolHandlerFn(cliCtx),
-		).Methods("GET")
+	).Methods("GET")
 
 	// Get all liquidity pools
 	r.HandleFunc(
@@ -106,8 +106,6 @@ func queryLiquidityPoolsHandlerFn(clientCtx client.Context) http.HandlerFunc {
 		rest.PostProcessResponse(w, clientCtx, res)
 	}
 }
-
-
 
 // HTTP request handler to query list of validators
 func queryLiquidityBatchSwapsHandlerFn(clientCtx client.Context) http.HandlerFunc {
