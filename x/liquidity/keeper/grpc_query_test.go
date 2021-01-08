@@ -176,7 +176,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 		{"returns all the pool batch deposit Msgs",
 			func() {
 				req = &types.QueryPoolBatchDepositMsgsRequest{
-					PoolId: suite.batches[1].PoolId,
+					PoolId: suite.batches[0].PoolId,
 				}
 			},
 			true,
@@ -250,7 +250,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 		{"returns all the pool batch withdraw Msgs",
 			func() {
 				req = &types.QueryPoolBatchWithdrawMsgsRequest{
-					PoolId: suite.batches[1].PoolId,
+					PoolId: suite.batches[0].PoolId,
 				}
 			},
 			true,
@@ -324,7 +324,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
 		{"returns all the pool batch swap Msgs",
 			func() {
 				req = &types.QueryPoolBatchSwapMsgsRequest{
-					PoolId: suite.batches[1].PoolId,
+					PoolId: suite.batches[0].PoolId,
 				}
 			},
 			true,
