@@ -10,7 +10,7 @@ Resources
 
  - Liquidity Module V1 Mechanism Paper https://github.com/tendermint/liquidity/blob/develop/doc/Liquidity%20Module%20V1%20-%20Mechanism%20Explained.pdf
  - Proposal and milestone https://github.com/b-harvest/Liquidity-Module-For-the-Hub
- - swagger api doc https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs
+ - swagger api doc https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs/2.0.1
  - liquidityd client doc https://github.com/tendermint/liquidity/blob/develop/doc/client.md
 
 

@@ -118,7 +118,7 @@ $ make test
 ### Protobuf, Swagger
 
 you can check local swagger doc page on `YOUR_API_SERVER(ex:127.0.0.1:1317)/swagger-liquidity/` if set `swagger = true` from `app.toml`
-or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
+or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs/2.0.1)
 
 generate `*.pb.go`, `*.pb.gw.go` files from `proto/*.proto`
 
@@ -341,7 +341,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
  - [Spec](x/liquidity/spec)
  - [Liquidity Module V1 Mechanism Paper](doc/Liquidity%20Module%20V1%20-%20Mechanism%20Explained.pdf)
  - [Proposal and milestone](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
- - [swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
+ - [swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs/2.0.1)
  - [godoc](https://pkg.go.dev/github.com/tendermint/liquidity)
  - [liquidityd client doc](doc/client.md)
  

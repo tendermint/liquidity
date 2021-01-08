@@ -56,7 +56,9 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		ctx = ctx.WithBlockHeight(int64(i))
+		//if i % 100 == 0 {
 		fmt.Println("test count", i+1)
+		//}
 		testSwapEdgeCases(t, simapp, ctx, X, Y, depositBalance, addrs)
 	}
 }
@@ -185,9 +187,9 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 	require.True(t, found)
 
 	remainingSwapMsgs := simapp.LiquidityKeeper.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, batch)
-	fmt.Println("height", ctx.BlockHeight())
-	fmt.Println("remainingSwapMsgs", len(remainingSwapMsgs))
-	fmt.Println(remainingSwapMsgs)
+	//fmt.Println("height", ctx.BlockHeight())
+	//fmt.Println("remainingSwapMsgs", len(remainingSwapMsgs))
+	//fmt.Println(remainingSwapMsgs)
 	if ctx.BlockHeight() == 0 || len(remainingSwapMsgs) == 0 {
 		// TODO: or not exist remaining swap orders
 		// make random orders, set buyer, seller accounts for the orders
@@ -218,7 +220,6 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 
 	// handle msgs, set order msgs to batch
 	for _, msg := range XtoY {
-
 		simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, int64(r.Intn(4)))
 	}
 	for _, msg := range YtoX {

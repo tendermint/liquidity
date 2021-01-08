@@ -237,9 +237,9 @@ func NewMsgSwap(
 }
 
 // TODO: half-half fee
-func (msg MsgSwap) GetOfferCoinFee() sdk.Coin {
-	return GetOfferCoinFee(msg.OfferCoin)
-}
+//func (msg MsgSwap) GetOfferCoinFee() sdk.Coin {
+//	return GetOfferCoinFee(msg.OfferCoin)
+//}
 
 // TODO: half-half fee
 func GetOfferCoinFee(offerCoin sdk.Coin) sdk.Coin {

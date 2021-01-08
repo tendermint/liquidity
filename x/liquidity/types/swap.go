@@ -314,7 +314,7 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 	var matchOrderList []*BatchPoolSwapMsg
 	//matchedIndexMap := make(map[uint64]sdk.Coin)
 
-	fmt.Printf("%+v %+v\n", "executableAmt", executableAmt)
+	//fmt.Printf("%+v %+v\n", "executableAmt", executableAmt)
 	if executableAmt.IsZero() {
 		return
 	}
@@ -527,7 +527,7 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 		//	maxScenario = s
 		//}
 		MEX, MEY := GetMustExecutableAmt(s.SwapPrice, orderBook)
-		fmt.Println("Scenario, MEX, MEY", s, MEX, MEY)
+		//fmt.Println("Scenario, MEX, MEY", s, MEX, MEY)
 		if s.EX.GTE(MEX) && s.EY.GTE(MEY) {
 			if s.MatchType == ExactMatch && s.TransactAmt.IsPositive() {
 				maxScenario = s
@@ -549,9 +549,12 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 
 // Check swap price validity using list of match result.
 func CheckSwapPrice(matchResultXtoY, matchResultYtoX []MatchResult, swapPrice sdk.Dec) bool {
+	if len(matchResultXtoY) == 0 && len(matchResultYtoX) == 0 {
+		return true
+	}
 	// TODO: WIP new validity, Fee
 	for _, m := range matchResultXtoY {
-		fmt.Println(swapPrice, m)
+		//fmt.Println(swapPrice, m)
 		if m.TransactedCoinAmt.ToDec().Quo(swapPrice).Sub(m.ExchangedDemandCoinAmt.ToDec()).Abs().GT(sdk.OneDec()) {
 			fmt.Println(m.TransactedCoinAmt.ToDec().Quo(swapPrice).Sub(m.ExchangedDemandCoinAmt.ToDec()))
 			fmt.Println(m.TransactedCoinAmt.Sub(m.OfferCoinFeeAmt).ToDec().Quo(swapPrice).Sub(m.ExchangedDemandCoinAmt.ToDec()))

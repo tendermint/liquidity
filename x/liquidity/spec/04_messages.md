@@ -66,7 +66,7 @@ type MsgSwap struct {
 	PoolId               uint64     // id of the liquidity pool where this message is belong to
 	SwapType             uint32     // swap type of this swap message, default 1: InstantSwap, requesting instant swap
 	OfferCoin            sdk.Coin   // offer coin of this swap message
-	DemandCoinDenom      sdk.Coin   // denom of demand coin of this swap message
+	DemandCoinDenom      string     // denom of demand coin of this swap message
 	OrderPrice           sdk.Dec    // order price of this swap message
 }
 ```
