@@ -157,7 +157,7 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchSwapMsgIndexKeyPrefix)
+	msgStore := prefix.NewStore(store, types.GetLiquidityPoolBatchSwapMsgsPrefix(req.PoolId))
 	var msgs []types.BatchPoolSwapMsg
 
 	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
@@ -192,7 +192,7 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchDepositMsgIndexKeyPrefix)
+	msgStore := prefix.NewStore(store, types.GetLiquidityPoolBatchDepositMsgsPrefix(req.PoolId))
 	var msgs []types.BatchPoolDepositMsg
 
 	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
@@ -226,7 +226,7 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchWithdrawMsgIndexKeyPrefix)
+	msgStore := prefix.NewStore(store, types.GetLiquidityPoolBatchWithdrawMsgsPrefix(req.PoolId))
 	var msgs []types.BatchPoolWithdrawMsg
 
 	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
