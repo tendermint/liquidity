@@ -99,7 +99,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 		// There is ongoing work to add secp256k1 keys (https://github.com/cosmos/cosmos-sdk/pull/7604).
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 		require.NoError(t, err)
-		pkAny, err := codectypes.PackAny(pk)
+		pkAny, err := codectypes.NewAnyWithValue(pk)
 		require.NoError(t, err)
 		validator := stakingtypes.Validator{
 			OperatorAddress:   sdk.ValAddress(val.Address).String(),
@@ -685,7 +685,7 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 			require.True(t, false)
 		}
 
-		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i])
+		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i])
 		batchPoolSwapMsg, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg, 0)
 		require.NoError(t, err)
 
@@ -733,7 +733,7 @@ func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinLi
 			require.True(t, false)
 		}
 
-		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i]))
+		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i]))
 	}
 	return msgList
 }

@@ -223,11 +223,11 @@ You should request the matched pool-coin as the pool.
 // Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
 func NewSwapCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "swap [pool-id] [pool-type-index] [swap-type] [offer-coin] [demand-coin-denom] [order-price]",
-		Args:  cobra.ExactArgs(6),
+		Use:   "swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price]",
+		Args:  cobra.ExactArgs(5),
 		Short: "Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Swap offer to the Liquidity pool with the specified pool-id, pool-type-index, swap-type,
+			fmt.Sprintf(`Swap offer to the Liquidity pool with the specified pool-id, swap-type,
 demand-coin-denom with the coin and the price you're offering
 
 this requests are stacked in the batch of the liquidity pool, not immediately processed and 
@@ -304,7 +304,7 @@ https://github.com/tendermint/liquidity
 				return err
 			}
 
-			msg := types.NewMsgSwap(swapRequester, poolId, uint32(poolTypeIndex), uint32(swapType), offerCoin, args[4], orderPrice)
+			msg := types.NewMsgSwap(swapRequester, poolId, uint32(swapType), offerCoin, args[4], orderPrice)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
