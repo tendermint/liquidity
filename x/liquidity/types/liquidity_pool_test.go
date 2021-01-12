@@ -67,7 +67,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	batchDepositMsg := types.BatchPoolDepositMsg{}
 	batchWithdrawMsg := types.BatchPoolWithdrawMsg{}
 	batchSwapMsg := types.BatchPoolSwapMsg{ExchangedOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)),
-		RemainingOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000))}
+		RemainingOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)), OfferCoinFeeReserve: types.GetOfferCoinFee(sdk.NewCoin("test", sdk.NewInt(2000)))}
 
 	byte := types.MustMarshalBatchPoolDepositMsg(cdc, batchDepositMsg)
 	require.Equal(t, batchDepositMsg, types.MustUnmarshalBatchPoolDepositMsg(cdc, byte))

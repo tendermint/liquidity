@@ -40,5 +40,6 @@ var (
 	ErrBadBatchMsgIndex             = sdkerrors.Register(ModuleName, 32, "bad msg index of the batch")
 	ErrSwapTypeNotExists            = sdkerrors.Register(ModuleName, 33, "swap type not exists")
 	ErrLessThanMinOfferAmount       = sdkerrors.Register(ModuleName, 34, "offer amount should over 1000 micro")
-	ErrNotMatchedReserveCoin        = sdkerrors.Register(ModuleName, 35, "does not match the reserve coin of the pool")
+	ErrBadOfferCoinFee              = sdkerrors.Register(ModuleName, 35, "bad offer coin fee")
+	ErrNotMatchedReserveCoin        = sdkerrors.Register(ModuleName, 36, "does not match the reserve coin of the pool")
 )

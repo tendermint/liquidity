@@ -10,7 +10,6 @@ order: 4
 type MsgCreateLiquidityPool struct {
 	PoolCreatorAddress  string         // account address of the origin of this message
 	PoolTypeIndex       uint32         // index of the liquidity pool type of this new liquidity pool
-	ReserveCoinDenoms   []string       // list of reserve coin denoms for this new liquidity pool, store in alphabetical order
 	DepositCoins 	    sdk.Coins      // deposit coins for initial pool deposit into this new liquidity pool
 }
 ```
@@ -19,7 +18,7 @@ type MsgCreateLiquidityPool struct {
 - `MsgCreateLiquidityPool` fails if
   - `PoolCreator` address does not exist
   - `PoolTypeIndex` does not exist in parameters
-  - there exists duplicated `LiquidityPool` with same `PoolTypeIndex` and `ReserveCoinDenoms`
+  - there exists duplicated `LiquidityPool` with same `PoolTypeIndex` and Reserve Coin Denoms
   - if one or more coins in ReserveCoinDenoms do not exist in `bank` module
   - if the balance of `PoolCreator` does not have enough amount of coins for `DepositCoins`
   - if the balance of `PoolCreator` does not have enough amount of coins for paying `LiquidityPoolCreationFee`
@@ -66,7 +65,8 @@ type MsgSwap struct {
 	PoolId               uint64     // id of the liquidity pool where this message is belong to
 	SwapType             uint32     // swap type of this swap message, default 1: InstantSwap, requesting instant swap
 	OfferCoin            sdk.Coin   // offer coin of this swap message
-	DemandCoinDenom      sdk.Coin   // denom of demand coin of this swap message
+	DemandCoinDenom      string     // denom of demand coin of this swap message
+    OfferCoinFee         sdk.Coin   // offer coin fee for pay fees in half offer coin
 	OrderPrice           sdk.Dec    // order price of this swap message
 }
 ```
@@ -79,3 +79,5 @@ type MsgSwap struct {
   - denoms of `OfferCoin` or `DemandCoin` do not exist in `bank` module
   - if the balance of `SwapRequester` does not have enough amount of coins for `OfferCoin`
   - if `OrderPrice` <= zero
+  - if `OfferCoinFee` Equal `OfferCoin` * `params.SwapFeeRate` * `0.5` with truncating Int
+  - if has sufficient balance `OfferCoinFee` to reserve offer coin fee.

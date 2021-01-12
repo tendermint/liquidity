@@ -19,9 +19,8 @@ const (
 
 func TestMsgCreateLiquidityPool(t *testing.T) {
 	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	denoms := []string{DenomX, DenomY}
 	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg := types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denoms, coins)
+	msg := types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coins)
 	require.IsType(t, &types.MsgCreateLiquidityPool{}, msg)
 	require.Equal(t, types.RouterKey, msg.Route())
 	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
@@ -34,23 +33,19 @@ func TestMsgCreateLiquidityPool(t *testing.T) {
 	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 
 	// Fail cases
-	msg = types.NewMsgCreateLiquidityPool(sdk.AccAddress{}, DefaultPoolTypeIndex, denoms, coins)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	denomsFail := []string{DenomX, DenomY, DenomY}
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denomsFail, coins)
+	msg = types.NewMsgCreateLiquidityPool(sdk.AccAddress{}, DefaultPoolTypeIndex, coins)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail := sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denoms, coinsFail)
+	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("Denomfail", sdk.NewInt(1000)))
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denoms, coinsFail)
+	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(0)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denoms, coinsFail)
+	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
@@ -112,7 +107,7 @@ func TestMsgSwap(t *testing.T) {
 	coin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
 	orderPrice, err := sdk.NewDecFromStr("0.1")
 	require.NoError(t, err)
-	msg := types.NewMsgSwap(addr, DefaultPoolId, DefaultPoolTypeIndex, DefaultSwapType, coin, DenomY, orderPrice)
+	msg := types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coin, DenomY, orderPrice)
 	require.IsType(t, &types.MsgSwap{}, msg)
 	require.Equal(t, types.RouterKey, msg.Route())
 	require.Equal(t, types.TypeMsgSwap, msg.Type())
@@ -125,14 +120,14 @@ func TestMsgSwap(t *testing.T) {
 	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 
 	// Fail case
-	msg = types.NewMsgSwap(addr, DefaultPoolId, DefaultPoolTypeIndex, DefaultSwapType, coin, DenomY, sdk.ZeroDec())
+	msg = types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coin, DenomY, sdk.ZeroDec())
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinFail := sdk.NewCoin("testPoolCoin", sdk.NewInt(0))
-	msg = types.NewMsgSwap(addr, DefaultPoolId, DefaultPoolTypeIndex, DefaultSwapType, coinFail, DenomY, orderPrice)
+	msg = types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coinFail, DenomY, orderPrice)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
-	msg = types.NewMsgSwap(sdk.AccAddress{}, DefaultPoolId, DefaultPoolTypeIndex, DefaultSwapType, coin, DenomY, orderPrice)
+	msg = types.NewMsgSwap(sdk.AccAddress{}, DefaultPoolId, DefaultSwapType, coin, DenomY, orderPrice)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }

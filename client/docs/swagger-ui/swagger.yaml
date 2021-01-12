@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 1.2.4
+  version: 2.0.2
 paths:
   /liquidity/pools:
     post:
@@ -254,14 +254,6 @@ paths:
                     description: >-
                       index of target pool type, only 1 is allowed on this
                       version, Must match the value in the pool.
-                  reserve_coin_denoms:
-                    type: array
-                    example:
-                      - denomA
-                      - denomB
-                    items:
-                      type: string
-                    title: denoms of reserve coin pair of the pool
                   deposit_coins:
                     type: array
                     format: sdk.Coins
@@ -292,8 +284,13 @@ paths:
       tags:
         - Tx
       externalDocs:
-        description: Find out more message spec and response events here
-        url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
+        description: >-
+          According to migrating-to-new-rest-endpoints, the POST endpoints of
+          the New gGPC-gateway REST are N/A and guided directly to use Protobuf,
+          need to use cli or localhost:1317/cosmos/tx/v1beta1/txs for broadcast
+          txs temporarily
+        url: >-
+          https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
       summary: >-
         Get all liquidity pools currently existed with each liquidity pool with
@@ -859,8 +856,13 @@ paths:
       tags:
         - Tx
       externalDocs:
-        description: Find out more message spec and response events here
-        url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
+        description: >-
+          According to migrating-to-new-rest-endpoints, the POST endpoints of
+          the New gGPC-gateway REST are N/A and guided directly to use Protobuf,
+          need to use cli or localhost:1317/cosmos/tx/v1beta1/txs for broadcast
+          txs temporarily
+        url: >-
+          https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
       summary: Get all pool batch deposit messages of the liquidity pool
       description: >-
@@ -1340,13 +1342,6 @@ paths:
                     format: uint64
                     example: '1'
                     title: id of the target pool
-                  pool_type_index:
-                    type: integer
-                    format: uint32
-                    example: '1'
-                    description: >-
-                      index of target pool type, only 1 is allowed on this
-                      version, Must match the value in the pool.
                   swap_type:
                     type: integer
                     format: uint32
@@ -1374,6 +1369,26 @@ paths:
                     description: >-
                       denom of demand coin to be exchanged on the swap request,
                       Must match the denom in the pool.
+                  offer_coin_fee:
+                    format: sdk.Coin
+                    example:
+                      denom: denomA
+                      amount: '5000'
+                    title: offer coin fee for pay fees in half offer coin
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a coin with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
                   order_price:
                     type: string
                     format: sdk.Dec
@@ -1409,8 +1424,13 @@ paths:
       tags:
         - Tx
       externalDocs:
-        description: Find out more message spec and response events here
-        url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
+        description: >-
+          According to migrating-to-new-rest-endpoints, the POST endpoints of
+          the New gGPC-gateway REST are N/A and guided directly to use Protobuf,
+          need to use cli or localhost:1317/cosmos/tx/v1beta1/txs for broadcast
+          txs temporarily
+        url: >-
+          https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
       summary: Get all pool batch swap messages of the liquidity pool
       description: >-
@@ -1503,7 +1523,27 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                    msg:
+                    OfferCoinFeeReserve:
+                      format: sdk.Coin
+                      example:
+                        denom: denomA
+                        amount: '5000'
+                      title: reserve fee for pays fee in half offer coin
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a coin with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
+                    Msg:
                       title: MsgSwap
                       type: object
                       properties:
@@ -1518,13 +1558,6 @@ paths:
                           format: uint64
                           example: '1'
                           title: id of the target pool
-                        pool_type_index:
-                          type: integer
-                          format: uint32
-                          example: '1'
-                          description: >-
-                            index of target pool type, only 1 is allowed on this
-                            version, Must match the value in the pool.
                         swap_type:
                           type: integer
                           format: uint32
@@ -1552,6 +1585,27 @@ paths:
                           description: >-
                             denom of demand coin to be exchanged on the swap
                             request, Must match the denom in the pool.
+                        offer_coin_fee:
+                          format: sdk.Coin
+                          example:
+                            denom: denomA
+                            amount: '5000'
+                          title: offer coin fee for pay fees in half offer coin
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a coin with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
                         order_price:
                           type: string
                           format: sdk.Dec
@@ -2006,8 +2060,13 @@ paths:
       tags:
         - Tx
       externalDocs:
-        description: Find out more message spec and response events here
-        url: 'https://github.com/tendermint/liquidity/tree/develop/x/liquidity/spec'
+        description: >-
+          According to migrating-to-new-rest-endpoints, the POST endpoints of
+          the New gGPC-gateway REST are N/A and guided directly to use Protobuf,
+          need to use cli or localhost:1317/cosmos/tx/v1beta1/txs for broadcast
+          txs temporarily
+        url: >-
+          https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
       summary: Get all pool batch withdraw messages of the liquidity pool
       description: >-
@@ -3068,7 +3127,27 @@ paths:
                       custom method
 
                       signatures required by gogoproto.
-                  msg:
+                  OfferCoinFeeReserve:
+                    format: sdk.Coin
+                    example:
+                      denom: denomA
+                      amount: '5000'
+                    title: reserve fee for pays fee in half offer coin
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a coin with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  Msg:
                     title: MsgSwap
                     type: object
                     properties:
@@ -3083,13 +3162,6 @@ paths:
                         format: uint64
                         example: '1'
                         title: id of the target pool
-                      pool_type_index:
-                        type: integer
-                        format: uint32
-                        example: '1'
-                        description: >-
-                          index of target pool type, only 1 is allowed on this
-                          version, Must match the value in the pool.
                       swap_type:
                         type: integer
                         format: uint32
@@ -3117,6 +3189,26 @@ paths:
                         description: >-
                           denom of demand coin to be exchanged on the swap
                           request, Must match the denom in the pool.
+                      offer_coin_fee:
+                        format: sdk.Coin
+                        example:
+                          denom: denomA
+                          amount: '5000'
+                        title: offer coin fee for pay fees in half offer coin
+                        type: object
+                        properties:
+                          denom:
+                            type: string
+                          amount:
+                            type: string
+                        description: >-
+                          Coin defines a coin with a denomination and an amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
                       order_price:
                         type: string
                         format: sdk.Dec
@@ -3548,14 +3640,6 @@ definitions:
         description: >-
           index of target pool type, only 1 is allowed on this version, Must
           match the value in the pool.
-      reserve_coin_denoms:
-        type: array
-        example:
-          - denomA
-          - denomB
-        items:
-          type: string
-        title: denoms of reserve coin pair of the pool
       deposit_coins:
         type: array
         format: sdk.Coins
@@ -3696,14 +3780,6 @@ definitions:
             description: >-
               index of target pool type, only 1 is allowed on this version, Must
               match the value in the pool.
-          reserve_coin_denoms:
-            type: array
-            example:
-              - denomA
-              - denomB
-            items:
-              type: string
-            title: denoms of reserve coin pair of the pool
           deposit_coins:
             type: array
             format: sdk.Coins
@@ -4117,13 +4193,6 @@ definitions:
         format: uint64
         example: '1'
         title: id of the target pool
-      pool_type_index:
-        type: integer
-        format: uint32
-        example: '1'
-        description: >-
-          index of target pool type, only 1 is allowed on this version, Must
-          match the value in the pool.
       swap_type:
         type: integer
         format: uint32
@@ -4149,6 +4218,23 @@ definitions:
         description: >-
           denom of demand coin to be exchanged on the swap request, Must match
           the denom in the pool.
+      offer_coin_fee:
+        format: sdk.Coin
+        example:
+          denom: denomA
+          amount: '5000'
+        title: offer coin fee for pay fees in half offer coin
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a coin with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
       order_price:
         type: string
         format: sdk.Dec
@@ -4298,13 +4384,6 @@ definitions:
             format: uint64
             example: '1'
             title: id of the target pool
-          pool_type_index:
-            type: integer
-            format: uint32
-            example: '1'
-            description: >-
-              index of target pool type, only 1 is allowed on this version, Must
-              match the value in the pool.
           swap_type:
             type: integer
             format: uint32
@@ -4332,6 +4411,26 @@ definitions:
             description: >-
               denom of demand coin to be exchanged on the swap request, Must
               match the denom in the pool.
+          offer_coin_fee:
+            format: sdk.Coin
+            example:
+              denom: denomA
+              amount: '5000'
+            title: offer coin fee for pay fees in half offer coin
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
           order_price:
             type: string
             format: sdk.Dec
@@ -5056,7 +5155,24 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
-      msg:
+      OfferCoinFeeReserve:
+        format: sdk.Coin
+        example:
+          denom: denomA
+          amount: '5000'
+        title: reserve fee for pays fee in half offer coin
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a coin with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+      Msg:
         title: MsgSwap
         type: object
         properties:
@@ -5071,13 +5187,6 @@ definitions:
             format: uint64
             example: '1'
             title: id of the target pool
-          pool_type_index:
-            type: integer
-            format: uint32
-            example: '1'
-            description: >-
-              index of target pool type, only 1 is allowed on this version, Must
-              match the value in the pool.
           swap_type:
             type: integer
             format: uint32
@@ -5105,6 +5214,26 @@ definitions:
             description: >-
               denom of demand coin to be exchanged on the swap request, Must
               match the denom in the pool.
+          offer_coin_fee:
+            format: sdk.Coin
+            example:
+              denom: denomA
+              amount: '5000'
+            title: offer coin fee for pay fees in half offer coin
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
           order_price:
             type: string
             format: sdk.Dec
@@ -6192,7 +6321,27 @@ definitions:
               method
 
               signatures required by gogoproto.
-          msg:
+          OfferCoinFeeReserve:
+            format: sdk.Coin
+            example:
+              denom: denomA
+              amount: '5000'
+            title: reserve fee for pays fee in half offer coin
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a coin with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          Msg:
             title: MsgSwap
             type: object
             properties:
@@ -6207,13 +6356,6 @@ definitions:
                 format: uint64
                 example: '1'
                 title: id of the target pool
-              pool_type_index:
-                type: integer
-                format: uint32
-                example: '1'
-                description: >-
-                  index of target pool type, only 1 is allowed on this version,
-                  Must match the value in the pool.
               swap_type:
                 type: integer
                 format: uint32
@@ -6241,6 +6383,26 @@ definitions:
                 description: >-
                   denom of demand coin to be exchanged on the swap request, Must
                   match the denom in the pool.
+              offer_coin_fee:
+                format: sdk.Coin
+                example:
+                  denom: denomA
+                  amount: '5000'
+                title: offer coin fee for pay fees in half offer coin
+                type: object
+                properties:
+                  denom:
+                    type: string
+                  amount:
+                    type: string
+                description: >-
+                  Coin defines a coin with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
               order_price:
                 type: string
                 format: sdk.Dec
@@ -6353,7 +6515,27 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            msg:
+            OfferCoinFeeReserve:
+              format: sdk.Coin
+              example:
+                denom: denomA
+                amount: '5000'
+              title: reserve fee for pays fee in half offer coin
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a coin with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
+            Msg:
               title: MsgSwap
               type: object
               properties:
@@ -6368,13 +6550,6 @@ definitions:
                   format: uint64
                   example: '1'
                   title: id of the target pool
-                pool_type_index:
-                  type: integer
-                  format: uint32
-                  example: '1'
-                  description: >-
-                    index of target pool type, only 1 is allowed on this
-                    version, Must match the value in the pool.
                 swap_type:
                   type: integer
                   format: uint32
@@ -6402,6 +6577,26 @@ definitions:
                   description: >-
                     denom of demand coin to be exchanged on the swap request,
                     Must match the denom in the pool.
+                offer_coin_fee:
+                  format: sdk.Coin
+                  example:
+                    denom: denomA
+                    amount: '5000'
+                  title: offer coin fee for pay fees in half offer coin
+                  type: object
+                  properties:
+                    denom:
+                      type: string
+                    amount:
+                      type: string
+                  description: >-
+                    Coin defines a coin with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
                 order_price:
                   type: string
                   format: sdk.Dec

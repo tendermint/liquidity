@@ -88,8 +88,7 @@ the number of deposit coins must be two in the pool-type-index 1
 				return fmt.Errorf("the number of deposit coins must be two in the pool-type-index 1")
 			}
 
-			reserveCoinDenoms := []string{depositCoins[0].Denom, depositCoins[1].Denom}
-			msg := types.NewMsgCreateLiquidityPool(poolCreator, uint32(poolTypeIndex), reserveCoinDenoms, depositCoins)
+			msg := types.NewMsgCreateLiquidityPool(poolCreator, uint32(poolTypeIndex), depositCoins)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -223,25 +222,26 @@ You should request the matched pool-coin as the pool.
 // Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
 func NewSwapCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "swap [pool-id] [pool-type-index] [swap-type] [offer-coin] [demand-coin-denom] [order-price]",
-		Args:  cobra.ExactArgs(6),
+		Use:   "swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price]",
+		Args:  cobra.ExactArgs(5),
 		Short: "Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Swap offer to the Liquidity pool with the specified pool-id, pool-type-index, swap-type,
-demand-coin-denom with the coin and the price you're offering
+			fmt.Sprintf(`Swap offer to the Liquidity pool with the specified pool-id, swap-type demand-coin-denom 
+with the coin and the price you're offering
 
 this requests are stacked in the batch of the liquidity pool, not immediately processed and 
 processed in the endblock at once with other requests.
 
 Example:
-$ %s tx liquidity swap 2 1 1 100000000acoin bcoin 1.15 --from mykey
+$ %s tx liquidity swap 2 1 100000000acoin bcoin 1.15 --from mykey
 
 You should request the same each field as the pool.
 
-Currently, only the default swap-type 1 is available on this version
+Must have sufficient balance half the of the swapFee Rate of the offer coin to reserve offer coin fee.
+
+Currently, only the default pool-type, swap-type 1 is available on this version
 The detailed swap algorithm can be found here.
 https://github.com/tendermint/liquidity
-
 `,
 				version.AppName,
 			),
@@ -253,34 +253,24 @@ https://github.com/tendermint/liquidity
 			}
 			swapRequester := clientCtx.GetFromAddress()
 
-			// Get pool type index
+			// Get pool id
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
 			}
 
-			// Get pool type index
-			poolTypeIndex, err := strconv.ParseUint(args[1], 10, 32)
-			if err != nil {
-				return fmt.Errorf("pool-type-index %s not a valid uint, please input a valid pool-type-index", args[1])
-			}
-
-			// Get pool type index
-			swapType, err := strconv.ParseUint(args[2], 10, 32)
+			// Get swap type
+			swapType, err := strconv.ParseUint(args[1], 10, 32)
 			if err != nil {
 				return fmt.Errorf("swap-type %s not a valid uint, please input a valid swap-type", args[2])
 			}
 
-			if poolTypeIndex != 1 {
-				return types.ErrPoolTypeNotExists
-			}
-
 			if swapType != 1 {
-				return types.ErrEmptySwapRequesterAddr
+				return types.ErrSwapTypeNotExists
 			}
 
 			// Get offer coin
-			offerCoin, err := sdk.ParseCoinNormalized(args[3])
+			offerCoin, err := sdk.ParseCoinNormalized(args[2])
 			if err != nil {
 				return err
 			}
@@ -290,7 +280,7 @@ https://github.com/tendermint/liquidity
 				return err
 			}
 
-			err = sdk.ValidateDenom(args[4])
+			err = sdk.ValidateDenom(args[3])
 			if err != nil {
 				return err
 			}
@@ -299,12 +289,12 @@ https://github.com/tendermint/liquidity
 				return fmt.Errorf("pool-type-index %s not a valid uint, please input a valid pool-type-index", args[1])
 			}
 
-			orderPrice, err := sdk.NewDecFromStr(args[5])
+			orderPrice, err := sdk.NewDecFromStr(args[4])
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgSwap(swapRequester, poolId, uint32(poolTypeIndex), uint32(swapType), offerCoin, args[4], orderPrice)
+			msg := types.NewMsgSwap(swapRequester, poolId, uint32(swapType), offerCoin, args[4], orderPrice)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

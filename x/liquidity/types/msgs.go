@@ -28,13 +28,11 @@ const (
 func NewMsgCreateLiquidityPool(
 	poolCreator sdk.AccAddress,
 	poolTypeIndex uint32,
-	reserveCoinDenoms []string,
 	depositCoins sdk.Coins,
 ) *MsgCreateLiquidityPool {
 	return &MsgCreateLiquidityPool{
 		PoolCreatorAddress: poolCreator.String(),
 		PoolTypeIndex:      poolTypeIndex,
-		ReserveCoinDenoms:  reserveCoinDenoms,
 		DepositCoins:       depositCoins,
 	}
 }
@@ -49,9 +47,6 @@ func (msg MsgCreateLiquidityPool) Type() string { return TypeMsgCreateLiquidityP
 func (msg MsgCreateLiquidityPool) ValidateBasic() error {
 	if msg.PoolCreatorAddress == "" {
 		return ErrEmptyPoolCreatorAddr
-	}
-	if len(msg.ReserveCoinDenoms) != msg.DepositCoins.Len() {
-		return ErrNumOfReserveCoin
 	}
 	if err := msg.DepositCoins.Validate(); err != nil {
 		return err
@@ -218,7 +213,6 @@ func (msg MsgWithdrawFromLiquidityPool) GetWithdrawer() sdk.AccAddress {
 func NewMsgSwap(
 	swapRequester sdk.AccAddress,
 	poolId uint64,
-	poolTypeIndex uint32,
 	swapType uint32,
 	offerCoin sdk.Coin,
 	demandCoinDenom string,
@@ -227,12 +221,20 @@ func NewMsgSwap(
 	return &MsgSwap{
 		SwapRequesterAddress: swapRequester.String(),
 		PoolId:               poolId,
-		PoolTypeIndex:        poolTypeIndex,
 		SwapType:             swapType,
 		OfferCoin:            offerCoin,
+		OfferCoinFee:         GetOfferCoinFee(offerCoin),
 		DemandCoinDenom:      demandCoinDenom,
 		OrderPrice:           orderPrice,
 	}
+}
+
+//func (msg MsgSwap) GetOfferCoinFee() sdk.Coin {
+//	return GetOfferCoinFee(msg.OfferCoin)
+//}
+
+func GetOfferCoinFee(offerCoin sdk.Coin) sdk.Coin {
+	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(DefaultSwapFeeRate.Mul(HalfRatio)).TruncateInt())
 }
 
 // Route implements Msg.

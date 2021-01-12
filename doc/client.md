@@ -79,10 +79,6 @@ example tx command with result
         "@type": "/tendermint.liquidity.MsgCreateLiquidityPool",
         "pool_creator_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
         "pool_type_index": 1,
-        "reserve_coin_denoms": [
-          "reservecoin1",
-          "reservecoin2"
-        ],
         "deposit_coins": [
           {
             "denom": "reservecoin1",
@@ -386,7 +382,7 @@ result
 `$ ./liquidityd tx liquidity swap --help`
 
 ```bash  
-Swap offer to the Liquidity pool with the specified pool-id, pool-type-index, swap-type,
+Swap offer to the Liquidity pool with the specified pool-id, swap-type,
 demand-coin-denom with the coin and the price you're offering
 
 this requests are stacked in the batch of the liquidity pool, not immediately processed and 
@@ -1063,7 +1059,7 @@ withdraw_msgs: []
 ## REST/API
 
 You can check local swagger doc page on `YOUR_API_SERVER(ex:127.0.0.1:1317)/swagger-liquidity/` if set `swagger = true` from `app.toml`
-or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
+or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs/2.0.2)
 
 According to [migrating-to-new-rest-endpoints](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints), the POST endpoints of the New gGPC-gateway REST are N/A and guided directly to use Protobuf, need to use `cli` or `localhost:1317/cosmos/tx/v1beta1/txs` for broadcast txs temporarily
 
