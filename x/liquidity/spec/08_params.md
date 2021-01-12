@@ -40,7 +40,8 @@ Initial mint amount of pool coin upon pool creation
 
 ## SwapFeeRate
 
-Swap fee rate for every executed swap
+Swap fee rate for every executed swap, when Swap request Reserved half of Swap fee as OfferCoinFee
+and remaining half of fee as `ExchangedCoinFee` is collected when batch is executed,   
 
 ## LiquidityPoolCreationFee
 

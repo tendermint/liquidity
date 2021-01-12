@@ -26,8 +26,6 @@ func TestMsgCreateLiquidityPool(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	denoms := []string{denomA, denomB}
-
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 
@@ -37,7 +35,7 @@ func TestMsgCreateLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
 
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
@@ -69,8 +67,6 @@ func TestMsgDepositLiquidityPool(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	denoms := []string{denomA, denomB}
-
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 	app.SaveAccount(simapp, ctx, addrs[1], deposit)
@@ -87,7 +83,7 @@ func TestMsgDepositLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	createMsg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
+	createMsg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
 
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, createMsg)
 	require.NoError(t, err)
@@ -126,8 +122,6 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	denoms := []string{denomA, denomB}
-
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 
@@ -137,7 +131,7 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	createMsg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
+	createMsg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
 
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, createMsg)
 	require.NoError(t, err)
@@ -186,8 +180,6 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	denoms := []string{denomA, denomB}
-
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 
@@ -197,7 +189,7 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
 
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)

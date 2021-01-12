@@ -23,7 +23,6 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	denomX := "denomX"
 	denomY := "denomY"
 	denomX, denomY = types.AlphabeticalDenomPair(denomX, denomY)
-	denoms := []string{denomX, denomY}
 
 	// get random X, Y amount for create pool
 	X, Y := app.GetRandPoolAmt(r, params.MinInitDepositToPool)
@@ -39,7 +38,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 

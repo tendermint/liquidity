@@ -376,31 +376,13 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 						panic("not matched msg pointer ")
 					}
 					if direction == DirectionXtoY {
-						//// TODO: offer-OfferCoinFeeAmt for exchanged
-						//matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.ToDec().Quo(swapPrice).TruncateInt()
-						////matchResult.OfferCoinFeeAmt = matchResult.TransactedCoinAmt.ToDec().Mul(swapFeeRate).TruncateInt()
-						////matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Sub(matchResult.OfferCoinFeeAmt).ToDec().Quo(swapPrice).TruncateInt()
-						//matchResult.ExchangedCoinFeeAmt = matchResult.ExchangedDemandCoinAmt.ToDec().Mul(swapFeeRate.Quo(HalfRatio)).TruncateInt()
-						// TODO: offer-FeeAmt for exchanged
-						//matchResult.OfferCoinFeeAmt = matchResult.TransactedCoinAmt.ToDec().Mul(swapFeeRate.Mul(HalfRatio)).TruncateInt()
 						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.OfferCoinFeeReserve.Amount.ToDec().Mul(fractionalMatchRatio).TruncateInt()
-						// TODO: offerRserve * fractional Rate
 						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.ToDec().Quo(swapPrice).TruncateInt()
-						//matchResult.ExchangedCoinFeeAmt = matchResult.ExchangedDemandCoinAmt.ToDec().Mul(swapFeeRate.Mul(HalfRatio)).TruncateInt()
 						matchResult.ExchangedCoinFeeAmt = matchResult.OfferCoinFeeAmt.ToDec().Quo(swapPrice).TruncateInt()
-						// TODO: or matchResult.ExchangedCoinFeeAmt =  matchResult.OfferCoinFeeAmt / swapPrice
 					} else if direction == DirectionYtoX {
-						//// TODO: offer-OfferCoinFeeAmt for exchanged
-						//matchResult.OfferCoinFeeAmt = matchResult.TransactedCoinAmt.ToDec().Mul(swapFeeRate).TruncateInt()
-						//matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Sub(matchResult.OfferCoinFeeAmt).ToDec().Mul(swapPrice).TruncateInt()
-						// TODO: offer-FeeAmt for exchanged
-						//matchResult.OfferCoinFeeAmt = matchResult.TransactedCoinAmt.ToDec().Mul(swapFeeRate.Mul(HalfRatio)).TruncateInt()
 						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.OfferCoinFeeReserve.Amount.ToDec().Mul(fractionalMatchRatio).TruncateInt()
-						// TODO: offerRserve * fractional Rate
 						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.ToDec().Mul(swapPrice).TruncateInt()
-						//matchResult.ExchangedCoinFeeAmt = matchResult.ExchangedDemandCoinAmt.ToDec().Mul(swapFeeRate.Mul(HalfRatio)).TruncateInt()
 						matchResult.ExchangedCoinFeeAmt = matchResult.OfferCoinFeeAmt.ToDec().Mul(swapPrice).TruncateInt()
-						// TODO: or matchResult.ExchangedCoinFeeAmt =  matchResult.OfferCoinFeeAmt / swapPrice
 					}
 					if matchResult.TransactedCoinAmt.GT(matchResult.OfferCoinAmt) ||
 						(matchResult.OfferCoinFeeAmt.GT(matchResult.OfferCoinAmt) && matchResult.OfferCoinFeeAmt.GT(sdk.OneInt())) {

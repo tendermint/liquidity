@@ -40,7 +40,7 @@ For detailed Mechanism, you can find on our recent [Paper](https://github.com/te
 | Requirement | Notes            |
 | ----------- | ---------------- |
 | Go version  | Go1.15 or higher |
-| Cosmos-SDK  | v0.40.0-rc4      |
+| Cosmos-SDK  | v0.40.0          |
 
 ### Get Liquidity Module source code 
 ```bash 
@@ -141,10 +141,9 @@ make install
 liquidityd init testing --chain-id testing
 liquidityd keys add validator --keyring-backend test
 liquidityd keys add user1 --keyring-backend test
-validator=$(liquidityd keys show validator --keyring-backend test -a)
 liquidityd add-genesis-account $(liquidityd keys show validator --keyring-backend test -a) 1000000000stake,1000000000token
 liquidityd add-genesis-account $(liquidityd keys show user1 --keyring-backend test -a) 1000000000stake,1000000000atom
-liquidityd gentx validator --chain-id testing --keyring-backend test
+liquidityd gentx validator 1000000000stake --chain-id testing --keyring-backend test
 liquidityd collect-gentxs
 liquidityd start
 ```
@@ -166,7 +165,7 @@ liquidityd tx liquidity create-pool 1 100000000stake,100000000atom --from user1 
 Example of Swap request using cli
 
 ```bash
-liquidityd tx liquidity swap 2 1 1 1000stake atom 1.15 --from validator --chain-id testing --keyring-backend test -y
+liquidityd tx liquidity swap 2 1 1000stake atom 1.15 --from validator --chain-id testing --keyring-backend test -y
 ```
 
 ### Broadcasting Txs with REST
@@ -176,7 +175,8 @@ Example of broadcast txs the new REST endpoint (via gRPC-gateway),
 example of generating unsigned tx 
 
 ```bash
-liquidityd tx liquidity swap 2 1 1 1000stake atom 1.15 --from $validator --chain-id testing --generate-only > tx_swap.json
+validator=$(liquidityd keys show validator --keyring-backend test -a)
+liquidityd tx liquidity swap 2 1 1000stake atom 1.15 --from $validator --chain-id testing --generate-only > tx_swap.json
 cat tx_swap.json
 ```
  
@@ -197,6 +197,7 @@ example of the output: `CoMBCoABCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJfCi1j
 
 
 example of broadcasting txs using the [new REST endpoint (via gRPC-gateway, beta1)](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints)
+need to enable API server for test
 
 ```bash
 curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"CoMBCoABCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJfCi1jb3Ntb3MxN3dncHpyNGd2YzN1aHBmcnUyNmVhYTJsc203NzJlMnEydjBtZXgQAhgBIAEqDQoFc3Rha2USBDEwMDAyBGF0b206EzExNTAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAqzfoAEi0cFg0zqwBuGNvHml4XJNS3EQuVti8/yGH88NEgQKAgh/GAgSBBDAmgwaQGTRN67x2WYF/L5DsRD3ZY1Kt9cVpg3rW+YbXtihxcB6bJWhMxuFr0u9SnGkCuAgOuLH9YU8ROFUo1gGS1RpTz0=","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
@@ -205,11 +206,11 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 ## Export, Genesis State
 
 ### export empty state case
-`./liquidityd testnet --v 1` 
+`liquidityd testnet --v 1` 
 
-`./liquidityd start --home ./output/node0/liquidityd/`
+`liquidityd start --home ./mytestnet/node0/liquidityd/`
 
-`./liquidityd export  --home ./output/node0/liquidityd/`
+`liquidityd export  --home ./mytestnet/node0/liquidityd/`
 
 ```json
 ...
@@ -256,15 +257,15 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 
 ### pool created state export case
 
-`./liquidityd testnet --v 1`
+`liquidityd testnet --v 1`
 
-`./liquidityd start --home ./output/node0/liquidityd/`
+`liquidityd start --home ./mytestnet/node0/liquidityd/`
 
-`cat output/node0/liquidityd/config/genesis.json | grep chain_id`
+`cat mytestnet/node0/liquidityd/config/genesis.json | grep chain_id`
 
-`./liquidityd tx liquidity create-pool 1 100000000reservecoin1,100000000reservecoin2 --from node0  --home ./output/node0/liquidityd/ --fees 2stake --chain-id <CHAIN-ID>`
+`liquidityd tx liquidity create-pool 1 100000000reservecoin1,100000000reservecoin2 --from node0  --home ./mytestnet/node0/liquidityd/ --fees 2stake --chain-id <CHAIN-ID>`
 
-`./liquidityd export --home ./output/node0/liquidityd/`
+`liquidityd export --home ./mytestnet/node0/liquidityd/`
 
 ```json
 ...

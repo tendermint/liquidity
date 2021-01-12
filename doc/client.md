@@ -79,10 +79,6 @@ example tx command with result
         "@type": "/tendermint.liquidity.MsgCreateLiquidityPool",
         "pool_creator_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
         "pool_type_index": 1,
-        "reserve_coin_denoms": [
-          "reservecoin1",
-          "reservecoin2"
-        ],
         "deposit_coins": [
           {
             "denom": "reservecoin1",
@@ -386,7 +382,7 @@ result
 `$ ./liquidityd tx liquidity swap --help`
 
 ```bash  
-Swap offer to the Liquidity pool with the specified pool-id, pool-type-index, swap-type,
+Swap offer to the Liquidity pool with the specified pool-id, swap-type,
 demand-coin-denom with the coin and the price you're offering
 
 this requests are stacked in the batch of the liquidity pool, not immediately processed and 

@@ -19,9 +19,8 @@ const (
 
 func TestMsgCreateLiquidityPool(t *testing.T) {
 	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	denoms := []string{DenomX, DenomY}
 	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg := types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denoms, coins)
+	msg := types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coins)
 	require.IsType(t, &types.MsgCreateLiquidityPool{}, msg)
 	require.Equal(t, types.RouterKey, msg.Route())
 	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
@@ -34,23 +33,19 @@ func TestMsgCreateLiquidityPool(t *testing.T) {
 	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 
 	// Fail cases
-	msg = types.NewMsgCreateLiquidityPool(sdk.AccAddress{}, DefaultPoolTypeIndex, denoms, coins)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	denomsFail := []string{DenomX, DenomY, DenomY}
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denomsFail, coins)
+	msg = types.NewMsgCreateLiquidityPool(sdk.AccAddress{}, DefaultPoolTypeIndex, coins)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail := sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denoms, coinsFail)
+	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("Denomfail", sdk.NewInt(1000)))
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denoms, coinsFail)
+	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(0)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, denoms, coinsFail)
+	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }

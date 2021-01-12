@@ -212,18 +212,16 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap, Or
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
 
-	// TODO: OfferCoinFee
-
 	batchPoolMsg := types.BatchPoolSwapMsg{
-		MsgHeight:          ctx.BlockHeight(),
-		MsgIndex:           poolBatch.SwapMsgIndex,
-		Executed:           false,
-		Succeeded:          false,
-		ToBeDeleted:        false,
-		ExchangedOfferCoin: sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
-		RemainingOfferCoin: msg.OfferCoin,
+		MsgHeight:           ctx.BlockHeight(),
+		MsgIndex:            poolBatch.SwapMsgIndex,
+		Executed:            false,
+		Succeeded:           false,
+		ToBeDeleted:         false,
+		ExchangedOfferCoin:  sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
+		RemainingOfferCoin:  msg.OfferCoin,
 		OfferCoinFeeReserve: msg.OfferCoinFee,
-		Msg:                msg,
+		Msg:                 msg,
 	}
 	// TODO: add logic if OrderExpiryHeight==0, pass on batch logic
 	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + OrderExpirySpanHeight
@@ -232,7 +230,6 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap, Or
 		return nil, err
 	}
 
-	// TODO: half-half fee
 	if err := k.HoldEscrow(ctx, msg.GetSwapRequester(), sdk.NewCoins(msg.OfferCoinFee)); err != nil {
 		return nil, err
 	}

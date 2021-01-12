@@ -281,11 +281,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
 				match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))) {
-				// TODO: remove debugging log
-				fmt.Println(match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
-					GT(match.BatchMsg.Msg.OfferCoin.Amount),
-					!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())),
-					match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))), match.BatchMsg.ExchangedOfferCoin, match.BatchMsg.RemainingOfferCoin, match.BatchMsg.OfferCoinFeeReserve)
 				panic("remaining not matched 1")
 			} else {
 				match.BatchMsg.Succeeded = true
@@ -306,11 +301,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
 				match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))) {
-				// TODO: remove debugging log
-				fmt.Println(match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
-					GT(match.BatchMsg.Msg.OfferCoin.Amount),
-					!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())),
-					match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))), match.BatchMsg.ExchangedOfferCoin, match.BatchMsg.RemainingOfferCoin, match.BatchMsg.OfferCoinFeeReserve)
 				panic("remaining not matched 2")
 			} else {
 				match.BatchMsg.Succeeded = true
@@ -341,11 +331,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
 				match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))) {
-					// TODO: remove debugging log
-					fmt.Println(match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
-					GT(match.BatchMsg.Msg.OfferCoin.Amount),
-					!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())),
-					match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))), match.BatchMsg.ExchangedOfferCoin, match.BatchMsg.RemainingOfferCoin, match.BatchMsg.OfferCoinFeeReserve)
 				panic("remaining not matched 3")
 			} else {
 				match.BatchMsg.Succeeded = true
@@ -368,11 +353,6 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
 				match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))) {
-				// TODO: remove debugging log
-				fmt.Println(match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
-					GT(match.BatchMsg.Msg.OfferCoin.Amount),
-					!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())),
-					match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))), match.BatchMsg.ExchangedOfferCoin, match.BatchMsg.RemainingOfferCoin, match.BatchMsg.OfferCoinFeeReserve)
 				panic("remaining not matched 4")
 			} else {
 				match.BatchMsg.Succeeded = true

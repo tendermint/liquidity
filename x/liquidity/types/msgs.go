@@ -28,13 +28,11 @@ const (
 func NewMsgCreateLiquidityPool(
 	poolCreator sdk.AccAddress,
 	poolTypeIndex uint32,
-	reserveCoinDenoms []string,
 	depositCoins sdk.Coins,
 ) *MsgCreateLiquidityPool {
 	return &MsgCreateLiquidityPool{
 		PoolCreatorAddress: poolCreator.String(),
 		PoolTypeIndex:      poolTypeIndex,
-		ReserveCoinDenoms:  reserveCoinDenoms,
 		DepositCoins:       depositCoins,
 	}
 }
@@ -49,9 +47,6 @@ func (msg MsgCreateLiquidityPool) Type() string { return TypeMsgCreateLiquidityP
 func (msg MsgCreateLiquidityPool) ValidateBasic() error {
 	if msg.PoolCreatorAddress == "" {
 		return ErrEmptyPoolCreatorAddr
-	}
-	if len(msg.ReserveCoinDenoms) != msg.DepositCoins.Len() {
-		return ErrNumOfReserveCoin
 	}
 	if err := msg.DepositCoins.Validate(); err != nil {
 		return err
@@ -234,12 +229,10 @@ func NewMsgSwap(
 	}
 }
 
-// TODO: half-half fee
 //func (msg MsgSwap) GetOfferCoinFee() sdk.Coin {
 //	return GetOfferCoinFee(msg.OfferCoin)
 //}
 
-// TODO: half-half fee
 func GetOfferCoinFee(offerCoin sdk.Coin) sdk.Coin {
 	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(DefaultSwapFeeRate.Mul(HalfRatio)).TruncateInt())
 }

@@ -254,14 +254,6 @@ paths:
                     description: >-
                       index of target pool type, only 1 is allowed on this
                       version, Must match the value in the pool.
-                  reserve_coin_denoms:
-                    type: array
-                    example:
-                      - denomA
-                      - denomB
-                    items:
-                      type: string
-                    title: denoms of reserve coin pair of the pool
                   deposit_coins:
                     type: array
                     format: sdk.Coins
@@ -1350,13 +1342,6 @@ paths:
                     format: uint64
                     example: '1'
                     title: id of the target pool
-                  pool_type_index:
-                    type: integer
-                    format: uint32
-                    example: '1'
-                    description: >-
-                      index of target pool type, only 1 is allowed on this
-                      version, Must match the value in the pool.
                   swap_type:
                     type: integer
                     format: uint32
@@ -1573,13 +1558,6 @@ paths:
                           format: uint64
                           example: '1'
                           title: id of the target pool
-                        pool_type_index:
-                          type: integer
-                          format: uint32
-                          example: '1'
-                          description: >-
-                            index of target pool type, only 1 is allowed on this
-                            version, Must match the value in the pool.
                         swap_type:
                           type: integer
                           format: uint32
@@ -3088,14 +3066,6 @@ definitions:
         description: >-
           index of target pool type, only 1 is allowed on this version, Must
           match the value in the pool.
-      reserve_coin_denoms:
-        type: array
-        example:
-          - denomA
-          - denomB
-        items:
-          type: string
-        title: denoms of reserve coin pair of the pool
       deposit_coins:
         type: array
         format: sdk.Coins
@@ -3236,14 +3206,6 @@ definitions:
             description: >-
               index of target pool type, only 1 is allowed on this version, Must
               match the value in the pool.
-          reserve_coin_denoms:
-            type: array
-            example:
-              - denomA
-              - denomB
-            items:
-              type: string
-            title: denoms of reserve coin pair of the pool
           deposit_coins:
             type: array
             format: sdk.Coins
@@ -3657,13 +3619,6 @@ definitions:
         format: uint64
         example: '1'
         title: id of the target pool
-      pool_type_index:
-        type: integer
-        format: uint32
-        example: '1'
-        description: >-
-          index of target pool type, only 1 is allowed on this version, Must
-          match the value in the pool.
       swap_type:
         type: integer
         format: uint32
@@ -3855,13 +3810,6 @@ definitions:
             format: uint64
             example: '1'
             title: id of the target pool
-          pool_type_index:
-            type: integer
-            format: uint32
-            example: '1'
-            description: >-
-              index of target pool type, only 1 is allowed on this version, Must
-              match the value in the pool.
           swap_type:
             type: integer
             format: uint32
@@ -4665,13 +4613,6 @@ definitions:
             format: uint64
             example: '1'
             title: id of the target pool
-          pool_type_index:
-            type: integer
-            format: uint32
-            example: '1'
-            description: >-
-              index of target pool type, only 1 is allowed on this version, Must
-              match the value in the pool.
           swap_type:
             type: integer
             format: uint32
@@ -5756,13 +5697,6 @@ definitions:
                   format: uint64
                   example: '1'
                   title: id of the target pool
-                pool_type_index:
-                  type: integer
-                  format: uint32
-                  example: '1'
-                  description: >-
-                    index of target pool type, only 1 is allowed on this
-                    version, Must match the value in the pool.
                 swap_type:
                   type: integer
                   format: uint32

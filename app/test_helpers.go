@@ -506,7 +506,6 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 }
 
 func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sdk.Int, denomX, denomY string, addr sdk.AccAddress) uint64 {
-	denoms := []string{denomX, denomY}
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	// set accounts for creator, depositor, withdrawer, balance for deposit
@@ -519,7 +518,7 @@ func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sd
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	poolId := simapp.LiquidityKeeper.GetNextLiquidityPoolId(ctx)
-	msg := types.NewMsgCreateLiquidityPool(addr, poolTypeIndex, denoms, depositBalance)
+	msg := types.NewMsgCreateLiquidityPool(addr, poolTypeIndex, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 

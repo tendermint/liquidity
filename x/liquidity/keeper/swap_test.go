@@ -13,8 +13,10 @@ import (
 )
 
 func TestSimulationSwapExecution(t *testing.T) {
-	for i := 0; i < 10; i++ {
-		fmt.Println("test count", i+1)
+	for i := 0; i < 20; i++ {
+		if i%10 == 0 {
+			fmt.Println("TestSimulationSwapExecution count", i)
+		}
 		TestSwapExecution(t)
 	}
 }
@@ -35,8 +37,8 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 	param := simapp.LiquidityKeeper.GetParams(ctx)
 	X, Y := app.GetRandPoolAmt(r, param.MinInitDepositToPool)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
-	fmt.Println("-------------------------------------------------------")
-	fmt.Println("X/Y", X.ToDec().Quo(Y.ToDec()), "X", X, "Y", Y)
+	//fmt.Println("-------------------------------------------------------")
+	//fmt.Println("X/Y", X.ToDec().Quo(Y.ToDec()), "X", X, "Y", Y)
 
 	// set pool creator account, balance for deposit
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
@@ -46,19 +48,17 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 	depositBalance := sdk.NewCoins(depositA, depositB)
 	require.Equal(t, deposit, depositBalance)
 
-	denoms := []string{denomX, denomY}
-
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20; i++ {
 		ctx = ctx.WithBlockHeight(int64(i))
-		//if i % 100 == 0 {
-		fmt.Println("test count", i+1)
-		//}
+		if i%10 == 0 {
+			fmt.Println("TestSimulationSwapExecutionFindEdgeCase height", i)
+		}
 		testSwapEdgeCases(t, simapp, ctx, X, Y, depositBalance, addrs)
 	}
 }
@@ -75,14 +75,13 @@ func TestSwapExecution(t *testing.T) {
 	denomX := "denomX"
 	denomY := "denomY"
 	denomX, denomY = types.AlphabeticalDenomPair(denomX, denomY)
-	denoms := []string{denomX, denomY}
 
 	// get random X, Y amount for create pool
 	param := simapp.LiquidityKeeper.GetParams(ctx)
 	X, Y := app.GetRandPoolAmt(r, param.MinInitDepositToPool)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
-	fmt.Println("-------------------------------------------------------")
-	fmt.Println("X/Y", X.ToDec().Quo(Y.ToDec()), "X", X, "Y", Y)
+	//fmt.Println("-------------------------------------------------------")
+	//fmt.Println("X/Y", X.ToDec().Quo(Y.ToDec()), "X", X, "Y", Y)
 
 	// set pool creator account, balance for deposit
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
@@ -94,7 +93,7 @@ func TestSwapExecution(t *testing.T) {
 
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
@@ -115,7 +114,7 @@ func TestSwapExecution(t *testing.T) {
 	var YtoX []*types.MsgSwap // selling Y for X
 
 	// make random orders, set buyer, seller accounts for the orders
-	XtoY, YtoX = app.GetRandomSizeOrders(denomX, denomY, X, Y, r, 50, 50)
+	XtoY, YtoX = app.GetRandomSizeOrders(denomX, denomY, X, Y, r, 250, 250)
 	buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
 	sellerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(YtoX), sdk.NewInt(0))
 
@@ -193,7 +192,7 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 	if ctx.BlockHeight() == 0 || len(remainingSwapMsgs) == 0 {
 		// TODO: or not exist remaining swap orders
 		// make random orders, set buyer, seller accounts for the orders
-		XtoY, YtoX = app.GetRandomSizeOrders(denomX, denomY, X, Y, r, 50, 50)
+		XtoY, YtoX = app.GetRandomSizeOrders(denomX, denomY, X, Y, r, 100, 100)
 		buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
 		sellerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(YtoX), sdk.NewInt(0))
 

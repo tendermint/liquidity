@@ -25,9 +25,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
-	denoms := []string{denomX, denomY}
 	denomA, denomB := types.AlphabeticalDenomPair(DenomA, DenomB)
-	denomsAB := []string{denomA, denomB}
 
 	X := sdk.NewInt(1000000000)
 	Y := sdk.NewInt(1000000000)
@@ -52,7 +50,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// Success case, create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
@@ -68,13 +66,13 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// reset deposit balance without LiquidityPoolCreationFee of pool creator
 	// Fail case, insufficient balances for pool creation fee case
-	msg = types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denomsAB, depositBalance)
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
-	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	msgAB := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalanceAB)
+	app.SaveAccount(simapp, ctx, addrs[0], depositAB)
+	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msgAB)
 	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
 
 	// Success case, create another pool
-	msgAB := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denomsAB, depositBalanceAB)
+	msgAB = types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB.Add(params.LiquidityPoolCreationFee...))
 	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msgAB)
 	require.NoError(t, err)
@@ -238,7 +236,6 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
-	denoms := []string{denomX, denomY}
 
 	X := sdk.NewInt(1000000000)
 	Y := sdk.NewInt(1000000000)
@@ -256,7 +253,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, denoms, depositBalance)
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
 	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
