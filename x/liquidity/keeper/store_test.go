@@ -307,6 +307,10 @@ func TestIterateAllBatchMsgs(t *testing.T) {
 	swapMsgsPool1 := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgs(ctx, batch)
 	require.Equal(t, 4, len(swapMsgsPool1))
 
+	swapMsg, found := simapp.LiquidityKeeper.GetLiquidityPoolBatchSwapMsg(ctx, batch.PoolId, 1)
+	require.True(t, found)
+	require.Equal(t, swapMsg, swapMsgsPool1[0])
+
 	var swapMsgsAllPool []types.BatchPoolSwapMsg
 	simapp.LiquidityKeeper.IterateAllBatchSwapMsgs(ctx, func(msg types.BatchPoolSwapMsg) bool {
 		swapMsgsAllPool = append(swapMsgsAllPool, msg)

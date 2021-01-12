@@ -550,7 +550,7 @@ func TestDepositPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y s
 		SaveAccount(simapp, ctx, addrs[i], deposit) // pool creator
 
 		depositMsg := types.NewMsgDepositToLiquidityPool(addrs[i], poolId, deposit)
-		err := simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
+		_, err := simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 		require.NoError(t, err)
 
 		depositorBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.ReserveCoinDenoms[0])
@@ -609,7 +609,7 @@ func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolC
 
 		withdrawCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
 		withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[i], poolId, withdrawCoin)
-		err := simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
+		_, err := simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
 		require.NoError(t, err)
 
 		moduleAccEscrowAmtPoolAfter := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, pool.PoolCoinDenom)

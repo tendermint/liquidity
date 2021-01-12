@@ -476,19 +476,19 @@ func (k Keeper) DeleteAllReadyLiquidityPoolBatchWithdrawMsgs(ctx sdk.Context, li
 	}
 }
 
-// return a specific GetLiquidityPoolBatchSwapMsg, not used currently
-//func (k Keeper) GetLiquidityPoolBatchSwapMsg(ctx sdk.Context, poolId, msgIndex uint64) (msg types.BatchPoolSwapMsg, found bool) {
-//	store := ctx.KVStore(k.storeKey)
-//	key := types.GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msgIndex)
-//
-//	value := store.Get(key)
-//	if value == nil {
-//		return msg, false
-//	}
-//
-//	msg = types.MustUnmarshalBatchPoolSwapMsg(k.cdc, value)
-//	return msg, true
-//}
+// return a specific GetLiquidityPoolBatchSwapMsg given the pool_id with the msg_index
+func (k Keeper) GetLiquidityPoolBatchSwapMsg(ctx sdk.Context, poolId, msgIndex uint64) (msg types.BatchPoolSwapMsg, found bool) {
+	store := ctx.KVStore(k.storeKey)
+	key := types.GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msgIndex)
+
+	value := store.Get(key)
+	if value == nil {
+		return msg, false
+	}
+
+	msg = types.MustUnmarshalBatchPoolSwapMsg(k.cdc, value)
+	return msg, true
+}
 
 // set swap batch msg of the liquidity pool batch, with current state
 func (k Keeper) SetLiquidityPoolBatchSwapMsg(ctx sdk.Context, poolId uint64, msg types.BatchPoolSwapMsg) {

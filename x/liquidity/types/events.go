@@ -18,10 +18,19 @@ const (
 	AttributeValueReserveCoinDenoms = "reserve_coin_denoms"
 	AttributeValueReserveAccount    = "reserve_account"
 	AttributeValuePoolCoinDenom     = "pool_coin_denom"
+	AttributeValuePoolCoinAmount    = "pool_coin_amount"
 	AttributeValueSwapFeeRate       = "swap_fee_rate"
 	AttributeValueBatchSize         = "batch_size"
-	AttributeValueBatchID           = "batch_id"
+	AttributeValueBatchIndex        = "batch_index"
+	AttributeValueMsgIndex          = "msg_index"
 	AttributeValueTxHash            = "tx_hash"
+
+	AttributeValueDepositCoins = "deposit_coins"
+
+	AttributeValueOfferCoinDenom  = "offer_coin_denom"
+	AttributeValueOfferCoinAmount = "offer_coin_amount"
+	AttributeValueDemandCoinDenom = "demand_coin_denom"
+	AttributeValueOrderPrice      = "order_price"
 
 	AttributeValueDepositor            = "depositor"
 	AttributeValueAcceptedCoinAmount   = "accepted_coin_amount"
