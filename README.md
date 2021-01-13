@@ -141,7 +141,7 @@ make install
 liquidityd init testing --chain-id testing
 liquidityd keys add validator --keyring-backend test
 liquidityd keys add user1 --keyring-backend test
-liquidityd add-genesis-account $(liquidityd keys show validator --keyring-backend test -a) 1000000000stake,1000000000token
+liquidityd add-genesis-account $(liquidityd keys show validator --keyring-backend test -a) 2000000000stake,1000000000token
 liquidityd add-genesis-account $(liquidityd keys show user1 --keyring-backend test -a) 1000000000stake,1000000000atom
 liquidityd gentx validator 1000000000stake --chain-id testing --keyring-backend test
 liquidityd collect-gentxs

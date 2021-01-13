@@ -294,7 +294,7 @@ https://github.com/tendermint/liquidity
 				return err
 			}
 
-			msg := types.NewMsgSwap(swapRequester, poolId, uint32(swapType), offerCoin, args[4], orderPrice)
+			msg := types.NewMsgSwap(swapRequester, poolId, uint32(swapType), offerCoin, args[3], orderPrice)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
