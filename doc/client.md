@@ -23,12 +23,11 @@ Progress REST/API
 
 - [x] liquidity query endpoints of REST api using grpc model
 - [x] broadcast txs using the new REST endpoint (via gRPC-gateway, beta1)
-- [ ] query with pagination
 
 
 ## Tx
 
-`$ ./liquidityd tx liquidity --help`     
+`$ liquidityd tx liquidity --help`     
 
 ```bash
 Liquidity transaction subcommands
@@ -48,7 +47,7 @@ See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/type
 
 ### tx create-pool
 
-`$ ./liquidityd tx liquidity create-pool --help`
+`$ liquidityd tx liquidity create-pool --help`
 
 ```bash
 Create Liquidity pool with the specified pool-type-index, deposit coins for reserve
@@ -69,7 +68,7 @@ Usage:
 
 example tx command with result 
 
-`$ liquidityd tx liquidity create-pool 1 100000000reservecoin1,100000000reservecoin2 --from node0 --home ./output/node0/liquidityd/ --fees 2stake --chain-id chain-3MYSLc`
+`$ liquidityd tx liquidity create-pool 1 100000000stake,100000000token --from validator --keyring-backend test --chain-id testing -y`
 
 ```json
 {
@@ -77,15 +76,15 @@ example tx command with result
     "messages": [
       {
         "@type": "/tendermint.liquidity.MsgCreateLiquidityPool",
-        "pool_creator_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
+        "pool_creator_address": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e",
         "pool_type_index": 1,
         "deposit_coins": [
           {
-            "denom": "reservecoin1",
+            "denom": "stake",
             "amount": "100000000"
           },
           {
-            "denom": "reservecoin2",
+            "denom": "token",
             "amount": "100000000"
           }
         ]
@@ -99,12 +98,7 @@ example tx command with result
   "auth_info": {
     "signer_infos": [],
     "fee": {
-      "amount": [
-        {
-          "denom": "stake",
-          "amount": "2"
-        }
-      ],
+      "amount": [],
       "gas_limit": "200000",
       "payer": "",
       "granter": ""
@@ -118,8 +112,8 @@ result
 
 ```json
 {
-  "height": "203",
-  "txhash": "BA13B95AEB3AB0FA33E33B64300D59D0C0D846B61242D3F73C9F90AB5B3FFEEA",
+  "height": "27",
+  "txhash": "081F2F0FB820C887ADAF62AF6409F42B2BF6A91F8EFF6F03F0964FCFEC6B6971",
   "codespace": "",
   "code": 0,
   "data": "0A170A156372656174655F6C69717569646974795F706F6F6C",
@@ -138,11 +132,11 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
             {
               "key": "sender",
@@ -154,9 +148,40 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
-            // ...
+            {
+              "key": "liquidity_pool_id",
+              "value": ""
+            },
+            {
+              "key": "liquidity_pool_type_index",
+              "value": "1"
+            },
+            {
+              "key": "reserve_coin_denoms",
+              "value": ""
+            },
+            {
+              "key": "reserve_account",
+              "value": ""
+            },
+            {
+              "key": "pool_coin_denom",
+              "value": ""
+            },
+            {
+              "key": "swap_fee_rate",
+              "value": ""
+            },
+            {
+              "key": "liquidity_pool_fee_rate",
+              "value": ""
+            },
+            {
+              "key": "batch_size",
+              "value": ""
+            }
           ]
         },
         {
@@ -164,7 +189,7 @@ result
           "attributes": [
             {
               "key": "recipient",
-              "value": "cosmos1ux8lymc6af2cqzpzshyrjtcurnchlqyqclke67"
+              "value": "cosmos18l9ktac2vf2qyf8a8hjahh47995ymknzg8my6t"
             },
             {
               "key": "amount",
@@ -172,19 +197,19 @@ result
             },
             {
               "key": "recipient",
-              "value": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs"
+              "value": "cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv"
             },
             {
               "key": "amount",
-              "value": "100000000reservecoin1,100000000reservecoin2"
+              "value": "100000000stake,100000000token"
             },
             {
               "key": "recipient",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
             {
               "key": "amount",
-              "value": "1000000cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs"
+              "value": "1000000cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv"
             }
           ]
         }
@@ -193,7 +218,7 @@ result
   ],
   "info": "",
   "gas_wanted": "200000",
-  "gas_used": "160108",
+  "gas_used": "146103",
   "tx": null,
   "timestamp": ""
 }
@@ -240,7 +265,7 @@ pool type not exists case
 
 ### tx deposit
 
-`$ ./liquidityd tx liquidity deposit --help  `
+`$ liquidityd tx liquidity deposit --help  `
 
 ```bash 
 ./liquidityd tx liquidity deposit --help 
@@ -262,57 +287,52 @@ Usage:
 example tx command with result 
 
 
-`$ ./liquidityd tx liquidity deposit 1 10000000reservecoin1,10000000reservecoin2 --from node0 --home ./output/node0/liquidityd/ --fees 2stake --chain-id chain-vqZBhx`
+`$ liquidityd tx liquidity deposit 1 50000000stake,50000000token --from validator --keyring-backend test --chain-id testing -y`
 
 ```json
- {
-   "body": {
-     "messages": [
-       {
-         "@type": "/tendermint.liquidity.MsgDepositToLiquidityPool",
-         "depositor_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
-         "pool_id": "1",
-         "deposit_coins": [
-           {
-             "denom": "reservecoin1",
-             "amount": "10000000"
-           },
-           {
-             "denom": "reservecoin2",
-             "amount": "10000000"
-           }
-         ]
-       }
-     ],
-     "memo": "",
-     "timeout_height": "0",
-     "extension_options": [],
-     "non_critical_extension_options": []
-   },
-   "auth_info": {
-     "signer_infos": [],
-     "fee": {
-       "amount": [
-         {
-           "denom": "stake",
-           "amount": "2"
-         }
-       ],
-       "gas_limit": "200000",
-       "payer": "",
-       "granter": ""
-     }
-   },
-   "signatures": []
- }
+{
+  "body": {
+    "messages": [
+      {
+        "@type": "/tendermint.liquidity.MsgDepositToLiquidityPool",
+        "depositor_address": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e",
+        "pool_id": "1",
+        "deposit_coins": [
+          {
+            "denom": "stake",
+            "amount": "50000000"
+          },
+          {
+            "denom": "token",
+            "amount": "50000000"
+          }
+        ]
+      }
+    ],
+    "memo": "",
+    "timeout_height": "0",
+    "extension_options": [],
+    "non_critical_extension_options": []
+  },
+  "auth_info": {
+    "signer_infos": [],
+    "fee": {
+      "amount": [],
+      "gas_limit": "200000",
+      "payer": "",
+      "granter": ""
+    }
+  },
+  "signatures": []
+}
 ```
 
 result 
 
 ```
 {
-  "height": "1232",
-  "txhash": "BE5A788E1BBF5E5DD70D2203AE2E5A1270B2075FAE4ED0DC6842684E9D82B339",
+  "height": "138",
+  "txhash": "35F02F00713CD9718BFFDE8C4630E4D32C52F9B458EA8CE89E8F01A93099E8BA",
   "codespace": "",
   "code": 0,
   "data": "0A1B0A196465706F7369745F746F5F6C69717569646974795F706F6F6C",
@@ -331,7 +351,7 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
             {
               "key": "module",
@@ -339,13 +359,20 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
             {
-              "key": "batch_id",
-              "value": ""
+              "key": "liquidity_pool_id",
+              "value": "1"
+            },
+            {
+              "key": "msg_index",
+              "value": "1"
+            },
+            {
+              "key": "deposit_coins",
+              "value": "50000000stake,50000000token"
             }
-            // ...
           ]
         },
         {
@@ -357,11 +384,11 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
             {
               "key": "amount",
-              "value": "10000000reservecoin1,10000000reservecoin2"
+              "value": "50000000stake,50000000token"
             }
           ]
         }
@@ -370,7 +397,7 @@ result
   ],
   "info": "",
   "gas_wanted": "200000",
-  "gas_used": "78915",
+  "gas_used": "66292",
   "tx": null,
   "timestamp": ""
 }
@@ -379,29 +406,30 @@ result
 
 ### tx swap
 
-`$ ./liquidityd tx liquidity swap --help`
+`$ liquidityd tx liquidity swap --help`
 
 ```bash  
-Swap offer to the Liquidity pool with the specified pool-id, swap-type,
-demand-coin-denom with the coin and the price you're offering
+Swap offer to the Liquidity pool with the specified pool-id, swap-type demand-coin-denom
+with the coin and the price you're offering
 
-this requests are stacked in the batch of the liquidity pool, not immediately processed and 
+this requests are stacked in the batch of the liquidity pool, not immediately processed and
 processed in the endblock at once with other requests.
 
 Example:
-$ liquidity tx liquidity swap 2 1 1 100000000acoin bcoin 1.15 --from mykey
+$ liquidity tx liquidity swap 2 1 100000000acoin bcoin 1.15 --from mykey
 
 You should request the same each field as the pool.
 
-Currently, only the default swap-type 1 is available on this version
+Must have sufficient balance half the of the swapFee Rate of the offer coin to reserve offer coin fee.
+
+Currently, only the default pool-type, swap-type 1 is available on this version
 The detailed swap algorithm can be found here.
 https://github.com/tendermint/liquidity
-
 ```
 
 example tx command with result 
 
-`$ ./liquidityd tx liquidity swap 1 1 1 100000reservecoin1 reservecoin2 1.15 --from node0 --home ./output/node0/liquidityd/ --fees 2stake --chain-id chain-vqZBhx`
+`$ liquidityd tx liquidity swap 1 1 1000token stake 1.15 --from validator --chain-id testing --keyring-backend test -y`
 
 ```json
 {
@@ -409,15 +437,18 @@ example tx command with result
     "messages": [
       {
         "@type": "/tendermint.liquidity.MsgSwap",
-        "swap_requester_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
+        "swap_requester_address": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e",
         "pool_id": "1",
-        "pool_type_index": 1,
         "swap_type": 1,
         "offer_coin": {
-          "denom": "reservecoin1",
-          "amount": "100000"
+          "denom": "token",
+          "amount": "1000"
         },
-        "demand_coin_denom": "reservecoin2",
+        "demand_coin_denom": "stake",
+        "offer_coin_fee": {
+          "denom": "token",
+          "amount": "1"
+        },
         "order_price": "1.150000000000000000"
       }
     ],
@@ -429,12 +460,7 @@ example tx command with result
   "auth_info": {
     "signer_infos": [],
     "fee": {
-      "amount": [
-        {
-          "denom": "stake",
-          "amount": "2"
-        }
-      ],
+      "amount": [],
       "gas_limit": "200000",
       "payer": "",
       "granter": ""
@@ -448,8 +474,8 @@ result
 
 ```
 {
-  "height": "1863",
-  "txhash": "04FC3FD99AC82AAB01CE500B82B4D9A916270C2E18274E9157CA2A07BE70EB5C",
+  "height": "193",
+  "txhash": "43E45896958D789F36BB79F762B6891972E943748B5145C70855FA4DC8C85629",
   "codespace": "",
   "code": 0,
   "data": "0A060A0473776170",
@@ -468,10 +494,45 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
+            },
+            {
+              "key": "module",
+              "value": "liquidity"
+            },
+            {
+              "key": "liquidity_pool_id",
+              "value": "1"
+            },
+            {
+              "key": "msg_index",
+              "value": "1"
+            },
+            {
+              "key": "swap_type",
+              "value": "1"
+            },
+            {
+              "key": "offer_coin_denom",
+              "value": "token"
+            },
+            {
+              "key": "offer_coin_amount",
+              "value": "1000"
+            },
+            {
+              "key": "demand_coin_denom",
+              "value": "stake"
+            },
+            {
+              "key": "order_price",
+              "value": "1.150000000000000000"
             }
           ]
-          //...
         },
         {
           "type": "transfer",
@@ -482,11 +543,23 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
             {
               "key": "amount",
-              "value": "100000reservecoin1"
+              "value": "1000token"
+            },
+            {
+              "key": "recipient",
+              "value": "cosmos1tx68a8k9yz54z06qfve9l2zxvgsz4ka3hr8962"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
+            },
+            {
+              "key": "amount",
+              "value": "1token"
             }
           ]
         }
@@ -495,7 +568,7 @@ result
   ],
   "info": "",
   "gas_wanted": "200000",
-  "gas_used": "75160",
+  "gas_used": "74245",
   "tx": null,
   "timestamp": ""
 }
@@ -503,7 +576,7 @@ result
 
 ### tx withdraw
 
-`$ ./liquidityd tx liquidity withdraw --help  `
+`$ liquidityd tx liquidity withdraw --help  `
 
 ```bash 
 Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
@@ -520,9 +593,23 @@ Usage:
   liquidityd tx liquidity withdraw [pool-id] [pool-coin] [flags]
 ```
 
-example tx command with result 
+check the balance before broadcast tx
 
-`$ ./liquidityd tx liquidity withdraw 1 1000cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs --from node0 --home ./output/node0/liquidityd/ --fees 2stake --chain-id chain-vqZBhx`
+`$ liquidityd query bank balances cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e`
+
+```
+balances:
+- amount: "1500000"
+  denom: cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv
+- amount: "750000000"
+  denom: stake
+- amount: "850000000"
+  denom: token 
+```
+
+example tx command with result
+
+`$ liquidityd tx liquidity withdraw 1 500000cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv --from validator --chain-id testing --keyring-backend test -y`
 
 ```json
 {
@@ -530,11 +617,11 @@ example tx command with result
     "messages": [
       {
         "@type": "/tendermint.liquidity.MsgWithdrawFromLiquidityPool",
-        "withdrawer_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
+        "withdrawer_address": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e",
         "pool_id": "1",
         "pool_coin": {
-          "denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
-          "amount": "1000"
+          "denom": "cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv",
+          "amount": "500000"
         }
       }
     ],
@@ -546,12 +633,7 @@ example tx command with result
   "auth_info": {
     "signer_infos": [],
     "fee": {
-      "amount": [
-        {
-          "denom": "stake",
-          "amount": "2"
-        }
-      ],
+      "amount": [],
       "gas_limit": "200000",
       "payer": "",
       "granter": ""
@@ -565,8 +647,8 @@ result
 
 ```
 {
-  "height": "1804",
-  "txhash": "C8439CF2C74221DD310069321222C9F7ADFC2E06764A6197E7D2983554BC723C",
+  "height": "256",
+  "txhash": "4335B428E28E5FA6D10181FC08BD166386BF8D140F91BE42F3AF79585B01FCBE",
   "codespace": "",
   "code": 0,
   "data": "0A1E0A1C77697468647261775F66726F6D5F6C69717569646974795F706F6F6C",
@@ -585,7 +667,7 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
             {
               "key": "module",
@@ -593,9 +675,24 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
-            //...
+            {
+              "key": "liquidity_pool_id",
+              "value": "1"
+            },
+            {
+              "key": "msg_index",
+              "value": "1"
+            },
+            {
+              "key": "pool_coin_denom",
+              "value": "cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv"
+            },
+            {
+              "key": "pool_coin_amount",
+              "value": "500000"
+            }
           ]
         },
         {
@@ -607,11 +704,11 @@ result
             },
             {
               "key": "sender",
-              "value": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun"
+              "value": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e"
             },
             {
               "key": "amount",
-              "value": "1000cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs"
+              "value": "500000cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv"
             }
           ]
         }
@@ -620,12 +717,25 @@ result
   ],
   "info": "",
   "gas_wanted": "200000",
-  "gas_used": "72194",
+  "gas_used": "63984",
   "tx": null,
   "timestamp": ""
 }
 ```
 
+balances after withdraw
+
+`$ liquidityd query bank balances cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e`
+
+```
+balances:
+- amount: "1000000"
+  denom: cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv
+- amount: "800000000"
+  denom: stake
+- amount: "900000000"
+  denom: token
+```
 
 ## Query
 
@@ -662,7 +772,7 @@ Use "liquidityd query liquidity [command] --help" for more information about a c
 See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
 
 ### query batch
-`$ ./liquidityd query liquidity batch --help`
+`$ liquidityd query liquidity batch --help`
 ```bash
 Query details of a liquidity pool batch
 Example:
@@ -674,13 +784,13 @@ Usage:
 
 example query command with result
 
-`$ ./liquidityd query liquidity batch 1`
+`$ liquidityd query liquidity batch 1`
 
 ```bash
-liquidity_pool_batch:
-  batch_index: "4"
-  begin_height: "1864"
-  deposit_msg_index: "3"
+batch:
+  batch_index: "3"
+  begin_height: "257"
+  deposit_msg_index: "2"
   executed: false
   pool_id: "1"
   swap_msg_index: "2"
@@ -688,7 +798,7 @@ liquidity_pool_batch:
 ```
 
 ### query batches
-`$ ./liquidityd query liquidity batches --help`
+`$ liquidityd query liquidity batches --help`
 ```bash
 Query details about all liquidity pools batch on a network.
 Example:
@@ -698,20 +808,21 @@ Usage:
   liquidityd query liquidity batches [flags]
 ```
 
-`$ ./liquidityd query liquidity batches`
+`$ liquidityd query liquidity batches`
 ```bash  
-liquidity_pools_batch_response:
-- liquidity_pool_batch:
-    batch_index: "4"
-    begin_height: "1864"
-    deposit_msg_index: "3"
+
+pools_batch:
+- batch:
+    batch_index: "3"
+    begin_height: "257"
+    deposit_msg_index: "2"
     executed: false
     pool_id: "1"
     swap_msg_index: "2"
     withdraw_msg_index: "2"
-- liquidity_pool_batch:
+- batch:
     batch_index: "1"
-    begin_height: "0"
+    begin_height: "300"
     deposit_msg_index: "1"
     executed: false
     pool_id: "2"
@@ -720,11 +831,10 @@ liquidity_pools_batch_response:
 pagination:
   next_key: null
   total: "2"
-
 ```
 
 ### query deposits
-`$ ./liquidityd query liquidity deposits --help`
+`$ liquidityd query liquidity deposits --help`
 ```bash
 
 Query for all deposit messages on the batch of the liquidity pool
@@ -739,27 +849,28 @@ $ liquidity query liquidity deposits
 
 example query command with result
 
-`$ ./liquidityd query liquidity deposits --output json`
+`$ liquidityd query liquidity deposits --output json`
+
 ```json
 {
-  "deposit_msgs": [
+  "deposits": [
     {
-      "msg_height": "1232",
+      "msg_height": "138",
       "msg_index": "1",
       "executed": true,
       "succeeded": true,
       "to_be_delete": true,
       "Msg": {
-        "depositor_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
+        "depositor_address": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e",
         "pool_id": "1",
         "deposit_coins": [
           {
-            "denom": "reservecoin1",
-            "amount": "10000000"
+            "denom": "stake",
+            "amount": "50000000"
           },
           {
-            "denom": "reservecoin2",
-            "amount": "10000000"
+            "denom": "token",
+            "amount": "50000000"
           }
         ]
       }
@@ -774,17 +885,19 @@ example query command with result
 
 empty case
 
-`$ ./liquidityd query liquidity deposits`
+`$ liquidityd query liquidity deposits`
+
 ```bash 
-deposit_msgs: []
+deposits: []
 pagination:
   next_key: null
   total: "0"
-
 ```
 
 ### query pool
-`$ ./liquidityd query liquidity pool  --help`
+
+`$ liquidityd query liquidity pool  --help`
+
 ```   
 Query details of a liquidity pool
 Example:
@@ -796,40 +909,40 @@ Usage:
 
 example query command with result 
 
-`./liquidityd query liquidity pool 1`
+`liquidityd query liquidity pool 1`
  
 ```bash
 liquidity_pool:
-  pool_coin_denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+  pool_coin_denom: cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv
   pool_id: "1"
   pool_type_index: 1
-  reserve_account_address: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+  reserve_account_address: cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv
   reserve_coin_denoms:
-  - reservecoin1
-  - reservecoin2
+  - stake
+  - token
 liquidity_pool_batch:
-  batch_index: "4"
-  begin_height: "1864"
-  deposit_msg_index: "3"
+  batch_index: "3"
+  begin_height: "257"
+  deposit_msg_index: "2"
   executed: false
   pool_id: "1"
   swap_msg_index: "2"
   withdraw_msg_index: "2"
-liquidity_pool_meta_data:
+liquidity_pool_metadata:
   pool_coin_total_supply:
-    amount: "1199000"
-    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+    amount: "1000000"
+    denom: cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv
   pool_id: "1"
   reserve_coins:
-  - amount: "120000000"
-    denom: reservecoin1
-  - amount: "119800467"
-    denom: reservecoin2
+  - amount: "100000000"
+    denom: stake
+  - amount: "100000000"
+    denom: token
 ```
 
 
 ### query pools
-`$ ./liquidityd query liquidity pools  --help`
+`$ liquidityd query liquidity pools  --help`
 ```   
 ./liquidityd query liquidity pools --help   
 Query details about all liquidity pools on a network.
@@ -848,33 +961,33 @@ example query command with result
  
 ```bash
 ./liquidityd query liquidity pools       
-liquidity_pools_response:
+pools:
 - liquidity_pool:
-    pool_coin_denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+    pool_coin_denom: cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv
     pool_id: "1"
     pool_type_index: 1
-    reserve_account_address: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+    reserve_account_address: cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv
     reserve_coin_denoms:
-    - reservecoin1
-    - reservecoin2
+    - stake
+    - token
   liquidity_pool_batch:
-    batch_index: "4"
-    begin_height: "1864"
-    deposit_msg_index: "3"
+    batch_index: "3"
+    begin_height: "257"
+    deposit_msg_index: "2"
     executed: false
     pool_id: "1"
     swap_msg_index: "2"
     withdraw_msg_index: "2"
-  liquidity_pool_meta_data:
+  liquidity_pool_metadata:
     pool_coin_total_supply:
-      amount: "1199000"
-      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+      amount: "1000000"
+      denom: cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv
     pool_id: "1"
     reserve_coins:
-    - amount: "120000000"
-      denom: reservecoin1
-    - amount: "119800467"
-      denom: reservecoin2
+    - amount: "100000000"
+      denom: stake
+    - amount: "100000000"
+      denom: token
 - liquidity_pool:
     pool_coin_denom: cosmos1d9w9j3rq5aunkrkdm86paduz4attl78thlj07f
     pool_id: "2"
@@ -891,7 +1004,7 @@ liquidity_pools_response:
     pool_id: "2"
     swap_msg_index: "1"
     withdraw_msg_index: "1"
-  liquidity_pool_meta_data:
+  liquidity_pool_metadata:
     pool_coin_total_supply:
       amount: "1000000"
       denom: cosmos1d9w9j3rq5aunkrkdm86paduz4attl78thlj07f
@@ -910,10 +1023,9 @@ pagination:
 
 example query command with result 
 
-`./liquidityd query liquidity params`
+`$ liquidityd query liquidity params`
 
 ```bash
-./liquidityd query liquidity params
 init_pool_coin_mint_amount: "1000000"
 liquidity_pool_creation_fee:
 - amount: "100000000"
@@ -930,7 +1042,7 @@ swap_fee_rate: "0.003000000000000000"
 
 
 ### query swaps
-`$ ./liquidityd query liquidity swaps --help`
+`$ liquidityd query liquidity swaps --help`
 ```bash
 Query for all swap messages on the batch of the liquidity pool
 
@@ -948,35 +1060,43 @@ Usage:
 
 example query command with result
 
-`$ ./liquidityd query liquidity swaps --output json`
+`$ liquidityd query liquidity swaps --output json`
 ```json
  {
-   "swap_msgs": [
+   "swaps": [
      {
-       "msg_height": "1863",
+       "msg_height": "193",
        "msg_index": "1",
        "executed": true,
        "succeeded": true,
        "to_be_delete": true,
-       "order_expiry_height": "1863",
+       "order_expiry_height": "193",
        "exchanged_offer_coin": {
-         "denom": "reservecoin1",
-         "amount": "100000"
+         "denom": "token",
+         "amount": "1000"
        },
        "remaining_offer_coin": {
-         "denom": "reservecoin1",
+         "denom": "token",
+         "amount": "0"
+       },
+       "offer_coin_fee_reserve": {
+         "denom": "token",
          "amount": "0"
        },
        "msg": {
-         "swap_requester_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
+         "swap_requester_address": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e",
          "pool_id": "1",
          "pool_type_index": 1,
          "swap_type": 1,
          "offer_coin": {
-           "denom": "reservecoin1",
-           "amount": "100000"
+           "denom": "token",
+           "amount": "1000"
          },
-         "demand_coin_denom": "reservecoin2",
+         "demand_coin_denom": "stake",
+         "offer_coin_fee": {
+          "denom": "token",
+          "amount": "1"
+         },
          "order_price": "1.150000000000000000"
        }
      }
@@ -990,19 +1110,19 @@ example query command with result
 
 empty case
 
-`$ ./liquidityd query liquidity swaps`
+`$ liquidityd query liquidity swaps`
 ```bash 
    
 pagination:
   next_key: null
   total: "0"
-swap_msgs: []
+swaps: []
 
 ```
 
 
 ### query withdraws
-`$ ./liquidityd query liquidity withdraws --help`
+`$ liquidityd query liquidity withdraws --help`
 ```bash
 Query for all withdraws messages on the batch of the liquidity pool
 
@@ -1019,22 +1139,24 @@ Usage:
 ```
 
 example query command with result
-`$ ./liquidityd query liquidity withdraws --output json`
+
+`$ liquidityd query liquidity withdraws --output json`
+
 ```json
 {
-  "withdraw_msgs": [
+  "withdraws": [
     {
-      "msg_height": "1804",
+      "msg_height": "256",
       "msg_index": "1",
       "executed": true,
       "succeeded": true,
       "to_be_delete": true,
       "msg": {
-        "withdrawer_address": "cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun",
+        "withdrawer_address": "cosmos1h69vt9vxgfpuj6zygrapte4tgg6h8w0nkn064e",
         "pool_id": "1",
         "pool_coin": {
-          "denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
-          "amount": "1000"
+          "denom": "cosmos1hdkmddemx6ttqdugxh2aqy6qjsw6lwu40pvmdv",
+          "amount": "500000"
         }
       }
     }
@@ -1047,7 +1169,7 @@ example query command with result
 ```
 
 empty case
-`$ ./liquidityd query liquidity withdraws`
+`$ liquidityd query liquidity withdraws`
 ```bash 
 pagination:
   next_key: null
