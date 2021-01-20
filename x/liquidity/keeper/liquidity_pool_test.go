@@ -174,8 +174,8 @@ func TestWithdrawLiquidityPool(t *testing.T) {
 	require.True(t, true, withdrawerPoolCoinAfter.IsZero())
 	withdrawerDenomAbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lp.ReserveCoinDenoms[0])
 	withdrawerDenomBbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lp.ReserveCoinDenoms[1])
-	require.Equal(t, deposit.AmountOf(lp.ReserveCoinDenoms[0]), withdrawerDenomAbalance.Amount)
-	require.Equal(t, deposit.AmountOf(lp.ReserveCoinDenoms[1]), withdrawerDenomBbalance.Amount)
+	require.Equal(t, deposit.AmountOf(lp.ReserveCoinDenoms[0]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomAbalance.Amount)
+	require.Equal(t, deposit.AmountOf(lp.ReserveCoinDenoms[1]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomBbalance.Amount)
 
 }
 
@@ -183,6 +183,8 @@ func TestReinitializePool(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
+	params.WithdrawFeeRate = sdk.ZeroDec()
+	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)

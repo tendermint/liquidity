@@ -123,13 +123,6 @@ func GetLiquidityModuleFeePoolAcc() sdk.AccAddress {
 	// TODO: TBD detail rule for target pool account
 }
 
-// Maximum ratio of reserve coins that can be ordered at a swap order
-func GetMaxOrderRatio() sdk.Dec {
-	DefaultMaxOrderRatio, _ := sdk.NewDecFromStr("0.1")
-	return DefaultMaxOrderRatio
-	// TODO: temporary Max Order Rate of reserve coin, it can be a param, TBD
-}
-
 // String returns a human readable string representation of the parameters.
 func (p Params) String() string {
 	out, _ := yaml.Marshal(p)
@@ -150,11 +143,27 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	if err := validateLiquidityPoolCreationFee(p.LiquidityPoolCreationFee); err != nil {
+		return err
+	}
+
+	if err := validateLiquidityMsgFee(p.LiquidityMsgFee); err != nil {
+		return err
+	}
+
 	if err := validateSwapFeeRate(p.SwapFeeRate); err != nil {
 		return err
 	}
 
-	if err := validateLiquidityPoolCreationFee(p.LiquidityPoolCreationFee); err != nil {
+	if err := validateWithdrawFeeRate(p.WithdrawFeeRate); err != nil {
+		return err
+	}
+
+	if err := validateMaxOrderAmountRatio(p.MaxOrderAmountRatio); err != nil {
+		return err
+	}
+
+	if err := validateUnitBatchSize(p.UnitBatchSize); err != nil {
 		return err
 	}
 	// TODO: add detail validate logic

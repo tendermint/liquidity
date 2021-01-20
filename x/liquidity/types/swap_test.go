@@ -202,7 +202,7 @@ func TestMaxOrderRatio(t *testing.T) {
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
-	maxOrderRatio := types.GetMaxOrderRatio()
+	maxOrderRatio := params.MaxOrderAmountRatio
 
 	// Success case, not exceed GetMaxOrderRatio orders
 	priceBuy, _ := sdk.NewDecFromStr("1.1")

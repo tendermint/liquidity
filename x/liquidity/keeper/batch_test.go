@@ -200,8 +200,8 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	withdrawerBalanceX = simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].ReserveCoinDenoms[0])
 	withdrawerBalanceY = simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].ReserveCoinDenoms[1])
 	withdrawerBalancePoolCoin = simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].PoolCoinDenom)
-	require.Equal(t, depositX.Amount, withdrawerBalanceX.Amount)
-	require.Equal(t, depositY.Amount, withdrawerBalanceY.Amount)
+	require.Equal(t, depositX.Amount.ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerBalanceX.Amount)
+	require.Equal(t, depositY.Amount.ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerBalanceY.Amount)
 	require.Equal(t, sdk.ZeroInt(), withdrawerBalancePoolCoin.Amount)
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
@@ -377,8 +377,8 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 	withdrawerBalanceX = simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].ReserveCoinDenoms[0])
 	withdrawerBalanceY = simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].ReserveCoinDenoms[1])
 	withdrawerBalancePoolCoin = simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].PoolCoinDenom)
-	require.Equal(t, depositX.Amount, withdrawerBalanceX.Amount)
-	require.Equal(t, depositY.Amount, withdrawerBalanceY.Amount)
+	require.Equal(t, depositX.Amount.ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerBalanceX.Amount)
+	require.Equal(t, depositY.Amount.ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerBalanceY.Amount)
 	require.Equal(t, sdk.ZeroInt(), withdrawerBalancePoolCoin.Amount)
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
