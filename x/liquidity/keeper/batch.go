@@ -76,6 +76,7 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 // collect them in the liquidity pool batch and perform an execution once at the endblock to calculate and use the universal price.
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
+		// TODO: UnitBatchSize
 		if !liquidityPoolBatch.Executed {
 			if liquidityPoolBatch.Executed {
 				return false
