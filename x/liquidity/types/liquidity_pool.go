@@ -55,7 +55,7 @@ func (lp LiquidityPool) Validate() error {
 
 // Calculate unique Pool key of the liquidity pool
 func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
-	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeIndex), 10)), "-")
+	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeIndex), 10)), "/")
 }
 
 func NewLiquidityPoolBatch(poolId, batchIndex uint64) LiquidityPoolBatch {

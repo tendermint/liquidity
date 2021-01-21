@@ -94,9 +94,8 @@ func (k Keeper) ValidateLiquidityPool(ctx sdk.Context, pool *types.LiquidityPool
 	}
 
 	poolKey := types.GetPoolKey(pool.ReserveCoinDenoms, pool.PoolTypeIndex)
-	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	poolCoin := k.GetPoolCoinTotal(ctx, *pool)
-	if poolCoin.Denom != types.GetPoolCoinDenom(reserveAcc) {
+	if poolCoin.Denom != types.GetPoolCoinDenom(poolKey) {
 		return types.ErrBadPoolCoinDenom
 	}
 
@@ -137,7 +136,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 		return types.ErrInsufficientPoolCreationFee
 	}
 
-	PoolCoinDenom := types.GetPoolCoinDenom(reserveAcc)
+	PoolCoinDenom := types.GetPoolCoinDenom(poolKey)
 
 	pool := types.LiquidityPool{
 		//PoolId: will set on SetLiquidityPoolAtomic
