@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"context"
-	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	"github.com/tendermint/liquidity/app/params"
 	"io"
 	"os"
 	"path/filepath"
+
+	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
+	"github.com/tendermint/liquidity/app/params"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -91,7 +92,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{}, liquidity.DefaultNodeHome),
 		genutilcli.MigrateGenesisCmd(),
 		genutilcli.GenTxCmd(liquidity.ModuleBasics, encodingConfig.TxConfig, banktypes.GenesisBalancesIterator{}, liquidity.DefaultNodeHome),
-		genutilcli.ValidateGenesisCmd(liquidity.ModuleBasics, encodingConfig.TxConfig),
+		genutilcli.ValidateGenesisCmd(liquidity.ModuleBasics),
 		AddGenesisAccountCmd(liquidity.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		testnetCmd(liquidity.ModuleBasics, banktypes.GenesisBalancesIterator{}),
