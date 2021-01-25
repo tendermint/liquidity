@@ -217,13 +217,14 @@ func NewMsgSwap(
 	offerCoin sdk.Coin,
 	demandCoinDenom string,
 	orderPrice sdk.Dec,
+	swapFeeRate sdk.Dec,
 ) *MsgSwap {
 	return &MsgSwap{
 		SwapRequesterAddress: swapRequester.String(),
 		PoolId:               poolId,
 		SwapType:             swapType,
 		OfferCoin:            offerCoin,
-		OfferCoinFee:         GetOfferCoinFee(offerCoin),
+		OfferCoinFee:         GetOfferCoinFee(offerCoin, swapFeeRate),
 		DemandCoinDenom:      demandCoinDenom,
 		OrderPrice:           orderPrice,
 	}
@@ -233,8 +234,8 @@ func NewMsgSwap(
 //	return GetOfferCoinFee(msg.OfferCoin)
 //}
 
-func GetOfferCoinFee(offerCoin sdk.Coin) sdk.Coin {
-	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(DefaultSwapFeeRate.Mul(HalfRatio)).TruncateInt())
+func GetOfferCoinFee(offerCoin sdk.Coin, swapFeeRate sdk.Dec) sdk.Coin {
+	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(swapFeeRate.Mul(HalfRatio)).TruncateInt())
 }
 
 // Route implements Msg.

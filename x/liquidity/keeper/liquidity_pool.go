@@ -444,7 +444,7 @@ func (k Keeper) ValidateMsgSwap(ctx sdk.Context, msg types.MsgSwap) error {
 		return types.ErrBadOfferCoinFee
 	}
 	// TODO: half-half fee refund when over
-	if !msg.OfferCoinFee.Equal(types.GetOfferCoinFee(msg.OfferCoin)) {
+	if !msg.OfferCoinFee.Equal(types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)) {
 		return types.ErrBadOfferCoinFee
 	}
 

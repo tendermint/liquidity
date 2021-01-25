@@ -123,14 +123,14 @@ func TestSwapExecution(t *testing.T) {
 		msg.SwapRequesterAddress = buyerAccs[i].String()
 		msg.PoolId = poolId
 		//msg.PoolTypeIndex = poolTypeIndex
-		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin)
+		//msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin)
 	}
 	for i, msg := range YtoX {
 		app.SaveAccountWithFee(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
 		msg.SwapRequesterAddress = sellerAccs[i].String()
 		msg.PoolId = poolId
 		//msg.PoolTypeIndex = poolTypeIndex
-		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin)
+		//msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin)
 	}
 
 	// begin block, delete and init pool batch
@@ -201,14 +201,14 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 			msg.SwapRequesterAddress = buyerAccs[i].String()
 			msg.PoolId = poolId
 			//msg.PoolTypeIndex = poolTypeIndex
-			msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin)
+			//msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin)
 		}
 		for i, msg := range YtoX {
 			app.SaveAccountWithFee(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
 			msg.SwapRequesterAddress = sellerAccs[i].String()
 			msg.PoolId = poolId
 			//msg.PoolTypeIndex = poolTypeIndex
-			msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin)
+			//msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin)
 		}
 	}
 

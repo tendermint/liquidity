@@ -11,6 +11,7 @@ import (
 
 func TestLiquidityPoolBatch(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
 	pool := types.LiquidityPool{}
 	require.Equal(t, types.ErrPoolNotExists, pool.Validate())
 	pool.PoolId = 1
@@ -67,7 +68,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	batchDepositMsg := types.BatchPoolDepositMsg{}
 	batchWithdrawMsg := types.BatchPoolWithdrawMsg{}
 	batchSwapMsg := types.BatchPoolSwapMsg{ExchangedOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)),
-		RemainingOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)), OfferCoinFeeReserve: types.GetOfferCoinFee(sdk.NewCoin("test", sdk.NewInt(2000)))}
+		RemainingOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)), OfferCoinFeeReserve: types.GetOfferCoinFee(sdk.NewCoin("test", sdk.NewInt(2000)), params.SwapFeeRate)}
 
 	byte := types.MustMarshalBatchPoolDepositMsg(cdc, batchDepositMsg)
 	require.Equal(t, batchDepositMsg, types.MustUnmarshalBatchPoolDepositMsg(cdc, byte))

@@ -299,7 +299,8 @@ func SaveAccount(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCo
 func SaveAccountWithFee(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins, offerCoin sdk.Coin) {
 	SaveAccount(app, ctx, addr, initCoins)
 	//acc := app.AccountKeeper.GetAccount(ctx, addr)
-	offerCoinFee := types.GetOfferCoinFee(offerCoin)
+	params := app.LiquidityKeeper.GetParams(ctx)
+	offerCoinFee := types.GetOfferCoinFee(offerCoin, params.SwapFeeRate)
 	err := app.BankKeeper.AddCoins(ctx, addr, sdk.NewCoins(offerCoinFee))
 	if err != nil {
 		panic(err)
@@ -483,7 +484,7 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 				OfferCoin:       orderCoin,
 				DemandCoinDenom: denomY,
 				OrderPrice:      orderPrice,
-				OfferCoinFee:    types.GetOfferCoinFee(orderCoin),
+				OfferCoinFee:    types.GetOfferCoinFee(orderCoin, types.DefaultSwapFeeRate),
 			},
 		})
 	}
@@ -498,7 +499,7 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 				OfferCoin:       orderCoin,
 				DemandCoinDenom: denomX,
 				OrderPrice:      orderPrice,
-				OfferCoinFee:    types.GetOfferCoinFee(orderCoin),
+				OfferCoinFee:    types.GetOfferCoinFee(orderCoin, types.DefaultSwapFeeRate),
 			},
 		})
 	}
@@ -667,6 +668,8 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 
 	var batchPoolSwapMsgList []*types.BatchPoolSwapMsg
 
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
 	iterNum := len(addrs)
 	for i := 0; i < iterNum; i++ {
 		moduleAccEscrowAmtPool := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, offerCoinList[i].Denom)
@@ -684,13 +687,13 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 			require.True(t, false)
 		}
 
-		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i])
+		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i], params.SwapFeeRate)
 		batchPoolSwapMsg, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg, 0)
 		require.NoError(t, err)
 
 		batchPoolSwapMsgList = append(batchPoolSwapMsgList, batchPoolSwapMsg)
 		moduleAccEscrowAmtPoolAfter := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, offerCoinList[i].Denom)
-		moduleAccEscrowAmtPool.Amount = moduleAccEscrowAmtPool.Amount.Add(offerCoinList[i].Amount).Add(types.GetOfferCoinFee(offerCoinList[i]).Amount)
+		moduleAccEscrowAmtPool.Amount = moduleAccEscrowAmtPool.Amount.Add(offerCoinList[i].Amount).Add(types.GetOfferCoinFee(offerCoinList[i], params.SwapFeeRate).Amount)
 		require.Equal(t, moduleAccEscrowAmtPool, moduleAccEscrowAmtPoolAfter)
 
 	}
@@ -716,6 +719,8 @@ func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinLi
 	pool, found := simapp.LiquidityKeeper.GetLiquidityPool(ctx, poolId)
 	require.True(t, found)
 
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
 	iterNum := len(addrs)
 	for i := 0; i < iterNum; i++ {
 		currentBalance := simapp.BankKeeper.GetBalance(ctx, addrs[i], offerCoinList[i].Denom)
@@ -732,7 +737,7 @@ func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinLi
 			require.True(t, false)
 		}
 
-		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i]))
+		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i], params.SwapFeeRate))
 	}
 	return msgList
 }
