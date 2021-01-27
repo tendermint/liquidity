@@ -73,18 +73,8 @@ message Params {
             format: "sdk.Int"
         }];
 
-    // Swap fee rate for every executed swap
-    bytes swap_fee_rate = 4 [
-        (gogoproto.moretags)   = "yaml:\"swap_fee_rate\"",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-        (gogoproto.nullable)   = false,
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"0.003\"",
-            format: "sdk.Dec"
-        }];
-
     // Fee paid for new LiquidityPool creation to prevent spamming
-    repeated cosmos.base.v1beta1.Coin liquidity_pool_creation_fee = 5 [
+    repeated cosmos.base.v1beta1.Coin liquidity_pool_creation_fee = 4 [
         (gogoproto.moretags)   = "yaml:\"liquidity_pool_creation_fee\"",
         (gogoproto.nullable)   = false,
         (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
@@ -93,8 +83,55 @@ message Params {
             format: "sdk.Coins"
         }
     ];
-}
 
+//    // fees paid for each batch messages
+//    repeated cosmos.base.v1beta1.Coin liquidity_msg_fee = 5 [
+//        (gogoproto.moretags)   = "yaml:\"liquidity_msg_fee\"",
+//        (gogoproto.nullable)   = false,
+//        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "[{\"denom\": \"uatom\", \"amount\": \"50000\"}]",
+//            format: "sdk.Coins"
+//        }];
+
+    // Swap fee rate for every executed swap
+    bytes swap_fee_rate = 5 [
+        (gogoproto.moretags)   = "yaml:\"swap_fee_rate\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable)   = false,
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"0.003\"",
+            format: "sdk.Dec"
+        }];
+
+    // Reserve token withdrawal with less proportion by withdrawFeeRate
+    bytes withdraw_fee_rate = 6 [
+        (gogoproto.moretags)   = "yaml:\"withdraw_fee_rate\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable)   = false,
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"0.003\"",
+            format: "sdk.Dec"
+        }];
+
+    // Maximum ratio of reserve coins that can be ordered at a swap order
+    bytes max_order_amount_ratio = 7 [
+        (gogoproto.moretags)   = "yaml:\"max_order_amount_ratio\"",
+        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+        (gogoproto.nullable)   = false,
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"0.003\"",
+            format: "sdk.Dec"
+        }];
+
+    // The smallest unit batch size for every liquidity pool
+    uint32 unit_batch_size = 8 [
+        (gogoproto.moretags) = "yaml:\"unit_batch_size\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"1\"",
+            format: "uint32"
+        }];
+}
 
 message LiquidityPool {
     option (gogoproto.equal) = true;

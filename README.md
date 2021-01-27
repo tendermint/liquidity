@@ -115,23 +115,6 @@ Available Commands:
 $ make test
 ```
 
-### Protobuf, Swagger
-
-you can check local swagger doc page on `YOUR_API_SERVER(ex:127.0.0.1:1317)/swagger-liquidity/` if set `swagger = true` from `app.toml`
-or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs/2.0.2)
-
-generate `*.pb.go`, `*.pb.gw.go` files from `proto/*.proto`
-
-```bash
-$ make proto-gen
-```
- 
-generate `swagger.yaml` from `proto/*.proto`
-
-```bash
-$ make proto-swagger-gen
-```
-
 ## Setup local Testnet
 
 Example of setup local testnet with test validator, user account
@@ -165,7 +148,7 @@ liquidityd tx liquidity create-pool 1 100000000stake,100000000atom --from user1 
 Example of Swap request using cli
 
 ```bash
-liquidityd tx liquidity swap 2 1 1000stake atom 1.15 --from validator --chain-id testing --keyring-backend test -y
+liquidityd tx liquidity swap 2 1 1000stake atom 1.15 0.003 --from validator --chain-id testing --keyring-backend test -y
 ```
 
 ### Broadcasting Txs with REST
@@ -176,7 +159,7 @@ example of generating unsigned tx
 
 ```bash
 validator=$(liquidityd keys show validator --keyring-backend test -a)
-liquidityd tx liquidity swap 2 1 1000stake atom 1.15 --from $validator --chain-id testing --generate-only > tx_swap.json
+liquidityd tx liquidity swap 2 1 1000stake atom 1.15 0.003 --from $validator --chain-id testing --generate-only > tx_swap.json
 cat tx_swap.json
 ```
  
@@ -217,25 +200,28 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 "liquidity": {
       "liquidity_pool_records": [],
       "params": {
-        "init_pool_coin_mint_amount": "1000000",
-        "liquidity_pool_creation_fee": [
-          {
-            "amount": "100000000",
-            "denom": "stake"
-          }
-        ],
-        "liquidity_pool_types": [
-          {
-            "description": "",
-            "max_reserve_coin_num": 2,
-            "min_reserve_coin_num": 2,
-            "name": "DefaultPoolType",
-            "pool_type_index": 1
-          }
-        ],
-        "min_init_deposit_to_pool": "1000000",
-        "swap_fee_rate": "0.003000000000000000"
-      }
+          "liquidity_pool_types": [
+            {
+              "pool_type_index": 1,
+              "name": "DefaultPoolType",
+              "min_reserve_coin_num": 2,
+              "max_reserve_coin_num": 2,
+              "description": ""
+            }
+          ],
+          "min_init_deposit_to_pool": "1000000",
+          "init_pool_coin_mint_amount": "1000000",
+          "liquidity_pool_creation_fee": [
+            {
+              "denom": "stake",
+              "amount": "100000000"
+            }
+          ],
+          "swap_fee_rate": "0.003000000000000000",
+          "withdraw_fee_rate": "0.003000000000000000",
+          "max_order_amount_ratio": "0.100000000000000000",
+          "unit_batch_size": 1
+        },
     },
     "mint": {
       "minter": {
@@ -315,27 +301,47 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
         }
       ],
       "params": {
-        "init_pool_coin_mint_amount": "1000000",
-        "liquidity_pool_creation_fee": [
-          {
-            "amount": "100000000",
-            "denom": "stake"
-          }
-        ],
-        "liquidity_pool_types": [
-          {
-            "description": "",
-            "max_reserve_coin_num": 2,
-            "min_reserve_coin_num": 2,
-            "name": "DefaultPoolType",
-            "pool_type_index": 1
-          }
-        ],
-        "min_init_deposit_to_pool": "1000000",
-        "swap_fee_rate": "0.003000000000000000"
-      }
+          "liquidity_pool_types": [
+            {
+              "pool_type_index": 1,
+              "name": "DefaultPoolType",
+              "min_reserve_coin_num": 2,
+              "max_reserve_coin_num": 2,
+              "description": ""
+            }
+          ],
+          "min_init_deposit_to_pool": "1000000",
+          "init_pool_coin_mint_amount": "1000000",
+          "liquidity_pool_creation_fee": [
+            {
+              "denom": "stake",
+              "amount": "100000000"
+            }
+          ],
+          "swap_fee_rate": "0.003000000000000000",
+          "withdraw_fee_rate": "0.003000000000000000",
+          "max_order_amount_ratio": "0.100000000000000000",
+          "unit_batch_size": 1
+        },
     },
 ...
+```
+
+### Protobuf, Swagger
+
+you can check local swagger doc page on `YOUR_API_SERVER(ex:127.0.0.1:1317)/swagger-liquidity/` if set `swagger = true` from `app.toml`
+or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs/2.0.2)
+
+generate `*.pb.go`, `*.pb.gw.go` files from `proto/*.proto`
+
+```bash
+$ make proto-gen
+```
+ 
+generate `swagger.yaml` from `proto/*.proto`
+
+```bash
+$ make proto-swagger-gen
 ```
  
 ## Resources

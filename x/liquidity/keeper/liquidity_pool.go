@@ -94,9 +94,8 @@ func (k Keeper) ValidateLiquidityPool(ctx sdk.Context, pool *types.LiquidityPool
 	}
 
 	poolKey := types.GetPoolKey(pool.ReserveCoinDenoms, pool.PoolTypeIndex)
-	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	poolCoin := k.GetPoolCoinTotal(ctx, *pool)
-	if poolCoin.Denom != types.GetPoolCoinDenom(reserveAcc) {
+	if poolCoin.Denom != types.GetPoolCoinDenom(poolKey) {
 		return types.ErrBadPoolCoinDenom
 	}
 
@@ -137,7 +136,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 		return types.ErrInsufficientPoolCreationFee
 	}
 
-	PoolCoinDenom := types.GetPoolCoinDenom(reserveAcc)
+	PoolCoinDenom := types.GetPoolCoinDenom(poolKey)
 
 	pool := types.LiquidityPool{
 		//PoolId: will set on SetLiquidityPoolAtomic
@@ -432,9 +431,11 @@ func (k Keeper) ValidateMsgSwap(ctx sdk.Context, msg types.MsgSwap) error {
 		return types.ErrNotMatchedReserveCoin
 	}
 
+	params := k.GetParams(ctx)
+
 	// can not exceed max order ratio  of reserve coins that can be ordered at a order
 	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
-	maximumOrderableAmt := reserveCoinAmt.ToDec().Mul(types.GetMaxOrderRatio()).TruncateInt()
+	maximumOrderableAmt := reserveCoinAmt.ToDec().Mul(params.MaxOrderAmountRatio).TruncateInt()
 	if msg.OfferCoin.Amount.GT(maximumOrderableAmt) {
 		return types.ErrExceededMaxOrderable
 	}
@@ -443,7 +444,7 @@ func (k Keeper) ValidateMsgSwap(ctx sdk.Context, msg types.MsgSwap) error {
 		return types.ErrBadOfferCoinFee
 	}
 	// TODO: half-half fee refund when over
-	if !msg.OfferCoinFee.Equal(types.GetOfferCoinFee(msg.OfferCoin)) {
+	if !msg.OfferCoinFee.Equal(types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)) {
 		return types.ErrBadOfferCoinFee
 	}
 
@@ -477,8 +478,11 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 	reserveAcc := pool.GetReserveAccount()
 	withdrawer := msg.Msg.GetWithdrawer()
 
+	params := k.GetParams(ctx)
+	withdrawProportion := sdk.OneDec().Sub(params.WithdrawFeeRate)
+
 	for _, reserveCoin := range reserveCoins {
-		withdrawAmt := reserveCoin.Amount.Mul(poolCoin.Amount).Quo(totalSupply)
+		withdrawAmt := reserveCoin.Amount.Mul(poolCoin.Amount).ToDec().Mul(withdrawProportion).TruncateInt().Quo(totalSupply)
 		inputs = append(inputs, banktypes.NewInput(reserveAcc,
 			sdk.NewCoins(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))))
 		outputs = append(outputs, banktypes.NewOutput(withdrawer,

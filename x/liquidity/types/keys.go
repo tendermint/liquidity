@@ -17,6 +17,9 @@ const (
 
 	// QuerierRoute is the querier route for the liquidity module.
 	QuerierRoute = ModuleName
+
+	// PoolCoinDenomPrefix is the prefix used for liquidity pool coin representation.
+	PoolCoinDenomPrefix = "pool"
 )
 
 // prefix key of liquidity states for indexing when kvstore

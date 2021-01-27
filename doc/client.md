@@ -409,6 +409,8 @@ result
 `$ liquidityd tx liquidity swap --help`
 
 ```bash  
+swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]
+
 Swap offer to the Liquidity pool with the specified pool-id, swap-type demand-coin-denom
 with the coin and the price you're offering
 
@@ -416,11 +418,13 @@ this requests are stacked in the batch of the liquidity pool, not immediately pr
 processed in the endblock at once with other requests.
 
 Example:
-$ liquidity tx liquidity swap 2 1 100000000acoin bcoin 1.15 --from mykey
+$ liquidity tx liquidity swap 2 1 100000000acoin bcoin 1.15 0.003 --from mykey
 
 You should request the same each field as the pool.
 
 Must have sufficient balance half the of the swapFee Rate of the offer coin to reserve offer coin fee.
+
+For explicit calculations, you must enter the params.swap_fee_rate value of the current parameter state.
 
 Currently, only the default pool-type, swap-type 1 is available on this version
 The detailed swap algorithm can be found here.
@@ -1036,8 +1040,11 @@ liquidity_pool_types:
   min_reserve_coin_num: 2
   name: DefaultPoolType
   pool_type_index: 1
+max_order_amount_ratio: "0.100000000000000000"
 min_init_deposit_to_pool: "1000000"
 swap_fee_rate: "0.003000000000000000"
+unit_batch_size: 1
+withdraw_fee_rate: "0.003000000000000000"
 ```
 
 

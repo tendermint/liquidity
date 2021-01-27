@@ -222,9 +222,9 @@ You should request the matched pool-coin as the pool.
 // Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
 func NewSwapCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price]",
-		Args:  cobra.ExactArgs(5),
-		Short: "Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price",
+		Use:   "swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]",
+		Args:  cobra.ExactArgs(6),
+		Short: "Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price, swap-fee-rate",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Swap offer to the Liquidity pool with the specified pool-id, swap-type demand-coin-denom 
 with the coin and the price you're offering
@@ -233,11 +233,13 @@ this requests are stacked in the batch of the liquidity pool, not immediately pr
 processed in the endblock at once with other requests.
 
 Example:
-$ %s tx liquidity swap 2 1 100000000acoin bcoin 1.15 --from mykey
+$ %s tx liquidity swap 2 1 100000000acoin bcoin 1.15 0.003 --from mykey
 
 You should request the same each field as the pool.
 
 Must have sufficient balance half the of the swapFee Rate of the offer coin to reserve offer coin fee.
+
+For explicit calculations, you must enter the params.swap_fee_rate value of the current parameter state.
 
 Currently, only the default pool-type, swap-type 1 is available on this version
 The detailed swap algorithm can be found here.
@@ -294,7 +296,12 @@ https://github.com/tendermint/liquidity
 				return err
 			}
 
-			msg := types.NewMsgSwap(swapRequester, poolId, uint32(swapType), offerCoin, args[3], orderPrice)
+			swapFeeRate, err := sdk.NewDecFromStr(args[5])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgSwap(swapRequester, poolId, uint32(swapType), offerCoin, args[3], orderPrice, swapFeeRate)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

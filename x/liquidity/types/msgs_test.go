@@ -107,7 +107,7 @@ func TestMsgSwap(t *testing.T) {
 	coin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
 	orderPrice, err := sdk.NewDecFromStr("0.1")
 	require.NoError(t, err)
-	msg := types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coin, DenomY, orderPrice)
+	msg := types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coin, DenomY, orderPrice, types.DefaultSwapFeeRate)
 	require.IsType(t, &types.MsgSwap{}, msg)
 	require.Equal(t, types.RouterKey, msg.Route())
 	require.Equal(t, types.TypeMsgSwap, msg.Type())
@@ -120,14 +120,14 @@ func TestMsgSwap(t *testing.T) {
 	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 
 	// Fail case
-	msg = types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coin, DenomY, sdk.ZeroDec())
+	msg = types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coin, DenomY, sdk.ZeroDec(), types.DefaultSwapFeeRate)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinFail := sdk.NewCoin("testPoolCoin", sdk.NewInt(0))
-	msg = types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coinFail, DenomY, orderPrice)
+	msg = types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coinFail, DenomY, orderPrice, types.DefaultSwapFeeRate)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
-	msg = types.NewMsgSwap(sdk.AccAddress{}, DefaultPoolId, DefaultSwapType, coin, DenomY, orderPrice)
+	msg = types.NewMsgSwap(sdk.AccAddress{}, DefaultPoolId, DefaultSwapType, coin, DenomY, orderPrice, types.DefaultSwapFeeRate)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }

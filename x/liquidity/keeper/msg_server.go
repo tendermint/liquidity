@@ -99,8 +99,9 @@ func (k msgServer) WithdrawFromLiquidityPool(goCtx context.Context, msg *types.M
 // Message server, handler for MsgSwap
 func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSwapResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+	params := k.GetParams(ctx)
 	if msg.OfferCoinFee.IsZero() {
-		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin)
+		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
 	}
 	batchMsg, err := k.Keeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
 	if err != nil {
