@@ -14,7 +14,6 @@ The liquidity module contains the following parameters:
 | MinInitDepositToPool     | string (sdk.Int)    | "1000000"                                                    |
 | InitPoolCoinMintAmount   | string (sdk.Int)    | "1000000"                                                    |
 | LiquidityPoolCreationFee | sdk.Coins           | [{"denom":"stake","amount":"100000000"}]                     |
-| LiquidityMsgFee          | sdk.Coins           | [{"denom":"stake","amount":"50000"}]                         |
 | SwapFeeRate              | string (sdk.Dec)    | "0.003000000000000000"                                       |
 | WithdrawFeeRate          | string (sdk.Dec)    | "0.003000000000000000"                                       |
 | MaxOrderAmountRatio      | string (sdk.Dec)    | "0.100000000000000000"                                       |
@@ -45,10 +44,6 @@ Initial mint amount of pool coin upon pool creation
 ## LiquidityPoolCreationFee
 
 Fee paid for new LiquidityPool creation to prevent spamming
-
-## LiquidityMsgFee
-
-Fees paid for each Liquidity Batch messages(swap, withdraw, deposit) distributed to proposers, validators and delegators
 
 ## SwapFeeRate
 

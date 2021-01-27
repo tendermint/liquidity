@@ -37,7 +37,6 @@ var (
 	KeySwapFeeRate              = []byte("SwapFeeRate")
 	KeyLiquidityPoolCreationFee = []byte("LiquidityPoolCreationFee")
 	KeyUnitBatchSize            = []byte("UnitBatchSize")
-	KeyLiquidityMsgFee          = []byte("LiquidityMsgFee")
 	KeyWithdrawFeeRate          = []byte("WithdrawFeeRate")
 	KeyMaxOrderAmountRatio      = []byte("MaxOrderAmountRatio")
 
@@ -48,7 +47,6 @@ var (
 	DefaultWithdrawFeeRate          = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultMaxOrderAmountRatio      = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
 	DefaultLiquidityPoolCreationFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
-	DefaultLiquidityMsgFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(50000)))
 
 	halfRatio, _ = sdk.NewDecFromStr("0.5")
 	HalfRatio    = halfRatio
@@ -64,14 +62,13 @@ var (
 )
 
 // NewParams liquidity paramtypes constructor
-func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint sdk.Int, creationFee,
-	liquidityMsgFee sdk.Coins, swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
+func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint sdk.Int, creationFee sdk.Coins,
+	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
 	return Params{
 		LiquidityPoolTypes:       liquidityPoolTypes,
 		MinInitDepositToPool:     minInitDeposit,
 		InitPoolCoinMintAmount:   initPoolCoinMint,
 		LiquidityPoolCreationFee: creationFee,
-		LiquidityMsgFee:          liquidityMsgFee,
 		SwapFeeRate:              swapFeeRate,
 		WithdrawFeeRate:          withdrawFeeRate,
 		MaxOrderAmountRatio:      maxOrderAmtRatio,
@@ -92,7 +89,6 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMinInitDepositToPool, &p.MinInitDepositToPool, validateMinInitDepositToPool),
 		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
 		paramtypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
-		paramtypes.NewParamSetPair(KeyLiquidityMsgFee, &p.LiquidityMsgFee, validateLiquidityMsgFee),
 		paramtypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
 		paramtypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
 		paramtypes.NewParamSetPair(KeyMaxOrderAmountRatio, &p.MaxOrderAmountRatio, validateMaxOrderAmountRatio),
@@ -110,7 +106,6 @@ func DefaultParams() Params {
 		DefaultMinInitDepositToPool,
 		DefaultInitPoolCoinMintAmount,
 		DefaultLiquidityPoolCreationFee,
-		DefaultLiquidityMsgFee,
 		DefaultSwapFeeRate,
 		DefaultWithdrawFeeRate,
 		DefaultMaxOrderAmountRatio,
@@ -147,10 +142,6 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateLiquidityMsgFee(p.LiquidityMsgFee); err != nil {
-		return err
-	}
-
 	if err := validateSwapFeeRate(p.SwapFeeRate); err != nil {
 		return err
 	}
@@ -167,6 +158,7 @@ func (p Params) Validate() error {
 		return err
 	}
 	// TODO: add detail validate logic
+
 	return nil
 }
 
@@ -284,20 +276,6 @@ func validateLiquidityPoolCreationFee(i interface{}) error {
 	return nil
 }
 
-// Check if the liquidity Msg fee is valid
-func validateLiquidityMsgFee(i interface{}) error {
-	coins, ok := i.(sdk.Coins)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	if err := coins.Validate(); err != nil {
-		return err
-	}
-	if coins.Empty() {
-		return fmt.Errorf("LiquidityMsgFee cannot be Empty: %s", coins)
-	}
-	return nil
-}
 
 // Check if the liquidity Msg fee is valid
 func validateUnitBatchSize(i interface{}) error {
