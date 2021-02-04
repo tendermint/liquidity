@@ -33,9 +33,12 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryLiquidityPools(),
 		GetCmdQueryLiquidityPoolBatch(),
 		GetCmdQueryLiquidityPoolsBatch(),
-		GetCmdQueryPoolBatchDeposit(),
-		GetCmdQueryPoolBatchWithdraw(),
-		GetCmdQueryPoolBatchSwap(),
+		GetCmdQueryPoolBatchDepositMsgs(),
+		GetCmdQueryPoolBatchDepositMsg(),
+		GetCmdQueryPoolBatchWithdrawMsgs(),
+		GetCmdQueryPoolBatchWithdrawMsg(),
+		GetCmdQueryPoolBatchSwapMsgs(),
+		GetCmdQueryPoolBatchSwapMsg(),
 	)
 
 	return liquidityQueryCmd
@@ -246,19 +249,20 @@ $ %s query liquidity batches
 	return cmd
 }
 
-func GetCmdQueryPoolBatchDeposit() *cobra.Command {
+func GetCmdQueryPoolBatchDepositMsgs() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deposits",
-		Args:  cobra.NoArgs,
-		Short: "Query for all deposit messages on the batch of the liquidity pool",
+		Use:   "deposits [pool-id]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Query for all deposit messages on the batch of the liquidity pool specified pool-id",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query for all deposit messages on the batch of the liquidity pool
+			fmt.Sprintf(`Query for all deposit messages on the batch of the liquidity pool specified pool-id
 
 if batch messages are normally processed and from the endblock,  
 the resulting state is applied and removed the messages from the beginblock in the next block.
+to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
 
 Example:
-$ %s query liquidity deposits
+$ %s query liquidity deposits 1
 `,
 				version.AppName,
 			),
@@ -274,7 +278,14 @@ $ %s query liquidity deposits
 			if err != nil {
 				return err
 			}
-			result, err := queryClient.PoolBatchDepositMsgs(context.Background(), &types.QueryPoolBatchDepositMsgsRequest{Pagination: pageReq})
+
+			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+			}
+
+			result, err := queryClient.PoolBatchDepositMsgs(context.Background(), &types.QueryPoolBatchDepositMsgsRequest{
+				PoolId:poolId, Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -286,19 +297,20 @@ $ %s query liquidity deposits
 	return cmd
 }
 
-func GetCmdQueryPoolBatchWithdraw() *cobra.Command {
+func GetCmdQueryPoolBatchDepositMsg() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "withdraws",
-		Args:  cobra.NoArgs,
-		Short: "Query for all withdraw messages on the batch of the liquidity pool",
+		Use:   "deposit [pool-id] [msg-index]",
+		Args:  cobra.ExactArgs(2),
+		Short: "Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query for all withdraws messages on the batch of the liquidity pool
+			fmt.Sprintf(`Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index
 
-if batch messages are normally processed and from the endblock,  
+if the batch message are normally processed and from the endblock,  
 the resulting state is applied and removed the messages from the beginblock in the next block.
+to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
 
 Example:
-$ %s query liquidity withdraws
+$ %s query liquidity deposit 1 20
 `,
 				version.AppName,
 			),
@@ -310,11 +322,19 @@ $ %s query liquidity withdraws
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
+
+			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return err
+				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
 			}
-			result, err := queryClient.PoolBatchWithdrawMsgs(context.Background(), &types.QueryPoolBatchWithdrawMsgsRequest{Pagination: pageReq})
+
+			msgIndex, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return fmt.Errorf("msg-index %s not a valid uint, please input a valid msg-index", args[1])
+			}
+
+			result, err := queryClient.PoolBatchDepositMsg(context.Background(), &types.QueryPoolBatchDepositMsgRequest{
+				PoolId:poolId, MsgIndex: msgIndex})
 			if err != nil {
 				return err
 			}
@@ -326,19 +346,21 @@ $ %s query liquidity withdraws
 	return cmd
 }
 
-func GetCmdQueryPoolBatchSwap() *cobra.Command {
+
+func GetCmdQueryPoolBatchWithdrawMsgs() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "swaps",
-		Args:  cobra.NoArgs,
-		Short: "Query for all swap messages on the batch of the liquidity pool",
+		Use:   "withdraws [pool-id]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Query for all withdraw messages on the batch of the liquidity pool specified pool-id",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query for all swap messages on the batch of the liquidity pool
+			fmt.Sprintf(`Query for all withdraws messages on the batch of the liquidity pool specified pool-id
 
 if batch messages are normally processed and from the endblock,  
 the resulting state is applied and removed the messages from the beginblock in the next block.
+to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
 
 Example:
-$ %s query liquidity swaps
+$ %s query liquidity withdraws 1
 `,
 				version.AppName,
 			),
@@ -354,7 +376,162 @@ $ %s query liquidity swaps
 			if err != nil {
 				return err
 			}
-			result, err := queryClient.PoolBatchSwapMsgs(context.Background(), &types.QueryPoolBatchSwapMsgsRequest{Pagination: pageReq})
+
+			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+			}
+
+			result, err := queryClient.PoolBatchWithdrawMsgs(context.Background(), &types.QueryPoolBatchWithdrawMsgsRequest{
+				PoolId:poolId, Pagination: pageReq})
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintProto(result)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+
+func GetCmdQueryPoolBatchWithdrawMsg() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "withdraw [pool-id] [msg-index]",
+		Args:  cobra.ExactArgs(2),
+		Short: "Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index
+
+if the batch message are normally processed and from the endblock,  
+the resulting state is applied and removed the messages from the beginblock in the next block.
+to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
+
+Example:
+$ %s query liquidity withdraw 1 20
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+			}
+
+			msgIndex, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return fmt.Errorf("msg-index %s not a valid uint, please input a valid msg-index", args[1])
+			}
+
+			result, err := queryClient.PoolBatchWithdrawMsg(context.Background(), &types.QueryPoolBatchWithdrawMsgRequest{
+				PoolId:poolId, MsgIndex: msgIndex})
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintProto(result)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+
+func GetCmdQueryPoolBatchSwapMsgs() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "swaps [pool-id]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Query for all swap messages on the batch of the liquidity pool specified pool-id",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query for all swap messages on the batch of the liquidity pool specified pool-id
+
+if batch messages are normally processed and from the endblock,  
+the resulting state is applied and removed the messages from the beginblock in the next block.
+to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
+
+Example:
+$ %s query liquidity swaps 1
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+			}
+
+			result, err := queryClient.PoolBatchSwapMsgs(context.Background(), &types.QueryPoolBatchSwapMsgsRequest{
+				PoolId:poolId, Pagination: pageReq})
+			if err != nil {
+				return err
+			}
+			return clientCtx.PrintProto(result)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetCmdQueryPoolBatchSwapMsg() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "swap [pool-id] [msg-index]",
+		Args:  cobra.ExactArgs(2),
+		Short: "Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
+
+if the batch message are normally processed and from the endblock,  
+the resulting state is applied and removed the messages from the beginblock in the next block.
+to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
+
+Example:
+$ %s query liquidity swap 1 20
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+			}
+
+			msgIndex, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return fmt.Errorf("msg-index %s not a valid uint, please input a valid msg-index", args[1])
+			}
+
+			result, err := queryClient.PoolBatchSwapMsg(context.Background(), &types.QueryPoolBatchSwapMsgRequest{
+				PoolId:poolId, MsgIndex: msgIndex})
 			if err != nil {
 				return err
 			}
