@@ -276,7 +276,6 @@ func validateLiquidityPoolCreationFee(i interface{}) error {
 	return nil
 }
 
-
 // Check if the liquidity Msg fee is valid
 func validateUnitBatchSize(i interface{}) error {
 	int, ok := i.(uint32)

@@ -263,6 +263,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 	matchedIndexMapYtoX := make(map[uint64]sdk.Coin)
 	fractionalCntX := 0
 	fractionalCntY := 0
+
+	// Variables to accumulate and offset the values of int 1 caused by decimal error
 	decimalErrorX := sdk.ZeroInt()
 	decimalErrorY := sdk.ZeroInt()
 
@@ -344,7 +346,7 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt))
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt)
 			match.BatchMsg.OfferCoinFeeReserve = types.CoinSafeSubAmount(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt)
-			// TODO: verify RemainingOfferCoin about deciaml errors one to pool
+			// TODO: verify RemainingOfferCoin about decimal errors one to pool
 			if match.BatchMsg.RemainingOfferCoin.Amount.Equal(sdk.OneInt()) {
 				match.BatchMsg.RemainingOfferCoin.Amount = sdk.ZeroInt()
 
@@ -370,6 +372,7 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, 
 		}
 	}
 
+	// Offset accumulated decimal error values
 	poolXdelta = poolXdelta.Add(decimalErrorX)
 	poolYdelta = poolYdelta.Add(decimalErrorY)
 

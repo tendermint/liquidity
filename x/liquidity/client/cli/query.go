@@ -285,7 +285,7 @@ $ %s query liquidity deposits 1
 			}
 
 			result, err := queryClient.PoolBatchDepositMsgs(context.Background(), &types.QueryPoolBatchDepositMsgsRequest{
-				PoolId:poolId, Pagination: pageReq})
+				PoolId: poolId, Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -334,7 +334,7 @@ $ %s query liquidity deposit 1 20
 			}
 
 			result, err := queryClient.PoolBatchDepositMsg(context.Background(), &types.QueryPoolBatchDepositMsgRequest{
-				PoolId:poolId, MsgIndex: msgIndex})
+				PoolId: poolId, MsgIndex: msgIndex})
 			if err != nil {
 				return err
 			}
@@ -345,7 +345,6 @@ $ %s query liquidity deposit 1 20
 
 	return cmd
 }
-
 
 func GetCmdQueryPoolBatchWithdrawMsgs() *cobra.Command {
 	cmd := &cobra.Command{
@@ -383,7 +382,7 @@ $ %s query liquidity withdraws 1
 			}
 
 			result, err := queryClient.PoolBatchWithdrawMsgs(context.Background(), &types.QueryPoolBatchWithdrawMsgsRequest{
-				PoolId:poolId, Pagination: pageReq})
+				PoolId: poolId, Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -394,7 +393,6 @@ $ %s query liquidity withdraws 1
 
 	return cmd
 }
-
 
 func GetCmdQueryPoolBatchWithdrawMsg() *cobra.Command {
 	cmd := &cobra.Command{
@@ -433,7 +431,7 @@ $ %s query liquidity withdraw 1 20
 			}
 
 			result, err := queryClient.PoolBatchWithdrawMsg(context.Background(), &types.QueryPoolBatchWithdrawMsgRequest{
-				PoolId:poolId, MsgIndex: msgIndex})
+				PoolId: poolId, MsgIndex: msgIndex})
 			if err != nil {
 				return err
 			}
@@ -444,7 +442,6 @@ $ %s query liquidity withdraw 1 20
 
 	return cmd
 }
-
 
 func GetCmdQueryPoolBatchSwapMsgs() *cobra.Command {
 	cmd := &cobra.Command{
@@ -482,7 +479,7 @@ $ %s query liquidity swaps 1
 			}
 
 			result, err := queryClient.PoolBatchSwapMsgs(context.Background(), &types.QueryPoolBatchSwapMsgsRequest{
-				PoolId:poolId, Pagination: pageReq})
+				PoolId: poolId, Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -531,7 +528,7 @@ $ %s query liquidity swap 1 20
 			}
 
 			result, err := queryClient.PoolBatchSwapMsg(context.Background(), &types.QueryPoolBatchSwapMsgRequest{
-				PoolId:poolId, MsgIndex: msgIndex})
+				PoolId: poolId, MsgIndex: msgIndex})
 			if err != nil {
 				return err
 			}

@@ -332,6 +332,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 	coinA := depositCoins[0]
 	coinB := depositCoins[1]
 
+	// Decimal Error, divide the Int coin amount by the Decimal Rate and erase the decimal point to deposit a lower value
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	depositableAmount := coinB.Amount.ToDec().Mul(lastReserveRatio).TruncateInt()
 	depositableAmountA := coinA.Amount
@@ -435,6 +436,7 @@ func (k Keeper) ValidateMsgSwap(ctx sdk.Context, msg types.MsgSwap) error {
 
 	// can not exceed max order ratio  of reserve coins that can be ordered at a order
 	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
+	// Decimal Error, Multiply the Int coin amount by the Decimal Rate and erase the decimal point to order a lower value
 	maximumOrderableAmt := reserveCoinAmt.ToDec().Mul(params.MaxOrderAmountRatio).TruncateInt()
 	if msg.OfferCoin.Amount.GT(maximumOrderableAmt) {
 		return types.ErrExceededMaxOrderable
@@ -482,6 +484,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 	withdrawProportion := sdk.OneDec().Sub(params.WithdrawFeeRate)
 
 	for _, reserveCoin := range reserveCoins {
+		// Decimal Error, Multiply the Int coin amount by the Decimal proportion and erase the decimal point to withdraw a conservative value
 		withdrawAmt := reserveCoin.Amount.Mul(poolCoin.Amount).ToDec().Mul(withdrawProportion).TruncateInt().Quo(totalSupply)
 		inputs = append(inputs, banktypes.NewInput(reserveAcc,
 			sdk.NewCoins(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))))
