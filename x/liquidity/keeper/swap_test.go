@@ -51,7 +51,7 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
-	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	err, _ := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
 	for i := 0; i < 20; i++ {
@@ -94,7 +94,7 @@ func TestSwapExecution(t *testing.T) {
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
-	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	err, _ := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
 	// verify created liquidity pool

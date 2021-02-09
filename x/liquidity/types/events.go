@@ -15,6 +15,7 @@ const (
 	AttributeValueLiquidityPoolTypeIndex = "liquidity_pool_type_index"
 	AttributeValueLiquidityPoolFeeRate   = "liquidity_pool_fee_rate"
 	//AttributeValueSwapPriceFunction      = "swap_price_function"
+	AttributeValueLiquidityPoolKey  = "liquidity_pool_key"
 	AttributeValueReserveCoinDenoms = "reserve_coin_denoms"
 	AttributeValueReserveAccount    = "reserve_account"
 	AttributeValuePoolCoinDenom     = "pool_coin_denom"
@@ -23,14 +24,14 @@ const (
 	AttributeValueBatchSize         = "batch_size"
 	AttributeValueBatchIndex        = "batch_index"
 	AttributeValueMsgIndex          = "msg_index"
-	AttributeValueTxHash            = "tx_hash"
 
 	AttributeValueDepositCoins = "deposit_coins"
 
-	AttributeValueOfferCoinDenom  = "offer_coin_denom"
-	AttributeValueOfferCoinAmount = "offer_coin_amount"
-	AttributeValueDemandCoinDenom = "demand_coin_denom"
-	AttributeValueOrderPrice      = "order_price"
+	AttributeValueOfferCoinDenom     = "offer_coin_denom"
+	AttributeValueOfferCoinAmount    = "offer_coin_amount"
+	AttributeValueOfferCoinFeeAmount = "offer_coin_fee_amount"
+	AttributeValueDemandCoinDenom    = "demand_coin_denom"
+	AttributeValueOrderPrice         = "order_price"
 
 	AttributeValueDepositor            = "depositor"
 	AttributeValueAcceptedCoinAmount   = "accepted_coin_amount"

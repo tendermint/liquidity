@@ -107,9 +107,9 @@ func (k Keeper) ValidateLiquidityPool(ctx sdk.Context, pool *types.LiquidityPool
 	return nil
 }
 
-func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) error {
+func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (error, types.LiquidityPool) {
 	if err := k.ValidateMsgCreateLiquidityPool(ctx, msg); err != nil {
-		return err
+		return err, types.LiquidityPool{}
 	}
 	params := k.GetParams(ctx)
 
@@ -124,16 +124,16 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, accPoolCreator.GetAddress())
 
 	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.ErrInsufficientBalance
+		return types.ErrInsufficientBalance, types.LiquidityPool{}
 	}
 	for _, coin := range msg.DepositCoins {
 		if coin.Amount.LT(params.MinInitDepositToPool) {
-			return types.ErrLessThanMinInitDeposit
+			return types.ErrLessThanMinInitDeposit, types.LiquidityPool{}
 		}
 	}
 
 	if !poolCreatorBalances.IsAllGTE(params.LiquidityPoolCreationFee.Add(msg.DepositCoins...)) {
-		return types.ErrInsufficientPoolCreationFee
+		return types.ErrInsufficientPoolCreationFee, types.LiquidityPool{}
 	}
 
 	PoolCoinDenom := types.GetPoolCoinDenom(poolKey)
@@ -149,7 +149,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(pool.PoolCoinDenom, params.InitPoolCoinMintAmount))
 	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
-		return err
+		return err, types.LiquidityPool{}
 	}
 
 	var inputs []banktypes.Input
@@ -168,7 +168,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 
 	// execute multi-send
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
-		return err
+		return err, types.LiquidityPool{}
 	}
 
 	pool = k.SetLiquidityPoolAtomic(ctx, pool)
@@ -181,7 +181,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	logger := k.Logger(ctx)
 	logger.Info("createPool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
-	return nil
+	return nil, pool
 }
 
 // Get reserve Coin from the liquidity pool

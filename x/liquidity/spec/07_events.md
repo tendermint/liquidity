@@ -4,7 +4,6 @@ order: 7
 
 # Events
 
-
 ## Handlers
 
 ### MsgCreateLiquidityPool
@@ -13,14 +12,13 @@ order: 7
 | --------------------- | ------------------------- | ------------------------ |
 | create_liquidity_pool | liquidity_pool_id         | {liquidityPoolId}        |
 | create_liquidity_pool | liquidity_pool_type_index | {liquidityPoolTypeIndex} |
-| create_liquidity_pool | reserve_coin_denoms       | {reserveCoinDenoms}      |
+| create_liquidity_pool | liquidity_pool_key        |{AttributeValueLiquidityPoolKey}|
 | create_liquidity_pool | reserve_account           | {reserveAccountAddress}  |
 | create_liquidity_pool | deposit_coins             | {depositCoins}           |
 | create_liquidity_pool | pool_coin_denom           | {poolCoinDenom}          |
 | message               | module                    | liquidity                |
 | message               | action                    | create_liquidity_pool    |
 | message               | sender                    | {senderAddress}          |
-
 
 ### MsgDepositToLiquidityPool
 
@@ -75,6 +73,8 @@ order: 7
 | deposit_to_liquidity_pool | depositor         | {depositorAddress} |
 | deposit_to_liquidity_pool | accepted_coins    | {acceptedCoins}    |
 | deposit_to_liquidity_pool | refunded_coins    | {refundedCoins}    |
+| deposit_to_liquidity_pool | pool_coin_denom   | {poolCoinDenom}     |
+| deposit_to_liquidity_pool | pool_coin_amount  | {poolCoinAmount}    |
 | deposit_to_liquidity_pool | success           | {success}          |
 
 ### Batch Result for MsgWithdrawFromLiquidityPool
@@ -105,10 +105,9 @@ order: 7
 | swap_transacted | swap_price                  | {swapPrice}                |
 | swap_transacted | transacted_coin_amount      | {transactedCoinAmount}     |
 | swap_transacted | remaining_offer_coin_amount | {remainingOfferCoinAmount} |
-| swap_transacted | exchanged_offer_coin_denom  | {exchangedOfferCoinDenom}  |
 | swap_transacted | exchanged_offer_coin_amount | {exchangedOfferCoinAmount} |
-| swap_transacted | paid_swap_fee_coin_denom    | {paidSwapFeeCoinDenom}     |
-| swap_transacted | paid_swap_fee_coin_amount   | {paidSwapFeeCoinAmount}    |
+| swap_transacted | offer_coin_fee_amount       | {offerCoinFeeAmount}       |
+| swap_transacted | offer_coin_fee_reserve_amount   | {offerCoinFeeReserveAmount}    |
 | swap_transacted | order_expiry_height         | {orderExpiryHeight}        |
 | swap_transacted | success                     | {success}                  |
 
@@ -123,6 +122,8 @@ order: 7
 | swap_cancel | swap_type                   | {swapType}                 |
 | swap_cancel | offer_coin_denom            | {offerCoinDenom}           |
 | swap_cancel | offer_coin_amount           | {offerCoinAmount}          |
+| swap_cancel | offer_coin_fee_amount       | {offerCoinFeeAmount}       |
+| swap_cancel | offer_coin_fee_reserve_amount   | {offerCoinFeeReserveAmount}    |
 | swap_cancel | order_price                 | {orderPrice}               |
 | swap_cancel | swap_price                  | {swapPrice}                |
 | swap_cancel | cancelled_coin_amount       | {cancelledOfferCoinAmount} |
