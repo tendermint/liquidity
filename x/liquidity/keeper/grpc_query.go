@@ -179,7 +179,6 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 		Swaps:      msgs,
 		Pagination: pageRes,
 	}, nil
-	return nil, nil
 }
 
 // read data from kvstore for response of query a batch swap message of the liquidity pool batch given msg_index
