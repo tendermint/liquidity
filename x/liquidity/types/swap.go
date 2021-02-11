@@ -241,7 +241,6 @@ func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int
 	for _, order := range msgList {
 		if !order.Executed {
 			panic("not executed")
-			continue
 		}
 		if order.RemainingOfferCoin.IsZero() {
 			if !order.Succeeded || !order.ToBeDeleted {
