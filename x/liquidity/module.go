@@ -41,8 +41,6 @@ type AppModuleBasic struct {
 	cdc codec.Marshaler
 }
 
-var _ module.AppModuleBasic = AppModuleBasic{}
-
 // Name returns the liquidity module's name.
 func (AppModuleBasic) Name() string { return types.ModuleName }
 
