@@ -69,7 +69,7 @@ type MsgSwap struct {
 	SwapType             uint32     // swap type of this swap message, default 1: InstantSwap, requesting instant swap
 	OfferCoin            sdk.Coin   // offer coin of this swap message
 	DemandCoinDenom      string     // denom of demand coin of this swap message
-    OfferCoinFee         sdk.Coin   // offer coin fee for pay fees in half offer coin
+	OfferCoinFee         sdk.Coin   // offer coin fee for pay fees in half offer coin
 	OrderPrice           sdk.Dec    // order price of this swap message
 }
 ```
