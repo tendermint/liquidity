@@ -133,7 +133,7 @@ func (k Keeper) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidity
 	return &types.QueryLiquidityPoolsBatchResponse{response, pageRes}, nil
 }
 
-// read data from kvstore for response of query liquidity pools batc
+// read data from kvstore for response of query liquidity pools batch
 func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
 	empty := &types.QueryLiquidityPoolBatchRequest{}
 	if req == nil || *req == *empty {
@@ -179,7 +179,6 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 		Swaps:      msgs,
 		Pagination: pageRes,
 	}, nil
-	return nil, nil
 }
 
 // read data from kvstore for response of query a batch swap message of the liquidity pool batch given msg_index

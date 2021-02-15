@@ -78,9 +78,6 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	k.IterateAllLiquidityPoolBatches(ctx, func(liquidityPoolBatch types.LiquidityPoolBatch) bool {
 		params := k.GetParams(ctx)
 		if !liquidityPoolBatch.Executed && ctx.BlockHeight()-liquidityPoolBatch.BeginHeight+1 >= int64(params.UnitBatchSize) {
-			if liquidityPoolBatch.Executed {
-				return false
-			}
 			executedMsgCount, err := k.SwapExecution(ctx, liquidityPoolBatch)
 			if err != nil {
 				panic(err)
