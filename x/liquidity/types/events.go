@@ -10,6 +10,7 @@ const (
 	EventTypeDepositToLiquidityPool           = "deposit_to_liquidity_pool"
 	EventTypeWithdrawFromLiquidityPool        = "withdraw_from_liquidity_pool"
 	EventTypeSwap                             = "swap"
+	EventTypeSwapTransacted                   = "swap_transacted"
 
 	AttributeValueLiquidityPoolId        = "liquidity_pool_id"
 	AttributeValueLiquidityPoolTypeIndex = "liquidity_pool_type_index"
@@ -48,6 +49,12 @@ const (
 	AttributeValueSwapPrice            = "swap_price"
 	AttributeValuePaidSwapFee          = "paid_swap_fee"
 	AttributeValuePaidLiquidityPoolFee = "paid_liquidity_pool_fee"
+
+	AttributeValueTransactedCoinAmount = "transacted_coin_amount"
+	AttributeValueRemainingOfferCoinAmount = "remaining_offer_coin_amount"
+	AttributeValueExchangedOfferCoinAmount = "exchanged_offer_coin_amount"
+	AttributeValueOfferCoinFeeReserveAmount = "offer_coin_fee_reserve_amount"
+	AttributeValueOrderExpiryHeight = "order_expiry_height"
 
 	AttributeValueCategory = ModuleName
 
