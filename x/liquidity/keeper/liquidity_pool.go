@@ -29,7 +29,7 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 	}
 
 	reserveCoinNum := uint32(msg.DepositCoins.Len())
-	if reserveCoinNum > poolType.MaxReserveCoinNum && poolType.MinReserveCoinNum > reserveCoinNum {
+	if reserveCoinNum > poolType.MaxReserveCoinNum || poolType.MinReserveCoinNum > reserveCoinNum {
 		return types.ErrNumOfReserveCoin
 	}
 
@@ -76,7 +76,7 @@ func (k Keeper) ValidateLiquidityPool(ctx sdk.Context, pool *types.LiquidityPool
 	}
 
 	reserveCoins := k.GetReserveCoins(ctx, *pool)
-	if uint32(reserveCoins.Len()) > poolType.MaxReserveCoinNum && poolType.MinReserveCoinNum > uint32(reserveCoins.Len()) {
+	if uint32(reserveCoins.Len()) > poolType.MaxReserveCoinNum || poolType.MinReserveCoinNum > uint32(reserveCoins.Len()) {
 		return types.ErrNumOfReserveCoin
 	}
 
