@@ -91,8 +91,8 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 			})
 			k.IterateAllLiquidityPoolBatchWithdrawMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolWithdrawMsg) bool {
 				executedMsgCount++
-				if err := k.WithdrawLiquidityPool(ctx, batchMsg); err != nil {
-					k.RefundWithdrawLiquidityPool(ctx, batchMsg)
+				if err := k.WithdrawLiquidityPool(ctx, batchMsg, liquidityPoolBatch); err != nil {
+					k.RefundWithdrawLiquidityPool(ctx, batchMsg, liquidityPoolBatch)
 				}
 				return false
 			})

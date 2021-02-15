@@ -154,7 +154,7 @@ func TestMsgServerWithdrawLiquidityPool(t *testing.T) {
 	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, poolBatch)
 	require.Equal(t, 1, len(msgs))
 
-	err = simapp.LiquidityKeeper.WithdrawLiquidityPool(ctx, msgs[0])
+	err = simapp.LiquidityKeeper.WithdrawLiquidityPool(ctx, msgs[0], poolBatch)
 	require.NoError(t, err)
 
 	poolCoinAfter := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lp)

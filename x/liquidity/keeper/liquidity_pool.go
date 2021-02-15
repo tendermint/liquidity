@@ -400,8 +400,8 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 		sdk.NewEvent(
 			types.EventTypeDepositToLiquidityPool,
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
-			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(msg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueDepositor, depositor.String()),
 			sdk.NewAttribute(types.AttributeValueAcceptedCoins, acceptedCoins.String()),
 			sdk.NewAttribute(types.AttributeValueRefundedCoins, refundedCoins.String()),
@@ -474,7 +474,7 @@ func (k Keeper) ValidateMsgSwap(ctx sdk.Context, msg types.MsgSwap) error {
 	return nil
 }
 
-func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdrawMsg) error {
+func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdrawMsg, batch types.LiquidityPoolBatch) error {
 	msg.Executed = true
 	k.SetLiquidityPoolBatchWithdrawMsg(ctx, msg.Msg.PoolId, msg)
 
@@ -483,8 +483,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 	}
 	// TODO: validate reserveCoin balance
 
-	poolCoin := msg.Msg.PoolCoin
-	poolCoins := sdk.NewCoins(poolCoin)
+	poolCoins := sdk.NewCoins(msg.Msg.PoolCoin)
 
 	pool, found := k.GetLiquidityPool(ctx, msg.Msg.PoolId)
 	if !found {
@@ -503,14 +502,16 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 
 	params := k.GetParams(ctx)
 	withdrawProportion := sdk.OneDec().Sub(params.WithdrawFeeRate)
+	withdrawCoins := sdk.NewCoins()
 
 	for _, reserveCoin := range reserveCoins {
 		// Decimal Error, Multiply the Int coin amount by the Decimal proportion and erase the decimal point to withdraw a conservative value
-		withdrawAmt := reserveCoin.Amount.Mul(poolCoin.Amount).ToDec().Mul(withdrawProportion).TruncateInt().Quo(totalSupply)
-		inputs = append(inputs, banktypes.NewInput(reserveAcc,
-			sdk.NewCoins(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))))
-		outputs = append(outputs, banktypes.NewOutput(withdrawer,
-			sdk.NewCoins(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))))
+		withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().Mul(withdrawProportion).TruncateInt().Quo(totalSupply)
+		withdrawCoins = withdrawCoins.Add(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))
+	}
+	if withdrawCoins.IsValid() {
+		inputs = append(inputs, banktypes.NewInput(reserveAcc, withdrawCoins))
+		outputs = append(outputs, banktypes.NewOutput(withdrawer, withdrawCoins))
 	}
 
 	// execute multi-send
@@ -526,7 +527,20 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 	msg.Succeeded = true
 	msg.ToBeDeleted = true
 	k.SetLiquidityPoolBatchWithdrawMsg(ctx, msg.Msg.PoolId, msg)
-	// TODO: add events for batch result, each err cases
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeDepositToLiquidityPool,
+			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msg.MsgIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueWithdrawer, withdrawer.String()),
+			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, msg.Msg.PoolCoin.Denom),
+			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, msg.Msg.PoolCoin.Amount.String()),
+			sdk.NewAttribute(types.AttributeValueWithdrawCoins, withdrawCoins.String()),
+			sdk.NewAttribute(types.AttributeValueSuccess, types.Success,
+			),
+		))
 
 	// TODO: remove result state check, debugging
 	reserveCoins = k.GetReserveCoins(ctx, pool)
@@ -548,7 +562,6 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Batch
 		panic("can't refund not executed or already succeed msg")
 	}
 	pool, _ := k.GetLiquidityPool(ctx, batchMsg.Msg.PoolId)
-
 	err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetDepositor(), batchMsg.Msg.DepositCoins)
 	if err != nil {
 		panic(err)
@@ -560,8 +573,8 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Batch
 		sdk.NewEvent(
 			types.EventTypeDepositToLiquidityPool,
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
-			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueDepositor, batchMsg.Msg.GetDepositor().String()),
 			sdk.NewAttribute(types.AttributeValueAcceptedCoins, sdk.NewCoins().String()),
 			sdk.NewAttribute(types.AttributeValueRefundedCoins, batchMsg.Msg.DepositCoins.String()),
@@ -571,19 +584,33 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Batch
 	return err
 }
 
-func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoolWithdrawMsg) error {
+func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoolWithdrawMsg, batch types.LiquidityPoolBatch) error {
 	batchMsg, _ = k.GetLiquidityPoolBatchWithdrawMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	if !batchMsg.Executed || batchMsg.Succeeded {
 		panic("can't refund not executed or already succeed msg")
 	}
+	pool, _ := k.GetLiquidityPool(ctx, batchMsg.Msg.PoolId)
 	err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetWithdrawer(), sdk.NewCoins(batchMsg.Msg.PoolCoin))
 	if err != nil {
 		panic(err)
 	}
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeDepositToLiquidityPool,
+			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueWithdrawer, batchMsg.Msg.GetWithdrawer().String()),
+			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, batchMsg.Msg.PoolCoin.Denom),
+			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, batchMsg.Msg.PoolCoin.Amount.String()),
+			sdk.NewAttribute(types.AttributeValueWithdrawCoins, sdk.NewCoins().String()),
+			sdk.NewAttribute(types.AttributeValueSuccess, types.Failure,
+			),
+		))
+
+	// not delete now, set ToBeDeleted true for delete on next block beginblock
 	batchMsg.ToBeDeleted = true
 	k.SetLiquidityPoolBatchWithdrawMsg(ctx, batchMsg.Msg.PoolId, batchMsg)
-	// not delete now, set toDelete, executed, succeed fail,  delete on next block beginblock
-	//k.DeleteLiquidityPoolBatchWithdrawMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	return err
 }
 
