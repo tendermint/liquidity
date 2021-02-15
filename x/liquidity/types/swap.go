@@ -280,7 +280,7 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResul
 	} else if r.EX.Equal(r.SwapPrice.MulInt(r.EY).TruncateInt()) {
 		r.MatchType = ExactMatch
 	} else {
-		// When calculating the Executable value, conservatively Truncated decimal
+		// Decimal Error, When calculating the Executable value, conservatively Truncated decimal
 		r.MatchType = FractionalMatch
 		if r.EX.GT(r.SwapPrice.MulInt(r.EY).TruncateInt()) {
 			r.EX = r.SwapPrice.MulInt(r.EY).TruncateInt()

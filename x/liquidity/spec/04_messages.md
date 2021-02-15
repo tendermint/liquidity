@@ -15,6 +15,7 @@ type MsgCreateLiquidityPool struct {
 ```
 
 **Validity check**
+
 - `MsgCreateLiquidityPool` fails if
   - `PoolCreator` address does not exist
   - `PoolTypeIndex` does not exist in parameters
@@ -34,12 +35,13 @@ type MsgDepositToLiquidityPool struct {
 ```
 
 **Validity check**
+
 - `MsgDepositToLiquidityPool` failes if
   - `Depositor` address does not exist
   - `PoolId` does not exist
   - if the denoms of `DepositCoins` are not composed of `ReserveCoinDenoms` of the `LiquidityPool` with given `PoolId`
   - if the balance of `Depositor` does not have enough amount of coins for `DepositCoins`
-  
+
 ## MsgWithdrawFromLiquidityPool
 
 ```go
@@ -51,12 +53,13 @@ type MsgWithdrawFromLiquidityPool struct {
 ```
 
 **Validity check**
+
 - `MsgWithdrawFromLiquidityPool` failes if
   - `Withdrawer` address does not exist
   - `PoolId` does not exist
   - if the denom of `PoolCoin` are not equal to the `PoolCoinDenom` of the `LiquidityPool` with given `PoolId`
   - if the balance of `Depositor` does not have enough amount of coins for `PoolCoin`
-  
+
 ## MsgSwap
 
 ```go
@@ -66,12 +69,13 @@ type MsgSwap struct {
 	SwapType             uint32     // swap type of this swap message, default 1: InstantSwap, requesting instant swap
 	OfferCoin            sdk.Coin   // offer coin of this swap message
 	DemandCoinDenom      string     // denom of demand coin of this swap message
-    OfferCoinFee         sdk.Coin   // offer coin fee for pay fees in half offer coin
+	OfferCoinFee         sdk.Coin   // offer coin fee for pay fees in half offer coin
 	OrderPrice           sdk.Dec    // order price of this swap message
 }
 ```
 
 **Validity check**
+
 - `MsgSwap` failes if
   - `SwapRequester` address does not exist
   - `PoolId` does not exist
@@ -79,5 +83,5 @@ type MsgSwap struct {
   - denoms of `OfferCoin` or `DemandCoin` do not exist in `bank` module
   - if the balance of `SwapRequester` does not have enough amount of coins for `OfferCoin`
   - if `OrderPrice` <= zero
-  - if `OfferCoinFee` Equal `OfferCoin` * `params.SwapFeeRate` * `0.5` with truncating Int
+  - if `OfferCoinFee` Equal `OfferCoin` _ `params.SwapFeeRate` _ `0.5` with truncating Int
   - if has sufficient balance `OfferCoinFee` to reserve offer coin fee.

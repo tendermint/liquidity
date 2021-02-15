@@ -10,11 +10,13 @@ const (
 	EventTypeDepositToLiquidityPool           = "deposit_to_liquidity_pool"
 	EventTypeWithdrawFromLiquidityPool        = "withdraw_from_liquidity_pool"
 	EventTypeSwap                             = "swap"
+	EventTypeSwapTransacted                   = "swap_transacted"
 
 	AttributeValueLiquidityPoolId        = "liquidity_pool_id"
 	AttributeValueLiquidityPoolTypeIndex = "liquidity_pool_type_index"
 	AttributeValueLiquidityPoolFeeRate   = "liquidity_pool_fee_rate"
 	//AttributeValueSwapPriceFunction      = "swap_price_function"
+	AttributeValueLiquidityPoolKey  = "liquidity_pool_key"
 	AttributeValueReserveCoinDenoms = "reserve_coin_denoms"
 	AttributeValueReserveAccount    = "reserve_account"
 	AttributeValuePoolCoinDenom     = "pool_coin_denom"
@@ -23,22 +25,22 @@ const (
 	AttributeValueBatchSize         = "batch_size"
 	AttributeValueBatchIndex        = "batch_index"
 	AttributeValueMsgIndex          = "msg_index"
-	AttributeValueTxHash            = "tx_hash"
 
 	AttributeValueDepositCoins = "deposit_coins"
 
-	AttributeValueOfferCoinDenom  = "offer_coin_denom"
-	AttributeValueOfferCoinAmount = "offer_coin_amount"
-	AttributeValueDemandCoinDenom = "demand_coin_denom"
-	AttributeValueOrderPrice      = "order_price"
+	AttributeValueOfferCoinDenom     = "offer_coin_denom"
+	AttributeValueOfferCoinAmount    = "offer_coin_amount"
+	AttributeValueOfferCoinFeeAmount = "offer_coin_fee_amount"
+	AttributeValueDemandCoinDenom    = "demand_coin_denom"
+	AttributeValueOrderPrice         = "order_price"
 
 	AttributeValueDepositor            = "depositor"
-	AttributeValueAcceptedCoinAmount   = "accepted_coin_amount"
-	AttributeValueRefundedCoinAmount   = "refunded_coin_amount"
+	AttributeValueRefundedCoins        = "refunded_coins"
+	AttributeValueAcceptedCoins        = "accepted_coins"
 	AttributeValueSuccess              = "success"
 	AttributeValueWithdrawer           = "withdrawer"
 	AttributeValuePoolCoin             = "pool_coin"
-	AttributeValueWithdrawCoinAmount   = "withdraw_coin_amount"
+	AttributeValueWithdrawCoins        = "withdraw_coins"
 	AttributeValueSwapRequester        = "swap_requester"
 	AttributeValueSwapType             = "swap_type"
 	AttributeValueAcceptedOfferCoin    = "accepted_offer_coin"
@@ -48,5 +50,14 @@ const (
 	AttributeValuePaidSwapFee          = "paid_swap_fee"
 	AttributeValuePaidLiquidityPoolFee = "paid_liquidity_pool_fee"
 
+	AttributeValueTransactedCoinAmount      = "transacted_coin_amount"
+	AttributeValueRemainingOfferCoinAmount  = "remaining_offer_coin_amount"
+	AttributeValueExchangedOfferCoinAmount  = "exchanged_offer_coin_amount"
+	AttributeValueOfferCoinFeeReserveAmount = "offer_coin_fee_reserve_amount"
+	AttributeValueOrderExpiryHeight         = "order_expiry_height"
+
 	AttributeValueCategory = ModuleName
+
+	Success = "success"
+	Failure = "failure"
 )

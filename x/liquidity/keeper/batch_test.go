@@ -51,7 +51,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	// Success case, create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
-	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	err, _ := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
 	// Verify PoolCreationFee pay successfully
@@ -61,20 +61,20 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// Fail case, reset deposit balance for pool already exists case
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
-	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	err, _ = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.Equal(t, types.ErrPoolAlreadyExists, err)
 
 	// reset deposit balance without LiquidityPoolCreationFee of pool creator
 	// Fail case, insufficient balances for pool creation fee case
 	msgAB := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB)
-	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msgAB)
+	err, _ = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msgAB)
 	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
 
 	// Success case, create another pool
 	msgAB = types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB.Add(params.LiquidityPoolCreationFee...))
-	err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msgAB)
+	err, _ = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msgAB)
 	require.NoError(t, err)
 
 	// Verify PoolCreationFee pay successfully
@@ -254,7 +254,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
-	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	err, _ := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
 	// verify created liquidity pool

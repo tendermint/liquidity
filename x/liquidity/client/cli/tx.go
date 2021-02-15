@@ -46,7 +46,7 @@ func NewCreateLiquidityPoolCmd() *cobra.Command {
 			fmt.Sprintf(`Create Liquidity pool with the specified pool-type-index, deposit coins for reserve
 
 Example:
-$ %s tx liquidity create-pool 1 100000000acoin,100000000bcoin --from mykey
+$ %s tx liquidity create-pool 1 100000000stake,100000000token --from mykey
 
 Currently, only the default pool-type-index 1 is available on this version
 the number of deposit coins must be two in the pool-type-index 1
@@ -114,7 +114,7 @@ this requests are stacked in the batch of the liquidity pool, not immediately pr
 processed in the endblock at once with other requests.
 
 Example:
-$ %s tx liquidity deposit 1 100000000acoin,100000000bcoin --from mykey
+$ %s tx liquidity deposit 1 100000000stake,100000000token --from mykey
 
 You should deposit the same coin as the reserve coin.
 `,
@@ -175,7 +175,7 @@ this requests are stacked in the batch of the liquidity pool, not immediately pr
 processed in the endblock at once with other requests.
 
 Example:
-$ %s tx liquidity withdraw 1 1000cosmos1d9w9j3rq5aunkrkdm86paduz4attl78thlj07f --from mykey
+$ %s tx liquidity withdraw 1 1000pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07 --from mykey
 
 You should request the matched pool-coin as the pool.
 `,
@@ -233,7 +233,7 @@ this requests are stacked in the batch of the liquidity pool, not immediately pr
 processed in the endblock at once with other requests.
 
 Example:
-$ %s tx liquidity swap 2 1 100000000acoin bcoin 1.15 0.003 --from mykey
+$ %s tx liquidity swap 2 1 100000000stake token 0.9 0.003 --from mykey
 
 You should request the same each field as the pool.
 
