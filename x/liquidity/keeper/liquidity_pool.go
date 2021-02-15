@@ -344,33 +344,33 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 	if coinA.Amount.LT(depositableAmount) {
 		depositableAmountB = coinA.Amount.ToDec().Quo(lastReserveRatio).TruncateInt()
 		refundAmtB := coinB.Amount.Sub(depositableAmountB)
-		acceptedCoins = acceptedCoins.Add(
+		acceptedCoins = sdk.NewCoins(
 			coinA,
 			sdk.NewCoin(coinB.Denom, depositableAmountB))
 		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
 		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 		// refund
 		if refundAmtB.IsPositive() {
-			refundedCoins = refundedCoins.Add(sdk.NewCoin(coinB.Denom, refundAmtB))
+			refundedCoins = sdk.NewCoins(sdk.NewCoin(coinB.Denom, refundAmtB))
 			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
 			outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
 		}
 	} else if coinA.Amount.GT(depositableAmount) {
 		depositableAmountA = coinB.Amount.ToDec().Mul(lastReserveRatio).TruncateInt()
 		refundAmtA := coinA.Amount.Sub(depositableAmountA)
-		acceptedCoins = acceptedCoins.Add(
+		acceptedCoins = sdk.NewCoins(
 			coinB,
 			sdk.NewCoin(coinA.Denom, depositableAmountA))
 		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
 		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 		// refund
 		if refundAmtA.IsPositive() {
-			refundedCoins = refundedCoins.Add(sdk.NewCoin(coinA.Denom, refundAmtA))
+			refundedCoins = sdk.NewCoins(sdk.NewCoin(coinA.Denom, refundAmtA))
 			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
 			outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
 		}
 	} else {
-		acceptedCoins = acceptedCoins.Add(coinA, coinB)
+		acceptedCoins = sdk.NewCoins(coinA, coinB)
 		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
 		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 	}
@@ -395,7 +395,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 	msg.Succeeded = true
 	msg.ToBeDeleted = true
 	k.SetLiquidityPoolBatchDepositMsg(ctx, msg.Msg.PoolId, msg)
-	// TODO: add events for batch result, each err cases
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeDepositToLiquidityPool,
