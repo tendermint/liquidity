@@ -152,8 +152,9 @@ func TestSwapExecution(t *testing.T) {
 
 	// end block, swap execution
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
-	//err = simapp.LiquidityKeeper.SwapExecution(ctx, liquidityPoolBatch)
-	require.NoError(t, err)
+	//executedMsgCount, err := simapp.LiquidityKeeper.SwapExecution(ctx, liquidityPoolBatch)
+	//require.NoError(t, err)
+	//require.NotZero(t, executedMsgCount)
 }
 
 func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, X, Y sdk.Int, depositBalance sdk.Coins, addrs []sdk.AccAddress) {

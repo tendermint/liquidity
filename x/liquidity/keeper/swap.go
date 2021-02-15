@@ -26,6 +26,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	params := k.GetParams(ctx)
 	currentHeight := ctx.BlockHeight()
+	invariantCheckFlag := true // temporary flag for test
 
 	swapMsgs = types.ValidateStateAndExpireOrders(swapMsgs, currentHeight, false)
 
@@ -49,8 +50,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	result := types.MatchOrderbook(X, Y, currentYPriceOverX, orderBook)
 
 	// find order match, calculate pool delta with the total x, y amount for the invariant check
-	beforeXtoYLen := len(XtoY)
-	beforeYtoXLen := len(YtoX)
 	var matchResultXtoY, matchResultYtoX []types.MatchResult
 	poolXdelta := sdk.ZeroInt()
 	poolYdelta := sdk.ZeroInt()
@@ -69,46 +68,55 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	lastPrice := X.Quo(Y)
 
-	if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != (types.MsgList)(XtoY).CountNotMatchedMsgs()+(types.MsgList)(XtoY).CountFractionalMatchedMsgs() {
-		panic(beforeXtoYLen)
-	}
-	if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != (types.MsgList)(YtoX).CountNotMatchedMsgs()+(types.MsgList)(YtoX).CountFractionalMatchedMsgs() {
-		panic(beforeYtoXLen)
-	}
+	if invariantCheckFlag {
+		beforeXtoYLen := len(XtoY)
+		beforeYtoXLen := len(YtoX)
+		if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != (types.MsgList)(XtoY).CountNotMatchedMsgs()+(types.MsgList)(XtoY).CountFractionalMatchedMsgs() {
+			panic(beforeXtoYLen)
+		}
+		if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != (types.MsgList)(YtoX).CountNotMatchedMsgs()+(types.MsgList)(YtoX).CountFractionalMatchedMsgs() {
+			panic(beforeYtoXLen)
+		}
 
-	totalAmtX := sdk.ZeroInt()
-	totalAmtY := sdk.ZeroInt()
+		totalAmtX := sdk.ZeroInt()
+		totalAmtY := sdk.ZeroInt()
 
-	for _, mr := range matchResultXtoY {
-		totalAmtX = totalAmtX.Sub(mr.TransactedCoinAmt)
-		totalAmtY = totalAmtY.Add(mr.ExchangedDemandCoinAmt)
-	}
+		for _, mr := range matchResultXtoY {
+			totalAmtX = totalAmtX.Sub(mr.TransactedCoinAmt)
+			totalAmtY = totalAmtY.Add(mr.ExchangedDemandCoinAmt)
+		}
 
-	invariantCheckX := totalAmtX
-	invariantCheckY := totalAmtY
+		invariantCheckX := totalAmtX
+		invariantCheckY := totalAmtY
 
-	totalAmtX = sdk.ZeroInt()
-	totalAmtY = sdk.ZeroInt()
+		totalAmtX = sdk.ZeroInt()
+		totalAmtY = sdk.ZeroInt()
 
-	for _, mr := range matchResultYtoX {
-		totalAmtY = totalAmtY.Sub(mr.TransactedCoinAmt)
-		totalAmtX = totalAmtX.Add(mr.ExchangedDemandCoinAmt)
-	}
+		for _, mr := range matchResultYtoX {
+			totalAmtY = totalAmtY.Sub(mr.TransactedCoinAmt)
+			totalAmtX = totalAmtX.Add(mr.ExchangedDemandCoinAmt)
+		}
 
-	invariantCheckX = invariantCheckX.Add(totalAmtX)
-	invariantCheckY = invariantCheckY.Add(totalAmtY)
+		invariantCheckX = invariantCheckX.Add(totalAmtX)
+		invariantCheckY = invariantCheckY.Add(totalAmtY)
 
-	invariantCheckX = invariantCheckX.Add(poolXdelta)
-	invariantCheckY = invariantCheckY.Add(poolYdelta)
+		invariantCheckX = invariantCheckX.Add(poolXdelta)
+		invariantCheckY = invariantCheckY.Add(poolYdelta)
 
-	// print the invariant check and validity with swap, match result
-	if invariantCheckX.IsZero() && invariantCheckY.IsZero() {
-	} else {
-		panic(invariantCheckX)
-	}
+		// print the invariant check and validity with swap, match result
+		if invariantCheckX.IsZero() && invariantCheckY.IsZero() {
+		} else {
+			panic(invariantCheckX)
+		}
 
-	if !poolXdelta.Add(decimalErrorX).Equal(poolXdelta2) || !poolYdelta.Add(decimalErrorY).Equal(poolYdelta2) {
-		panic(poolXdelta)
+		if !poolXdelta.Add(decimalErrorX).Equal(poolXdelta2) || !poolYdelta.Add(decimalErrorY).Equal(poolYdelta2) {
+			panic(poolXdelta)
+		}
+
+		validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
+		if !validitySwapPrice {
+			panic("validitySwapPrice")
+		}
 	}
 
 	XtoY = types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
@@ -121,35 +129,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity")
 		panic(types.ErrOrderBookInvalidity)
 	}
-
-	// TODO: WIP new validity
-	validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
-	if !validitySwapPrice {
-		fmt.Println(matchResultXtoY)
-		fmt.Println(matchResultYtoX)
-		fmt.Println(result.SwapPrice)
-		fmt.Println(result)
-		// TODO: need to tracking when zero, execution nothing, kv io , etc or not, except when nothing swap
-		panic("validitySwapPrice")
-	}
-
-	// TODO: WIP new validity
-	//var validityMustExecutable bool
-	//if result.SwapPrice.IsZero() {
-	//	validityMustExecutable = types.CheckValidityMustExecutable(orderBookExecuted, lastPrice)
-	//} else {
-	//	validityMustExecutable = types.CheckValidityMustExecutable(orderBookExecuted, result.SwapPrice)
-	//}
-	//if !validityMustExecutable {
-	//	panic("CheckValidityMustExecutable")
-	//}
-
-	// TODO: WIP new validity
-	//errThreshold, _ := sdk.NewDecFromStr("0.001")
-	//if lastPrice.Quo(result.SwapPrice).Sub(sdk.OneDec()).Abs().GT(errThreshold) {
-	//	fmt.Println(lastPrice, lastPrice.Quo(result.SwapPrice.Sub(sdk.OneDec())), lastPrice.Quo(result.SwapPrice.Sub(sdk.OneDec())).Abs())
-	//	panic("abs(lastPrice/swapPrice-1) > 0.001")
-	//}
 
 	XtoY = types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
 	YtoX = types.ValidateStateAndExpireOrders(YtoX, currentHeight, true)
@@ -174,64 +153,125 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 			panic("map broken1")
 		}
 	}
-	if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
-		panic("match result map err")
-	}
 
-	for k, v := range matchResultMap {
-		if k != v.OrderMsgIndex {
-			panic("broken map consistency")
-		}
-	}
-
-	// TODO: separate verify logic, only for simulation
-	// compare swapMsgs state with XtoY, YtoX
-	notMatchedCount := 0
-	for k, v := range matchResultMap {
-		if k != v.OrderMsgIndex {
-			panic("broken map consistency2")
-		}
-	}
-	for _, msg := range swapMsgs {
-		for _, msgAfter := range XtoY {
-			if msg.MsgIndex == msgAfter.MsgIndex {
-				if *(msg) != *(msgAfter) || msg != msgAfter {
-					panic("msg not matched")
-				} else {
-					break
-				}
-			}
-		}
-		for _, msgAfter := range YtoX {
-			if msg.MsgIndex == msgAfter.MsgIndex {
-				if *(msg) != *(msgAfter) || msg != msgAfter {
-					panic("msg not matched")
-				} else {
-					break
-				}
-			}
-		}
-		if msgAfter, ok := matchResultMap[msg.MsgIndex]; ok {
-			if msg.MsgIndex == msgAfter.BatchMsg.MsgIndex {
-				if *(msg) != *(msgAfter.BatchMsg) || msg != msgAfter.BatchMsg {
-					panic("msg not matched")
-				} else {
-					break
-				}
-				// TODO: check for half-half-fee
-				if !msgAfter.OfferCoinFeeAmt.IsPositive() {
-					panic(msgAfter.OfferCoinFeeAmt)
-				}
-			} else {
-				panic("fail msg pointer consistency")
-			}
-		} else {
-			// not matched
-			notMatchedCount++
-		}
-	}
 	executedMsgCount := uint64(len(swapMsgs))
 
+	if invariantCheckFlag {
+		if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
+			panic("match result map err")
+		}
+
+		for k, v := range matchResultMap {
+			if k != v.OrderMsgIndex {
+				panic("broken map consistency")
+			}
+		}
+
+		// compare swapMsgs state with XtoY, YtoX
+		notMatchedCount := 0
+		for k, v := range matchResultMap {
+			if k != v.OrderMsgIndex {
+				panic("broken map consistency2")
+			}
+		}
+		for _, msg := range swapMsgs {
+			for _, msgAfter := range XtoY {
+				if msg.MsgIndex == msgAfter.MsgIndex {
+					if *(msg) != *(msgAfter) || msg != msgAfter {
+						panic("msg not matched")
+					} else {
+						break
+					}
+				}
+			}
+			for _, msgAfter := range YtoX {
+				if msg.MsgIndex == msgAfter.MsgIndex {
+					if *(msg) != *(msgAfter) || msg != msgAfter {
+						panic("msg not matched")
+					} else {
+						break
+					}
+				}
+			}
+			if msgAfter, ok := matchResultMap[msg.MsgIndex]; ok {
+				if msg.MsgIndex == msgAfter.BatchMsg.MsgIndex {
+					if *(msg) != *(msgAfter.BatchMsg) || msg != msgAfter.BatchMsg {
+						panic("msg not matched")
+					} else {
+						break
+					}
+					// TODO: check for half-half-fee
+					if !msgAfter.OfferCoinFeeAmt.IsPositive() {
+						panic(msgAfter.OfferCoinFeeAmt)
+					}
+				} else {
+					panic("fail msg pointer consistency")
+				}
+			} else {
+				// not matched
+				notMatchedCount++
+			}
+		}
+
+		// invariant check, swapPrice check
+		switch result.PriceDirection {
+		// check whether the calculated swapPrice is actually increased from last pool price
+		case types.Increase:
+			if !result.SwapPrice.GT(currentYPriceOverX) {
+				panic("invariant check fail swapPrice Increase")
+			}
+		// check whether the calculated swapPrice is actually decreased from last pool price
+		case types.Decrease:
+			if !result.SwapPrice.LT(currentYPriceOverX) {
+				panic("invariant check fail swapPrice Decrease")
+			}
+		// check whether the calculated swapPrice is actually equal to last pool price
+		case types.Stay:
+			if !result.SwapPrice.Equal(currentYPriceOverX) {
+				panic("invariant check fail swapPrice Stay")
+			}
+		}
+
+		// invariant check, execution validity check
+		for _, batchMsg := range swapMsgs {
+			// check whether every executed orders have order price which is not "unexecutable"
+			if _, ok := matchResultMap[batchMsg.MsgIndex]; ok {
+				if !batchMsg.Executed || !batchMsg.Succeeded {
+					panic("batchMsg consistency error, matched but not succeeded")
+				}
+
+				if batchMsg.Msg.OfferCoin.Denom == denomX {
+					// buy orders having equal or higher order price than found swapPrice
+					if !batchMsg.Msg.OrderPrice.GTE(result.SwapPrice) {
+						panic("execution validity failed, executed but unexecutable")
+					}
+				} else {
+					// sell orders having equal or lower order price than found swapPrice
+					if !batchMsg.Msg.OrderPrice.LTE(result.SwapPrice) {
+						panic("execution validity failed, executed but unexecutable")
+					}
+				}
+
+			} else {
+				// check whether every unexecuted orders have order price which is not "executable"
+				if batchMsg.Executed && batchMsg.Succeeded {
+					panic("batchMsg consistency error, not matched but succeeded")
+				}
+
+				if batchMsg.Msg.OfferCoin.Denom == denomX {
+					// buy orders having equal or lower order price than found swapPrice
+					if !batchMsg.Msg.OrderPrice.LTE(result.SwapPrice) {
+						panic("execution validity failed, unexecuted but executable")
+					}
+				} else {
+					// sell orders having equal or higher order price than found swapPrice
+					if !batchMsg.Msg.OrderPrice.GTE(result.SwapPrice) {
+						panic("execution validity failed, unexecuted but executable")
+					}
+				}
+			}
+		}
+	}
 	// execute transact, refund, expire, send coins with escrow, update state by TransactAndRefundSwapLiquidityPool
 	if err := k.TransactAndRefundSwapLiquidityPool(ctx, swapMsgs, matchResultMap, pool, result); err != nil {
 		panic(err)
