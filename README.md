@@ -148,7 +148,7 @@ liquidityd tx liquidity create-pool 1 100000000stake,100000000atom --from user1 
 Example of Swap request using cli
 
 ```bash
-liquidityd tx liquidity swap 2 1 1000stake atom 1.15 0.003 --from validator --chain-id testing --keyring-backend test -y
+liquidityd tx liquidity swap 2 1 1000stake atom 0.9 0.003 --from validator --chain-id testing --keyring-backend test -y
 ```
 
 ### Broadcasting Txs with REST
@@ -159,7 +159,7 @@ example of generating unsigned tx
 
 ```bash
 validator=$(liquidityd keys show validator --keyring-backend test -a)
-liquidityd tx liquidity swap 2 1 1000stake atom 1.15 0.003 --from $validator --chain-id testing --generate-only > tx_swap.json
+liquidityd tx liquidity swap 2 1 1000stake atom 0.9 0.003 --from $validator --chain-id testing --generate-only > tx_swap.json
 cat tx_swap.json
 ```
  
@@ -176,14 +176,14 @@ example of encoding signed tx
 liquidityd tx encode tx_swap_signed.json
 ```
 
-example of the output: `CoMBCoABCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJfCi1jb3Ntb3MxN3dncHpyNGd2YzN1aHBmcnUyNmVhYTJsc203NzJlMnEydjBtZXgQAhgBIAEqDQoFc3Rha2USBDEwMDAyBGF0b206EzExNTAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAqzfoAEi0cFg0zqwBuGNvHml4XJNS3EQuVti8/yGH88NEgQKAgh/GAcSBBDAmgwaQHv+S5sy4L6I1/lLebkqiKeDX0xr6aBwd/XxaGvwTqUVTKsD7TqyBIeBxepg2a/7xi45Ws9xr8LLt7nAaR9DsdU=`
+example of the output: `CowBCokBCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJoCi1jb3Ntb3MxOGpreTNlNXowZHc5cTVzcmMyN2xodG5teHI4NmE2bjd5ZDdzOXIQAhgBIg0KBXN0YWtlEgQxMDAwKgRhdG9tMgoKBXN0YWtlEgExOhI5MDAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAjEHv9d3Jp39UOnp8y9UNaWa63fTxcIWz2TpSJKlIRIzEgQKAgh/GAQSBBDAmgwaQB5tHMMkxQBLTHbwytego2knU1mjqBMVRexuTx/5Xx/LTo4OUhOxtYsIf3H1onPCgOPqxU0Hu0yU6SaANfHNBxM=`
 
 
 example of broadcasting txs using the [new REST endpoint (via gRPC-gateway, beta1)](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints)
 need to enable API server for test
 
 ```bash
-curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"CoMBCoABCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJfCi1jb3Ntb3MxN3dncHpyNGd2YzN1aHBmcnUyNmVhYTJsc203NzJlMnEydjBtZXgQAhgBIAEqDQoFc3Rha2USBDEwMDAyBGF0b206EzExNTAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAqzfoAEi0cFg0zqwBuGNvHml4XJNS3EQuVti8/yGH88NEgQKAgh/GAgSBBDAmgwaQGTRN67x2WYF/L5DsRD3ZY1Kt9cVpg3rW+YbXtihxcB6bJWhMxuFr0u9SnGkCuAgOuLH9YU8ROFUo1gGS1RpTz0=","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
+curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"CowBCokBCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJoCi1jb3Ntb3MxOGpreTNlNXowZHc5cTVzcmMyN2xodG5teHI4NmE2bjd5ZDdzOXIQAhgBIg0KBXN0YWtlEgQxMDAwKgRhdG9tMgoKBXN0YWtlEgExOhI5MDAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAjEHv9d3Jp39UOnp8y9UNaWa63fTxcIWz2TpSJKlIRIzEgQKAgh/GAQSBBDAmgwaQB5tHMMkxQBLTHbwytego2knU1mjqBMVRexuTx/5Xx/LTo4OUhOxtYsIf3H1onPCgOPqxU0Hu0yU6SaANfHNBxM=","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
 ```
 
 ## Export, Genesis State

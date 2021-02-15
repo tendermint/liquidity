@@ -238,12 +238,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		return executedMsgCount, err
 	}
 
-	//TODO: emit event per msg
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeSwap,
-		),
-	)
 	return executedMsgCount, nil
 }
 
