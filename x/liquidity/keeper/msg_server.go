@@ -83,7 +83,7 @@ func (k msgServer) WithdrawFromLiquidityPool(goCtx context.Context, msg *types.M
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			//types.EventTypeWithdrrawFromLiquidityPoolToBatch,
+			//types.EventTypeWithdrawFromLiquidityPoolToBatch,
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.WithdrawerAddress),

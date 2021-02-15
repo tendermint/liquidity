@@ -195,7 +195,7 @@ func validateMinInitDepositToPool(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if !v.IsPositive() {
-		return fmt.Errorf("MinInitDepositToPool must be positive: %d", v)
+		return fmt.Errorf("MinInitDepositToPool must be positive: %s", v)
 	}
 
 	return nil
@@ -208,10 +208,10 @@ func validateInitPoolCoinMintAmount(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if !v.IsPositive() {
-		return fmt.Errorf("InitPoolCoinMintAmount must be positive: %d", v)
+		return fmt.Errorf("InitPoolCoinMintAmount must be positive: %s", v)
 	}
 	if v.LT(DefaultInitPoolCoinMintAmount) {
-		return fmt.Errorf("InitPoolCoinMintAmount should over default value: %d", v)
+		return fmt.Errorf("InitPoolCoinMintAmount should over default value: %s", v)
 	}
 	return nil
 }
