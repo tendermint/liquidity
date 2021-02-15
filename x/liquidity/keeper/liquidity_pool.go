@@ -407,9 +407,8 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 			sdk.NewAttribute(types.AttributeValueRefundedCoins, refundedCoins.String()),
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, mintPoolCoin.Denom),
 			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, mintPoolCoin.Amount.String()),
-			sdk.NewAttribute(types.AttributeValueSuccess, types.Success,
-		),
-	))
+			sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
+		))
 
 	// TODO: remove result state check, debugging
 	reserveCoins = k.GetReserveCoins(ctx, pool)
@@ -538,8 +537,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, msg.Msg.PoolCoin.Denom),
 			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, msg.Msg.PoolCoin.Amount.String()),
 			sdk.NewAttribute(types.AttributeValueWithdrawCoins, withdrawCoins.String()),
-			sdk.NewAttribute(types.AttributeValueSuccess, types.Success,
-			),
+			sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
 		))
 
 	// TODO: remove result state check, debugging
@@ -578,8 +576,7 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Batch
 			sdk.NewAttribute(types.AttributeValueDepositor, batchMsg.Msg.GetDepositor().String()),
 			sdk.NewAttribute(types.AttributeValueAcceptedCoins, sdk.NewCoins().String()),
 			sdk.NewAttribute(types.AttributeValueRefundedCoins, batchMsg.Msg.DepositCoins.String()),
-			sdk.NewAttribute(types.AttributeValueSuccess, types.Failure,
-			),
+			sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
 		))
 	return err
 }
@@ -604,8 +601,7 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.Batc
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, batchMsg.Msg.PoolCoin.Denom),
 			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, batchMsg.Msg.PoolCoin.Amount.String()),
 			sdk.NewAttribute(types.AttributeValueWithdrawCoins, sdk.NewCoins().String()),
-			sdk.NewAttribute(types.AttributeValueSuccess, types.Failure,
-			),
+			sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
 		))
 
 	// not delete now, set ToBeDeleted true for delete on next block beginblock
