@@ -92,7 +92,7 @@ func UnmarshalLiquidityPool(cdc codec.BinaryMarshaler, value []byte) (liquidityP
 	return liquidityPool, err
 }
 
-// return sdk.AccAddress object of he address saved as string because of protobuf
+// return sdk.AccAddress object of the address saved as string because of protobuf
 func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(lp.ReserveAccountAddress)
 	if err != nil {
