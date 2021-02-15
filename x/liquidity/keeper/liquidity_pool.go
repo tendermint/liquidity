@@ -246,9 +246,6 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
-	if err := msg.DepositCoins.Validate(); err != nil {
-		return err
-	}
 	pool, found := k.GetLiquidityPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
@@ -258,11 +255,6 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 		return types.ErrNumOfReserveCoin
 	}
 
-	// TODO: duplicated with ValidateBasic
-	if uint32(msg.DepositCoins.Len()) > types.MaxReserveCoinNum ||
-		types.MinReserveCoinNum > uint32(msg.DepositCoins.Len()) {
-		return types.ErrNumOfReserveCoin
-	}
 	// TODO: validate msgIndex
 
 	denomA, denomB := types.AlphabeticalDenomPair(msg.DepositCoins[0].Denom, msg.DepositCoins[1].Denom)
