@@ -36,6 +36,8 @@ const (
 	AttributeValueDepositor            = "depositor"
 	AttributeValueAcceptedCoinAmount   = "accepted_coin_amount"
 	AttributeValueRefundedCoinAmount   = "refunded_coin_amount"
+	AttributeValueRefundedCoins        = "refunded_coins"
+	AttributeValueAcceptedCoins        = "accepted_coins"
 	AttributeValueSuccess              = "success"
 	AttributeValueWithdrawer           = "withdrawer"
 	AttributeValuePoolCoin             = "pool_coin"
@@ -50,4 +52,7 @@ const (
 	AttributeValuePaidLiquidityPoolFee = "paid_liquidity_pool_fee"
 
 	AttributeValueCategory = ModuleName
+
+	Success = "success"
+	Failure = "failure"
 )

@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/tendermint/liquidity/x/liquidity/types"
+	"strconv"
 )
 
 func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) error {
@@ -337,48 +338,54 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 	depositableAmount := coinB.Amount.ToDec().Mul(lastReserveRatio).TruncateInt()
 	depositableAmountA := coinA.Amount
 	depositableAmountB := coinB.Amount
+	acceptedCoins := sdk.NewCoins()
+	refundedCoins := sdk.NewCoins()
 
 	if coinA.Amount.LT(depositableAmount) {
 		depositableAmountB = coinA.Amount.ToDec().Quo(lastReserveRatio).TruncateInt()
 		refundAmtB := coinB.Amount.Sub(depositableAmountB)
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(coinA)))
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(sdk.NewCoin(coinB.Denom, depositableAmountB))))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, sdk.NewCoins(coinA)))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, sdk.NewCoins(sdk.NewCoin(coinB.Denom, depositableAmountB))))
+		acceptedCoins = acceptedCoins.Add(
+			coinA,
+			sdk.NewCoin(coinB.Denom, depositableAmountB))
+		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
+		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 		// refund
 		if refundAmtB.IsPositive() {
-			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(sdk.NewCoin(coinB.Denom, refundAmtB))))
-			outputs = append(outputs, banktypes.NewOutput(depositor, sdk.NewCoins(sdk.NewCoin(coinB.Denom, refundAmtB))))
+			refundedCoins = refundedCoins.Add(sdk.NewCoin(coinB.Denom, refundAmtB))
+			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
+			outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
 		}
 	} else if coinA.Amount.GT(depositableAmount) {
 		depositableAmountA = coinB.Amount.ToDec().Mul(lastReserveRatio).TruncateInt()
 		refundAmtA := coinA.Amount.Sub(depositableAmountA)
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(sdk.NewCoin(coinA.Denom, depositableAmountA))))
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(coinB)))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, sdk.NewCoins(sdk.NewCoin(coinA.Denom, depositableAmountA))))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, sdk.NewCoins(coinB)))
+		acceptedCoins = acceptedCoins.Add(
+			coinB,
+			sdk.NewCoin(coinA.Denom, depositableAmountA))
+		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
+		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 		// refund
 		if refundAmtA.IsPositive() {
-			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(sdk.NewCoin(coinA.Denom, refundAmtA))))
-			outputs = append(outputs, banktypes.NewOutput(depositor, sdk.NewCoins(sdk.NewCoin(coinA.Denom, refundAmtA))))
+			refundedCoins = refundedCoins.Add(sdk.NewCoin(coinA.Denom, refundAmtA))
+			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
+			outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
 		}
 	} else {
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(coinA)))
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, sdk.NewCoins(coinB)))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, sdk.NewCoins(coinA)))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, sdk.NewCoins(coinB)))
+		acceptedCoins = acceptedCoins.Add(coinA, coinB)
+		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
+		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 	}
 
 	// calculate pool token mint amount
 	poolCoinAmt := k.GetPoolCoinTotalSupply(ctx, pool).Mul(depositableAmountA).Quo(reserveCoins[0].Amount) // TODO: coinA after executed ?
-	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt))
+	mintPoolCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
+	mintPoolCoins := sdk.NewCoins(mintPoolCoin)
 
 	// mint pool token to Depositor
-	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoins); err != nil {
 		panic(err)
 	}
-	inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, mintPoolCoin))
-	outputs = append(outputs, banktypes.NewOutput(depositor, mintPoolCoin))
+	inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, mintPoolCoins))
+	outputs = append(outputs, banktypes.NewOutput(depositor, mintPoolCoins))
 
 	// execute multi-send
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
@@ -389,6 +396,20 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.BatchPoolDeposit
 	msg.ToBeDeleted = true
 	k.SetLiquidityPoolBatchDepositMsg(ctx, msg.Msg.PoolId, msg)
 	// TODO: add events for batch result, each err cases
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeDepositToLiquidityPool,
+			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(msg.MsgIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueDepositor, depositor.String()),
+			sdk.NewAttribute(types.AttributeValueAcceptedCoins, acceptedCoins.String()),
+			sdk.NewAttribute(types.AttributeValueRefundedCoins, refundedCoins.String()),
+			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, mintPoolCoin.Denom),
+			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, mintPoolCoin.Amount.String()),
+			sdk.NewAttribute(types.AttributeValueSuccess, types.Success,
+		),
+	))
 
 	// TODO: remove result state check, debugging
 	reserveCoins = k.GetReserveCoins(ctx, pool)
