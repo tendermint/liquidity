@@ -27,7 +27,7 @@ Progress REST/API
 
 ## Tx
 
-`$ liquidityd tx liquidity --help`     
+`$ liquidityd tx liquidity --help`
 
 ```bash
 Liquidity transaction subcommands
