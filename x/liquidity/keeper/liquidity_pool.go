@@ -542,19 +542,32 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.BatchPoolWithdr
 	return nil
 }
 
-func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoolDepositMsg) error {
+func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.BatchPoolDepositMsg, batch types.LiquidityPoolBatch) error {
 	batchMsg, _ = k.GetLiquidityPoolBatchDepositMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	if !batchMsg.Executed || batchMsg.Succeeded {
 		panic("can't refund not executed or already succeed msg")
 	}
+	pool, _ := k.GetLiquidityPool(ctx, batchMsg.Msg.PoolId)
+
 	err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetDepositor(), batchMsg.Msg.DepositCoins)
 	if err != nil {
 		panic(err)
 	}
+	// not delete now, set ToBeDeleted true for delete on next block beginblock
 	batchMsg.ToBeDeleted = true
 	k.SetLiquidityPoolBatchDepositMsg(ctx, batchMsg.Msg.PoolId, batchMsg)
-	//k.DeleteLiquidityPoolBatchDepositMsg(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
-	// TODO: not delete now, set toDelete, executed, succeed fail,  delete on next block beginblock
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeDepositToLiquidityPool,
+			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueDepositor, batchMsg.Msg.GetDepositor().String()),
+			sdk.NewAttribute(types.AttributeValueAcceptedCoins, sdk.NewCoins().String()),
+			sdk.NewAttribute(types.AttributeValueRefundedCoins, batchMsg.Msg.DepositCoins.String()),
+			sdk.NewAttribute(types.AttributeValueSuccess, types.Failure,
+			),
+		))
 	return err
 }
 

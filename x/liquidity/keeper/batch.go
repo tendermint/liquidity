@@ -85,7 +85,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 			k.IterateAllLiquidityPoolBatchDepositMsgs(ctx, liquidityPoolBatch, func(batchMsg types.BatchPoolDepositMsg) bool {
 				executedMsgCount++
 				if err := k.DepositLiquidityPool(ctx, batchMsg, liquidityPoolBatch); err != nil {
-					k.RefundDepositLiquidityPool(ctx, batchMsg)
+					k.RefundDepositLiquidityPool(ctx, batchMsg, liquidityPoolBatch)
 				}
 				return false
 			})
