@@ -113,7 +113,7 @@ func TestDepositLiquidityPool(t *testing.T) {
 	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, poolBatch)
 	require.Equal(t, 1, len(msgs))
 
-	err = simapp.LiquidityKeeper.DepositLiquidityPool(ctx, msgs[0])
+	err = simapp.LiquidityKeeper.DepositLiquidityPool(ctx, msgs[0], poolBatch)
 	require.NoError(t, err)
 
 	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lp)
@@ -250,7 +250,7 @@ func TestReinitializePool(t *testing.T) {
 	depositMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, poolBatch)
 	require.Equal(t, 1, len(depositMsgs))
 
-	err = simapp.LiquidityKeeper.DepositLiquidityPool(ctx, depositMsgs[0])
+	err = simapp.LiquidityKeeper.DepositLiquidityPool(ctx, depositMsgs[0], poolBatch)
 	require.NoError(t, err)
 
 	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lp)
