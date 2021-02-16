@@ -802,8 +802,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 		if !i.Coins.IsValid() {
 			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
 		}
-		if i.Coins == nil || i.Coins.Empty() {
-		} else {
+		if !i.Coins.Empty() {
 			inputs[newI] = i
 			newI++
 		}
@@ -814,8 +813,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 		if !i.Coins.IsValid() {
 			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
 		}
-		if i.Coins == nil || i.Coins.Empty() {
-		} else {
+		if !i.Coins.Empty() {
 			outputs[newI] = i
 			newI++
 		}
