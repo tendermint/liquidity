@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"sort"
 )
@@ -160,6 +161,19 @@ type BatchResult struct {
 	TransactAmt    sdk.Int
 }
 
+// struct of swap matching result of the batch
+type BatchResultDec struct {
+	MatchType   int
+	SwapPrice   sdk.Dec
+	EX          sdk.Dec
+	EY          sdk.Dec
+	OriginalEX  sdk.Int
+	OriginalEY  sdk.Int
+	PoolX       sdk.Dec
+	PoolY       sdk.Dec
+	TransactAmt sdk.Dec
+}
+
 // return of zero object, to avoid nil
 func NewBatchResult() BatchResult {
 	return BatchResult{
@@ -171,6 +185,20 @@ func NewBatchResult() BatchResult {
 		PoolX:       sdk.ZeroInt(),
 		PoolY:       sdk.ZeroInt(),
 		TransactAmt: sdk.ZeroInt(),
+	}
+}
+
+// return of zero object, to avoid nil
+func NewBatchResultDec() BatchResultDec {
+	return BatchResultDec{
+		SwapPrice:   sdk.ZeroDec(),
+		EX:          sdk.ZeroDec(),
+		EY:          sdk.ZeroDec(),
+		OriginalEX:  sdk.ZeroInt(),
+		OriginalEY:  sdk.ZeroInt(),
+		PoolX:       sdk.ZeroDec(),
+		PoolY:       sdk.ZeroDec(),
+		TransactAmt: sdk.ZeroDec(),
 	}
 }
 
@@ -196,7 +224,12 @@ func MatchOrderbook(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result Bat
 	priceDirection := GetPriceDirection(currentPrice, orderBook)
 
 	if priceDirection == Stay {
-		return CalculateMatchStay(currentPrice, orderBook)
+		batchResult := CalculateMatchStay(currentPrice, orderBook)
+		batchResultDec := CalculateMatchStayDec(currentPrice, orderBook)
+		deltaEX := batchResultDec.EX.Sub(batchResult.EX.ToDec())
+		deltaEY := batchResultDec.EY.Sub(batchResult.EY.ToDec())
+		fmt.Println(deltaEX, deltaEY)
+		return batchResult
 	} else { // Increase, Decrease
 		if priceDirection == Decrease {
 			orderBook.Reverse()
@@ -282,6 +315,31 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResul
 			r.EX = r.SwapPrice.MulInt(r.EY).TruncateInt()
 		} else if r.EX.LT(r.SwapPrice.MulInt(r.EY).TruncateInt()) {
 			r.EY = r.EX.ToDec().Quo(r.SwapPrice).TruncateInt()
+		}
+	}
+	return
+}
+
+// Calculate results for orderbook matching with unchanged price case
+func CalculateMatchStayDec(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResultDec) {
+	r = NewBatchResultDec()
+	r.SwapPrice = currentPrice
+	r.OriginalEX, r.OriginalEY = GetExecutableAmt(r.SwapPrice, orderBook)
+	r.EX = r.OriginalEX.ToDec()
+	r.EY = r.OriginalEY.ToDec()
+
+	if r.EX.Add(r.PoolX).Equal(sdk.ZeroDec()) || r.EY.Add(r.PoolY).Equal(sdk.ZeroDec()) {
+		r.MatchType = NoMatch
+		// Normalization to an integrator for easy determination of exactMatch
+	} else if r.EX.Equal(r.SwapPrice.Mul(r.EY)) {
+		r.MatchType = ExactMatch
+	} else {
+		// Decimal Error, When calculating the Executable value, conservatively Truncated decimal
+		r.MatchType = FractionalMatch
+		if r.EX.GT(r.SwapPrice.Mul(r.EY)) {
+			r.EX = r.SwapPrice.Mul(r.EY)
+		} else if r.EX.LT(r.SwapPrice.Mul(r.EY)) {
+			r.EY = r.EX.Quo(r.SwapPrice)
 		}
 	}
 	return
