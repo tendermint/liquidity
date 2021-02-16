@@ -115,6 +115,14 @@ Available Commands:
 $ make test
 ```
 
+### Setup local testnet
+
+```bash
+# This will execute ./scripts/localnet.sh script to set up a single testnet locally
+# Note that ./data folder will contain all config, data, and keys
+$ make localnet
+```
+
 ### Protobuf, Swagger
 
 generate `*.proto` files from `proto/*.proto`
