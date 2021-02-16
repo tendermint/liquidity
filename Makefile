@@ -9,13 +9,13 @@ all: tools lint test
 
 include contrib/devtools/Makefile
 
-
 ########################################
 ### Dependencies
 
 go-mod-cache: go.sum
 	@echo "--> Download go modules to local cache"
 	@go mod download
+
 .PHONY: go-mod-cache
 
 go.sum: go.mod
@@ -52,17 +52,34 @@ benchmark:
 
 .PHONY: \
 
+########################################
+### Localnet
+
+# Run a single testnet locally
+localnet: 
+	./scripts/localnet.sh
+
+.PHONY: localnet
+
+########################################
+### Linting
+
 lint:
 	$(BINDIR)/golangci-lint run
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "*.pb.go" | xargs gofmt -d -s
 	go mod verify
+
 .PHONY: lint
 
 format:
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "*.pb.go" | xargs gofmt -w -s
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "*.pb.go" | xargs misspell -w
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "*.pb.go" | xargs goimports -w -local github.com/tendermint/liquidity
+
 .PHONY: format
+
+########################################
+### Protobuf
 
 proto-all: proto-tools proto-gen proto-swagger-gen
 
