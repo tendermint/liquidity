@@ -22,6 +22,11 @@ LiquidityPool: `0x11 | LiquidityPoolId -> amino(LiquidityPool)`
 
 LiquidityPoolByReserveAccIndex: `0x12 | ReserveAcc -> nil`
 
+GlobalLiquidityPoolIdKey: `[]byte("globalLiquidityPoolId")`
+
+ModuleName, RouterKey, StoreKey, QuerierRoute: `liquidity`
+
+PoolCoinDenomPrefix: `pool`
 
 ## LiquidityPoolBatch
 
@@ -38,29 +43,29 @@ type LiquidityPoolBatch struct {
 
 
 type BatchPoolDepositMsg struct {
-	MsgHeight uint64 // height where this message is appended to the batch
-	MsgIndex  uint64 // index of this deposit message in this liquidity pool
-	Executed  bool   // true if executed on this batch, false if not executed yet
-	Succeed   bool   // true if executed successfully on this batch, false if failed
-	ToDelete  bool   // true if ready to delete on kvstore, false if not ready to delete
-	Msg       MsgDepositToLiquidityPool
+	MsgHeight   uint64 // height where this message is appended to the batch
+	MsgIndex    uint64 // index of this deposit message in this liquidity pool
+	Executed    bool   // true if executed on this batch, false if not executed yet
+	Succeeded   bool   // true if executed successfully on this batch, false if failed
+	ToBeDelete  bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
+	Msg         MsgDepositToLiquidityPool
 }
 
 type BatchPoolWithdrawMsg struct {
-	MsgHeight uint64 // height where this message is appended to the batch
-	MsgIndex  uint64 // index of this withdraw message in this liquidity pool
-	Executed  bool   // true if executed on this batch, false if not executed yet
-	Succeed   bool   // true if executed successfully on this batch, false if failed
-	ToDelete  bool   // true if ready to delete on kvstore, false if not ready to delete
-	Msg       MsgWithdrawFromLiquidityPool
+	MsgHeight   uint64 // height where this message is appended to the batch
+	MsgIndex    uint64 // index of this withdraw message in this liquidity pool
+	Executed    bool   // true if executed on this batch, false if not executed yet
+	Succeeded   bool   // true if executed successfully on this batch, false if failed
+	ToBeDelete  bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
+	Msg         MsgWithdrawFromLiquidityPool
 }
 
 type BatchPoolSwapMsg struct {
 	MsgHeight    uint64 // height where this message is appended to the batch
 	MsgIndex     uint64 // index of this swap message in this liquidity pool
 	Executed     bool   // true if executed on this batch, false if not executed yet
-	Succeed      bool   // true if executed successfully on this batch, false if failed
-	ToDelete     bool   // true if ready to delete on kvstore, false if not ready to delete
+	Succeeded    bool   // true if executed successfully on this batch, false if failed
+	ToBeDelete   bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
 	OrderExpiryHeight int64  // swap orders are cancelled when current height is equal or higher than ExpiryHeight
 	ExchangedOfferCoin sdk.Coin // offer coin exchanged until now
 	RemainingOfferCoin sdk.Coin // offer coin currently remaining to be exchanged

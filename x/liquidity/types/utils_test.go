@@ -47,8 +47,39 @@ func TestCoinSafeSubAmount(t *testing.T) {
 }
 
 func TestGetPoolReserveAcc(t *testing.T) {
-	reserveAcc := types.GetPoolReserveAcc("denomX-denomY-1")
+	poolKey := types.GetPoolKey([]string{"denomX", "denomY"}, 1)
+	require.Equal(t, "denomX/denomY/1", poolKey)
+	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	require.NotNil(t, reserveAcc)
-	require.Equal(t, "cosmos18gvpvm3lrzx6rs6yq5c6klnye2t5qumm3v3re8", reserveAcc.String())
-	require.Equal(t, "cosmos18gvpvm3lrzx6rs6yq5c6klnye2t5qumm3v3re8", types.GetPoolCoinDenom(reserveAcc))
+	require.Equal(t, "cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3", reserveAcc.String())
+	require.Equal(t, "pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4", types.GetPoolCoinDenom(poolKey))
+}
+
+func TestGetPoolReserveAcc2(t *testing.T) {
+	poolKey := types.GetPoolKey([]string{"stake", "token"}, 1)
+	require.Equal(t, "stake/token/1", poolKey)
+	reserveAcc := types.GetPoolReserveAcc(poolKey)
+	require.NotNil(t, reserveAcc)
+	require.Equal(t, "cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u", reserveAcc.String())
+	require.Equal(t, "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07", types.GetPoolCoinDenom(poolKey))
+}
+
+func TestGetPoolReserveAcc3(t *testing.T) {
+	poolKey := types.GetPoolKey([]string{"acoin", "bcoin"}, 1)
+	require.Equal(t, "acoin/bcoin/1", poolKey)
+	reserveAcc := types.GetPoolReserveAcc(poolKey)
+	require.NotNil(t, reserveAcc)
+	require.Equal(t, "cosmos19cwhfmgmdwv2tntlr5l30cwv6njjgsyd2528kv", reserveAcc.String())
+	require.Equal(t, "pool/2E1D74ED1B6B98A5CD7F1D3F17E1CCD4E524408D5860FBD5A87CBC07C1BB9967", types.GetPoolCoinDenom(poolKey))
+}
+
+func TestIsPoolCoinDenom(t *testing.T) {
+	poolKey := types.GetPoolKey([]string{"denomX", "denomY"}, 1)
+	require.Equal(t, "denomX/denomY/1", poolKey)
+	poolCoinDenom := types.GetPoolCoinDenom(poolKey)
+	require.True(t, types.IsPoolCoinDenom(poolCoinDenom))
+	require.True(t, types.IsPoolCoinDenom("pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
+	require.False(t, types.IsPoolCoinDenom("D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
+	require.False(t, types.IsPoolCoinDenom("ibc/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
+	require.False(t, types.IsPoolCoinDenom("denomX/denomY/1"))
 }

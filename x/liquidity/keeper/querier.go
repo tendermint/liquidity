@@ -18,9 +18,9 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) (res []byte, err error) {
 		switch path[0] {
 		case types.QueryLiquidityPool:
-			return queryLiquidityPool(ctx, path[1:], req, k, legacyQuerierCdc)
+			return queryLiquidityPool(ctx, req, k, legacyQuerierCdc)
 		case types.QueryLiquidityPools:
-			return queryLiquidityPools(ctx, path[1:], req, k, legacyQuerierCdc)
+			return queryLiquidityPools(ctx, req, k, legacyQuerierCdc)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown query path of liquidity module: %s", path[0])
 		}
@@ -28,7 +28,7 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 }
 
 // return query result data of the query liquidity pool
-func queryLiquidityPool(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryLiquidityPool(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	var params types.QueryLiquidityPoolParams
 
 	if err := legacyQuerierCdc.UnmarshalJSON(req.Data, &params); err != nil {
@@ -48,7 +48,7 @@ func queryLiquidityPool(ctx sdk.Context, _ []string, req abci.RequestQuery, k Ke
 }
 
 // return query result data of the query liquidity pools
-func queryLiquidityPools(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func queryLiquidityPools(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	var params types.QueryLiquidityPoolsParams
 
 	if err := legacyQuerierCdc.UnmarshalJSON(req.Data, &params); err != nil {

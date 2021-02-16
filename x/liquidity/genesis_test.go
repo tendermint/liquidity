@@ -23,7 +23,6 @@ func TestGenesisState(t *testing.T) {
 
 	genesisExported := liquidity.ExportGenesis(ctx, simapp.LiquidityKeeper)
 
-
 	fmt.Println(genesis)
 	fmt.Println(genesisExported)
 

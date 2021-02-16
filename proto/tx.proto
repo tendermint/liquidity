@@ -4,6 +4,7 @@ package tendermint.liquidity;
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos_proto/coin.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/tendermint/liquidity/types";
 //option (gogoproto.goproto_getters_all) = false;
@@ -20,6 +21,9 @@ service Msg {
       post: "/liquidity/pools"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      deprecated: true
+    };
   };
 
   // Submit deposit to the liquidity pool batch.
@@ -27,6 +31,9 @@ service Msg {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/deposits"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      deprecated: true
     };
   };
 
@@ -36,6 +43,9 @@ service Msg {
       post: "/liquidity/pools/{pool_id}/batch/withdraws"
       body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      deprecated: true
+    };
   };
 
   // Submit swap to the liquidity pool batch.
@@ -43,6 +53,9 @@ service Msg {
     option (google.api.http) = {
       post: "/liquidity/pools/{pool_id}/batch/swaps"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      deprecated: true
     };
   };
 }
@@ -52,21 +65,41 @@ message MsgCreateLiquidityPool {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  string pool_creator_address = 1 [(gogoproto.moretags) = "yaml:\"pool_creator_address\""];
-  uint32 pool_type_index = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
-  repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\""];
+  string pool_creator_address = 1 [(gogoproto.moretags) = "yaml:\"pool_creator_address\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "account address of the origin of this message",
+      example: "\"cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun\"",
+      format: "sdk.AccAddress"
+    }];
+
+  // index of target pool type, only 1 is allowed on this version, Must match the value in the pool.
+  uint32 pool_type_index = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1\"",
+      format: "uint32"
+  }];
+
+//  // denoms of reserve coin pair of the pool
+//  repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
+//    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//      example: "[\"denomA\",\"denomB\"]"
+//    }];
+
+  // reserve coin pair of the pool to deposit
   repeated cosmos.base.v1beta1.Coin deposit_coins = 4 [(gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"deposit_coins\"",
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "[{\"denom\": \"denomA\", \"amount\": \"1000000\"}, {\"denom\": \"denomB\", \"amount\": \"2000000\"}]",
+      format: "sdk.Coins"
+    }];
 }
 
-// MsgCreateLiquidityPoolRequest is the request type for the Query/Deposits RPC method
-// with the specified pool-type-index, deposit coins for reserve
-// Currently, only the default pool-type-index 1 is available on this version
-// the number of deposit coins must be two in the pool-type-index 1.
+// MsgCreateLiquidityPoolRequest is the request type for the Msg/MsgCreateLiquidityPoolRequest RPC method.
 message MsgCreateLiquidityPoolRequest {
   BaseReq base_req = 1;
+
+  // MsgCreateLiquidityPool
   MsgCreateLiquidityPool msg = 2;
 }
 
@@ -75,29 +108,57 @@ message MsgCreateLiquidityPoolResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 
-// MsgDepositToLiquidityPool defines an sdk.Msg type that supports submitting deposit request to the batch of the liquidity pool
-// Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins for reserve
+// `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
+// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, deposit coins for reserve
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
-// processed in the endblock at once with other requests.
+// processed in the `endblock` at once with other requests.
+//
+// See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgDepositToLiquidityPool {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  string depositor_address = 1 [(gogoproto.moretags) = "yaml:\"depositor_address\""];
-  // id of target pool
-  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
+  // The publisher in which to create the book.
+  //
+  // Format: `publishers/{publisher}`
+  //
+  // Example: `publishers/1257894000000000000`
+  string depositor_address = 1 [(gogoproto.moretags) = "yaml:\"depositor_address\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "account address of the origin of this message",
+      example: "\"cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun\"",
+      format: "sdk.AccAddress"
+    }];
+  // id of the target pool
+  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1\"",
+      format: "uint64"
+    }];
+
+  // reserve coin pair of the pool to deposit
   repeated cosmos.base.v1beta1.Coin deposit_coins = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"deposit_coins\"",
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "[{\"denom\": \"denomA\", \"amount\": \"1000000\"}, {\"denom\": \"denomB\", \"amount\": \"2000000\"}]",
+      format: "sdk.Coins"
+    }];
+
 }
 
 // MsgDepositToLiquidityPoolRequest is the request type for the Msg/DepositToLiquidityPool RPC method.
 message MsgDepositToLiquidityPoolRequest {
   BaseReq base_req = 1;
-  // id of target pool
-  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
+  // id of the target pool
+  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1\"",
+      format: "uint64"
+    }];
+
+  // MsgDepositToLiquidityPool
   MsgDepositToLiquidityPool msg = 3;
 }
 
@@ -106,28 +167,48 @@ message MsgDepositToLiquidityPoolResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 
-// MsgWithdrawFromLiquidityPool defines an sdk.Msg type that supports submitting withdraw request to the batch of the liquidity pool
-// Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
+// `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
+// Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
-// processed in the endblock at once with other requests.
+// processed in the `endblock` at once with other requests.
+//
+// See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgWithdrawFromLiquidityPool {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  string withdrawer_address = 1 [ (gogoproto.moretags) = "yaml:\"withdrawer_address\""];
-  // id of target pool
-  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
+  string withdrawer_address = 1 [ (gogoproto.moretags) = "yaml:\"withdrawer_address\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "account address of the origin of this message",
+      example: "\"cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun\"",
+      format: "sdk.AccAddress"
+    }];
+  // id of the target pool
+  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1\"",
+      format: "uint64"
+    }];
   cosmos.base.v1beta1.Coin pool_coin = 3 [
     (gogoproto.nullable) = false,
-    (gogoproto.moretags) = "yaml:\"pool_coin\""
-  ];
+    (gogoproto.moretags) = "yaml:\"pool_coin\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "{\"denom\": \"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\", \"amount\": \"1000\"}",
+      format: "sdk.Coin"
+    }];
 }
 
 // MsgWithdrawFromLiquidityPoolRequest is the request type for the Query/WithdrawFromLiquidityPool RPC method.
 message MsgWithdrawFromLiquidityPoolRequest {
   BaseReq base_req = 1;
-  // id of target pool
-  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
+  // id of the target pool
+  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1\"",
+      format: "uint64"
+    }];
+
+  // MsgWithdrawFromLiquidityPool
   MsgWithdrawFromLiquidityPool msg = 3;
 }
 
@@ -136,49 +217,95 @@ message MsgWithdrawFromLiquidityPoolResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 
-// MsgSwap defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
-// Swap offer to the Liquidity pool with the specified pool-id, pool-type-index, swap-type,
-// demand-coin-denom with the coin and the price you're offering
+// `MsgSwap` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
+// Swap offer to the Liquidity pool with the specified `pool_id`, `pool_type_index`, `swap_type`,
+// `demand_coin_denom` with the coin and the price you're offering
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
-// processed in the endblock at once with other requests
+// processed in the `endblock` at once with other requests
 // You should request the same each field as the pool
-// Currently, only the default swap-type 1 is available on this version
-// The detailed swap algorithm can be found here
-// https://github.com/tendermint/liquidity .
+// Currently, only the default `swap_type`1 is available on this version
+// The detailed swap algorithm can be found here.
+//
+// See: https://github.com/tendermint/liquidity/tree/develop/doc
+// https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgSwap {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
   // address of swap requester
-  string swap_requester_address = 1 [(gogoproto.moretags) = "yaml:\"swap_requester_address\""];
-  // id of target pool
-  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
-  // index of target pool type, only 1 is allowed on this version, Must match the value in the pool.
-  uint32 pool_type_index = 3 [(gogoproto.moretags) = "yaml:\"pool_type_index\""];
+  string swap_requester_address = 1 [(gogoproto.moretags) = "yaml:\"swap_requester_address\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "account address of the origin of this message",
+      example: "\"cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun\"",
+      format: "sdk.AccAddress"
+    }];
+  // id of the target pool
+  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1\"",
+      format: "uint64"
+    }];
+
+//  // index of target pool type, only 1 is allowed on this version, Must match the value in the pool.
+//  uint32 pool_type_index = 3 [(gogoproto.moretags) = "yaml:\"pool_type_index\"",
+//    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//      example: "\"1\"",
+//      format: "uint32"
+//    }];
+
   // id of swap type type, only 1 is allowed on this version, Must match the value in the pool.
-  uint32 swap_type = 4 [(gogoproto.moretags) = "yaml:\"swap_type\""];
+  uint32 swap_type = 3 [(gogoproto.moretags) = "yaml:\"swap_type\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1\"",
+      format: "uint32"
+    }];
 
   // offer sdk.coin for the swap request, Must match the denom in the pool.
-  cosmos.base.v1beta1.Coin offer_coin = 5 [
-     (gogoproto.nullable)     = false,
-     (gogoproto.moretags)     = "yaml:\"offer_coin\""
-  ];
+  cosmos.base.v1beta1.Coin offer_coin = 4 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.moretags)     = "yaml:\"offer_coin\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "{\"denom\": \"denomA\", \"amount\": \"1000000\"}",
+      format: "sdk.Coin"
+    }];
 
   // denom of demand coin to be exchanged on the swap request, Must match the denom in the pool.
-  string demand_coin_denom = 6 [(gogoproto.moretags) = "yaml:\"demand_coin_denom\""];
+  string demand_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"demand_coin_denom\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"denomB\"",
+    }];
+
+  // offer coin fee for pay fees in half offer coin
+  cosmos.base.v1beta1.Coin offer_coin_fee = 6 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.moretags)     = "yaml:\"offer_coin_fee\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "{\"denom\": \"denomA\", \"amount\": \"5000\"}",
+      format: "sdk.Coin"
+      }
+  ];
 
   // limit order price for this offer
   bytes order_price = 7 [
     (gogoproto.moretags)   = "yaml:\"order_price\"",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable)   = false
-  ];
+    (gogoproto.nullable)   = false,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1.1\"",
+      format: "sdk.Dec"
+    }];
 }
 
 // MsgSwapRequest is the request type for the Query/Swap RPC method.
 message MsgSwapRequest {
   BaseReq base_req = 1;
-  // id of target pool
-  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id"];
+  // id of the target pool
+  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1\"",
+      format: "uint64"
+    }];
+
+  // MsgSwap
   MsgSwap msg = 3;
 }
 
@@ -193,62 +320,163 @@ message BaseReq {
   option (gogoproto.goproto_getters) = false;
 
   // Sender address or Keybase name to generate a transaction
-  string from = 1 [(gogoproto.moretags) = "yaml:\"from\""];
-  // example: Sent via Cosmos Voyager
-  string memo = 2 [(gogoproto.moretags) = "yaml:\"memo\""];
-  // example: Cosmos-Hub
-  string chain_id = 3 [(gogoproto.moretags) = "yaml:\"chain_id\""];
-  // example: 0
-  uint64 account_number = 4 [(gogoproto.moretags) = "yaml:\"account_number\""];
-  uint64 sequence = 5 [(gogoproto.moretags) = "yaml:\"sequence\""];
-  uint64 timeout_height = 6 [(gogoproto.moretags) = "yaml:\"timeout_height\""];
+  string from = 1 [(gogoproto.moretags) = "yaml:\"from\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\"",
+      format: "sdk.AccAddress"
+    }];
+
+  // Memo to send along with transaction
+  string memo = 2 [(gogoproto.moretags) = "yaml:\"memo\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"Sent via Cosmos Voyager\"",
+    }];
+
+  // Name or address of private key with which to sign
+  string chain_id = 3 [(gogoproto.moretags) = "yaml:\"chain_id\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"Cosmos-Hub\"",
+    }];
+
+  // The account number of the signing account (offline mode only)
+  uint64 account_number = 4 [(gogoproto.moretags) = "yaml:\"account_number\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1421\"",
+      format: "uint64"
+    }];
+
+  // The sequence number of the signing account (offline mode only)
+  uint64 sequence = 5 [(gogoproto.moretags) = "yaml:\"sequence\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"13\"",
+      format: "uint64"
+    }];
+
+  // Set a block timeout height to prevent the tx from being committed past a certain height
+  uint64 timeout_height = 6 [(gogoproto.moretags) = "yaml:\"timeout_height\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"200\"",
+      format: "uint64"
+    }];
+
+  // Fees to pay along with transaction
   repeated cosmos.base.v1beta1.Coin fees = 7
-  [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  [(gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "[{\"denom\": \"uatom\", \"amount\": \"10\"}]",
+      format: "sdk.Coins"
+    }
+  ];
+
+  // Gas prices in decimal format to determine the transaction fee
   repeated cosmos.base.v1beta1.DecCoin gas_prices = 8 [
     (gogoproto.moretags)     = "yaml:\"gas_prices\"",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
-    (gogoproto.nullable)     = false
+    (gogoproto.nullable)     = false,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "[{\"denom\": \"uatom\", \"amount\": \"0.1\"}]",
+      format: "sdk.DecCoins"
+    }
   ];
-  // example: 200000
-  uint64 gas = 9 [(gogoproto.moretags) = "yaml:\"gas\""];
-  // example: 1.2
-  string gas_adjustment = 10 [(gogoproto.moretags) = "yaml:\"gas_adjustment\""];
+
+  // Gas amount to determine the transaction fee
+  uint64 gas = 9 [(gogoproto.moretags) = "yaml:\"gas\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"200000\"",
+      format: "uint64"
+    }];
+
+  // adjustment factor to be multiplied against the estimate returned by the tx simulation; if the gas limit is set manually this flag is ignored
+  string gas_adjustment = 10 [(gogoproto.moretags) = "yaml:\"gas_adjustment\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1.2\"",
+      format: "sdk.Dec"
+    }];
+
   // Estimate gas for a transaction (cannot be used in conjunction with generate_only)
-  // example: false
-  bool simulate = 11 [(gogoproto.moretags) = "yaml:\"simulate\""];
+  bool simulate = 11 [(gogoproto.moretags) = "yaml:\"simulate\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "false",
+    }];
 }
 
 // Fee struct of cosmos-sdk
 message Fee {
-  uint64 gas = 1;
+  uint64 gas = 1 [(gogoproto.moretags) = "yaml:\"gas\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"200000\"",
+      format: "uint64"
+  }];
+
   // amount is the amount of coins to be paid as a fee
   repeated cosmos.base.v1beta1.Coin amount = 2
-  [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  [(gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "[{\"denom\": \"uatom\", \"amount\": \"10\"}]",
+      format: "sdk.Coins"
+    }
+  ];
 }
 
 // PubKey struct of tendermint/cosmos-sdk
 message PubKey {
-  // example: tendermint/PubKeySecp256k1
-  string type = 1 [(gogoproto.moretags) = "yaml:\"type\""];
-  // example: Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH
-  string value = 2 [(gogoproto.moretags) = "yaml:\"value\""];
+  // type of pubkey algorithm
+  string type = 1 [(gogoproto.moretags) = "yaml:\"type\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"tendermint/PubKeySecp256k1\"",
+    }];
+
+  // value of pubkey
+  string value = 2 [(gogoproto.moretags) = "yaml:\"value\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"Avz04VhtKJh8ACCVzlI8aTosGy0ikFXKIVHQ3jKMrosH\"",
+    }];
 }
 
 // signature struct of tendermint/cosmos-sdk
 message Signature {
-  // example: MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=
-  string signature = 1 [(gogoproto.moretags) = "yaml:\"signature\""];
+  // signature base64
+  string signature = 1 [(gogoproto.moretags) = "yaml:\"signature\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"MEUCIQD02fsDPra8MtbRsyB1w7bqTM55Wu138zQbFcWx4+CFyAIge5WNPfKIuvzBZ69MyqHsqD8S1IwiEp+iUb6VSdtlpgY=\"",
+    }];
+
+  // PubKey
   PubKey pub_key = 2 [(gogoproto.moretags) = "yaml:\"pub_key\""];
-  // example: 0
-  uint64 account_number = 3 [(gogoproto.moretags) = "yaml:\"account_number\""];
-  // example: 0
-  uint64 sequence = 4 [(gogoproto.moretags) = "yaml:\"sequence\""];
+
+  // The account number of the signing account (offline mode only)
+  uint64 account_number = 3 [(gogoproto.moretags) = "yaml:\"account_number\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1421\"",
+      format: "uint64"
+    }];
+
+  // The sequence number of the signing account (offline mode only)
+  uint64 sequence = 4 [(gogoproto.moretags) = "yaml:\"sequence\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"13\"",
+      format: "uint64"
+    }];
+
 }
 
 // Base response struct of result of the requested Tx, standard of tendermint/cosmos-sdk
 message StdTx {
+  // Msgs
   repeated string msg = 1 [(gogoproto.moretags) = "yaml:\"msg\""];
+//  repeated string msg = 1 [(gogoproto.moretags) = "yaml:\"msg\"",
+//    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//      example: "[\"string\"]"
+//    }];
+
+  // Fee
   Fee fee = 2 [(gogoproto.moretags) = "yaml:\"fee\""];
+
+  // Memo of the transaction
   string memo = 3 [(gogoproto.moretags) = "yaml:\"memo\""];
+
+  // Signature
   Signature signature = 4 [(gogoproto.moretags) = "yaml:\"signature\""];
 }

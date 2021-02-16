@@ -20,5 +20,4 @@ Transactions are made through `escrow`, and refunds are made for cancellations, 
 
 ## 1-B) Set states for each message according to the results
 
-After `1-A`, Update the state of each `LiquidityPoolBatch{*action}Msg` according to the results. Even If the message is completed or expired, Set the `ToDelete` state value as true instead of deleting the message directly from the `end-block` and then delete the messages which have `ToDelete` state from the begin-block in the next block, so that each message with result state in the block can be stored to kvstore, for the past messages with result state can be searched when kvstore is not pruning.
- 
+After `1-A`, Update the state of each `LiquidityPoolBatch{*action}Msg` according to the results. Even If the message is completed or expired, Set the `ToBeDelete` state value as true instead of deleting the message directly from the `end-block` and then delete the messages which have `ToBeDelete` state from the begin-block in the next block, so that each message with result state in the block can be stored to kvstore, for the past messages with result state can be searched when kvstore is not pruning.

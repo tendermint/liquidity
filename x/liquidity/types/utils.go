@@ -1,8 +1,11 @@
 package types
 
 import (
+	"crypto/sha256"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
+	"strings"
 )
 
 // Get denom pair alphabetical ordered
@@ -19,16 +22,29 @@ func GetPoolReserveAcc(poolKey string) sdk.AccAddress {
 	return sdk.AccAddress(crypto.AddressHash([]byte(poolKey)))
 }
 
-// TODO: tmp denom rule, It will fixed on milestone 2
-
 // Generation absolute denomination of the Pool Coin. This rule will be changed on next milestone
-func GetPoolCoinDenom(reserveAcc sdk.AccAddress) string {
-	return reserveAcc.String()
+func GetPoolCoinDenom(poolKey string) string {
+	return fmt.Sprintf("%s/%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(poolKey)))
 }
 
-// check is poolcoin or not when poolcoin denom rule fixed
-//func IsPoolCoin(coin sdk.Coin) bool {
-//}
+// check is the denom poolcoin or not, need to additional checking the reserve account is existed
+func IsPoolCoinDenom(denom string) bool {
+	if err := sdk.ValidateDenom(denom); err != nil {
+		return false
+	}
+
+	denomSplit := strings.SplitN(denom, "/", 2)
+	switch {
+	case strings.TrimSpace(denom) == "",
+		len(denomSplit) == 1 && denomSplit[0] == PoolCoinDenomPrefix,
+		len(denomSplit) == 2 && (denomSplit[0] != PoolCoinDenomPrefix || strings.TrimSpace(denomSplit[1]) == ""):
+		return false
+
+	case denomSplit[0] == denom && strings.TrimSpace(denom) != "":
+		return false
+	}
+	return true
+}
 
 // Find A string is exists in the given list
 func StringInSlice(a string, list []string) bool {
@@ -62,4 +78,16 @@ func CoinSafeSubAmount(coinA sdk.Coin, coinBamt sdk.Int) sdk.Coin {
 //		coinA = coinA.Sub(sdk.NewCoin(coinA.Denom, coinB.Amount))
 //	}
 //	return resCoin
+//}
+
+//WIP for check equal approximately OfferCoinFee, testcode
+//func EqualApprox(a , b sdk.Dec) bool {
+//	fmt.Println(a.Quo(b))
+//	fmt.Println(a.Quo(b).Sub(sdk.OneDec()))
+//	fmt.Println(a.Quo(b).Sub(sdk.OneDec()).Abs())
+//	if a.Quo(b).Sub(sdk.OneDec()).Abs().LT(sdk.NewDecWithPrec(1, 10)){
+//		return true
+//	} else {
+//		return false
+//	}
 //}

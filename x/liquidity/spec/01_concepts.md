@@ -4,7 +4,6 @@ order: 1
 
 # Concepts
 
-
 ## The Liquidity module on the Cosmos-SDK
 
 The liquidity module serves AMM style decentralized exchange on the Cosmos-SDK. AMM style exchange provides unique coin swap model for its users, liquidity providers and swap requestors.
@@ -41,3 +40,21 @@ Coin swap requestors pay swap fees to liquidity pools, which are accumulated in 
 
 Coin swaps are executed for every batch, which is composed of one or more consecutive blocks. The size of each batch can be decided by governance parameters and the algorithm in the liquidity module.
 
+### Pool Identification
+
+#### PoolKey
+
+- `reserveCoinDenoms1/reserveCoinDenoms2/poolTypeIndex`
+- string join with reserve coin denoms and `poolTypeIndex` using separator `/`
+- e.g. `denomX/denomY/1`
+
+#### PoolReserveAcc
+
+- `sdk.AccAddress(crypto.AddressHash([]byte(PoolKey)))`
+- e.g. `cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3` (`D35A0CC16EE598F90B044CE296A405BA9C381E38`)
+
+#### PoolCoinDenom
+
+- `fmt.Sprintf("%s/%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(PoolKey)))`
+- PoolCoinDenomPrefix: `pool/`
+- e.g. `pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4`

@@ -96,7 +96,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 			if tc.expPass {
 				suite.NoError(err)
 				suite.NotNil(resp)
-				suite.Equal(tc.numPools, len(resp.LiquidityPoolsResponse))
+				suite.Equal(tc.numPools, len(resp.Pools))
 				suite.Equal(uint64(len(pools)), resp.Pagination.Total)
 
 				if tc.hasNext {
@@ -143,7 +143,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPoolBatch() {
 			res, err := queryClient.LiquidityPoolBatch(gocontext.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
-				suite.True(batch.Equal(&res.LiquidityPoolBatch))
+				suite.True(batch.Equal(&res.Batch))
 			} else {
 				suite.Error(err)
 				suite.Nil(res)
@@ -176,7 +176,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 		{"returns all the pool batch deposit Msgs",
 			func() {
 				req = &types.QueryPoolBatchDepositMsgsRequest{
-					PoolId: suite.batches[1].PoolId,
+					PoolId: suite.batches[0].PoolId,
 				}
 			},
 			true,
@@ -211,7 +211,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 			if tc.expPass {
 				suite.NoError(err)
 				suite.NotNil(resp)
-				suite.Equal(tc.numMsgs, len(resp.DepositMsgs))
+				suite.Equal(tc.numMsgs, len(resp.Deposits))
 				suite.Equal(uint64(len(msgs)), resp.Pagination.Total)
 
 				if tc.hasNext {
@@ -250,7 +250,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 		{"returns all the pool batch withdraw Msgs",
 			func() {
 				req = &types.QueryPoolBatchWithdrawMsgsRequest{
-					PoolId: suite.batches[1].PoolId,
+					PoolId: suite.batches[0].PoolId,
 				}
 			},
 			true,
@@ -285,7 +285,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 			if tc.expPass {
 				suite.NoError(err)
 				suite.NotNil(resp)
-				suite.Equal(tc.numMsgs, len(resp.WithdrawMsgs))
+				suite.Equal(tc.numMsgs, len(resp.Withdraws))
 				suite.Equal(uint64(len(msgs)), resp.Pagination.Total)
 
 				if tc.hasNext {
@@ -324,7 +324,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
 		{"returns all the pool batch swap Msgs",
 			func() {
 				req = &types.QueryPoolBatchSwapMsgsRequest{
-					PoolId: suite.batches[1].PoolId,
+					PoolId: suite.batches[0].PoolId,
 				}
 			},
 			true,
@@ -359,7 +359,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
 			if tc.expPass {
 				suite.NoError(err)
 				suite.NotNil(resp)
-				suite.Equal(tc.numMsgs, len(resp.SwapMsgs))
+				suite.Equal(tc.numMsgs, len(resp.Swaps))
 				suite.Equal(uint64(len(msgs)), resp.Pagination.Total)
 
 				if tc.hasNext {

@@ -6,13 +6,13 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"net"
 	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 	tmconfig "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/crypto"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/types"
@@ -148,7 +148,7 @@ func InitTestnet(
 	}
 
 	nodeIDs := make([]string, numValidators)
-	valPubKeys := make([]crypto.PubKey, numValidators)
+	valPubKeys := make([]cryptotypes.PubKey, numValidators)
 
 	simappConfig := srvconfig.DefaultConfig()
 	simappConfig.MinGasPrices = minGasPrices
@@ -266,7 +266,7 @@ func InitTestnet(
 			WithKeybase(kb).
 			WithTxConfig(clientCtx.TxConfig)
 
-		if err := tx.Sign(txFactory, nodeDirName, txBuilder); err != nil {
+		if err := tx.Sign(txFactory, nodeDirName, txBuilder, true); err != nil {
 			return err
 		}
 
@@ -347,7 +347,7 @@ func initGenFiles(
 
 func collectGenFiles(
 	clientCtx client.Context, nodeConfig *tmconfig.Config, chainID string,
-	nodeIDs []string, valPubKeys []crypto.PubKey, numValidators int,
+	nodeIDs []string, valPubKeys []cryptotypes.PubKey, numValidators int,
 	outputDir, nodeDirPrefix, nodeDaemonHome string, genBalIterator banktypes.GenesisBalancesIterator,
 ) error {
 
