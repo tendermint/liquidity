@@ -833,9 +833,6 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 //}
 
 func (k Keeper) ValidateLiquidityPoolMetadata(ctx sdk.Context, pool *types.LiquidityPool, metaData *types.LiquidityPoolMetadata) error {
-	if !metaData.ReserveCoins.Sort().IsEqual(metaData.ReserveCoins) {
-		return types.ErrBadOrderingReserveCoin
-	}
 	if err := metaData.ReserveCoins.Validate(); err != nil {
 		return err
 	}
