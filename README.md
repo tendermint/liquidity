@@ -115,7 +115,13 @@ Available Commands:
 $ make test
 ```
 
-## Setup local Testnet
+### Setup local testnet
+
+```bash
+# This will execute ./scripts/localnet.sh script to set up a single testnet locally
+# Note that ./data folder will contain all config, data, and keys
+$ make localnet
+```
 
 Example of setup local testnet with test validator, user account
 
