@@ -48,6 +48,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
 	result := types.MatchOrderbook(X, Y, currentYPriceOverX, orderBook)
+	resultDec := types.MatchOrderbookDec(X, Y, currentYPriceOverX, orderBook)
+	types.BatchResultDecimalDelta(result, resultDec)
 
 	// find order match, calculate pool delta with the total x, y amount for the invariant check
 	var matchResultXtoY, matchResultYtoX []types.MatchResult

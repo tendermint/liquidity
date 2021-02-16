@@ -236,15 +236,29 @@ func MatchOrderbook(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result Bat
 	priceDirection := GetPriceDirection(currentPrice, orderBook)
 
 	if priceDirection == Stay {
-		batchResult := CalculateMatchStay(currentPrice, orderBook)
-		batchResultDec := CalculateMatchStayDec(currentPrice, orderBook)
-		BatchResultDecimalDelta(batchResult, batchResultDec)
-		return batchResult
+		return CalculateMatchStay(currentPrice, orderBook)
 	} else { // Increase, Decrease
 		if priceDirection == Decrease {
 			orderBook.Reverse()
 		}
 		return CalculateMatch(priceDirection, X, Y, currentPrice, orderBook)
+	}
+}
+
+// The price and coins of swap messages in orderbook are calculated
+// to derive match result with the price direction.
+func MatchOrderbookDec(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResultDec) {
+	result = NewBatchResultDec()
+	orderBook.Sort()
+	priceDirection := GetPriceDirection(currentPrice, orderBook)
+
+	if priceDirection == Stay {
+		return CalculateMatchStayDec(currentPrice, orderBook)
+	} else { // Increase, Decrease
+		if priceDirection == Decrease {
+			orderBook.Reverse()
+		}
+		return CalculateMatchDec(priceDirection, X, Y, currentPrice, orderBook)
 	}
 }
 
@@ -631,8 +645,6 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 		} else {
 			orderPrice := order.OrderPrice
 			r := CalculateSwap(direction, X, Y, orderPrice, lastOrderPrice, orderBook)
-			rDec := CalculateSwapDec(direction, X, Y, orderPrice, lastOrderPrice, orderBook)
-			BatchResultDecimalDelta(r, rDec)
 			// Check to see if it exceeds a value that can be a decimal error
 			if (direction == Increase && r.PoolY.ToDec().Sub(r.EX.ToDec().Quo(r.SwapPrice)).GTE(sdk.OneDec())) ||
 				(direction == Decrease && r.PoolX.ToDec().Sub(r.EY.ToDec().Mul(r.SwapPrice)).GTE(sdk.OneDec())) {
@@ -659,6 +671,52 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 	// Invariant Check
 	r := maxScenario
 	tmpInvariant := r.EX.Add(r.PoolX).ToDec().Sub(r.EY.Add(r.PoolY).ToDec().Mul(r.SwapPrice))
+	if tmpInvariant.GT(r.SwapPrice) && tmpInvariant.GT(sdk.OneDec()) {
+		panic("maxScenario CalculateSwap")
+	}
+
+	maxScenario.PriceDirection = direction
+	return maxScenario
+}
+
+
+// Calculates the batch results with the logic for each direction
+func CalculateMatchDec(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBook) (maxScenario BatchResultDec) {
+	lastOrderPrice := currentPrice
+	var matchScenarioList []BatchResultDec
+	for _, order := range orderBook {
+		if (direction == Increase && order.OrderPrice.LT(currentPrice)) ||
+			(direction == Decrease && order.OrderPrice.GT(currentPrice)) {
+			continue
+		} else {
+			orderPrice := order.OrderPrice
+			r := CalculateSwapDec(direction, X, Y, orderPrice, lastOrderPrice, orderBook)
+			// Check to see if it exceeds a value that can be a decimal error
+			if (direction == Increase && r.PoolY.Sub(r.EX.Quo(r.SwapPrice)).GTE(sdk.OneDec())) ||
+				(direction == Decrease && r.PoolX.Sub(r.EY.Mul(r.SwapPrice)).GTE(sdk.OneDec())) {
+				continue
+			}
+			matchScenarioList = append(matchScenarioList, r)
+			lastOrderPrice = orderPrice
+		}
+	}
+	maxScenario = NewBatchResultDec()
+	maxScenario.TransactAmt = sdk.ZeroDec()
+	for _, s := range matchScenarioList {
+		MEX, MEY := GetMustExecutableAmt(s.SwapPrice, orderBook)
+		if s.EX.GTE(MEX.ToDec()) && s.EY.GTE(MEY.ToDec()) {
+			if s.MatchType == ExactMatch && s.TransactAmt.IsPositive() {
+				maxScenario = s
+				break
+			} else if s.TransactAmt.GT(maxScenario.TransactAmt) {
+				maxScenario = s
+			}
+		}
+	}
+
+	// Invariant Check
+	r := maxScenario
+	tmpInvariant := r.EX.Add(r.PoolX).Sub(r.EY.Add(r.PoolY).Mul(r.SwapPrice))
 	if tmpInvariant.GT(r.SwapPrice) && tmpInvariant.GT(sdk.OneDec()) {
 		panic("maxScenario CalculateSwap")
 	}
