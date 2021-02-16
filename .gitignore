@@ -50,3 +50,6 @@ dependency-graph.png
 *.aux
 *.out
 *.synctex.gz
+
+# Localnet
+data
