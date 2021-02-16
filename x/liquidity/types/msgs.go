@@ -45,6 +45,9 @@ func (msg MsgCreateLiquidityPool) Type() string { return TypeMsgCreateLiquidityP
 
 // ValidateBasic implements Msg.
 func (msg MsgCreateLiquidityPool) ValidateBasic() error {
+	if 1 > msg.PoolTypeIndex {
+		return ErrBadPoolTypeIndex
+	}
 	if msg.PoolCreatorAddress == "" {
 		return ErrEmptyPoolCreatorAddr
 	}

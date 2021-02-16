@@ -9,11 +9,6 @@ import (
 
 // InitGenesis new liquidity genesis
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data types.GenesisState) {
-	keeper.SetParams(ctx, data.Params)
-	// validate logic on module.go/InitGenesis
-	for _, record := range data.LiquidityPoolRecords {
-		keeper.SetLiquidityPoolRecord(ctx, &record)
-	}
 	keeper.InitGenesis(ctx, data)
 }
 

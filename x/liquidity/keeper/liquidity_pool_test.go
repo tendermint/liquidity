@@ -47,9 +47,12 @@ func TestCreateLiquidityPool(t *testing.T) {
 	require.Equal(t, deposit, depositBalance)
 
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
-
 	err, _ := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
+
+	invalidMsg := types.NewMsgCreateLiquidityPool(addrs[0], 0, depositBalance)
+	err, _ = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, invalidMsg)
+	require.Error(t, err, types.ErrBadPoolTypeIndex)
 
 	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
 	require.Equal(t, 1, len(lpList))
