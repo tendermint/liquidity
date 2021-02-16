@@ -819,9 +819,6 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 		}
 	}
 	outputs = outputs[:newI]
-	if err := banktypes.ValidateInputsOutputs(inputs, outputs); err != nil {
-		return err
-	}
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		return err
 	}
