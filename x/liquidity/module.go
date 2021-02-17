@@ -1,24 +1,24 @@
 package liquidity
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/types/module"
-)
-
-// DONTCOVER
-
-import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
 
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
-	"github.com/cosmos/cosmos-sdk/client"
+	// DONTCOVER
+
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
+
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -27,6 +27,7 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/simulation"
 	"github.com/tendermint/liquidity/x/liquidity/types"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -40,8 +41,6 @@ var (
 type AppModuleBasic struct {
 	cdc codec.Marshaler
 }
-
-var _ module.AppModuleBasic = AppModuleBasic{}
 
 // Name returns the liquidity module's name.
 func (AppModuleBasic) Name() string { return types.ModuleName }
