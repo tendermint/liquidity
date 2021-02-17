@@ -9,8 +9,13 @@ GRPCPORT=9090
 MNEMONIC1="guard cream sadness conduct invite crumble clock pudding hole grit liar hotel maid produce squeeze return argue turtle know drive eight casino maze host"
 MNEMONIC2="friend excite rough reopen cover wheel spoon convince island path clean monkey play snow number walnut pull lock shoot hurry dream divide concert discover"
 
-# Stop liquidityd if already running and remove previous data
-killall liquidityd
+# Stop liquidityd if it is already running 
+if pgrep -x "$BINARY" >/dev/null; then
+    echo "Terminating $BINARY..."
+    killall liquidityd
+fi
+
+# Remove previous data
 rm -rf $CHAINDIR/$CHAINID
 
 # Add directory for chain, exit if error
@@ -30,7 +35,7 @@ $BINARY --home $CHAINDIR/$CHAINID add-genesis-account $($BINARY keys show valida
 $BINARY --home $CHAINDIR/$CHAINID add-genesis-account $($BINARY keys show user1 --keyring-backend test -a) 1000000000stake,1000000000atom
 
 echo "Creating and collecting gentx..."
-$BINARY --home $CHAINDIR/$CHAINID gentx validator --amount 1000000000stake --chain-id $CHAINID --keyring-backend test
+$BINARY --home $CHAINDIR/$CHAINID gentx validator 1000000000stake --chain-id $CHAINID --keyring-backend test
 $BINARY --home $CHAINDIR/$CHAINID collect-gentxs
 
 # Set proper defaults and change ports (MacOS)
