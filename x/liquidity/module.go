@@ -43,15 +43,16 @@ type AppModuleBasic struct {
 }
 
 // Name returns the liquidity module's name.
-func (AppModuleBasic) Name() string { return types.ModuleName }
+func (AppModuleBasic) Name() string {
+	return types.ModuleName
+}
 
 // RegisterLegacyAminoCodec registers the gov module's types for the given codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	types.RegisterLegacyAminoCodec(cdc)
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the liquidity
-// module.
+// DefaultGenesis returns default genesis state as raw bytes for the liquidity module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
@@ -102,11 +103,6 @@ type AppModule struct {
 	bankKeeper    types.BankKeeper
 }
 
-// RegisterLegacyAminoCodec registers the gov module's types for the given codec.
-func (AppModule) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
-}
-
 // NewAppModule creates a new AppModule object
 func NewAppModule(cdc codec.Marshaler, keeper keeper.Keeper, ak types.AccountKeeper, bk types.BankKeeper) AppModule {
 	return AppModule{
@@ -118,7 +114,14 @@ func NewAppModule(cdc codec.Marshaler, keeper keeper.Keeper, ak types.AccountKee
 }
 
 // Name returns the liquidity module's name.
-func (AppModule) Name() string { return types.ModuleName }
+func (AppModule) Name() string {
+	return types.ModuleName
+}
+
+// RegisterLegacyAminoCodec registers the gov module's types for the given codec.
+func (AppModule) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	types.RegisterLegacyAminoCodec(cdc)
+}
 
 // RegisterInvariants registers the liquidity module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
@@ -131,7 +134,9 @@ func (am AppModule) Route() sdk.Route {
 }
 
 // QuerierRoute returns the liquidity module's querier route name.
-func (AppModule) QuerierRoute() string { return types.QuerierRoute }
+func (AppModule) QuerierRoute() string {
+	return types.QuerierRoute
+}
 
 // LegacyQuerierHandler returns the liquidity module sdk.Querier.
 func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
@@ -151,8 +156,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data j
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the liquidity
-// module.
+// ExportGenesis returns the exported genesis state as raw bytes for the liquidity module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
 	return cdc.MustMarshalJSON(gs)
@@ -163,8 +167,7 @@ func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	BeginBlocker(ctx, am.keeper)
 }
 
-// EndBlock returns the end blocker for the liquidity module. It returns no validator
-// updates.
+// EndBlock returns the end blocker for the liquidity module. It returns no validator updates.
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	EndBlocker(ctx, am.keeper)
 	return []abci.ValidatorUpdate{}
