@@ -1,8 +1,8 @@
 package liquidity_test
 
 import (
-	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
@@ -21,10 +21,46 @@ func TestGenesisState(t *testing.T) {
 
 	liquidity.InitGenesis(ctx, simapp.LiquidityKeeper, *genesis)
 
+	defaultGenesisExported := liquidity.ExportGenesis(ctx, simapp.LiquidityKeeper)
+
+	require.Equal(t, genesis, defaultGenesisExported)
+
+	// define test denom X, Y for Liquidity Pool
+	denomX, denomY := types.AlphabeticalDenomPair("denomX", "denomY")
+
+	X := sdk.NewInt(1000000000)
+	Y := sdk.NewInt(1000000000)
+
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+
+	// begin block, init
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, true)
+
+	// next block
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	price, _ := sdk.NewDecFromStr("1.1")
+	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
+	orderPriceList := []sdk.Dec{price}
+	orderAddrList := addrs[1:2]
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, true)
+
 	genesisExported := liquidity.ExportGenesis(ctx, simapp.LiquidityKeeper)
+	bankGenesisExported := simapp.BankKeeper.ExportGenesis(ctx)
 
-	fmt.Println(genesis)
-	fmt.Println(genesisExported)
+	simapp2 := app.Setup(false)
 
-	require.Equal(t, genesis, genesisExported)
+	ctx2 := simapp2.BaseApp.NewContext(false, tmproto.Header{})
+	ctx2 = ctx2.WithBlockHeight(1)
+
+	simapp2.BankKeeper.InitGenesis(ctx2, bankGenesisExported)
+	liquidity.InitGenesis(ctx2, simapp2.LiquidityKeeper, *genesisExported)
+	simapp2GenesisExported := liquidity.ExportGenesis(ctx2, simapp2.LiquidityKeeper)
+	require.Equal(t, genesisExported, simapp2GenesisExported)
 }
