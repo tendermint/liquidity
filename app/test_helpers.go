@@ -436,7 +436,7 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 		if r.Intn(2) == 1 {
 			orderAmt = X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
 		} else {
-			orderAmt = sdk.NewDecFromIntWithPrec(GetRandRange(r, 1000, 10000), 0)
+			orderAmt = sdk.NewDecFromIntWithPrec(GetRandRange(r, 1100, 10000), 0)
 		}
 		orderCoin := sdk.NewCoin(denomX, orderAmt.RoundInt())
 
@@ -454,7 +454,7 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 		if r.Intn(2) == 1 {
 			orderAmt = Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
 		} else {
-			orderAmt = sdk.NewDecFromIntWithPrec(GetRandRange(r, 1000, 10000), 0)
+			orderAmt = sdk.NewDecFromIntWithPrec(GetRandRange(r, 1100, 10000), 0)
 		}
 		orderCoin := sdk.NewCoin(denomY, orderAmt.RoundInt())
 

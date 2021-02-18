@@ -13,10 +13,11 @@ import (
 )
 
 func TestSimulationSwapExecution(t *testing.T) {
-	for i := 0; i < 20; i++ {
-		if i%10 == 0 {
-			fmt.Println("TestSimulationSwapExecution count", i)
-		}
+	for i := 0; i < 2000; i++ {
+
+		//if i%10 == 0 {
+		fmt.Println("--------TestSimulationSwapExecution count", i)
+		//}
 		TestSwapExecution(t)
 	}
 }
@@ -54,11 +55,11 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 	err, _ := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 2000; i++ {
 		ctx = ctx.WithBlockHeight(int64(i))
-		if i%10 == 0 {
-			fmt.Println("TestSimulationSwapExecutionFindEdgeCase height", i)
-		}
+		//if i%10 == 0 {
+		fmt.Println("--------TestSimulationSwapExecutionFindEdgeCase height", i)
+		//}
 		testSwapEdgeCases(t, simapp, ctx, X, Y, depositBalance, addrs)
 	}
 }
