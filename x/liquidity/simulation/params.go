@@ -17,9 +17,9 @@ const (
 	keyMinInitDepositToPool   = "KeyMinInitDepositToPool"
 	keyInitPoolCoinMintAmount = "KeyInitPoolCoinMintAmount"
 	keySwapFeeRate            = "KeySwapFeeRate"
-	keyUnitBatchSize          = "KeyUnitBatchSize"
 	keyWithdrawFeeRate        = "KeyWithdrawFeeRate"
 	keyMaxOrderAmountRatio    = "KeyMaxOrderAmountRatio"
+	keyUnitBatchSize          = "KeyUnitBatchSize"
 )
 
 // ParamChanges defines the parameters that can be modified by param change proposals
@@ -28,22 +28,17 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{
 		simulation.NewSimParamChange(types.ModuleName, keyMinInitDepositToPool,
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("\"%d\"", GenMinInitDepositToPool(r))
+				return fmt.Sprintf("\"%d\"", GenMinInitDepositToPool(r).Int64())
 			},
 		),
 		simulation.NewSimParamChange(types.ModuleName, keyInitPoolCoinMintAmount,
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("\"%d\"", GenInitPoolCoinMintAmount(r))
+				return fmt.Sprintf("\"%d\"", GenInitPoolCoinMintAmount(r).Int64())
 			},
 		),
 		simulation.NewSimParamChange(types.ModuleName, keySwapFeeRate,
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenSwapFeeRate(r))
-			},
-		),
-		simulation.NewSimParamChange(types.ModuleName, keyUnitBatchSize,
-			func(r *rand.Rand) string {
-				return fmt.Sprintf("\"%d\"", GenUnitBatchSize(r))
 			},
 		),
 		simulation.NewSimParamChange(types.ModuleName, keyWithdrawFeeRate,
@@ -54,6 +49,11 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 		simulation.NewSimParamChange(types.ModuleName, keyMaxOrderAmountRatio,
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenMaxOrderAmountRatio(r))
+			},
+		),
+		simulation.NewSimParamChange(types.ModuleName, keyUnitBatchSize,
+			func(r *rand.Rand) string {
+				return fmt.Sprintf("\"%d\"", GenUnitBatchSize(r))
 			},
 		),
 	}
