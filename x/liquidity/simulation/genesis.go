@@ -24,12 +24,6 @@ const (
 	WithdrawFeeRate          = "withdraw_fee_rate"
 	MaxOrderAmountRatio      = "max_order_amount_ratio"
 	UnitBatchSize            = "unit_batch_size"
-	LiquidityPool            = "liquidity_pool"
-	LiquidityPoolMetadata    = "liquidity_pool_metadata"
-	LiquidityPoolBatch       = "liquidity_pool_batch"
-	BatchPoolDepositMsgs     = "batch_pool_deposit_msgs"
-	BatchPoolWithdrawMsgs    = "batch_pool_withdraw_msgs"
-	BatchPoolSwapMsgs        = "batch_pool_swap_msgs"
 )
 
 // GenLiquidityPoolTypes randomized LiquidityPoolTypes
@@ -60,7 +54,7 @@ func GenInitPoolCoinMintAmount(r *rand.Rand) sdk.Int {
 }
 
 // GenLiquidityPoolCreationFee randomized LiquidityPoolCreationFee
-// from 1 to 10 coins with an amount greater than 1
+// list of 1 to 10 coins with an amount greater than 1
 func GenLiquidityPoolCreationFee(r *rand.Rand) (coins sdk.Coins) {
 	for i := 0; i < simulation.RandIntBetween(r, 1, 10); i++ {
 		randomCoin := sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(int64(r.Int())))
@@ -72,17 +66,17 @@ func GenLiquidityPoolCreationFee(r *rand.Rand) (coins sdk.Coins) {
 
 // GenSwapFeeRate randomized SwapFeeRate ranging from 0.000001 to 1
 func GenSwapFeeRate(r *rand.Rand) sdk.Dec {
-	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 100000)), 5)
+	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
 
 // GenWithdrawFeeRate randomized WithdrawFeeRate ranging from 0.000001 to 1
 func GenWithdrawFeeRate(r *rand.Rand) sdk.Dec {
-	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 100000)), 5)
+	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
 
 // GenMaxOrderAmountRatio randomized MaxOrderAmountRatio ranging from 0.000001 to 1
 func GenMaxOrderAmountRatio(r *rand.Rand) sdk.Dec {
-	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 100000)), 5)
+	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
 
 // GenUnitBatchSize randomized UnitBatchSize ranging from 1 to 20
