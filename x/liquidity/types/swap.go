@@ -183,7 +183,19 @@ func BatchResultDecimalDelta(batchResult BatchResult, batchResultDec BatchResult
 	delta.PoolX = batchResultDec.PoolX.Sub(batchResult.PoolX.ToDec())
 	delta.PoolY = batchResultDec.PoolY.Sub(batchResult.PoolY.ToDec())
 	delta.TransactAmt = batchResultDec.TransactAmt.Sub(batchResult.TransactAmt.ToDec())
-	fmt.Println(delta)
+	fmt.Println("BatchResultDecimalDelta", delta)
+}
+
+func MatchResultDecimalDelta(matchResults []MatchResult, matchResultDecs []MatchResultDec) {
+	for i, matchResult := range matchResults {
+		delta := MatchResultDec{}
+		delta.OfferCoinAmt = matchResultDecs[i].OfferCoinAmt.Sub(matchResult.OfferCoinAmt.ToDec())
+		delta.TransactedCoinAmt = matchResultDecs[i].TransactedCoinAmt.Sub(matchResult.TransactedCoinAmt.ToDec())
+		delta.ExchangedDemandCoinAmt = matchResultDecs[i].ExchangedDemandCoinAmt.Sub(matchResult.ExchangedDemandCoinAmt.ToDec())
+		delta.OfferCoinFeeAmt = matchResultDecs[i].OfferCoinFeeAmt.Sub(matchResult.OfferCoinFeeAmt.ToDec())
+		delta.ExchangedCoinFeeAmt = matchResultDecs[i].ExchangedCoinFeeAmt.Sub(matchResult.ExchangedCoinFeeAmt.ToDec())
+		fmt.Println("matchResult", i, delta)
+	}
 }
 
 // return of zero object, to avoid nil
@@ -225,6 +237,20 @@ type MatchResult struct {
 	ExchangedDemandCoinAmt sdk.Int
 	OfferCoinFeeAmt        sdk.Int
 	ExchangedCoinFeeAmt    sdk.Int
+	BatchMsg               *BatchPoolSwapMsg
+}
+
+// struct of swap matching result of each Batch swap message
+type MatchResultDec struct {
+	OrderHeight            int64
+	OrderExpiryHeight      int64
+	OrderMsgIndex          uint64
+	OrderPrice             sdk.Dec
+	OfferCoinAmt           sdk.Dec
+	TransactedCoinAmt      sdk.Dec
+	ExchangedDemandCoinAmt sdk.Dec
+	OfferCoinFeeAmt        sdk.Dec
+	ExchangedCoinFeeAmt    sdk.Dec
 	BatchMsg               *BatchPoolSwapMsg
 }
 
@@ -468,6 +494,131 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 					// Check for differences above maximum decimal error
 					if matchResult.TransactedCoinAmt.GT(matchResult.OfferCoinAmt) ||
 						(matchResult.OfferCoinFeeAmt.GT(matchResult.OfferCoinAmt) && matchResult.OfferCoinFeeAmt.GT(sdk.OneInt())) {
+						panic(matchResult.TransactedCoinAmt)
+					}
+					matchResultList = append(matchResultList, matchResult)
+					swapListExecuted = append(swapListExecuted, matchOrder)
+					if direction == DirectionXtoY {
+						poolXdelta = poolXdelta.Add(matchResult.TransactedCoinAmt)
+						poolYdelta = poolYdelta.Sub(matchResult.ExchangedDemandCoinAmt)
+					} else if direction == DirectionYtoX {
+						poolXdelta = poolXdelta.Sub(matchResult.ExchangedDemandCoinAmt)
+						poolYdelta = poolYdelta.Add(matchResult.TransactedCoinAmt)
+					}
+				}
+			}
+			// update accumMatchAmt and initiate matchAmt and matchOrderList
+			accumMatchAmt = accumMatchAmt.Add(matchAmt)
+			matchAmt = sdk.ZeroInt()
+			matchOrderList = matchOrderList[:0]
+		}
+
+		if breakFlag {
+			break
+		}
+	}
+	return
+}
+
+// Find matched orders and set status for msgs
+func FindOrderMatchDec(direction int, swapList []*BatchPoolSwapMsg, executableAmt sdk.Dec,
+	swapPrice, swapFeeRate sdk.Dec, height int64) (
+	matchResultList []MatchResultDec, swapListExecuted []*BatchPoolSwapMsg, poolXdelta, poolYdelta sdk.Dec) {
+
+	poolXdelta = sdk.ZeroDec()
+	poolYdelta = sdk.ZeroDec()
+
+	if direction == DirectionXtoY {
+		sort.SliceStable(swapList, func(i, j int) bool {
+			return swapList[i].Msg.OrderPrice.GT(swapList[j].Msg.OrderPrice)
+		})
+	} else if direction == DirectionYtoX {
+		sort.SliceStable(swapList, func(i, j int) bool {
+			return swapList[i].Msg.OrderPrice.LT(swapList[j].Msg.OrderPrice)
+		})
+	}
+
+	matchAmt := sdk.ZeroInt()
+	accumMatchAmt := sdk.ZeroInt()
+	var matchOrderList []*BatchPoolSwapMsg
+
+	if executableAmt.IsZero() {
+		return
+	}
+
+	lenSwapList := len(swapList)
+	for i, order := range swapList {
+		var breakFlag, appendFlag bool
+
+		// include the matched order in matchAmt, matchOrderList
+		if (direction == DirectionXtoY && order.Msg.OrderPrice.GTE(swapPrice)) ||
+			(direction == DirectionYtoX && order.Msg.OrderPrice.LTE(swapPrice)) {
+			matchAmt = matchAmt.Add(order.Msg.OfferCoin.Amount)
+			matchOrderList = append(matchOrderList, order)
+		}
+
+		// case check
+		if lenSwapList > i+1 { // check next order exist
+			if swapList[i+1].Msg.OrderPrice.Equal(order.Msg.OrderPrice) { // check next orderPrice is same
+				breakFlag = false
+				appendFlag = false
+			} else { // next orderPrice is new
+				appendFlag = true
+				if (direction == DirectionXtoY && swapList[i+1].Msg.OrderPrice.GTE(swapPrice)) ||
+					(direction == DirectionYtoX && swapList[i+1].Msg.OrderPrice.LTE(swapPrice)) { // check next price is matchable
+					breakFlag = false
+				} else { // next orderPrice is unmatchable
+					breakFlag = true
+				}
+			}
+		} else { // next order does not exist
+			breakFlag = true
+			appendFlag = true
+		}
+
+		var fractionalMatchRatio sdk.Dec
+		if appendFlag {
+			if matchAmt.IsPositive() {
+				if accumMatchAmt.ToDec().Add(matchAmt.ToDec()).GTE(executableAmt) {
+					fractionalMatchRatio = executableAmt.Sub(accumMatchAmt.ToDec()).Quo(matchAmt.ToDec())
+					if fractionalMatchRatio.GT(sdk.NewDec(1)) {
+						panic("Invariant Check: fractionalMatchRatio between 0 and 1")
+					}
+				} else {
+					fractionalMatchRatio = sdk.OneDec()
+				}
+				for _, matchOrder := range matchOrderList {
+					if !fractionalMatchRatio.IsPositive() {
+						fractionalMatchRatio = sdk.OneDec()
+						continue
+					}
+					offerAmt := matchOrder.RemainingOfferCoin.Amount.ToDec()
+					matchResult := MatchResultDec{
+						OrderHeight:       height,
+						OrderExpiryHeight: height + CancelOrderLifeSpan,
+						OrderMsgIndex:     matchOrder.MsgIndex,
+						OrderPrice:        matchOrder.Msg.OrderPrice,
+						OfferCoinAmt:      offerAmt,
+						// TransactedCoinAmt is a value that should not be lost, so Ceil it conservatively considering the decimal error.
+						TransactedCoinAmt: offerAmt.Mul(fractionalMatchRatio),
+						BatchMsg:          matchOrder,
+					}
+					if matchOrder != matchResult.BatchMsg {
+						panic("not matched msg pointer ")
+					}
+					// Fee, Exchanged amount are values that should not be overmeasured, so it is lowered conservatively considering the decimal error.
+					if direction == DirectionXtoY {
+						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.OfferCoinFeeReserve.Amount.ToDec().Mul(fractionalMatchRatio)
+						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Quo(swapPrice)
+						matchResult.ExchangedCoinFeeAmt = matchResult.OfferCoinFeeAmt.Quo(swapPrice)
+					} else if direction == DirectionYtoX {
+						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.OfferCoinFeeReserve.Amount.ToDec().Mul(fractionalMatchRatio)
+						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Mul(swapPrice)
+						matchResult.ExchangedCoinFeeAmt = matchResult.OfferCoinFeeAmt.Mul(swapPrice)
+					}
+					// Check for differences above maximum decimal error
+					if matchResult.TransactedCoinAmt.GT(matchResult.OfferCoinAmt) ||
+						(matchResult.OfferCoinFeeAmt.GT(matchResult.OfferCoinAmt) && matchResult.OfferCoinFeeAmt.GT(sdk.OneDec())) {
 						panic(matchResult.TransactedCoinAmt)
 					}
 					matchResultList = append(matchResultList, matchResult)

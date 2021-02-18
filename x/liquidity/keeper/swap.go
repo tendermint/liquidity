@@ -55,14 +55,27 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	var matchResultXtoY, matchResultYtoX []types.MatchResult
 	poolXdelta := sdk.ZeroInt()
 	poolYdelta := sdk.ZeroInt()
+	poolXdeltaDec := sdk.ZeroDec()
+	poolYdeltaDec := sdk.ZeroDec()
 	if result.MatchType != types.NoMatch {
 		var poolXDeltaXtoY, poolXDeltaYtoX, poolYDeltaYtoX, poolYDeltaXtoY sdk.Int
 		matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX,
 			result.SwapPrice, params.SwapFeeRate, currentHeight)
 		matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
 			result.SwapPrice, params.SwapFeeRate, currentHeight)
+		matchResultXtoYDec, _, poolXDeltaXtoYDec, poolYDeltaXtoYDec := types.FindOrderMatchDec(types.DirectionXtoY, XtoY, resultDec.EX,
+			result.SwapPrice, params.SwapFeeRate, currentHeight)
+		matchResultYtoXDec, _, poolXDeltaYtoXDec, poolYDeltaYtoXDec := types.FindOrderMatchDec(types.DirectionYtoX, YtoX, resultDec.EY,
+			result.SwapPrice, params.SwapFeeRate, currentHeight)
 		poolXdelta = poolXDeltaXtoY.Add(poolXDeltaYtoX)
 		poolYdelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
+		poolXdeltaDec = poolXDeltaXtoYDec.Add(poolXDeltaYtoXDec)
+		poolYdeltaDec = poolYDeltaXtoYDec.Add(poolYDeltaYtoXDec)
+
+		types.MatchResultDecimalDelta(matchResultXtoY, matchResultXtoYDec)
+		types.MatchResultDecimalDelta(matchResultYtoX, matchResultYtoXDec)
+		fmt.Println("poolXdeltaDec", poolXdeltaDec.Sub(poolXdelta.ToDec()))
+		fmt.Println("poolYdeltaDec", poolYdeltaDec.Sub(poolYdelta.ToDec()))
 	}
 
 	XtoY, YtoX, X, Y, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
