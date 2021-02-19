@@ -29,7 +29,7 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 	}
 
 	reserveCoinNum := uint32(msg.DepositCoins.Len())
-	if reserveCoinNum > poolType.MaxReserveCoinNum && poolType.MinReserveCoinNum > reserveCoinNum {
+	if reserveCoinNum > poolType.MaxReserveCoinNum || poolType.MinReserveCoinNum > reserveCoinNum {
 		return types.ErrNumOfReserveCoin
 	}
 
@@ -76,7 +76,7 @@ func (k Keeper) ValidateLiquidityPool(ctx sdk.Context, pool *types.LiquidityPool
 	}
 
 	reserveCoins := k.GetReserveCoins(ctx, *pool)
-	if uint32(reserveCoins.Len()) > poolType.MaxReserveCoinNum && poolType.MinReserveCoinNum > uint32(reserveCoins.Len()) {
+	if uint32(reserveCoins.Len()) > poolType.MaxReserveCoinNum || poolType.MinReserveCoinNum > uint32(reserveCoins.Len()) {
 		return types.ErrNumOfReserveCoin
 	}
 
@@ -246,9 +246,6 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
-	if err := msg.DepositCoins.Validate(); err != nil {
-		return err
-	}
 	pool, found := k.GetLiquidityPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
@@ -258,11 +255,6 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 		return types.ErrNumOfReserveCoin
 	}
 
-	// TODO: duplicated with ValidateBasic
-	if uint32(msg.DepositCoins.Len()) > types.MaxReserveCoinNum ||
-		types.MinReserveCoinNum > uint32(msg.DepositCoins.Len()) {
-		return types.ErrNumOfReserveCoin
-	}
 	// TODO: validate msgIndex
 
 	denomA, denomB := types.AlphabeticalDenomPair(msg.DepositCoins[0].Denom, msg.DepositCoins[1].Denom)
@@ -807,31 +799,26 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 	// remove zero coins
 	newI := 0
 	for _, i := range inputs {
-		if i.Coins == nil || i.Coins.Empty() {
-		} else {
-			inputs[newI] = i
-			newI++
-		}
 		if !i.Coins.IsValid() {
 			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
+		}
+		if !i.Coins.Empty() {
+			inputs[newI] = i
+			newI++
 		}
 	}
 	inputs = inputs[:newI]
 	newI = 0
 	for _, i := range outputs {
-		if i.Coins == nil || i.Coins.Empty() {
-		} else {
-			outputs[newI] = i
-			newI++
-		}
 		if !i.Coins.IsValid() {
 			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
 		}
+		if !i.Coins.Empty() {
+			outputs[newI] = i
+			newI++
+		}
 	}
 	outputs = outputs[:newI]
-	if err := banktypes.ValidateInputsOutputs(inputs, outputs); err != nil {
-		return err
-	}
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		return err
 	}
@@ -846,9 +833,6 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 //}
 
 func (k Keeper) ValidateLiquidityPoolMetadata(ctx sdk.Context, pool *types.LiquidityPool, metaData *types.LiquidityPoolMetadata) error {
-	if !metaData.ReserveCoins.Sort().IsEqual(metaData.ReserveCoins) {
-		return types.ErrBadOrderingReserveCoin
-	}
 	if err := metaData.ReserveCoins.Validate(); err != nil {
 		return err
 	}
