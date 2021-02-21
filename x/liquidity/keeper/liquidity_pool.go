@@ -708,7 +708,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					batchMsg.Succeeded = true
 					batchMsg.ToBeDeleted = true
 				} else {
-					panic("impossible case ")
+					panic("impossible case")
 					// TODO: set to Delete
 				}
 			} else if batchMsg.RemainingOfferCoin.IsZero() {
