@@ -131,18 +131,11 @@ func (orderMap OrderMap) SortOrderBook() (orderBook OrderBook) {
 	for _, v := range orderMap {
 		orderPriceList = append(orderPriceList, v.OrderPrice)
 	}
-
 	sort.Slice(orderPriceList, func(i, j int) bool {
 		return orderPriceList[i].LT(orderPriceList[j])
 	})
-
 	for _, k := range orderPriceList {
-		orderBook = append(orderBook, OrderByPrice{
-			OrderPrice:   k,
-			BuyOfferAmt:  orderMap[k.String()].BuyOfferAmt,
-			SellOfferAmt: orderMap[k.String()].SellOfferAmt,
-			MsgList:      orderMap[k.String()].MsgList,
-		})
+		orderBook = append(orderBook, orderMap[k.String()])
 	}
 	return orderBook
 }
