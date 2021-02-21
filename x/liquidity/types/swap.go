@@ -1,8 +1,9 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"sort"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // liquidity module const types for swap
@@ -573,39 +574,34 @@ func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMat
 		if onlyNotMatched && (m.ToBeDeleted || m.RemainingOfferCoin.IsZero()) {
 			continue
 		}
-		if m.Msg.OfferCoin.Denom == denomX { // buying Y from X
-			XtoY = append(XtoY, m)
-			if _, ok := orderMap[m.Msg.OrderPrice.String()]; ok {
-				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
-					m.Msg.OrderPrice,
-					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt.Add(m.Msg.OfferCoin.Amount), // TODO: feeX half
-					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt,
-					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
-				}
-			} else {
-				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					m.Msg.OfferCoin.Amount, sdk.ZeroInt(),
-					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
-				}
-			}
-		} else if m.Msg.OfferCoin.Denom == denomY { // selling Y for X
-			YtoX = append(YtoX, m)
-			if _, ok := orderMap[m.Msg.OrderPrice.String()]; ok {
-				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
-					m.Msg.OrderPrice,
-					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt,
-					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt.Add(m.Msg.OfferCoin.Amount),
-					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
-				}
-			} else {
-				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					sdk.ZeroInt(), m.Msg.OfferCoin.Amount,
-					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
-				}
-			}
-		} else {
-			panic("ErrInvalidDenom")
+		order := OrderByPrice{
+			OrderPrice:   m.Msg.OrderPrice,
+			BuyOfferAmt:  sdk.ZeroInt(),
+			SellOfferAmt: sdk.ZeroInt(),
 		}
+		orderPriceString := m.Msg.OrderPrice.String()
+		switch {
+		case m.Msg.OfferCoin.Denom == denomX:
+			XtoY = append(XtoY, m)
+			if o, ok := orderMap[orderPriceString]; ok {
+				order = o
+				order.BuyOfferAmt = o.BuyOfferAmt.Add(m.Msg.OfferCoin.Amount) // TODO: feeX half
+			} else {
+				order.BuyOfferAmt = m.Msg.OfferCoin.Amount
+			}
+		case m.Msg.OfferCoin.Denom == denomY:
+			YtoX = append(YtoX, m)
+			if o, ok := orderMap[orderPriceString]; ok {
+				order = o
+				order.SellOfferAmt = o.SellOfferAmt.Add(m.Msg.OfferCoin.Amount)
+			} else {
+				order.SellOfferAmt = m.Msg.OfferCoin.Amount
+			}
+		default:
+			panic(ErrInvalidDenom)
+		}
+		order.MsgList = append(order.MsgList, m)
+		orderMap[orderPriceString] = order
 	}
 	return orderMap, XtoY, YtoX
 }
