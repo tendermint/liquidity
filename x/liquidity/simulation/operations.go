@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	simappparams "github.com/tendermint/liquidity/app/params"
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
@@ -27,7 +26,7 @@ const (
 // WeightedOperations returns all the operations from the module with their respective weights
 func WeightedOperations(
 	appParams simtypes.AppParams, cdc codec.JSONMarshaler, ak types.AccountKeeper,
-	bk types.BankKeeper, k keeper.Keeper, sk stakingkeeper.Keeper,
+	bk types.BankKeeper, k keeper.Keeper,
 ) simulation.WeightedOperations {
 
 	var weightMsgCreateLiquidityPool int

@@ -6,27 +6,24 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-
-	// DONTCOVER
-
-	sdkclient "github.com/cosmos/cosmos-sdk/client"
-
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	sdkclient "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+
 	"github.com/tendermint/liquidity/x/liquidity/client/cli"
 	"github.com/tendermint/liquidity/x/liquidity/client/rest"
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/simulation"
 	"github.com/tendermint/liquidity/x/liquidity/types"
+
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -72,11 +69,6 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 	rest.RegisterHandlers(clientCtx, rtr)
 }
 
-// RegisterGRPCRoutes registers the gRPC Gateway routes for the liquidity module.
-func (a AppModuleBasic) RegisterGRPCRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-
 // GetTxCmd returns the root tx command for the liquidity module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.GetTxCmd()
@@ -90,6 +82,23 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // RegisterInterfaces implements InterfaceModule.RegisterInterfaces
 func (a AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)
+}
+
+// RegisterGRPCRoutes registers the gRPC Gateway routes for the liquidity module.
+func (a AppModuleBasic) RegisterGRPCRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
+
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the distribution module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx sdkclient.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
+
+// RegisterServices registers module services.
+func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
+	querier := keeper.Querier{Keeper: am.keeper}
+	types.RegisterQueryServer(cfg.QueryServer(), querier)
 }
 
 //____________________________________________________________________________
@@ -199,17 +208,8 @@ func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
 
 // WeightedOperations returns the all the liquidity module operations with their respective weights.
 func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
-	return nil
-}
-
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the distribution module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx sdkclient.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-
-// RegisterServices registers module services.
-func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	querier := keeper.Querier{Keeper: am.keeper}
-	types.RegisterQueryServer(cfg.QueryServer(), querier)
+	return simulation.WeightedOperations(
+		simState.AppParams, simState.Cdc,
+		am.accountKeeper, am.bankKeeper, am.keeper,
+	)
 }
