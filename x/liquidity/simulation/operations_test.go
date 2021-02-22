@@ -131,9 +131,8 @@ func TestSimulateMsgSwap(t *testing.T) {
 	require.True(t, operationMsg.OK)
 	require.Equal(t, uint64(1), msg.PoolId)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetSwapRequester().String())
-	// require.Equal(t, sdk.NewInt(5000), msg.OfferCoin)
-	// require.Equal(t, sdk.NewInt(5000), msg.DemandCoinDenom)
-	// require.Equal(t, sdk.NewInt(5000), msg.OfferCoinFee)
+	require.Equal(t, sdk.NewInt(5000), msg.OfferCoin.Amount)
+	require.Equal(t, "denomB", msg.DemandCoinDenom)
 	require.Equal(t, types.TypeMsgSwap, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
