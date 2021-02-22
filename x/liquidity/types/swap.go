@@ -263,17 +263,17 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResul
 	r.EY = r.OriginalEY
 	r.PriceDirection = Stay
 
-	if r.EX.Add(r.PoolX).Equal(sdk.ZeroInt()) || r.EY.Add(r.PoolY).Equal(sdk.ZeroInt()) {
+	s := r.SwapPrice.MulInt(r.EY).TruncateInt()
+	if r.EX.IsZero() || r.EY.IsZero() {
 		r.MatchType = NoMatch
-		// Normalization to an integrator for easy determination of exactMatch
-	} else if r.EX.Equal(r.SwapPrice.MulInt(r.EY).TruncateInt()) {
+	} else if r.EX.Equal(s) { // Normalization to an integrator for easy determination of exactMatch
 		r.MatchType = ExactMatch
 	} else {
 		// Decimal Error, When calculating the Executable value, conservatively Truncated decimal
 		r.MatchType = FractionalMatch
-		if r.EX.GT(r.SwapPrice.MulInt(r.EY).TruncateInt()) {
-			r.EX = r.SwapPrice.MulInt(r.EY).TruncateInt()
-		} else if r.EX.LT(r.SwapPrice.MulInt(r.EY).TruncateInt()) {
+		if r.EX.GT(s) {
+			r.EX = s
+		} else if r.EX.LT(s) {
 			r.EY = r.EX.ToDec().Quo(r.SwapPrice).TruncateInt()
 		}
 	}
