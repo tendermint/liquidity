@@ -1,6 +1,11 @@
 package app
 
 import (
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/server/config"
@@ -10,10 +15,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/tendermint/liquidity/x/liquidity"
 
@@ -411,6 +412,7 @@ func NewLiquidityApp(
 		transferModule,
 	)
 
+	// register the store decoders for simulation tests
 	app.sm.RegisterStoreDecoders()
 
 	// initialize stores
