@@ -184,8 +184,7 @@ type MatchResult struct {
 
 // The price and coins of swap messages in orderbook are calculated
 // to derive match result with the price direction.
-func MatchOrderbook(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
-	result = NewBatchResult()
+func MatchOrderbook(X, Y, currentPrice sdk.Dec, orderBook OrderBook) BatchResult {
 	orderBook.Sort()
 	priceDirection := GetPriceDirection(currentPrice, orderBook)
 
