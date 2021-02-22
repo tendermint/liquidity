@@ -4,7 +4,7 @@ package tendermint.liquidity;
 import "liquidity.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/tendermint/liquidity/types";
+option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 
 message LiquidityPoolRecord {
     LiquidityPool liquidity_pool = 1 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"liquidity_pool\""];
