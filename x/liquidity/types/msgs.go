@@ -261,7 +261,7 @@ func (msg MsgSwap) ValidateBasic() error {
 	if !msg.OrderPrice.IsPositive() {
 		return ErrBadOderPrice
 	}
-	if !msg.OfferCoin.Amount.GTE(DefaultOfferCoinAmount) {
+	if !msg.OfferCoin.Amount.GTE(DefaultMinOfferCoinAmount) {
 		return ErrLessThanMinOfferAmount
 	}
 	return nil
