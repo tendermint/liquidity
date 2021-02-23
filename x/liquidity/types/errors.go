@@ -39,7 +39,7 @@ var (
 	ErrExceededMaxOrderable         = sdkerrors.Register(ModuleName, 31, "can not exceed max order ratio of reserve coins that can be ordered at a order")
 	ErrBadBatchMsgIndex             = sdkerrors.Register(ModuleName, 32, "bad msg index of the batch")
 	ErrSwapTypeNotExists            = sdkerrors.Register(ModuleName, 33, "swap type not exists")
-	ErrLessThanMinOfferAmount       = sdkerrors.Register(ModuleName, 34, "offer amount should over 1000 micro")
+	ErrLessThanMinOfferAmount       = sdkerrors.Register(ModuleName, 34, "offer amount should over 100 micro")
 	ErrBadOfferCoinFee              = sdkerrors.Register(ModuleName, 35, "bad offer coin fee")
 	ErrNotMatchedReserveCoin        = sdkerrors.Register(ModuleName, 36, "does not match the reserve coin of the pool")
 	ErrBadPoolTypeIndex             = sdkerrors.Register(ModuleName, 37, "invalid index of the pooltype")

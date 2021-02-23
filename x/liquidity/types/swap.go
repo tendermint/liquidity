@@ -7,15 +7,15 @@ import (
 
 // liquidity module const types for swap
 const (
-	// Price Directions
-	Increase = 1
-	Decrease = 2
-	Stay     = 3
-
 	// Match Types
 	ExactMatch      = 1
 	NoMatch         = 2
 	FractionalMatch = 3
+
+	// Price Directions
+	Increase = 1
+	Decrease = 2
+	Stay     = 3
 
 	// Order Directions
 	DirectionXtoY = 1
@@ -320,7 +320,7 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 		// include the matched order in matchAmt, matchOrderList
 		if (direction == DirectionXtoY && order.Msg.OrderPrice.GTE(swapPrice)) ||
 			(direction == DirectionYtoX && order.Msg.OrderPrice.LTE(swapPrice)) {
-			matchAmt = matchAmt.Add(order.Msg.OfferCoin.Amount)
+			matchAmt = matchAmt.Add(order.RemainingOfferCoin.Amount)
 			matchOrderList = append(matchOrderList, order)
 		}
 
@@ -354,11 +354,10 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 				} else {
 					fractionalMatchRatio = sdk.OneDec()
 				}
+				if !fractionalMatchRatio.IsPositive() {
+					fractionalMatchRatio = sdk.OneDec()
+				}
 				for _, matchOrder := range matchOrderList {
-					if !fractionalMatchRatio.IsPositive() {
-						fractionalMatchRatio = sdk.OneDec()
-						continue
-					}
 					offerAmt := matchOrder.RemainingOfferCoin.Amount.ToDec()
 					matchResult := MatchResult{
 						OrderHeight:       height,
@@ -516,14 +515,14 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 		}
 	}
 
-	// Invariant Check
-	r := maxScenario
-	tmpInvariant := r.EX.Add(r.PoolX).ToDec().Sub(r.EY.Add(r.PoolY).ToDec().Mul(r.SwapPrice))
-	if tmpInvariant.GT(r.SwapPrice) && tmpInvariant.GT(sdk.OneDec()) {
-		panic("maxScenario CalculateSwap")
-	}
-
 	maxScenario.PriceDirection = direction
+
+	//// Invariant Check
+	//r := maxScenario
+	//tmpInvariant := r.EX.Add(r.PoolX).ToDec().Sub(r.EY.Add(r.PoolY).ToDec().MulTruncate(r.SwapPrice))
+	//if tmpInvariant.GT(r.SwapPrice) && tmpInvariant.GT(sdk.OneDec()) {
+	//	panic("maxScenario CalculateSwap")
+	//}
 	return maxScenario
 }
 
@@ -578,13 +577,13 @@ func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMat
 			if _, ok := orderMap[m.Msg.OrderPrice.String()]; ok {
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
 					m.Msg.OrderPrice,
-					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt.Add(m.Msg.OfferCoin.Amount), // TODO: feeX half
+					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt.Add(m.RemainingOfferCoin.Amount), // TODO: feeX half
 					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt,
 					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
 				}
 			} else {
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					m.Msg.OfferCoin.Amount, sdk.ZeroInt(),
+					m.RemainingOfferCoin.Amount, sdk.ZeroInt(),
 					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
 				}
 			}
@@ -594,12 +593,12 @@ func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMat
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
 					m.Msg.OrderPrice,
 					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt,
-					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt.Add(m.Msg.OfferCoin.Amount),
+					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt.Add(m.RemainingOfferCoin.Amount),
 					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
 				}
 			} else {
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					sdk.ZeroInt(), m.Msg.OfferCoin.Amount,
+					sdk.ZeroInt(), m.RemainingOfferCoin.Amount,
 					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
 				}
 			}

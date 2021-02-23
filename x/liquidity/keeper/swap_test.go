@@ -13,11 +13,17 @@ import (
 )
 
 func TestSimulationSwapExecution(t *testing.T) {
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 50; i++ {
 		if i%10 == 0 {
 			fmt.Println("TestSimulationSwapExecution count", i)
 		}
 		TestSwapExecution(t)
+	}
+	for i := 0; i < 10; i++ {
+		if i%10 == 0 {
+			fmt.Println("TestSimulationSwapExecutionFindEdgeCase count", i)
+		}
+		TestSimulationSwapExecutionFindEdgeCase(t)
 	}
 }
 
@@ -37,8 +43,6 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 	param := simapp.LiquidityKeeper.GetParams(ctx)
 	X, Y := app.GetRandPoolAmt(r, param.MinInitDepositToPool)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
-	//fmt.Println("-------------------------------------------------------")
-	//fmt.Println("X/Y", X.ToDec().Quo(Y.ToDec()), "X", X, "Y", Y)
 
 	// set pool creator account, balance for deposit
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
@@ -56,9 +60,6 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 
 	for i := 0; i < 20; i++ {
 		ctx = ctx.WithBlockHeight(int64(i))
-		if i%10 == 0 {
-			fmt.Println("TestSimulationSwapExecutionFindEdgeCase height", i)
-		}
 		testSwapEdgeCases(t, simapp, ctx, X, Y, depositBalance, addrs)
 	}
 }
@@ -79,8 +80,6 @@ func TestSwapExecution(t *testing.T) {
 	// get random X, Y amount for create pool
 	X, Y := app.GetRandPoolAmt(r, params.MinInitDepositToPool)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
-	//fmt.Println("-------------------------------------------------------")
-	//fmt.Println("X/Y", X.ToDec().Quo(Y.ToDec()), "X", X, "Y", Y)
 
 	// set pool creator account, balance for deposit
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
@@ -132,7 +131,6 @@ func TestSwapExecution(t *testing.T) {
 
 	// begin block, delete and init pool batch
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-	//simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
 
 	// handle msgs, set order msgs to batch
 	for _, msg := range XtoY {
@@ -145,16 +143,12 @@ func TestSwapExecution(t *testing.T) {
 	}
 
 	// verify pool batch
-	//batchIndex := simapp.LiquidityKeeper.GetLiquidityPoolBatchIndex(ctx, poolId)
 	liquidityPoolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
 	require.True(t, found)
 	require.NotNil(t, liquidityPoolBatch)
 
 	// end block, swap execution
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
-	//executedMsgCount, err := simapp.LiquidityKeeper.SwapExecution(ctx, liquidityPoolBatch)
-	//require.NoError(t, err)
-	//require.NotZero(t, executedMsgCount)
 }
 
 func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, X, Y sdk.Int, depositBalance sdk.Coins, addrs []sdk.AccAddress) {
@@ -187,9 +181,6 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 	require.True(t, found)
 
 	remainingSwapMsgs := simapp.LiquidityKeeper.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, batch)
-	//fmt.Println("height", ctx.BlockHeight())
-	//fmt.Println("remainingSwapMsgs", len(remainingSwapMsgs))
-	//fmt.Println(remainingSwapMsgs)
 	if ctx.BlockHeight() == 0 || len(remainingSwapMsgs) == 0 {
 		// TODO: or not exist remaining swap orders
 		// make random orders, set buyer, seller accounts for the orders
@@ -213,7 +204,6 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 
 	// begin block, delete and init pool batch
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-	//simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
 
 	// handle msgs, set order msgs to batch
 	for _, msg := range XtoY {
@@ -226,15 +216,12 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 	}
 
 	// verify pool batch
-	//batchIndex := simapp.LiquidityKeeper.GetLiquidityPoolBatchIndex(ctx, poolId)
 	liquidityPoolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
 	require.True(t, found)
 	require.NotNil(t, liquidityPoolBatch)
 
 	// end block, swap execution
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
-	//err = simapp.LiquidityKeeper.SwapExecution(ctx, liquidityPoolBatch)
-	//require.NoError(t, err)
 }
 
 func TestGetRandomOrders(t *testing.T) {

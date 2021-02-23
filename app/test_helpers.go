@@ -8,6 +8,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/tendermint/liquidity/x/liquidity"
+	"math"
 	"math/rand"
 	"strconv"
 	"testing"
@@ -400,8 +401,9 @@ func CreateTestInput() (*LiquidityApp, sdk.Context) {
 }
 
 func GetRandPoolAmt(r *rand.Rand, minInitDepositAmt sdk.Int) (X, Y sdk.Int) {
-	X = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
-	Y = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
+	X = GetRandRange(r, int(minInitDepositAmt.Int64()), 100000000000000).MulRaw(int64(math.Pow10(r.Intn(10))))
+	Y = GetRandRange(r, int(minInitDepositAmt.Int64()), 100000000000000).MulRaw(int64(math.Pow10(r.Intn(10))))
+	//fmt.Println(X, Y, X.ToDec().Quo(Y.ToDec()))
 	return
 }
 
