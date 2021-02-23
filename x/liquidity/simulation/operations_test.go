@@ -11,12 +11,50 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
 	"github.com/tendermint/liquidity/app"
+	simappparams "github.com/tendermint/liquidity/app/params"
 	"github.com/tendermint/liquidity/x/liquidity/simulation"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
+
+// TestWeightedOperations tests the weights of the operations.
+func TestWeightedOperations(t *testing.T) {
+	app, ctx := createTestApp(false)
+
+	ctx.WithChainID("test-chain")
+
+	cdc := app.AppCodec()
+	appParams := make(simtypes.AppParams)
+
+	weightesOps := simulation.WeightedOperations(appParams, cdc, app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+
+	s := rand.NewSource(1)
+	r := rand.New(s)
+	accs := simtypes.RandomAccounts(r, 3)
+
+	expected := []struct {
+		weight     int
+		opMsgRoute string
+		opMsgName  string
+	}{
+		{simappparams.DefaultWeightMsgCreateLiquidityPool, types.ModuleName, types.TypeMsgCreateLiquidityPool},
+		{simappparams.DefaultWeightMsgDepositToLiquidityPool, types.ModuleName, types.TypeMsgDepositToLiquidityPool},
+		{simappparams.DefaultWeightMsgWithdrawFromLiquidityPool, types.ModuleName, types.TypeMsgWithdrawFromLiquidityPool},
+		{simappparams.DefaultWeightMsgSwap, types.ModuleName, types.TypeMsgSwap},
+	}
+
+	for i, w := range weightesOps {
+		operationMsg, _, _ := w.Op()(r, app.BaseApp, ctx, accs, ctx.ChainID())
+		// the following checks are very much dependent from the ordering of the output given
+		// by WeightedOperations. if the ordering in WeightedOperations changes some tests
+		// will fail
+		require.Equal(t, expected[i].weight, w.Weight(), "weight should be the same")
+		require.Equal(t, expected[i].opMsgRoute, operationMsg.Route, "route should be the same")
+		require.Equal(t, expected[i].opMsgName, operationMsg.Name, "operation Msg name should be the same")
+	}
+}
 
 // TestSimulateMsgCreateLiquidityPool tests the normal scenario of a valid message of type TypeMsgCreateLiquidityPool.
 // Abonormal scenarios, where the message are created by an errors are not tested here.
@@ -42,8 +80,7 @@ func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetPoolCreator().String())
 	require.Equal(t, types.DefaultPoolTypeIndex, msg.PoolTypeIndex)
-	require.Equal(t, sdk.NewInt(1000000), msg.DepositCoins.AmountOf("denomA"))
-	require.Equal(t, sdk.NewInt(1000000), msg.DepositCoins.AmountOf("denomB"))
+	require.Equal(t, "8241110790IXnku,695584091nhwJy", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -53,10 +90,13 @@ func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
 func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
 	app, ctx := createTestApp(false)
 
-	// setup a single account
+	// setup accounts
 	s := rand.NewSource(1)
 	r := rand.New(s)
-	accounts := getTestingAccounts(t, r, app, ctx, 1)
+	accounts := getTestingAccounts(t, r, app, ctx, 3)
+
+	// setup random liquidity pools
+	setupLiquidityPools(t, r, app, ctx, accounts)
 
 	// begin a new block
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
@@ -70,10 +110,8 @@ func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, uint64(1), msg.PoolId)
-	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetDepositor().String())
-	require.Equal(t, sdk.NewInt(5000), msg.DepositCoins.AmountOf("denomA"))
-	require.Equal(t, sdk.NewInt(5000), msg.DepositCoins.AmountOf("denomB"))
+	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetDepositor().String())
+	require.Equal(t, "20627209Qfyze,9282202VIkPZ", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgDepositToLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -83,10 +121,13 @@ func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
 func TestSimulateMsgWithdrawFromLiquidityPool(t *testing.T) {
 	app, ctx := createTestApp(false)
 
-	// setup a single account
+	// setup accounts
 	s := rand.NewSource(1)
 	r := rand.New(s)
-	accounts := getTestingAccounts(t, r, app, ctx, 1)
+	accounts := getTestingAccounts(t, r, app, ctx, 3)
+
+	// setup random liquidity pools
+	setupLiquidityPools(t, r, app, ctx, accounts)
 
 	// begin a new block
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
@@ -100,9 +141,8 @@ func TestSimulateMsgWithdrawFromLiquidityPool(t *testing.T) {
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, uint64(1), msg.PoolId)
-	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetWithdrawer().String())
-	require.Equal(t, sdk.NewInt(5000), msg.PoolCoin.Amount)
+	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetWithdrawer().String())
+	require.Equal(t, "70867pool/2D59CF15954FA399BBEA5EE6A2E73D09BC39FC8720F2E922AC17C9AC06758EA8", msg.PoolCoin.String())
 	require.Equal(t, types.TypeMsgWithdrawFromLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -116,6 +156,9 @@ func TestSimulateMsgSwap(t *testing.T) {
 	s := rand.NewSource(1)
 	r := rand.New(s)
 	accounts := getTestingAccounts(t, r, app, ctx, 1)
+
+	// setup random liquidity pools
+	setupLiquidityPools(t, r, app, ctx, accounts)
 
 	// begin a new block
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
@@ -163,4 +206,44 @@ func getTestingAccounts(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx s
 	}
 
 	return accounts
+}
+
+func setupLiquidityPools(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx sdk.Context, accounts []simtypes.Account) {
+	params := app.StakingKeeper.GetParams(ctx)
+
+	// create liquidity pools
+	for _, account := range accounts {
+		// random denom with a length from 4 to 6 characters
+		denomA := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))
+		denomB := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))
+		denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+		// random fees
+		fees := sdk.NewCoin(params.GetBondDenom(), sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e10, 1e12))))
+
+		// mint random amounts of denomA and denomB coins
+		mintCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e14, 1e15))))
+		mintCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e14, 1e15))))
+		mintCoins := sdk.NewCoins(mintCoinA, mintCoinB, fees)
+		err := app.BankKeeper.MintCoins(ctx, types.ModuleName, mintCoins)
+		require.NoError(t, err)
+
+		// transfer random amounts to the simulated random account
+		coinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e12, 1e14))))
+		coinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e12, 1e14))))
+		coins := sdk.NewCoins(coinA, coinB, fees)
+		err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, account.Address, coins)
+		require.NoError(t, err)
+
+		// create liquidity pool with random deposit amounts
+		account := app.AccountKeeper.GetAccount(ctx, account.Address)
+		depositCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8))))
+		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8))))
+		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
+
+		createPoolMsg := types.NewMsgCreateLiquidityPool(account.GetAddress(), types.DefaultPoolTypeIndex, depositCoins)
+
+		err, _ = app.LiquidityKeeper.CreateLiquidityPool(ctx, createPoolMsg)
+		require.NoError(t, err)
+	}
 }

@@ -21,7 +21,7 @@ const (
 	DefaultWeightTextProposal           int = 5
 	DefaultWeightParamChangeProposal    int = 5
 
-	// Liquidity module simulation operation weights for messages
+	// liquidity module simulation operation weights for messages
 	DefaultWeightMsgCreateLiquidityPool       int = 5
 	DefaultWeightMsgDepositToLiquidityPool    int = 10
 	DefaultWeightMsgWithdrawFromLiquidityPool int = 10
