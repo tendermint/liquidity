@@ -7,15 +7,15 @@ import (
 
 // liquidity module const types for swap
 const (
-	// Price Directions
-	Increase = 1
-	Decrease = 2
-	Stay     = 3
-
 	// Match Types
 	ExactMatch      = 1
 	NoMatch         = 2
 	FractionalMatch = 3
+
+	// Price Directions
+	Increase = 1
+	Decrease = 2
+	Stay     = 3
 
 	// Order Directions
 	DirectionXtoY = 1
@@ -515,14 +515,14 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 		}
 	}
 
-	// Invariant Check
-	r := maxScenario
-	tmpInvariant := r.EX.Add(r.PoolX).ToDec().Sub(r.EY.Add(r.PoolY).ToDec().Mul(r.SwapPrice))
-	if tmpInvariant.GT(r.SwapPrice) && tmpInvariant.GT(sdk.OneDec()) {
-		panic("maxScenario CalculateSwap")
-	}
-
 	maxScenario.PriceDirection = direction
+
+	//// Invariant Check
+	//r := maxScenario
+	//tmpInvariant := r.EX.Add(r.PoolX).ToDec().Sub(r.EY.Add(r.PoolY).ToDec().MulTruncate(r.SwapPrice))
+	//if tmpInvariant.GT(r.SwapPrice) && tmpInvariant.GT(sdk.OneDec()) {
+	//	panic("maxScenario CalculateSwap")
+	//}
 	return maxScenario
 }
 

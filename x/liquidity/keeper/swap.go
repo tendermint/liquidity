@@ -63,6 +63,12 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		poolYdelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
 
+	executedMsgCount := uint64(len(swapMsgs))
+
+	if result.MatchType == 0 {
+		return executedMsgCount, nil
+	}
+
 	XtoY, YtoX, X, Y, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		k.UpdateState(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
@@ -153,8 +159,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 			panic("map broken1")
 		}
 	}
-
-	executedMsgCount := uint64(len(swapMsgs))
 
 	if invariantCheckFlag {
 		if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
