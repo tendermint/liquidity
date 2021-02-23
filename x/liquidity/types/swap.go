@@ -320,7 +320,7 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 		// include the matched order in matchAmt, matchOrderList
 		if (direction == DirectionXtoY && order.Msg.OrderPrice.GTE(swapPrice)) ||
 			(direction == DirectionYtoX && order.Msg.OrderPrice.LTE(swapPrice)) {
-			matchAmt = matchAmt.Add(order.Msg.OfferCoin.Amount)
+			matchAmt = matchAmt.Add(order.RemainingOfferCoin.Amount)
 			matchOrderList = append(matchOrderList, order)
 		}
 
@@ -578,13 +578,13 @@ func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMat
 			if _, ok := orderMap[m.Msg.OrderPrice.String()]; ok {
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
 					m.Msg.OrderPrice,
-					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt.Add(m.Msg.OfferCoin.Amount), // TODO: feeX half
+					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt.Add(m.RemainingOfferCoin.Amount), // TODO: feeX half
 					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt,
 					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
 				}
 			} else {
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					m.Msg.OfferCoin.Amount, sdk.ZeroInt(),
+					m.RemainingOfferCoin.Amount, sdk.ZeroInt(),
 					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
 				}
 			}
@@ -594,12 +594,12 @@ func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMat
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
 					m.Msg.OrderPrice,
 					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt,
-					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt.Add(m.Msg.OfferCoin.Amount),
+					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt.Add(m.RemainingOfferCoin.Amount),
 					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
 				}
 			} else {
 				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					sdk.ZeroInt(), m.Msg.OfferCoin.Amount,
+					sdk.ZeroInt(), m.RemainingOfferCoin.Amount,
 					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
 				}
 			}
