@@ -354,11 +354,10 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 				} else {
 					fractionalMatchRatio = sdk.OneDec()
 				}
+				if !fractionalMatchRatio.IsPositive() {
+					fractionalMatchRatio = sdk.OneDec()
+				}
 				for _, matchOrder := range matchOrderList {
-					if !fractionalMatchRatio.IsPositive() {
-						fractionalMatchRatio = sdk.OneDec()
-						continue
-					}
 					offerAmt := matchOrder.RemainingOfferCoin.Amount.ToDec()
 					matchResult := MatchResult{
 						OrderHeight:       height,
