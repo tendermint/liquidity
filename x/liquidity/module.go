@@ -89,7 +89,7 @@ func (a AppModuleBasic) RegisterGRPCRoutes(clientCtx client.Context, mux *runtim
 	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
 
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the distribution module.
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the liquidity module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx sdkclient.Context, mux *runtime.ServeMux) {
 	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
