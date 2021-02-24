@@ -28,11 +28,10 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	currentHeight := ctx.BlockHeight()
 	invariantCheckFlag := true // temporary flag for test
 
-	swapMsgs = types.ValidateStateAndExpireOrders(swapMsgs, currentHeight, false)
+	types.ValidateStateAndExpireOrders(swapMsgs, currentHeight, false)
 
 	// get reserve Coin from the liquidity pool
 	reserveCoins := k.GetReserveCoins(ctx, pool)
-	reserveCoins.Sort()
 
 	// get current pool pair and price
 	X := reserveCoins[0].Amount.ToDec()
@@ -125,8 +124,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		}
 	}
 
-	XtoY = types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
-	YtoX = types.ValidateStateAndExpireOrders(YtoX, currentHeight, false)
+	types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
+	types.ValidateStateAndExpireOrders(YtoX, currentHeight, false)
 
 	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
@@ -136,8 +135,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		panic(types.ErrOrderBookInvalidity)
 	}
 
-	XtoY = types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
-	YtoX = types.ValidateStateAndExpireOrders(YtoX, currentHeight, true)
+	types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
+	types.ValidateStateAndExpireOrders(YtoX, currentHeight, true)
 
 	// Make index map for match result
 	matchResultMap := make(map[uint64]types.MatchResult)
@@ -146,18 +145,12 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 			panic("duplicatedMatchOrder")
 		}
 		matchResultMap[msg.OrderMsgIndex] = msg
-		if msg.OrderMsgIndex != matchResultMap[msg.OrderMsgIndex].OrderMsgIndex {
-			panic("map broken1")
-		}
 	}
 	for _, msg := range matchResultYtoX {
 		if _, ok := matchResultMap[msg.OrderMsgIndex]; ok {
 			panic("duplicatedMatchOrder")
 		}
 		matchResultMap[msg.OrderMsgIndex] = msg
-		if msg.OrderMsgIndex != matchResultMap[msg.OrderMsgIndex].OrderMsgIndex {
-			panic("map broken1")
-		}
 	}
 
 	if invariantCheckFlag {
@@ -172,7 +165,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		}
 
 		// compare swapMsgs state with XtoY, YtoX
-		notMatchedCount := 0
 		for k, v := range matchResultMap {
 			if k != v.OrderMsgIndex {
 				panic("broken map consistency2")
@@ -211,9 +203,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 				} else {
 					panic("fail msg pointer consistency")
 				}
-			} else {
-				// not matched
-				notMatchedCount++
 			}
 		}
 

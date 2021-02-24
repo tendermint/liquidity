@@ -108,9 +108,9 @@ func (k Keeper) ValidateLiquidityPool(ctx sdk.Context, pool *types.LiquidityPool
 	return nil
 }
 
-func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (error, types.LiquidityPool) {
+func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (types.LiquidityPool, error) {
 	if err := k.ValidateMsgCreateLiquidityPool(ctx, msg); err != nil {
-		return err, types.LiquidityPool{}
+		return types.LiquidityPool{}, err
 	}
 	params := k.GetParams(ctx)
 
@@ -125,16 +125,16 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, accPoolCreator.GetAddress())
 
 	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.ErrInsufficientBalance, types.LiquidityPool{}
+		return types.LiquidityPool{}, types.ErrInsufficientBalance
 	}
 	for _, coin := range msg.DepositCoins {
 		if coin.Amount.LT(params.MinInitDepositToPool) {
-			return types.ErrLessThanMinInitDeposit, types.LiquidityPool{}
+			return types.LiquidityPool{}, types.ErrLessThanMinInitDeposit
 		}
 	}
 
 	if !poolCreatorBalances.IsAllGTE(params.LiquidityPoolCreationFee.Add(msg.DepositCoins...)) {
-		return types.ErrInsufficientPoolCreationFee, types.LiquidityPool{}
+		return types.LiquidityPool{}, types.ErrInsufficientPoolCreationFee
 	}
 
 	PoolCoinDenom := types.GetPoolCoinDenom(poolKey)
@@ -150,7 +150,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(pool.PoolCoinDenom, params.InitPoolCoinMintAmount))
 	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
-		return err, types.LiquidityPool{}
+		return types.LiquidityPool{}, err
 	}
 
 	var inputs []banktypes.Input
@@ -169,7 +169,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 
 	// execute multi-send
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
-		return err, types.LiquidityPool{}
+		return types.LiquidityPool{}, err
 	}
 
 	pool = k.SetLiquidityPoolAtomic(ctx, pool)
@@ -182,7 +182,7 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	logger := k.Logger(ctx)
 	logger.Info("createPool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
-	return nil, pool
+	return pool, nil
 }
 
 // Get reserve Coin from the liquidity pool
@@ -708,7 +708,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					batchMsg.Succeeded = true
 					batchMsg.ToBeDeleted = true
 				} else {
-					panic("impossible case ")
+					panic("impossible case")
 					// TODO: set to Delete
 				}
 			} else if batchMsg.RemainingOfferCoin.IsZero() {

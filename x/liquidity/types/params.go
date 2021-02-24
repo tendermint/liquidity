@@ -51,7 +51,8 @@ var (
 	halfRatio, _ = sdk.NewDecFromStr("0.5")
 	HalfRatio    = halfRatio
 
-	DecimalErrThreshold = sdk.NewDecFromIntWithPrec(sdk.OneInt(), 10)
+	DecimalErrThreshold3  = sdk.NewDecFromIntWithPrec(sdk.OneInt(), 3)
+	DecimalErrThreshold10 = sdk.NewDecFromIntWithPrec(sdk.OneInt(), 10)
 
 	DefaultLiquidityPoolType = LiquidityPoolType{
 		PoolTypeIndex:     1,
