@@ -84,7 +84,7 @@ func GenUnitBatchSize(r *rand.Rand) uint32 {
 	return uint32(simulation.RandIntBetween(r, int(types.DefaultUnitBatchSize), 20))
 }
 
-// RandomizedGenState generates a random GenesisState for distribution
+// RandomizedGenState generates a random GenesisState for liquidity
 func RandomizedGenState(simState *module.SimulationState) {
 	var liquidityPoolTypes []types.LiquidityPoolType
 	simState.AppParams.GetOrGenerate(
@@ -152,6 +152,6 @@ func RandomizedGenState(simState *module.SimulationState) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Selected randomly generated distribution parameters:\n%s\n", bz)
+	fmt.Printf("Selected randomly generated liquidity parameters:\n%s\n", bz)
 	simState.GenState[types.ModuleName] = simState.Cdc.MustMarshalJSON(&liquidityGenesis)
 }
