@@ -2,13 +2,27 @@ package liquidity_test
 
 import (
 	"fmt"
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
+
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
-	"testing"
 )
+
+func TestBadMsg(t *testing.T) {
+	simapp, ctx := app.CreateTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	handler := liquidity.NewHandler(simapp.LiquidityKeeper)
+	_, err := handler(ctx, nil)
+	require.ErrorIs(t, err, sdkerrors.ErrUnknownRequest)
+	_, err = handler(ctx, banktypes.NewMsgMultiSend(nil, nil))
+	require.ErrorIs(t, err, sdkerrors.ErrUnknownRequest)
+}
 
 func TestMsgServerCreateLiquidityPool(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
