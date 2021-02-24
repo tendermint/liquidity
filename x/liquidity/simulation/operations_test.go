@@ -80,7 +80,7 @@ func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetPoolCreator().String())
 	require.Equal(t, types.DefaultPoolTypeIndex, msg.PoolTypeIndex)
-	require.Equal(t, "8241110790IXnku,695584091nhwJy", msg.DepositCoins.String())
+	require.Equal(t, "3625353331IXnku,1883778273nhwJy", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -111,7 +111,7 @@ func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetDepositor().String())
-	require.Equal(t, "20627209Qfyze,9282202VIkPZ", msg.DepositCoins.String())
+	require.Equal(t, "735585917Qfyze,7214764712VIkPZ", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgDepositToLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -172,10 +172,9 @@ func TestSimulateMsgSwap(t *testing.T) {
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, uint64(1), msg.PoolId)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetSwapRequester().String())
-	require.Equal(t, sdk.NewInt(5000), msg.OfferCoin.Amount)
-	require.Equal(t, "denomB", msg.DemandCoinDenom)
+	require.Equal(t, "960168fGaE", msg.OfferCoin.String())
+	require.Equal(t, "jXUlr", msg.DemandCoinDenom)
 	require.Equal(t, types.TypeMsgSwap, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -211,7 +210,6 @@ func getTestingAccounts(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx s
 func setupLiquidityPools(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx sdk.Context, accounts []simtypes.Account) {
 	params := app.StakingKeeper.GetParams(ctx)
 
-	// create liquidity pools
 	for _, account := range accounts {
 		// random denom with a length from 4 to 6 characters
 		denomA := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))

@@ -64,7 +64,7 @@ func GenLiquidityPoolCreationFee(r *rand.Rand) (coins sdk.Coins) {
 	return coins
 }
 
-// GenSwapFeeRate randomized SwapFeeRate ranging from 0.000001 to 1
+// GenSwapFeeRate randomized SwapFeeRate ranging from 0.00001 to 1
 func GenSwapFeeRate(r *rand.Rand) sdk.Dec {
 	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
