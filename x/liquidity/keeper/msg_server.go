@@ -28,7 +28,7 @@ var _ types.MsgServer = msgServer{}
 // Message server, handler for CreateLiquidityPool msg
 func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCreateLiquidityPool) (*types.MsgCreateLiquidityPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	err, pool := k.Keeper.CreateLiquidityPool(ctx, msg)
+	pool, err := k.Keeper.CreateLiquidityPool(ctx, msg)
 	if err != nil {
 		return nil, err
 	}

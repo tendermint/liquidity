@@ -8,6 +8,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/tendermint/liquidity/x/liquidity"
+	"math"
 	"math/rand"
 	"strconv"
 	"testing"
@@ -400,8 +401,9 @@ func CreateTestInput() (*LiquidityApp, sdk.Context) {
 }
 
 func GetRandPoolAmt(r *rand.Rand, minInitDepositAmt sdk.Int) (X, Y sdk.Int) {
-	X = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
-	Y = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
+	X = GetRandRange(r, int(minInitDepositAmt.Int64()), 100000000000000).MulRaw(int64(math.Pow10(r.Intn(10))))
+	Y = GetRandRange(r, int(minInitDepositAmt.Int64()), 100000000000000).MulRaw(int64(math.Pow10(r.Intn(10))))
+	//fmt.Println(X, Y, X.ToDec().Quo(Y.ToDec()))
 	return
 }
 
@@ -429,7 +431,6 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 
 	for i := 0; i < sizeXtoY; i++ {
-		GetRandFloats(0.1, 0.9)
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
 		//offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
 		orderAmt := sdk.ZeroDec()
@@ -520,7 +521,7 @@ func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sd
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	poolId := simapp.LiquidityKeeper.GetNextLiquidityPoolId(ctx)
 	msg := types.NewMsgCreateLiquidityPool(addr, poolTypeIndex, depositBalance)
-	err, _ := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
 	// verify created liquidity pool

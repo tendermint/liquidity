@@ -42,7 +42,7 @@ var (
 
 	DefaultMinInitDepositToPool     = sdk.NewInt(1000000)
 	DefaultInitPoolCoinMintAmount   = sdk.NewInt(1000000)
-	DefaultOfferCoinAmount          = sdk.NewInt(1000)
+	DefaultMinOfferCoinAmount       = sdk.NewInt(100)
 	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultWithdrawFeeRate          = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultMaxOrderAmountRatio      = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
@@ -51,7 +51,8 @@ var (
 	halfRatio, _ = sdk.NewDecFromStr("0.5")
 	HalfRatio    = halfRatio
 
-	DecimalErrThreshold = sdk.NewDecFromIntWithPrec(sdk.OneInt(), 10)
+	DecimalErrThreshold3  = sdk.NewDecFromIntWithPrec(sdk.OneInt(), 3)
+	DecimalErrThreshold10 = sdk.NewDecFromIntWithPrec(sdk.OneInt(), 10)
 
 	DefaultLiquidityPoolType = LiquidityPoolType{
 		PoolTypeIndex:     1,

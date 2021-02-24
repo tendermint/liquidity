@@ -39,7 +39,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
-	err, _ := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
 	var XtoY []*types.MsgSwap // buying Y from X

@@ -83,3 +83,45 @@ func TestIsPoolCoinDenom(t *testing.T) {
 	require.False(t, types.IsPoolCoinDenom("ibc/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
 	require.False(t, types.IsPoolCoinDenom("denomX/denomY/1"))
 }
+
+func TestCheckDecApproxEqual(t *testing.T) {
+	a := sdk.NewDecWithPrec(9999999999, 10)
+	b := sdk.NewDecWithPrec(9999999998, 10)
+	res := types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
+	require.True(t, res)
+
+	a = sdk.NewDecWithPrec(9999999999, 10)
+	b = sdk.NewDecWithPrec(9999999997, 10)
+	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
+	require.False(t, res)
+
+	a = sdk.NewDecWithPrec(99999999999, 10)
+	b = sdk.NewDecWithPrec(99999999998, 10)
+	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
+	require.True(t, res)
+
+	a = sdk.NewDecWithPrec(9999999999, 11)
+	b = sdk.NewDecWithPrec(9999999997, 11)
+	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
+	require.False(t, res)
+
+	a = sdk.NewDec(9999999999)
+	b = sdk.NewDec(9999999998)
+	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
+	require.True(t, res)
+
+	a = sdk.NewDec(9999999999)
+	b = sdk.NewDec(9999999997)
+	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
+	require.False(t, res)
+
+	a = sdk.NewDec(1)
+	b = sdk.NewDec(1)
+	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
+	require.True(t, res)
+
+	a = sdk.NewDec(1)
+	b = sdk.NewDec(2)
+	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
+	require.False(t, res)
+}
