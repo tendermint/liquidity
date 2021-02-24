@@ -230,7 +230,7 @@ func SimulateMsgWithdrawFromLiquidityPool(ak types.AccountKeeper, bk types.BankK
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		/*
 			1. Check if there's any liquidity pool created; if there isn't, then return NoOpMsg
-			2. Get any available simulated account and retrieve private key to sign tx message
+			2. Get any available simulated account and check if it has pool coin to withdraw from the pool
 			2. Get random liquidity pool and mint pool coin (LP token) to the simulated account
 			3. Withdraw random amounts from the liquidity pool
 		*/
@@ -254,10 +254,10 @@ func SimulateMsgWithdrawFromLiquidityPool(ak types.AccountKeeper, bk types.BankK
 
 		poolCoinDenom := pool.GetPoolCoinDenom()
 
-		// mint pool coin to the simulated account
-		err := mintCoins(r, simAccount.Address, []string{poolCoinDenom}, bk, ctx)
-		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositToLiquidityPool, "unable to mint and send coins"), nil, nil
+		// check if simulated account has pool coin
+		balanceA := bk.GetBalance(ctx, simAccount.Address, poolCoinDenom).Amount
+		if !balanceA.IsPositive() {
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateLiquidityPool, "pool coin is negative"), nil, nil
 		}
 
 		account := ak.GetAccount(ctx, simAccount.Address)
