@@ -3,6 +3,8 @@ go 1.15
 module github.com/tendermint/liquidity
 
 require (
+	github.com/btcsuite/btcd v0.21.0-beta
+	github.com/coinbase/rosetta-sdk-go v0.5.9
 	github.com/cosmos/cosmos-sdk v0.42.0-alpha1
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.4.3
@@ -12,7 +14,10 @@ require (
 	github.com/rakyll/statik v0.1.7
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.3
+	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
+	github.com/tendermint/btcd v0.1.1
+	github.com/tendermint/cosmos-rosetta-gateway v0.3.0-rc2
 	github.com/tendermint/tendermint v0.34.7
 	github.com/tendermint/tm-db v0.6.4
 	google.golang.org/genproto v0.0.0-20210114201628-6edceaf6022f
