@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -226,7 +225,7 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 }
 
 //check validity state of the batch swap messages, and set to delete state to height timeout expired order
-func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int64, expireThisHeight bool) []*BatchPoolSwapMsg {
+func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int64, expireThisHeight bool) {
 	for _, order := range msgList {
 		if !order.Executed {
 			panic("not executed")
@@ -252,7 +251,6 @@ func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int
 			order.ToBeDeleted = true
 		}
 	}
-	return msgList
 }
 
 // Calculate results for orderbook matching with unchanged price case
@@ -508,13 +506,6 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 			}
 		}
 	}
-	//// Invariant Check
-	r := maxScenario
-	if !CheckDecApproxEqual(r.EX.Add(r.PoolX).ToDec(), r.EY.Add(r.PoolY).ToDec().Mul(r.SwapPrice), DecimalErrThreshold3) {
-		fmt.Println(r)
-		panic("maxScenario CalculateSwap")
-	}
-
 	maxScenario.PriceDirection = direction
 	return maxScenario
 }

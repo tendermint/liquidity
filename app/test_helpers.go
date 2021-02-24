@@ -521,7 +521,7 @@ func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sd
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	poolId := simapp.LiquidityKeeper.GetNextLiquidityPoolId(ctx)
 	msg := types.NewMsgCreateLiquidityPool(addr, poolTypeIndex, depositBalance)
-	err, _ := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
 	// verify created liquidity pool

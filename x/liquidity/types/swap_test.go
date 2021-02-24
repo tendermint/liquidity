@@ -86,10 +86,8 @@ func TestSwapScenario(t *testing.T) {
 	fmt.Println(orderBook, currentPrice)
 	fmt.Println(XtoY, YtoX)
 
-	clearedXtoY := types.ValidateStateAndExpireOrders(XtoY, ctx.BlockHeight(), false)
-	clearedYtoX := types.ValidateStateAndExpireOrders(YtoX, ctx.BlockHeight(), false)
-	require.Equal(t, XtoY, clearedXtoY)
-	require.Equal(t, YtoX, clearedYtoX)
+	types.ValidateStateAndExpireOrders(XtoY, ctx.BlockHeight(), false)
+	types.ValidateStateAndExpireOrders(YtoX, ctx.BlockHeight(), false)
 
 	currentYPriceOverX := X.Quo(Y).ToDec()
 
@@ -106,12 +104,12 @@ func TestSwapScenario(t *testing.T) {
 	XtoY, YtoX, XDec, YDec, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		simapp.LiquidityKeeper.UpdateState(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
-	require.Equal(t, 0, (types.MsgList)(clearedXtoY).CountNotMatchedMsgs())
-	require.Equal(t, 0, (types.MsgList)(clearedXtoY).CountFractionalMatchedMsgs())
-	require.Equal(t, 1, (types.MsgList)(clearedYtoX).CountNotMatchedMsgs())
-	require.Equal(t, 0, (types.MsgList)(clearedYtoX).CountFractionalMatchedMsgs())
-	require.Equal(t, 3, len(clearedXtoY))
-	require.Equal(t, 1, len(clearedYtoX))
+	require.Equal(t, 0, (types.MsgList)(XtoY).CountNotMatchedMsgs())
+	require.Equal(t, 0, (types.MsgList)(XtoY).CountFractionalMatchedMsgs())
+	require.Equal(t, 1, (types.MsgList)(YtoX).CountNotMatchedMsgs())
+	require.Equal(t, 0, (types.MsgList)(YtoX).CountFractionalMatchedMsgs())
+	require.Equal(t, 3, len(XtoY))
+	require.Equal(t, 1, len(YtoX))
 
 	fmt.Println(matchResultXtoY)
 	fmt.Println(poolXDeltaXtoY)
@@ -123,7 +121,7 @@ func TestSwapScenario(t *testing.T) {
 	fmt.Println(XDec, YDec)
 
 	// Verify swap result by creating an orderbook with remaining messages that have been matched and not transacted.
-	orderMapExecuted, _, _ := types.GetOrderMap(append(clearedXtoY, clearedYtoX...), denomX, denomY, true)
+	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	lastPrice := XDec.Quo(YDec)
 	fmt.Println("lastPrice", lastPrice)
@@ -135,10 +133,10 @@ func TestSwapScenario(t *testing.T) {
 	require.Equal(t, 1, (types.MsgList)(orderMapExecuted[orderPriceListY[0].String()].MsgList).CountNotMatchedMsgs())
 	require.Equal(t, 1, (types.MsgList)(orderBookExecuted[0].MsgList).CountNotMatchedMsgs())
 
-	clearedXtoY = types.ValidateStateAndExpireOrders(XtoY, ctx.BlockHeight(), true)
-	clearedYtoX = types.ValidateStateAndExpireOrders(YtoX, ctx.BlockHeight(), true)
+	types.ValidateStateAndExpireOrders(XtoY, ctx.BlockHeight(), true)
+	types.ValidateStateAndExpireOrders(YtoX, ctx.BlockHeight(), true)
 
-	orderMapCleared, _, _ := types.GetOrderMap(append(clearedXtoY, clearedYtoX...), denomX, denomY, true)
+	orderMapCleared, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookCleared := orderMapCleared.SortOrderBook()
 	require.True(t, types.CheckValidityOrderBook(orderBookCleared, lastPrice))
 
