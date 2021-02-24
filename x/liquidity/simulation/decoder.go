@@ -30,7 +30,7 @@ func NewDecodeStore(cdc codec.Marshaler) func(kvA, kvB kv.Pair) string {
 			return fmt.Sprintf("%v\n%v", lpbA, lpbB)
 
 		default:
-			panic(fmt.Sprintf("invalid distribution key prefix %X", kvA.Key[:1]))
+			panic(fmt.Sprintf("invalid liquidity key prefix %X", kvA.Key[:1]))
 		}
 	}
 }
