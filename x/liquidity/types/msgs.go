@@ -1,7 +1,13 @@
 package types
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	rosettatypes "github.com/coinbase/rosetta-sdk-go/types"
+	"github.com/cosmos/cosmos-sdk/server/rosetta"
+	"github.com/gogo/protobuf/proto"
+	"strconv"
+	"strings"
 )
 
 // Messages Type of Liquidity module
@@ -284,4 +290,78 @@ func (msg MsgSwap) GetSwapRequester() sdk.AccAddress {
 		panic(err)
 	}
 	return addr
+}
+
+// TODO: WIP implementation Rosetta Interface for liquidity module msgs
+// Rosetta Msg interface.
+func (msg *MsgSwap) ToOperations(withStatus bool, hasError bool) []*rosettatypes.Operation {
+	var operations []*rosettatypes.Operation
+	swapRequester := msg.SwapRequesterAddress
+	coin := msg.OfferCoin
+	swapOp := func(account *rosettatypes.AccountIdentifier, amount string, index int) *rosettatypes.Operation {
+		var status string
+		if withStatus {
+			status = rosetta.StatusSuccess
+			if hasError {
+				status = rosetta.StatusReverted
+			}
+		}
+		return &rosettatypes.Operation{
+			OperationIdentifier: &rosettatypes.OperationIdentifier{
+				Index: int64(index),
+			},
+			Type:    proto.MessageName(msg),
+			Status:  status,
+			Account: account,
+			Amount: &rosettatypes.Amount{
+				Value: amount,
+				Currency: &rosettatypes.Currency{
+					Symbol: coin.Denom,
+				},
+			},
+		}
+	}
+	swapAcc := &rosettatypes.AccountIdentifier{
+		Address: swapRequester,
+	}
+	operations = append(operations,
+		swapOp(swapAcc, "-"+coin.Amount.String(), 0),
+		//swapOp(valAcc, coin.Amount.String(), 1),
+	)
+	return operations
+}
+
+func (msg *MsgSwap) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, error) {
+	var (
+		swapRequester sdk.AccAddress
+		poolId uint64
+		swapType uint32
+		offerCoin sdk.Coin
+		demandCoinDenom string
+		orderPrice sdk.Dec
+		swapFeeRate sdk.Dec
+		err     error
+	)
+
+	for _, op := range ops {
+		if strings.HasPrefix(op.Amount.Value, "-") {
+			if op.Account == nil {
+				return nil, fmt.Errorf("account identifier must be specified")
+			}
+			swapRequester, err = sdk.AccAddressFromBech32(op.Account.Address)
+			if err != nil {
+				return nil, err
+			}
+			continue
+		}
+
+		amount, err := strconv.ParseInt(op.Amount.Value, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("invalid amount: %w", err)
+		}
+
+		offerCoin = sdk.NewCoin(op.Amount.Currency.Symbol, sdk.NewInt(amount))
+	}
+
+	return NewMsgSwap(swapRequester, poolId, swapType, offerCoin, demandCoinDenom, orderPrice, swapFeeRate), nil
 }
