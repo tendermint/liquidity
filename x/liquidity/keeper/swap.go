@@ -32,7 +32,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	// get reserve Coin from the liquidity pool
 	reserveCoins := k.GetReserveCoins(ctx, pool)
-	reserveCoins.Sort()
 
 	// get current pool pair and price
 	X := reserveCoins[0].Amount.ToDec()

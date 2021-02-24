@@ -431,7 +431,6 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 
 	for i := 0; i < sizeXtoY; i++ {
-		GetRandFloats(0.1, 0.9)
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
 		//offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
 		orderAmt := sdk.ZeroDec()
