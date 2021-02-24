@@ -620,3 +620,63 @@ func TestGetOrderMapEdgeCase(t *testing.T) {
 //	//	types.FindOrderMatch(direction, swapMsgs, executableAmt, swapPrice, swapFeeRate, height)
 //	//} )
 //}
+
+func TestCheckValidityOrderBook(t *testing.T) {
+	currentPrice := sdk.MustNewDecFromStr("1.0")
+	for _, testCase := range []struct {
+		buyPrice string
+		sellPrice string
+		valid bool
+	}{
+		{
+			buyPrice: "0.99",
+			sellPrice: "1.01",
+			valid: true,
+		},
+		{
+			// maxBuyOrderPrice > minSellOrderPrice
+			buyPrice: "1.01",
+			sellPrice: "0.99",
+			valid: false,
+		},
+		{
+			buyPrice: "1.1",
+			sellPrice: "1.2",
+			valid: true,
+		},
+		{
+			// maxBuyOrderPrice/currentPrice > 1.10
+			buyPrice: "1.11",
+			sellPrice: "1.2",
+			valid: false,
+		},
+		{
+			buyPrice: "0.8",
+			sellPrice: "0.9",
+			valid: true,
+		},
+		{
+			// minSellOrderPrice/currentPrice < 0.90
+			buyPrice: "0.8",
+			sellPrice: "0.89",
+			valid: false,
+		},
+	} {
+		buyPrice := sdk.MustNewDecFromStr(testCase.buyPrice)
+		sellPrice := sdk.MustNewDecFromStr(testCase.sellPrice)
+		orderMap := types.OrderMap{
+			buyPrice.String(): {
+				OrderPrice:   buyPrice,
+				BuyOfferAmt:  sdk.OneInt(),
+				SellOfferAmt: sdk.ZeroInt(),
+			},
+			sellPrice.String(): {
+				OrderPrice:   sellPrice,
+				BuyOfferAmt:  sdk.ZeroInt(),
+				SellOfferAmt: sdk.OneInt(),
+			},
+		}
+		orderBook := orderMap.SortOrderBook()
+		require.Equal(t, testCase.valid, types.CheckValidityOrderBook(orderBook, currentPrice))
+	}
+}

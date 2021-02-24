@@ -78,6 +78,9 @@ func TestIsPoolCoinDenom(t *testing.T) {
 	require.Equal(t, "denomX/denomY/1", poolKey)
 	poolCoinDenom := types.GetPoolCoinDenom(poolKey)
 	require.True(t, types.IsPoolCoinDenom(poolCoinDenom))
+	require.False(t, types.IsPoolCoinDenom(""))
+	require.False(t, types.IsPoolCoinDenom("pool"))
+	require.False(t, types.IsPoolCoinDenom("pool/"))
 	require.True(t, types.IsPoolCoinDenom("pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
 	require.False(t, types.IsPoolCoinDenom("D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
 	require.False(t, types.IsPoolCoinDenom("ibc/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
@@ -85,6 +88,9 @@ func TestIsPoolCoinDenom(t *testing.T) {
 }
 
 func TestCheckDecApproxEqual(t *testing.T) {
+	require.True(t, types.CheckDecApproxEqual(sdk.ZeroDec(), sdk.ZeroDec(), types.DecimalErrThreshold3))
+	require.False(t, types.CheckDecApproxEqual(sdk.ZeroDec(), sdk.OneDec(), types.DecimalErrThreshold3))
+
 	a := sdk.NewDecWithPrec(9999999999, 10)
 	b := sdk.NewDecWithPrec(9999999998, 10)
 	res := types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
