@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -507,6 +508,13 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 			}
 		}
 	}
+	//// Invariant Check
+	r := maxScenario
+	if !CheckDecApproxEqual(r.EX.Add(r.PoolX).ToDec(), r.EY.Add(r.PoolY).ToDec().Mul(r.SwapPrice), DecimalErrThreshold3) {
+		fmt.Println(r)
+		panic("maxScenario CalculateSwap")
+	}
+
 	maxScenario.PriceDirection = direction
 	return maxScenario
 }

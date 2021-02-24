@@ -19,7 +19,7 @@ func TestSimulationSwapExecution(t *testing.T) {
 		}
 		TestSwapExecution(t)
 	}
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 1000; i++ {
 		if i%10 == 0 {
 			fmt.Println("TestSimulationSwapExecutionFindEdgeCase count", i)
 		}
