@@ -255,8 +255,8 @@ func SimulateMsgWithdrawFromLiquidityPool(ak types.AccountKeeper, bk types.BankK
 		poolCoinDenom := pool.GetPoolCoinDenom()
 
 		// check if simulated account has pool coin
-		balanceA := bk.GetBalance(ctx, simAccount.Address, poolCoinDenom).Amount
-		if !balanceA.IsPositive() {
+		balance := bk.GetBalance(ctx, simAccount.Address, poolCoinDenom).Amount
+		if !balance.IsPositive() {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateLiquidityPool, "pool coin is negative"), nil, nil
 		}
 
@@ -269,7 +269,7 @@ func SimulateMsgWithdrawFromLiquidityPool(ak types.AccountKeeper, bk types.BankK
 		}
 
 		withdrawer := account.GetAddress()
-		withdrawCoin := randomWithdrawCoin(r, poolCoinDenom)
+		withdrawCoin := randomWithdrawCoin(r, poolCoinDenom, balance)
 
 		msg := types.NewMsgWithdrawFromLiquidityPool(withdrawer, pool.PoolId, withdrawCoin)
 
@@ -417,9 +417,9 @@ func randomLiquidity(r *rand.Rand, k keeper.Keeper, ctx sdk.Context) (pool types
 	return pools[i], true
 }
 
-// randomWithdrawCoin returns random withdraw amount with given denom
-func randomWithdrawCoin(r *rand.Rand, denom string) sdk.Coin {
-	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1, 1e5))))
+// randomWithdrawCoin returns random withdraw amount between 1 and the account's current balance
+func randomWithdrawCoin(r *rand.Rand, denom string, balance sdk.Int) sdk.Coin {
+	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1, int(balance.Int64())))))
 }
 
 // randomOrderPrice returns random order price amount between 0.01 to 1
