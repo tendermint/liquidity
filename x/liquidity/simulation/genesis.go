@@ -45,7 +45,7 @@ func GenLiquidityPoolTypes(r *rand.Rand) []types.LiquidityPoolType {
 
 // GenMinInitDepositToPool randomized MinInitDepositToPool
 func GenMinInitDepositToPool(r *rand.Rand) sdk.Int {
-	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8)))
+	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e7)))
 }
 
 // GenInitPoolCoinMintAmount randomized InitPoolCoinMintAmount
