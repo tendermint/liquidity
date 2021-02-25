@@ -1,24 +1,24 @@
 package types
 
 import (
-	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"sort"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // liquidity module const types for swap
 const (
-	// Price Directions
-	Increase = 1
-	Decrease = 2
-	Stay     = 3
-
 	// Match Types
 	ExactMatch      = 1
 	NoMatch         = 2
 	FractionalMatch = 3
 
-	//OrderLifeSpanHeight = 0
+	// Price Directions
+	Increase = 1
+	Decrease = 2
+	Stay     = 3
+
+	// Order Directions
 	DirectionXtoY = 1
 	DirectionYtoX = 2
 )
@@ -131,33 +131,27 @@ func (orderMap OrderMap) SortOrderBook() (orderBook OrderBook) {
 	for _, v := range orderMap {
 		orderPriceList = append(orderPriceList, v.OrderPrice)
 	}
-
 	sort.Slice(orderPriceList, func(i, j int) bool {
 		return orderPriceList[i].LT(orderPriceList[j])
 	})
-
 	for _, k := range orderPriceList {
-		orderBook = append(orderBook, OrderByPrice{
-			OrderPrice:   k,
-			BuyOfferAmt:  orderMap[k.String()].BuyOfferAmt,
-			SellOfferAmt: orderMap[k.String()].SellOfferAmt,
-			MsgList:      orderMap[k.String()].MsgList,
-		})
+		orderBook = append(orderBook, orderMap[k.String()])
 	}
 	return orderBook
 }
 
 // struct of swap matching result of the batch
 type BatchResult struct {
-	MatchType   int
-	SwapPrice   sdk.Dec
-	EX          sdk.Int
-	EY          sdk.Int
-	OriginalEX  sdk.Int
-	OriginalEY  sdk.Int
-	PoolX       sdk.Int
-	PoolY       sdk.Int
-	TransactAmt sdk.Int
+	MatchType      int
+	PriceDirection int
+	SwapPrice      sdk.Dec
+	EX             sdk.Int
+	EY             sdk.Int
+	OriginalEX     sdk.Int
+	OriginalEY     sdk.Int
+	PoolX          sdk.Int
+	PoolY          sdk.Int
+	TransactAmt    sdk.Int
 }
 
 // return of zero object, to avoid nil
@@ -183,15 +177,14 @@ type MatchResult struct {
 	OfferCoinAmt           sdk.Int
 	TransactedCoinAmt      sdk.Int
 	ExchangedDemandCoinAmt sdk.Int
-	FeeAmt                 sdk.Int
+	OfferCoinFeeAmt        sdk.Int
+	ExchangedCoinFeeAmt    sdk.Int
 	BatchMsg               *BatchPoolSwapMsg
-	// TODO: add swapPrice
 }
 
 // The price and coins of swap messages in orderbook are calculated
 // to derive match result with the price direction.
-func MatchOrderbook(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result BatchResult) {
-	result = NewBatchResult()
+func MatchOrderbook(X, Y, currentPrice sdk.Dec, orderBook OrderBook) BatchResult {
 	orderBook.Sort()
 	priceDirection := GetPriceDirection(currentPrice, orderBook)
 
@@ -201,7 +194,6 @@ func MatchOrderbook(X, Y, currentPrice sdk.Dec, orderBook OrderBook) (result Bat
 		if priceDirection == Decrease {
 			orderBook.Reverse()
 		}
-
 		return CalculateMatch(priceDirection, X, Y, currentPrice, orderBook)
 	}
 }
@@ -233,11 +225,10 @@ func CheckValidityOrderBook(orderBook OrderBook, currentPrice sdk.Dec) bool {
 }
 
 //check validity state of the batch swap messages, and set to delete state to height timeout expired order
-func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int64, expireThisHeight bool) []*BatchPoolSwapMsg {
+func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int64, expireThisHeight bool) {
 	for _, order := range msgList {
 		if !order.Executed {
 			panic("not executed")
-			continue
 		}
 		if order.RemainingOfferCoin.IsZero() {
 			if !order.Succeeded || !order.ToBeDeleted {
@@ -260,7 +251,6 @@ func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int
 			order.ToBeDeleted = true
 		}
 	}
-	return msgList
 }
 
 // Calculate results for orderbook matching with unchanged price case
@@ -270,16 +260,19 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResul
 	r.OriginalEX, r.OriginalEY = GetExecutableAmt(r.SwapPrice, orderBook)
 	r.EX = r.OriginalEX
 	r.EY = r.OriginalEY
+	r.PriceDirection = Stay
 
-	if r.EX.Add(r.PoolX).Equal(sdk.ZeroInt()) || r.EY.Add(r.PoolY).Equal(sdk.ZeroInt()) {
+	s := r.SwapPrice.MulInt(r.EY).TruncateInt()
+	if r.EX.IsZero() || r.EY.IsZero() {
 		r.MatchType = NoMatch
-	} else if r.EX.Equal(r.SwapPrice.MulInt(r.EY).TruncateInt()) {
+	} else if r.EX.Equal(s) { // Normalization to an integrator for easy determination of exactMatch
 		r.MatchType = ExactMatch
 	} else {
+		// Decimal Error, When calculating the Executable value, conservatively Truncated decimal
 		r.MatchType = FractionalMatch
-		if r.EX.GT(r.SwapPrice.MulInt(r.EY).TruncateInt()) {
-			r.EX = r.SwapPrice.MulInt(r.EY).TruncateInt()
-		} else if r.EX.LT(r.SwapPrice.MulInt(r.EY).TruncateInt()) {
+		if r.EX.GT(s) {
+			r.EX = s
+		} else if r.EX.LT(s) {
 			r.EY = r.EX.ToDec().Quo(r.SwapPrice).TruncateInt()
 		}
 	}
@@ -306,11 +299,8 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 
 	matchAmt := sdk.ZeroInt()
 	accumMatchAmt := sdk.ZeroInt()
-	//var matchedOrderMsgIndexList []uint64
 	var matchOrderList []*BatchPoolSwapMsg
-	//matchedIndexMap := make(map[uint64]sdk.Coin)
 
-	fmt.Printf("%+v %+v\n", "executableAmt", executableAmt)
 	if executableAmt.IsZero() {
 		return
 	}
@@ -322,7 +312,7 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 		// include the matched order in matchAmt, matchOrderList
 		if (direction == DirectionXtoY && order.Msg.OrderPrice.GTE(swapPrice)) ||
 			(direction == DirectionYtoX && order.Msg.OrderPrice.LTE(swapPrice)) {
-			matchAmt = matchAmt.Add(order.Msg.OfferCoin.Amount)
+			matchAmt = matchAmt.Add(order.RemainingOfferCoin.Amount)
 			matchOrderList = append(matchOrderList, order)
 		}
 
@@ -350,14 +340,16 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 			if matchAmt.IsPositive() {
 				if accumMatchAmt.Add(matchAmt).GTE(executableAmt) {
 					fractionalMatchRatio = executableAmt.Sub(accumMatchAmt).ToDec().Quo(matchAmt.ToDec())
+					if fractionalMatchRatio.GT(sdk.NewDec(1)) {
+						panic("Invariant Check: fractionalMatchRatio between 0 and 1")
+					}
 				} else {
 					fractionalMatchRatio = sdk.OneDec()
 				}
+				if !fractionalMatchRatio.IsPositive() {
+					fractionalMatchRatio = sdk.OneDec()
+				}
 				for _, matchOrder := range matchOrderList {
-					if !fractionalMatchRatio.IsPositive() {
-						fractionalMatchRatio = sdk.OneDec()
-						continue
-					}
 					offerAmt := matchOrder.RemainingOfferCoin.Amount.ToDec()
 					matchResult := MatchResult{
 						OrderHeight:       height,
@@ -365,23 +357,26 @@ func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt s
 						OrderMsgIndex:     matchOrder.MsgIndex,
 						OrderPrice:        matchOrder.Msg.OrderPrice,
 						OfferCoinAmt:      matchOrder.RemainingOfferCoin.Amount,
+						// TransactedCoinAmt is a value that should not be lost, so Ceil it conservatively considering the decimal error.
 						TransactedCoinAmt: offerAmt.Mul(fractionalMatchRatio).Ceil().TruncateInt(),
 						BatchMsg:          matchOrder,
 					}
 					if matchOrder != matchResult.BatchMsg {
-						panic("not matched msg pointer ")
+						panic("not matched msg pointer")
 					}
+					// Fee, Exchanged amount are values that should not be overmeasured, so it is lowered conservatively considering the decimal error.
 					if direction == DirectionXtoY {
-						// TODO: offer-FeeAmt for exchanged
-						matchResult.FeeAmt = matchResult.TransactedCoinAmt.ToDec().Mul(swapFeeRate).TruncateInt()
-						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Sub(matchResult.FeeAmt).ToDec().Quo(swapPrice).TruncateInt()
+						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.OfferCoinFeeReserve.Amount.ToDec().Mul(fractionalMatchRatio).TruncateInt()
+						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.ToDec().Quo(swapPrice).TruncateInt()
+						matchResult.ExchangedCoinFeeAmt = matchResult.OfferCoinFeeAmt.ToDec().Quo(swapPrice).TruncateInt()
 					} else if direction == DirectionYtoX {
-						// TODO: offer-FeeAmt for exchanged
-						matchResult.FeeAmt = matchResult.TransactedCoinAmt.ToDec().Mul(swapFeeRate).TruncateInt()
-						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Sub(matchResult.FeeAmt).ToDec().Mul(swapPrice).TruncateInt()
+						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.OfferCoinFeeReserve.Amount.ToDec().Mul(fractionalMatchRatio).TruncateInt()
+						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.ToDec().Mul(swapPrice).TruncateInt()
+						matchResult.ExchangedCoinFeeAmt = matchResult.OfferCoinFeeAmt.ToDec().Mul(swapPrice).TruncateInt()
 					}
+					// Check for differences above maximum decimal error
 					if matchResult.TransactedCoinAmt.GT(matchResult.OfferCoinAmt) ||
-						(matchResult.FeeAmt.GT(matchResult.OfferCoinAmt) && matchResult.FeeAmt.GT(sdk.OneInt())) {
+						(matchResult.OfferCoinFeeAmt.GT(matchResult.OfferCoinAmt) && matchResult.OfferCoinFeeAmt.GT(sdk.OneInt())) {
 						panic(matchResult.TransactedCoinAmt)
 					}
 					matchResultList = append(matchResultList, matchResult)
@@ -418,6 +413,7 @@ func CalculateSwap(direction int, X, Y, orderPrice, lastOrderPrice sdk.Dec, orde
 	//r.SwapPrice = X.Add(r.EX).Quo(Y.Add(r.EY)) // legacy constant product model
 	r.SwapPrice = X.Add(r.EX.MulRaw(2).ToDec()).Quo(Y.Add(r.EY.MulRaw(2).ToDec())) // newSwapPriceModel
 
+	// Normalization to an integrator for easy determination of exactMatch. this decimal error will be minimize
 	if direction == Increase {
 		//r.PoolY = Y.Sub(X.Quo(r.SwapPrice))  // legacy constant product model
 		r.PoolY = r.SwapPrice.Mul(Y).Sub(X).Quo(r.SwapPrice.MulInt64(2)).TruncateInt() // newSwapPriceModel
@@ -445,6 +441,7 @@ func CalculateSwap(direction int, X, Y, orderPrice, lastOrderPrice sdk.Dec, orde
 		r.EX = r.OriginalEX
 		r.EY = r.OriginalEY
 		r.SwapPrice = orderPrice
+		// When calculating the Pool value, conservatively Truncated decimal, so Ceil it to reduce the decimal error
 		if direction == Increase {
 			//r.PoolY = Y.Sub(X.Quo(r.SwapPrice))  // legacy constant product model
 			r.PoolY = r.SwapPrice.Mul(Y).Sub(X).Quo(r.SwapPrice.MulInt64(2)).TruncateInt() // newSwapPriceModel
@@ -459,6 +456,7 @@ func CalculateSwap(direction int, X, Y, orderPrice, lastOrderPrice sdk.Dec, orde
 		r.MatchType = FractionalMatch
 	}
 
+	// Round to an integer to minimize decimal errors.
 	if direction == Increase {
 		if r.SwapPrice.LT(X.Quo(Y)) || r.PoolY.IsNegative() {
 			r.TransactAmt = sdk.ZeroInt()
@@ -486,7 +484,7 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 		} else {
 			orderPrice := order.OrderPrice
 			r := CalculateSwap(direction, X, Y, orderPrice, lastOrderPrice, orderBook)
-			// TODO: need to re-check on milestone 2
+			// Check to see if it exceeds a value that can be a decimal error
 			if (direction == Increase && r.PoolY.ToDec().Sub(r.EX.ToDec().Quo(r.SwapPrice)).GTE(sdk.OneDec())) ||
 				(direction == Decrease && r.PoolX.ToDec().Sub(r.EY.ToDec().Mul(r.SwapPrice)).GTE(sdk.OneDec())) {
 				continue
@@ -498,14 +496,7 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 	maxScenario = NewBatchResult()
 	maxScenario.TransactAmt = sdk.ZeroInt()
 	for _, s := range matchScenarioList {
-		//if s.MatchType == ExactMatch && s.TransactAmt.IsPositive() {
-		//	maxScenario = s
-		//	break
-		//} else if s.TransactAmt.GT(maxScenario.TransactAmt) {
-		//	maxScenario = s
-		//}
 		MEX, MEY := GetMustExecutableAmt(s.SwapPrice, orderBook)
-		fmt.Println("Scenario, MEX, MEY", s, MEX, MEY)
 		if s.EX.GTE(MEX) && s.EY.GTE(MEY) {
 			if s.MatchType == ExactMatch && s.TransactAmt.IsPositive() {
 				maxScenario = s
@@ -515,26 +506,23 @@ func CalculateMatch(direction int, X, Y, currentPrice sdk.Dec, orderBook OrderBo
 			}
 		}
 	}
-	r := maxScenario
-
-	tmpInvariant := r.EX.Add(r.PoolX).ToDec().Sub(r.EY.Add(r.PoolY).ToDec().Mul(r.SwapPrice))
-	if tmpInvariant.GT(r.SwapPrice) && tmpInvariant.GT(sdk.OneDec()) {
-		// TODO: coverage on types
-		panic("maxScenario CalculateSwap")
-	}
+	maxScenario.PriceDirection = direction
 	return maxScenario
 }
 
 // Check swap price validity using list of match result.
 func CheckSwapPrice(matchResultXtoY, matchResultYtoX []MatchResult, swapPrice sdk.Dec) bool {
-	// TODO: WIP new validity, Fee
+	if len(matchResultXtoY) == 0 && len(matchResultYtoX) == 0 {
+		return true
+	}
+	// Check if it is greater than a value that can be a decimal error
 	for _, m := range matchResultXtoY {
-		if m.TransactedCoinAmt.Sub(m.FeeAmt).ToDec().Quo(swapPrice).Sub(m.ExchangedDemandCoinAmt.ToDec()).Abs().GT(sdk.OneDec()) {
+		if m.TransactedCoinAmt.ToDec().Quo(swapPrice).Sub(m.ExchangedDemandCoinAmt.ToDec()).Abs().GT(sdk.OneDec()) {
 			return false
 		}
 	}
 	for _, m := range matchResultYtoX {
-		if m.TransactedCoinAmt.Sub(m.FeeAmt).ToDec().Mul(swapPrice).Sub(m.ExchangedDemandCoinAmt.ToDec()).Abs().GT(sdk.OneDec()) {
+		if m.TransactedCoinAmt.ToDec().Mul(swapPrice).Sub(m.ExchangedDemandCoinAmt.ToDec()).Abs().GT(sdk.OneDec()) {
 			return false
 		}
 	}
@@ -546,7 +534,6 @@ func CheckSwapPrice(matchResultXtoY, matchResultYtoX []MatchResult, swapPrice sd
 
 // Check swap executable amount validity of the orderbook
 func GetMustExecutableAmt(swapPrice sdk.Dec, orderBook OrderBook) (mustExecutableBuyAmtX, mustExecutableSellAmtY sdk.Int) {
-	// TODO: WIP new validity
 	mustExecutableBuyAmtX = sdk.ZeroInt()
 	mustExecutableSellAmtY = sdk.ZeroInt()
 	for _, order := range orderBook {
@@ -560,20 +547,7 @@ func GetMustExecutableAmt(swapPrice sdk.Dec, orderBook OrderBook) (mustExecutabl
 	return
 }
 
-// TODO: WIP new validity
-//func CheckValidityMustExecutable(orderBook OrderBook, swapPrice sdk.Dec) bool {
-//	fmt.Println(orderBook)
-//	fmt.Println(swapPrice)
-//	MEX, MEY := GetMustExecutableAmt(swapPrice, orderBook)
-//	if MEX.GT(sdk.NewInt(1000)) || MEY.GT(sdk.NewInt(1000)) {
-//		fmt.Println("CheckValidityMustExecutable False", MEX, MEY, swapPrice)
-//		return false
-//	} else {
-//		return true
-//	}
-//}
-
-// make orderMap key as swap price, value as Buy, Sell Amount from swap msgs,  with split as Buy XtoY, Sell YtoX msg list.
+// make orderMap key as swap price, value as Buy, Sell Amount from swap msgs, with split as Buy XtoY, Sell YtoX msg list.
 func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMatched bool) (OrderMap, []*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
 	orderMap := make(OrderMap)
 	var XtoY []*BatchPoolSwapMsg // buying Y from X
@@ -582,39 +556,36 @@ func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMat
 		if onlyNotMatched && (m.ToBeDeleted || m.RemainingOfferCoin.IsZero()) {
 			continue
 		}
-		if m.Msg.OfferCoin.Denom == denomX { // buying Y from X
-			XtoY = append(XtoY, m)
-			if _, ok := orderMap[m.Msg.OrderPrice.String()]; ok {
-				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
-					m.Msg.OrderPrice,
-					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt.Add(m.Msg.OfferCoin.Amount),
-					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt,
-					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
-				}
-			} else {
-				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					m.Msg.OfferCoin.Amount, sdk.ZeroInt(),
-					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
-				}
-			}
-		} else if m.Msg.OfferCoin.Denom == denomY { // selling Y for X
-			YtoX = append(YtoX, m)
-			if _, ok := orderMap[m.Msg.OrderPrice.String()]; ok {
-				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{
-					m.Msg.OrderPrice,
-					orderMap[m.Msg.OrderPrice.String()].BuyOfferAmt,
-					orderMap[m.Msg.OrderPrice.String()].SellOfferAmt.Add(m.Msg.OfferCoin.Amount),
-					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
-				}
-			} else {
-				orderMap[m.Msg.OrderPrice.String()] = OrderByPrice{m.Msg.OrderPrice,
-					sdk.ZeroInt(), m.Msg.OfferCoin.Amount,
-					append(orderMap[m.Msg.OrderPrice.String()].MsgList, m),
-				}
-			}
-		} else {
-			panic("ErrInvalidDenom")
+		order := OrderByPrice{
+			OrderPrice:   m.Msg.OrderPrice,
+			BuyOfferAmt:  sdk.ZeroInt(),
+			SellOfferAmt: sdk.ZeroInt(),
 		}
+		orderPriceString := m.Msg.OrderPrice.String()
+		switch {
+		// buying Y from X
+		case m.Msg.OfferCoin.Denom == denomX:
+			XtoY = append(XtoY, m)
+			if o, ok := orderMap[orderPriceString]; ok {
+				order = o
+				order.BuyOfferAmt = o.BuyOfferAmt.Add(m.RemainingOfferCoin.Amount) // TODO: feeX half
+			} else {
+				order.BuyOfferAmt = m.RemainingOfferCoin.Amount
+			}
+		// selling Y for X
+		case m.Msg.OfferCoin.Denom == denomY:
+			YtoX = append(YtoX, m)
+			if o, ok := orderMap[orderPriceString]; ok {
+				order = o
+				order.SellOfferAmt = o.SellOfferAmt.Add(m.RemainingOfferCoin.Amount)
+			} else {
+				order.SellOfferAmt = m.RemainingOfferCoin.Amount
+			}
+		default:
+			panic(ErrInvalidDenom)
+		}
+		order.MsgList = append(order.MsgList, m)
+		orderMap[orderPriceString] = order
 	}
 	return orderMap, XtoY, YtoX
 }
@@ -637,9 +608,9 @@ func GetPriceDirection(currentPrice sdk.Dec, orderBook OrderBook) int {
 		}
 	}
 
-	if buyAmtOverCurrentPrice.Sub(currentPrice.Mul(sellAmtUnderCurrentPrice.Add(sellAmtAtCurrentPrice))).IsPositive() {
+	if buyAmtOverCurrentPrice.GT(currentPrice.Mul(sellAmtUnderCurrentPrice.Add(sellAmtAtCurrentPrice))) {
 		return Increase
-	} else if currentPrice.Mul(sellAmtUnderCurrentPrice).Sub(buyAmtOverCurrentPrice.Add(buyAmtAtCurrentPrice)).IsPositive() {
+	} else if currentPrice.Mul(sellAmtUnderCurrentPrice).GT(buyAmtOverCurrentPrice.Add(buyAmtAtCurrentPrice)) {
 		return Decrease
 	} else {
 		return Stay

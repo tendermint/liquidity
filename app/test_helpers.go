@@ -6,32 +6,30 @@ import (
 	"encoding/json"
 	"fmt"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/tendermint/liquidity/x/liquidity"
+	"math"
 	"math/rand"
 	"strconv"
 	"testing"
 	"time"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	bam "github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	"github.com/cosmos/cosmos-sdk/simapp/helpers"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	simappparams "github.com/tendermint/liquidity/app/params"
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
@@ -100,9 +98,9 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 		// Currently validator requires tmcrypto.ed25519 keys, which don't support
 		// our Marshaling interfaces, so we need to pack them into our version of ed25519.
 		// There is ongoing work to add secp256k1 keys (https://github.com/cosmos/cosmos-sdk/pull/7604).
-		pk, err := ed25519.FromTmEd25519(val.PubKey)
+		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
 		require.NoError(t, err)
-		pkAny, err := codectypes.PackAny(pk)
+		pkAny, err := codectypes.NewAnyWithValue(pk)
 		require.NoError(t, err)
 		validator := stakingtypes.Validator{
 			OperatorAddress:   sdk.ValAddress(val.Address).String(),
@@ -235,7 +233,7 @@ func createIncrementalAccounts(accNum int) []sdk.AccAddress {
 }
 
 // AddTestAddrsFromPubKeys adds the addresses into the LiquidityApp providing only the public keys.
-func AddTestAddrsFromPubKeys(app *LiquidityApp, ctx sdk.Context, pubKeys []crypto.PubKey, accAmt sdk.Int) {
+func AddTestAddrsFromPubKeys(app *LiquidityApp, ctx sdk.Context, pubKeys []cryptotypes.PubKey, accAmt sdk.Int) {
 	initCoins := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt))
 
 	setTotalSupply(app, ctx, accAmt, len(pubKeys))
@@ -299,6 +297,17 @@ func SaveAccount(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCo
 	}
 }
 
+func SaveAccountWithFee(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins, offerCoin sdk.Coin) {
+	SaveAccount(app, ctx, addr, initCoins)
+	//acc := app.AccountKeeper.GetAccount(ctx, addr)
+	params := app.LiquidityKeeper.GetParams(ctx)
+	offerCoinFee := types.GetOfferCoinFee(offerCoin, params.SwapFeeRate)
+	err := app.BankKeeper.AddCoins(ctx, addr, sdk.NewCoins(offerCoinFee))
+	if err != nil {
+		panic(err)
+	}
+}
+
 // ConvertAddrsToValAddrs converts the provided addresses to ValAddress.
 func ConvertAddrsToValAddrs(addrs []sdk.AccAddress) []sdk.ValAddress {
 	valAddrs := make([]sdk.ValAddress, len(addrs))
@@ -337,84 +346,6 @@ func CheckBalance(t *testing.T, app *LiquidityApp, addr sdk.AccAddress, balances
 	require.True(t, balances.IsEqual(app.BankKeeper.GetAllBalances(ctxCheck, addr)))
 }
 
-// SignCheckDeliver checks a generated signed transaction and simulates a
-// block commitment with the given transaction. A test assertion is made using
-// the parameter 'expPass' against the result. A corresponding result is
-// returned.
-func SignCheckDeliver(
-	t *testing.T, txCfg client.TxConfig, app *bam.BaseApp, header tmproto.Header, msgs []sdk.Msg,
-	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv ...crypto.PrivKey,
-) (sdk.GasInfo, *sdk.Result, error) {
-	txGen := simappparams.MakeTestEncodingConfig().TxConfig
-	tx, err := helpers.GenTx(
-		txCfg,
-		msgs,
-		sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
-		helpers.DefaultGenTxGas,
-		chainID,
-		accNums,
-		accSeqs,
-		priv...,
-	)
-	require.NoError(t, err)
-	txBytes, err := txCfg.TxEncoder()(tx)
-	require.Nil(t, err)
-
-	// Must simulate now as CheckTx doesn't run Msgs anymore
-	_, res, err := app.Simulate(txBytes)
-
-	if expSimPass {
-		require.NoError(t, err)
-		require.NotNil(t, res)
-	} else {
-		require.Error(t, err)
-		require.Nil(t, res)
-	}
-
-	// Simulate a sending a transaction and committing a block
-	app.BeginBlock(abci.RequestBeginBlock{Header: header})
-	gInfo, res, err := app.Deliver(txGen.TxEncoder(), tx)
-
-	if expPass {
-		require.NoError(t, err)
-		require.NotNil(t, res)
-	} else {
-		require.Error(t, err)
-		require.Nil(t, res)
-	}
-
-	app.EndBlock(abci.RequestEndBlock{})
-	app.Commit()
-
-	return gInfo, res, err
-}
-
-// GenSequenceOfTxs generates a set of signed transactions of messages, such
-// that they differ only by having the sequence numbers incremented between
-// every transaction.
-func GenSequenceOfTxs(txGen client.TxConfig, msgs []sdk.Msg, accNums []uint64, initSeqNums []uint64, numToGenerate int, priv ...crypto.PrivKey) ([]sdk.Tx, error) {
-	txs := make([]sdk.Tx, numToGenerate)
-	var err error
-	for i := 0; i < numToGenerate; i++ {
-		txs[i], err = helpers.GenTx(
-			txGen,
-			msgs,
-			sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 0)},
-			helpers.DefaultGenTxGas,
-			"",
-			accNums,
-			initSeqNums,
-			priv...,
-		)
-		if err != nil {
-			break
-		}
-		incrementAllSequenceNumbers(initSeqNums)
-	}
-
-	return txs, err
-}
-
 func incrementAllSequenceNumbers(initSeqNums []uint64) {
 	for i := 0; i < len(initSeqNums); i++ {
 		initSeqNums[i]++
@@ -422,8 +353,8 @@ func incrementAllSequenceNumbers(initSeqNums []uint64) {
 }
 
 // CreateTestPubKeys returns a total of numPubKeys public keys in ascending order.
-func CreateTestPubKeys(numPubKeys int) []crypto.PubKey {
-	var publicKeys []crypto.PubKey
+func CreateTestPubKeys(numPubKeys int) []cryptotypes.PubKey {
+	var publicKeys []cryptotypes.PubKey
 	var buffer bytes.Buffer
 
 	// start at 10 to avoid changing 1 to 01, 2 to 02, etc
@@ -439,7 +370,7 @@ func CreateTestPubKeys(numPubKeys int) []crypto.PubKey {
 }
 
 // NewPubKeyFromHex returns a PubKey from a hex string.
-func NewPubKeyFromHex(pk string) (res crypto.PubKey) {
+func NewPubKeyFromHex(pk string) (res cryptotypes.PubKey) {
 	pkBytes, err := hex.DecodeString(pk)
 	if err != nil {
 		panic(err)
@@ -470,8 +401,9 @@ func CreateTestInput() (*LiquidityApp, sdk.Context) {
 }
 
 func GetRandPoolAmt(r *rand.Rand, minInitDepositAmt sdk.Int) (X, Y sdk.Int) {
-	X = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
-	Y = GetRandRange(r, 1, 1000000).Mul(minInitDepositAmt)
+	X = GetRandRange(r, int(minInitDepositAmt.Int64()), 100000000000000).MulRaw(int64(math.Pow10(r.Intn(10))))
+	Y = GetRandRange(r, int(minInitDepositAmt.Int64()), 100000000000000).MulRaw(int64(math.Pow10(r.Intn(10))))
+	//fmt.Println(X, Y, X.ToDec().Quo(Y.ToDec()))
 	return
 }
 
@@ -499,7 +431,6 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 
 	for i := 0; i < sizeXtoY; i++ {
-		GetRandFloats(0.1, 0.9)
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
 		//offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
 		orderAmt := sdk.ZeroDec()
@@ -554,6 +485,7 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 				OfferCoin:       orderCoin,
 				DemandCoinDenom: denomY,
 				OrderPrice:      orderPrice,
+				OfferCoinFee:    types.GetOfferCoinFee(orderCoin, types.DefaultSwapFeeRate),
 			},
 		})
 	}
@@ -568,6 +500,7 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 				OfferCoin:       orderCoin,
 				DemandCoinDenom: denomX,
 				OrderPrice:      orderPrice,
+				OfferCoinFee:    types.GetOfferCoinFee(orderCoin, types.DefaultSwapFeeRate),
 			},
 		})
 	}
@@ -575,7 +508,6 @@ func GetRandomBatchSwapOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand)
 }
 
 func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sdk.Int, denomX, denomY string, addr sdk.AccAddress) uint64 {
-	denoms := []string{denomX, denomY}
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	// set accounts for creator, depositor, withdrawer, balance for deposit
@@ -588,8 +520,8 @@ func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sd
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
 	poolId := simapp.LiquidityKeeper.GetNextLiquidityPoolId(ctx)
-	msg := types.NewMsgCreateLiquidityPool(addr, poolTypeIndex, denoms, depositBalance)
-	err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	msg := types.NewMsgCreateLiquidityPool(addr, poolTypeIndex, depositBalance)
+	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.NoError(t, err)
 
 	// verify created liquidity pool
@@ -620,7 +552,7 @@ func TestDepositPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y s
 		SaveAccount(simapp, ctx, addrs[i], deposit) // pool creator
 
 		depositMsg := types.NewMsgDepositToLiquidityPool(addrs[i], poolId, deposit)
-		err := simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
+		_, err := simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 		require.NoError(t, err)
 
 		depositorBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.ReserveCoinDenoms[0])
@@ -679,7 +611,7 @@ func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolC
 
 		withdrawCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
 		withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[i], poolId, withdrawCoin)
-		err := simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
+		_, err := simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
 		require.NoError(t, err)
 
 		moduleAccEscrowAmtPoolAfter := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, pool.PoolCoinDenom)
@@ -737,12 +669,15 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 
 	var batchPoolSwapMsgList []*types.BatchPoolSwapMsg
 
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
 	iterNum := len(addrs)
 	for i := 0; i < iterNum; i++ {
 		moduleAccEscrowAmtPool := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, offerCoinList[i].Denom)
 		currentBalance := simapp.BankKeeper.GetBalance(ctx, addrs[i], offerCoinList[i].Denom)
 		if currentBalance.IsLT(offerCoinList[i]) {
-			SaveAccount(simapp, ctx, addrs[i], sdk.NewCoins(offerCoinList[i]))
+			SaveAccountWithFee(simapp, ctx, addrs[i], sdk.NewCoins(offerCoinList[i]), offerCoinList[i])
+			//SaveAccount(simapp, ctx, addrs[i], sdk.NewCoins(offerCoinList[i]))
 		}
 		var demandCoinDenom string
 		if pool.ReserveCoinDenoms[0] == offerCoinList[i].Denom {
@@ -753,13 +688,13 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 			require.True(t, false)
 		}
 
-		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i])
+		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i], params.SwapFeeRate)
 		batchPoolSwapMsg, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg, 0)
 		require.NoError(t, err)
 
 		batchPoolSwapMsgList = append(batchPoolSwapMsgList, batchPoolSwapMsg)
 		moduleAccEscrowAmtPoolAfter := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, offerCoinList[i].Denom)
-		moduleAccEscrowAmtPool.Amount = moduleAccEscrowAmtPool.Amount.Add(offerCoinList[i].Amount)
+		moduleAccEscrowAmtPool.Amount = moduleAccEscrowAmtPool.Amount.Add(offerCoinList[i].Amount).Add(types.GetOfferCoinFee(offerCoinList[i], params.SwapFeeRate).Amount)
 		require.Equal(t, moduleAccEscrowAmtPool, moduleAccEscrowAmtPoolAfter)
 
 	}
@@ -785,11 +720,14 @@ func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinLi
 	pool, found := simapp.LiquidityKeeper.GetLiquidityPool(ctx, poolId)
 	require.True(t, found)
 
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
 	iterNum := len(addrs)
 	for i := 0; i < iterNum; i++ {
 		currentBalance := simapp.BankKeeper.GetBalance(ctx, addrs[i], offerCoinList[i].Denom)
 		if currentBalance.IsLT(offerCoinList[i]) {
-			SaveAccount(simapp, ctx, addrs[i], sdk.NewCoins(offerCoinList[i]))
+			SaveAccountWithFee(simapp, ctx, addrs[i], sdk.NewCoins(offerCoinList[i]), offerCoinList[i])
+			//SaveAccount(simapp, ctx, addrs[i], sdk.NewCoins(offerCoinList[i]))
 		}
 		var demandCoinDenom string
 		if pool.ReserveCoinDenoms[0] == offerCoinList[i].Denom {
@@ -800,7 +738,7 @@ func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinLi
 			require.True(t, false)
 		}
 
-		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultPoolTypeIndex, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i]))
+		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i], params.SwapFeeRate))
 	}
 	return msgList
 }

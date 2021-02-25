@@ -17,10 +17,12 @@ func TestParams(t *testing.T) {
 	simapp := app.Setup(false)
 	ctx := simapp.BaseApp.NewContext(false, tmproto.Header{})
 	params := types.DefaultParams()
-	require.Equal(t, params, simapp.LiquidityKeeper.GetParams(ctx))
+	currentParams := simapp.LiquidityKeeper.GetParams(ctx)
+	require.Equal(t, params, currentParams)
 
 	paramsNew := types.NewParams(params.LiquidityPoolTypes, params.MinInitDepositToPool, params.InitPoolCoinMintAmount,
-		params.SwapFeeRate, params.LiquidityPoolCreationFee)
+		params.LiquidityPoolCreationFee, params.SwapFeeRate, params.WithdrawFeeRate,
+		params.MaxOrderAmountRatio, params.UnitBatchSize)
 	require.NotNil(t, paramsNew)
 	require.Equal(t, params, paramsNew)
 
@@ -38,10 +40,13 @@ func TestParams(t *testing.T) {
   description: ""
 min_init_deposit_to_pool: "1000000"
 init_pool_coin_mint_amount: "1000000"
-swap_fee_rate: "0.003000000000000000"
 liquidity_pool_creation_fee:
 - denom: stake
   amount: "100000000"
+swap_fee_rate: "0.003000000000000000"
+withdraw_fee_rate: "0.003000000000000000"
+max_order_amount_ratio: "0.100000000000000000"
+unit_batch_size: 1
 `
 
 	require.Equal(t, genesisStr, params.String())
@@ -71,9 +76,4 @@ liquidity_pool_creation_fee:
 	params.MinInitDepositToPool = sdk.ZeroInt()
 	require.Error(t, params.Validate())
 
-}
-
-func TestGetLiquidityModuleFeePoolAcc(t *testing.T) {
-	feePoolAcc := types.GetLiquidityModuleFeePoolAcc()
-	require.Equal(t, "cosmos18l9ktac2vf2qyf8a8hjahh47995ymknzg8my6t", feePoolAcc.String())
 }

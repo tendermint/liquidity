@@ -133,7 +133,7 @@ func (k Keeper) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidity
 	return &types.QueryLiquidityPoolsBatchResponse{response, pageRes}, nil
 }
 
-// read data from kvstore for response of query liquidity pools batc
+// read data from kvstore for response of query liquidity pools batch
 func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
 	empty := &types.QueryLiquidityPoolBatchRequest{}
 	if req == nil || *req == *empty {
@@ -157,7 +157,7 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchSwapMsgIndexKeyPrefix)
+	msgStore := prefix.NewStore(store, types.GetLiquidityPoolBatchSwapMsgsPrefix(req.PoolId))
 	var msgs []types.BatchPoolSwapMsg
 
 	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
@@ -179,7 +179,23 @@ func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSw
 		Swaps:      msgs,
 		Pagination: pageRes,
 	}, nil
-	return nil, nil
+}
+
+// read data from kvstore for response of query a batch swap message of the liquidity pool batch given msg_index
+func (k Keeper) PoolBatchSwapMsg(c context.Context, req *types.QueryPoolBatchSwapMsgRequest) (*types.QueryPoolBatchSwapMsgResponse, error) {
+	empty := &types.QueryPoolBatchSwapMsgRequest{}
+	if req == nil || *req == *empty {
+		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+
+	msg, found := k.GetLiquidityPoolBatchSwapMsg(ctx, req.PoolId, req.MsgIndex)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "the msg given msg_index %d doesn't exist or deleted", req.MsgIndex)
+	}
+	return &types.QueryPoolBatchSwapMsgResponse{
+		Swaps: msg,
+	}, nil
 }
 
 // read data from kvstore for response of query batch deposit messages of the liquidity pool batch
@@ -192,7 +208,7 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchDepositMsgIndexKeyPrefix)
+	msgStore := prefix.NewStore(store, types.GetLiquidityPoolBatchDepositMsgsPrefix(req.PoolId))
 	var msgs []types.BatchPoolDepositMsg
 
 	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
@@ -216,6 +232,23 @@ func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatc
 	}, nil
 }
 
+// read data from kvstore for response of query a batch deposit message of the liquidity pool batch given msg_index
+func (k Keeper) PoolBatchDepositMsg(c context.Context, req *types.QueryPoolBatchDepositMsgRequest) (*types.QueryPoolBatchDepositMsgResponse, error) {
+	empty := &types.QueryPoolBatchDepositMsgRequest{}
+	if req == nil || *req == *empty {
+		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+
+	msg, found := k.GetLiquidityPoolBatchDepositMsg(ctx, req.PoolId, req.MsgIndex)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "the msg given msg_index %d doesn't exist or deleted", req.MsgIndex)
+	}
+	return &types.QueryPoolBatchDepositMsgResponse{
+		Deposits: msg,
+	}, nil
+}
+
 // read data from kvstore for response of query batch withdraw messages of the liquidity pool batch
 func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBatchWithdrawMsgsRequest) (*types.QueryPoolBatchWithdrawMsgsResponse, error) {
 	empty := &types.QueryPoolBatchWithdrawMsgsRequest{}
@@ -226,7 +259,7 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	msgStore := prefix.NewStore(store, types.LiquidityPoolBatchWithdrawMsgIndexKeyPrefix)
+	msgStore := prefix.NewStore(store, types.GetLiquidityPoolBatchWithdrawMsgsPrefix(req.PoolId))
 	var msgs []types.BatchPoolWithdrawMsg
 
 	pageRes, err := query.Paginate(msgStore, req.Pagination, func(key []byte, value []byte) error {
@@ -247,6 +280,23 @@ func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBat
 	return &types.QueryPoolBatchWithdrawMsgsResponse{
 		Withdraws:  msgs,
 		Pagination: pageRes,
+	}, nil
+}
+
+// read data from kvstore for response of query a batch withdraw message of the liquidity pool batch given msg_index
+func (k Keeper) PoolBatchWithdrawMsg(c context.Context, req *types.QueryPoolBatchWithdrawMsgRequest) (*types.QueryPoolBatchWithdrawMsgResponse, error) {
+	empty := &types.QueryPoolBatchWithdrawMsgRequest{}
+	if req == nil || *req == *empty {
+		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+
+	msg, found := k.GetLiquidityPoolBatchWithdrawMsg(ctx, req.PoolId, req.MsgIndex)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "the msg given msg_index %d doesn't exist or deleted", req.MsgIndex)
+	}
+	return &types.QueryPoolBatchWithdrawMsgResponse{
+		Withdraws: msg,
 	}, nil
 }
 

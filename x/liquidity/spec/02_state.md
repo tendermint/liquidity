@@ -22,6 +22,11 @@ LiquidityPool: `0x11 | LiquidityPoolId -> amino(LiquidityPool)`
 
 LiquidityPoolByReserveAccIndex: `0x12 | ReserveAcc -> nil`
 
+GlobalLiquidityPoolIdKey: `[]byte("globalLiquidityPoolId")`
+
+ModuleName, RouterKey, StoreKey, QuerierRoute: `liquidity`
+
+PoolCoinDenomPrefix: `pool`
 
 ## LiquidityPoolBatch
 

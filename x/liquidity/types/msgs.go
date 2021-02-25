@@ -28,13 +28,11 @@ const (
 func NewMsgCreateLiquidityPool(
 	poolCreator sdk.AccAddress,
 	poolTypeIndex uint32,
-	reserveCoinDenoms []string,
 	depositCoins sdk.Coins,
 ) *MsgCreateLiquidityPool {
 	return &MsgCreateLiquidityPool{
 		PoolCreatorAddress: poolCreator.String(),
 		PoolTypeIndex:      poolTypeIndex,
-		ReserveCoinDenoms:  reserveCoinDenoms,
 		DepositCoins:       depositCoins,
 	}
 }
@@ -47,11 +45,11 @@ func (msg MsgCreateLiquidityPool) Type() string { return TypeMsgCreateLiquidityP
 
 // ValidateBasic implements Msg.
 func (msg MsgCreateLiquidityPool) ValidateBasic() error {
+	if 1 > msg.PoolTypeIndex {
+		return ErrBadPoolTypeIndex
+	}
 	if msg.PoolCreatorAddress == "" {
 		return ErrEmptyPoolCreatorAddr
-	}
-	if len(msg.ReserveCoinDenoms) != msg.DepositCoins.Len() {
-		return ErrNumOfReserveCoin
 	}
 	if err := msg.DepositCoins.Validate(); err != nil {
 		return err
@@ -218,21 +216,29 @@ func (msg MsgWithdrawFromLiquidityPool) GetWithdrawer() sdk.AccAddress {
 func NewMsgSwap(
 	swapRequester sdk.AccAddress,
 	poolId uint64,
-	poolTypeIndex uint32,
 	swapType uint32,
 	offerCoin sdk.Coin,
 	demandCoinDenom string,
 	orderPrice sdk.Dec,
+	swapFeeRate sdk.Dec,
 ) *MsgSwap {
 	return &MsgSwap{
 		SwapRequesterAddress: swapRequester.String(),
 		PoolId:               poolId,
-		PoolTypeIndex:        poolTypeIndex,
 		SwapType:             swapType,
 		OfferCoin:            offerCoin,
+		OfferCoinFee:         GetOfferCoinFee(offerCoin, swapFeeRate),
 		DemandCoinDenom:      demandCoinDenom,
 		OrderPrice:           orderPrice,
 	}
+}
+
+//func (msg MsgSwap) GetOfferCoinFee() sdk.Coin {
+//	return GetOfferCoinFee(msg.OfferCoin)
+//}
+
+func GetOfferCoinFee(offerCoin sdk.Coin, swapFeeRate sdk.Dec) sdk.Coin {
+	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(swapFeeRate.Mul(HalfRatio)).TruncateInt())
 }
 
 // Route implements Msg.
@@ -255,7 +261,7 @@ func (msg MsgSwap) ValidateBasic() error {
 	if !msg.OrderPrice.IsPositive() {
 		return ErrBadOderPrice
 	}
-	if !msg.OfferCoin.Amount.GTE(DefaultOfferCoinAmount) {
+	if !msg.OfferCoin.Amount.GTE(DefaultMinOfferCoinAmount) {
 		return ErrLessThanMinOfferAmount
 	}
 	return nil

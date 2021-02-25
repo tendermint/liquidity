@@ -55,7 +55,7 @@ func (lp LiquidityPool) Validate() error {
 
 // Calculate unique Pool key of the liquidity pool
 func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
-	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeIndex), 10)), "-")
+	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeIndex), 10)), "/")
 }
 
 func NewLiquidityPoolBatch(poolId, batchIndex uint64) LiquidityPoolBatch {
@@ -75,7 +75,7 @@ func MustMarshalLiquidityPool(cdc codec.BinaryMarshaler, liquidityPool Liquidity
 	return cdc.MustMarshalBinaryBare(&liquidityPool)
 }
 
-// MustUnmarshalLiquidityPool return the unmarshaled liquidityPool from bytes.
+// MustUnmarshalLiquidityPool return the unmarshalled liquidityPool from bytes.
 // Panics if fails.
 func MustUnmarshalLiquidityPool(cdc codec.BinaryMarshaler, value []byte) LiquidityPool {
 	liquidityPool, err := UnmarshalLiquidityPool(cdc, value)
@@ -92,7 +92,7 @@ func UnmarshalLiquidityPool(cdc codec.BinaryMarshaler, value []byte) (liquidityP
 	return liquidityPool, err
 }
 
-// return sdk.AccAddress object of he address saved as string because of protobuf
+// return sdk.AccAddress object of the address saved as string because of protobuf
 func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(lp.ReserveAccountAddress)
 	if err != nil {
@@ -101,10 +101,10 @@ func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
 	return addr
 }
 
-// return pool coin denom of the liquidity poool
+// return pool coin denom of the liquidity pool
 func (lp LiquidityPool) GetPoolCoinDenom() string { return lp.PoolCoinDenom }
 
-// return pool id of the liquidity poool
+// return pool id of the liquidity pool
 func (lp LiquidityPool) GetPoolId() uint64 { return lp.PoolId }
 
 // LiquidityPools is a collection of liquidityPools
@@ -132,7 +132,7 @@ func UnmarshalLiquidityPoolBatch(cdc codec.BinaryMarshaler, value []byte) (liqui
 	return liquidityPoolBatch, err
 }
 
-// MustUnmarshalLiquidityPool return the unmarshaled LiquidityPoolBatch from bytes.
+// MustUnmarshalLiquidityPool return the unmarshalled LiquidityPoolBatch from bytes.
 // Panics if fails.
 func MustUnmarshalLiquidityPoolBatch(cdc codec.BinaryMarshaler, value []byte) LiquidityPoolBatch {
 	liquidityPoolBatch, err := UnmarshalLiquidityPoolBatch(cdc, value)
@@ -154,7 +154,7 @@ func UnmarshalBatchPoolDepositMsg(cdc codec.BinaryMarshaler, value []byte) (msg 
 	return msg, err
 }
 
-// MustUnmarshalBatchPoolDepositMsg return the unmarshaled BatchPoolDepositMsg from bytes.
+// MustUnmarshalBatchPoolDepositMsg return the unmarshalled BatchPoolDepositMsg from bytes.
 // Panics if fails.
 func MustUnmarshalBatchPoolDepositMsg(cdc codec.BinaryMarshaler, value []byte) BatchPoolDepositMsg {
 	msg, err := UnmarshalBatchPoolDepositMsg(cdc, value)
@@ -175,7 +175,7 @@ func UnmarshalBatchPoolWithdrawMsg(cdc codec.BinaryMarshaler, value []byte) (msg
 	return msg, err
 }
 
-// MustUnmarshalBatchPoolWithdrawMsg return the unmarshaled BatchPoolWithdrawMsg from bytes.
+// MustUnmarshalBatchPoolWithdrawMsg return the unmarshalled BatchPoolWithdrawMsg from bytes.
 // Panics if fails.
 func MustUnmarshalBatchPoolWithdrawMsg(cdc codec.BinaryMarshaler, value []byte) BatchPoolWithdrawMsg {
 	msg, err := UnmarshalBatchPoolWithdrawMsg(cdc, value)
@@ -196,7 +196,7 @@ func UnmarshalBatchPoolSwapMsg(cdc codec.BinaryMarshaler, value []byte) (msg Bat
 	return msg, err
 }
 
-// MustUnmarshalBatchPoolSwapMsg return the unmarshaled BatchPoolSwapMsg from bytes.
+// MustUnmarshalBatchPoolSwapMsg return the unmarshalled BatchPoolSwapMsg from bytes.
 // Panics if fails.
 func MustUnmarshalBatchPoolSwapMsg(cdc codec.BinaryMarshaler, value []byte) BatchPoolSwapMsg {
 	msg, err := UnmarshalBatchPoolSwapMsg(cdc, value)

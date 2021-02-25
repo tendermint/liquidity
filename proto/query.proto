@@ -171,6 +171,38 @@ service Query {
         };
     }
 
+    // Get the pool batch swap message with msg_index of the liquidity pool
+    rpc PoolBatchSwapMsg(QueryPoolBatchSwapMsgRequest) returns (QueryPoolBatchSwapMsgResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/swaps/{msg_index}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It return the pool batch swap message with msg_index of the liquidity pool.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"root":{"code":2,"details":[],"message":"rpc error: code = NotFound desc = the msg given msg_index 1 doesn\'t exist or deleted: key not found"}}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                    }
+                }
+            }
+        };
+    }
+
     // Get all pool batch deposit messages of the liquidity pool
     rpc PoolBatchDepositMsgs(QueryPoolBatchDepositMsgsRequest) returns (QueryPoolBatchDepositMsgsResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits";
@@ -203,6 +235,38 @@ service Query {
         };
     }
 
+    // Get the pool batch deposit message with msg_index of the liquidity pool
+    rpc PoolBatchDepositMsg(QueryPoolBatchDepositMsgRequest) returns (QueryPoolBatchDepositMsgResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits/{msg_index}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It return the pool batch deposit message with msg_index of the liquidity pool.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"root":{"code":2,"details":[],"message":"rpc error: code = NotFound desc = the msg given msg_index 1 doesn\'t exist or deleted: key not found"}}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                    }
+                }
+            }
+        };
+    }
+
     // Get all pool batch withdraw messages of the liquidity pool
     rpc PoolBatchWithdrawMsgs(QueryPoolBatchWithdrawMsgsRequest) returns (QueryPoolBatchWithdrawMsgsResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws";
@@ -219,6 +283,38 @@ service Query {
                     examples: {
                         key: "application/json"
                         value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                    }
+                }
+            }
+        };
+    }
+
+    // Get the pool batch withdraw message with msg_index of the liquidity pool
+    rpc PoolBatchWithdrawMsg(QueryPoolBatchWithdrawMsgRequest) returns (QueryPoolBatchWithdrawMsgResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It return the pool batch withdraw message with msg_index of the liquidity pool.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"root":{"code":2,"details":[],"message":"rpc error: code = NotFound desc = the msg given msg_index 1 doesn\'t exist or deleted: key not found"}}'
                     }
                 }
             }
@@ -326,7 +422,7 @@ message QueryParamsResponse {
     Params params = 1 [(gogoproto.nullable) = false];
 }
 
-// the request type for the QueryPoolBatchSwap RPC method. requestable including specified pool_id and pagination offset, limit, key.
+// the request type for the QueryPoolBatchSwapMsgs RPC method. requestable including specified pool_id and pagination offset, limit, key.
 message QueryPoolBatchSwapMsgsRequest {
     // id of the target pool for query
     uint64 pool_id = 1;
@@ -334,11 +430,24 @@ message QueryPoolBatchSwapMsgsRequest {
     cosmos.query.PageRequest pagination = 2;
 }
 
-// the response type for the QueryPoolBatchSwap RPC method. This includes list of all currently existing swap messages of the batch and paging results containing next_key and total count.
+// the request type for the QueryPoolBatchSwap RPC method. requestable including specified pool_id and msg_index
+message QueryPoolBatchSwapMsgRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+    // target msg_index of the pool
+    uint64 msg_index = 2;
+}
+
+// the response type for the QueryPoolBatchSwapMsgs RPC method. This includes list of all currently existing swap messages of the batch and paging results containing next_key and total count.
 message QueryPoolBatchSwapMsgsResponse {
     repeated BatchPoolSwapMsg swaps = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
     cosmos.query.PageResponse pagination = 2;
+}
+
+// the response type for the QueryPoolBatchSwapMsg RPC method. This includes a batch swap message of the batch
+message QueryPoolBatchSwapMsgResponse {
+    BatchPoolSwapMsg swaps = 1 [(gogoproto.nullable) = false];
 }
 
 // the request type for the QueryPoolBatchDeposit RPC method. requestable including specified pool_id and pagination offset, limit, key.
@@ -349,12 +458,26 @@ message QueryPoolBatchDepositMsgsRequest {
     cosmos.query.PageRequest pagination = 2;
 }
 
+// the request type for the QueryPoolBatchDeposit RPC method. requestable including specified pool_id and msg_index
+message QueryPoolBatchDepositMsgRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+    // target msg_index of the pool
+    uint64 msg_index = 2;
+}
+
 // the response type for the QueryPoolBatchDeposit RPC method. This includes a list of all currently existing deposit messages of the batch and paging results containing next_key and total count.
 message QueryPoolBatchDepositMsgsResponse {
     repeated BatchPoolDepositMsg deposits = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
     cosmos.query.PageResponse pagination = 2;
 }
+
+// the response type for the QueryPoolBatchDepositMsg RPC method. This includes a batch swap message of the batch
+message QueryPoolBatchDepositMsgResponse {
+    BatchPoolDepositMsg deposits = 1 [(gogoproto.nullable) = false];
+}
+
 
 // the request type for the QueryPoolBatchWithdraw RPC method. requestable including specified pool_id and pagination offset, limit, key.
 message QueryPoolBatchWithdrawMsgsRequest {
@@ -364,9 +487,22 @@ message QueryPoolBatchWithdrawMsgsRequest {
     cosmos.query.PageRequest pagination = 2;
 }
 
+// the request type for the QueryPoolBatchWithdraw RPC method. requestable including specified pool_id and msg_index
+message QueryPoolBatchWithdrawMsgRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+    // target msg_index of the pool
+    uint64 msg_index = 2;
+}
+
 // the response type for the QueryPoolBatchWithdraw RPC method. This includes a list of all currently existing withdraw messages of the batch and paging results containing next_key and total count.
 message QueryPoolBatchWithdrawMsgsResponse {
     repeated BatchPoolWithdrawMsg withdraws = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
     cosmos.query.PageResponse pagination = 2;
+}
+
+// the response type for the QueryPoolBatchWithdrawMsg RPC method. This includes a batch swap message of the batch
+message QueryPoolBatchWithdrawMsgResponse {
+    BatchPoolWithdrawMsg withdraws = 1 [(gogoproto.nullable) = false];
 }
