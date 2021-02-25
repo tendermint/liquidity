@@ -55,9 +55,20 @@ func GenInitPoolCoinMintAmount(r *rand.Rand) sdk.Int {
 
 // GenLiquidityPoolCreationFee randomized LiquidityPoolCreationFee
 // list of 1 to 10 coins with an amount greater than 1
-func GenLiquidityPoolCreationFee(r *rand.Rand) (coins sdk.Coins) {
-	for i := 0; i < simulation.RandIntBetween(r, 1, 10); i++ {
-		randomCoin := sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(int64(r.Int())))
+func GenLiquidityPoolCreationFee(r *rand.Rand) sdk.Coins {
+	var coins sdk.Coins
+	var denoms []string
+
+	count := simulation.RandIntBetween(r, 1, 10)
+	for i := 0; i < count; i++ {
+		randomDenom := simulation.RandStringOfLength(r, simulation.RandIntBetween(r, 4, 6))
+		denoms = append(denoms, randomDenom)
+	}
+
+	sortedDenoms := types.SortDenoms(denoms)
+
+	for i := 0; i < count; i++ {
+		randomCoin := sdk.NewCoin(sortedDenoms[i], sdk.NewInt(int64(simulation.RandIntBetween(r, 1e6, 1e7))))
 		coins = append(coins, randomCoin)
 	}
 
@@ -69,12 +80,12 @@ func GenSwapFeeRate(r *rand.Rand) sdk.Dec {
 	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
 
-// GenWithdrawFeeRate randomized WithdrawFeeRate ranging from 0.000001 to 1
+// GenWithdrawFeeRate randomized WithdrawFeeRate ranging from 0.00001 to 1
 func GenWithdrawFeeRate(r *rand.Rand) sdk.Dec {
 	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
 
-// GenMaxOrderAmountRatio randomized MaxOrderAmountRatio ranging from 0.000001 to 1
+// GenMaxOrderAmountRatio randomized MaxOrderAmountRatio ranging from 0.00001 to 1
 func GenMaxOrderAmountRatio(r *rand.Rand) sdk.Dec {
 	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
