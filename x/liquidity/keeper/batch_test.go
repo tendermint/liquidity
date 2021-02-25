@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
@@ -47,6 +48,8 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	depositBalanceAB := sdk.NewCoins(depositA, depositB)
 	require.Equal(t, deposit, depositBalance)
 	require.Equal(t, depositAB, depositBalanceAB)
+	feePoolAcc := simapp.AccountKeeper.GetModuleAddress(distrtypes.ModuleName)
+	feePoolBalance := simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
 
 	// Success case, create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeIndex
@@ -55,8 +58,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify PoolCreationFee pay successfully
-	feePoolAcc := types.GetLiquidityModuleFeePoolAcc()
-	feePoolBalance := simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
+	feePoolBalance = feePoolBalance.Add(params.LiquidityPoolCreationFee...)
 	require.Equal(t, params.LiquidityPoolCreationFee, feePoolBalance)
 
 	// Fail case, reset deposit balance for pool already exists case
