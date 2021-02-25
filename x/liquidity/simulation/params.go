@@ -44,7 +44,7 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 		),
 		simulation.NewSimParamChange(types.ModuleName, string(types.KeyUnitBatchSize),
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("\"%d\"", GenUnitBatchSize(r))
+				return fmt.Sprintf("%d", GenUnitBatchSize(r))
 			},
 		),
 	}
