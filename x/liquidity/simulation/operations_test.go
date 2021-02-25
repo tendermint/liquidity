@@ -111,7 +111,7 @@ func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetDepositor().String())
-	require.Equal(t, "735585917Qfyze,7214764712VIkPZ", msg.DepositCoins.String())
+	require.Equal(t, "922627189Qfyze,210282199VIkPZ", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgDepositToLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
