@@ -19,12 +19,12 @@ func TestParamChanges(t *testing.T) {
 		simValue    string
 		subspace    string
 	}{
-		{"liquidity/KeyMinInitDepositToPool", "KeyMinInitDepositToPool", "\"12498081\"", "liquidity"},
-		{"liquidity/KeyInitPoolCoinMintAmount", "KeyInitPoolCoinMintAmount", "\"40727887\"", "liquidity"},
-		{"liquidity/KeySwapFeeRate", "KeySwapFeeRate", "\"0.461190000000000000\"", "liquidity"},
-		{"liquidity/KeyWithdrawFeeRate", "KeyWithdrawFeeRate", "\"0.934590000000000000\"", "liquidity"},
-		{"liquidity/KeyMaxOrderAmountRatio", "KeyMaxOrderAmountRatio", "\"0.112010000000000000\"", "liquidity"},
-		{"liquidity/KeyUnitBatchSize", "KeyUnitBatchSize", "\"9\"", "liquidity"},
+		{"liquidity/MinInitDepositToPool", "MinInitDepositToPool", "\"12498081\"", "liquidity"},
+		{"liquidity/InitPoolCoinMintAmount", "InitPoolCoinMintAmount", "\"40727887\"", "liquidity"},
+		{"liquidity/SwapFeeRate", "SwapFeeRate", "\"0.461190000000000000\"", "liquidity"},
+		{"liquidity/WithdrawFeeRate", "WithdrawFeeRate", "\"0.934590000000000000\"", "liquidity"},
+		{"liquidity/MaxOrderAmountRatio", "MaxOrderAmountRatio", "\"0.112010000000000000\"", "liquidity"},
+		{"liquidity/UnitBatchSize", "UnitBatchSize", "\"9\"", "liquidity"},
 	}
 
 	paramChanges := simulation.ParamChanges(r)
