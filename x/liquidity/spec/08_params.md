@@ -43,7 +43,7 @@ Initial mint amount of pool coin upon pool creation
 
 ## LiquidityPoolCreationFee
 
-Fee paid for new LiquidityPool creation to prevent spamming
+Fee paid for new LiquidityPool creation to prevent spamming, It collected in community pool of distribution module
 
 ## SwapFeeRate
 
