@@ -55,7 +55,7 @@ func (msg MsgCreateLiquidityPool) ValidateBasic() error {
 		return err
 	}
 	if !msg.DepositCoins.IsAllPositive() {
-		return ErrBadPoolCoinAmount
+		return ErrBadDepositCoinsAmount
 	}
 	if uint32(msg.DepositCoins.Len()) > MaxReserveCoinNum ||
 		MinReserveCoinNum > uint32(msg.DepositCoins.Len()) {
@@ -259,7 +259,7 @@ func (msg MsgSwap) ValidateBasic() error {
 		return ErrBadOfferCoinAmount
 	}
 	if !msg.OrderPrice.IsPositive() {
-		return ErrBadOderPrice
+		return ErrBadOrderPrice
 	}
 	if !msg.OfferCoin.Amount.GTE(DefaultMinOfferCoinAmount) {
 		return ErrLessThanMinOfferAmount
