@@ -33,14 +33,17 @@ var (
 	KeyLiquidityPoolTypes       = []byte("LiquidityPoolTypes")
 	KeyMinInitDepositToPool     = []byte("MinInitDepositToPool")
 	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
+	KeyReserveCoinLimitAmount   = []byte("ReserveCoinLimitAmount")
 	KeySwapFeeRate              = []byte("SwapFeeRate")
 	KeyLiquidityPoolCreationFee = []byte("LiquidityPoolCreationFee")
 	KeyUnitBatchSize            = []byte("UnitBatchSize")
 	KeyWithdrawFeeRate          = []byte("WithdrawFeeRate")
 	KeyMaxOrderAmountRatio      = []byte("MaxOrderAmountRatio")
 
-	DefaultMinInitDepositToPool     = sdk.NewInt(1000000)
-	DefaultInitPoolCoinMintAmount   = sdk.NewInt(1000000)
+	DefaultMinInitDepositToPool   = sdk.NewInt(1000000)
+	DefaultInitPoolCoinMintAmount = sdk.NewInt(1000000)
+	//DefaultReserveCoinLimitAmount  = sdk.NewInt(1000000000000)
+	DefaultReserveCoinLimitAmount   = sdk.ZeroInt()
 	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultWithdrawFeeRate          = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultMaxOrderAmountRatio      = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
@@ -61,12 +64,13 @@ var (
 )
 
 // NewParams liquidity paramtypes constructor
-func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint sdk.Int, creationFee sdk.Coins,
+func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
 	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
 	return Params{
 		LiquidityPoolTypes:       liquidityPoolTypes,
 		MinInitDepositToPool:     minInitDeposit,
 		InitPoolCoinMintAmount:   initPoolCoinMint,
+		ReserveCoinLimitAmount:   reserveCoinLimit,
 		LiquidityPoolCreationFee: creationFee,
 		SwapFeeRate:              swapFeeRate,
 		WithdrawFeeRate:          withdrawFeeRate,
@@ -87,6 +91,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyLiquidityPoolTypes, &p.LiquidityPoolTypes, validateLiquidityPoolTypes),
 		paramtypes.NewParamSetPair(KeyMinInitDepositToPool, &p.MinInitDepositToPool, validateMinInitDepositToPool),
 		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
+		paramtypes.NewParamSetPair(KeyReserveCoinLimitAmount, &p.ReserveCoinLimitAmount, validateReserveCoinLimitAmount),
 		paramtypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
 		paramtypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
 		paramtypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
@@ -104,6 +109,7 @@ func DefaultParams() Params {
 		defaultLiquidityPoolTypes,
 		DefaultMinInitDepositToPool,
 		DefaultInitPoolCoinMintAmount,
+		DefaultReserveCoinLimitAmount,
 		DefaultLiquidityPoolCreationFee,
 		DefaultSwapFeeRate,
 		DefaultWithdrawFeeRate,
@@ -128,6 +134,10 @@ func (p Params) Validate() error {
 	}
 
 	if err := validateInitPoolCoinMintAmount(p.InitPoolCoinMintAmount); err != nil {
+		return err
+	}
+
+	if err := validateReserveCoinLimitAmount(p.ReserveCoinLimitAmount); err != nil {
 		return err
 	}
 
@@ -181,7 +191,7 @@ func validateLiquidityPoolTypes(i interface{}) error {
 	return nil
 }
 
-// Validate that the minimum deposit is exceeded.
+// Validate that the minimum deposit.
 func validateMinInitDepositToPool(i interface{}) error {
 	v, ok := i.(sdk.Int)
 	if !ok {
@@ -194,7 +204,7 @@ func validateMinInitDepositToPool(i interface{}) error {
 	return nil
 }
 
-// Validate that the minimum deposit for initiating pool is exceeded.
+// Validate that the minimum deposit for initiating pool.
 func validateInitPoolCoinMintAmount(i interface{}) error {
 	v, ok := i.(sdk.Int)
 	if !ok {
@@ -205,6 +215,18 @@ func validateInitPoolCoinMintAmount(i interface{}) error {
 	}
 	if v.LT(DefaultInitPoolCoinMintAmount) {
 		return fmt.Errorf("InitPoolCoinMintAmount should over default value: %s", v)
+	}
+	return nil
+}
+
+// Validate that the Limit the size of each liquidity pool.
+func validateReserveCoinLimitAmount(i interface{}) error {
+	v, ok := i.(sdk.Int)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if v.IsNegative() {
+		return fmt.Errorf("InitPoolCoinMintAmount must be positive or zero: %s", v)
 	}
 	return nil
 }

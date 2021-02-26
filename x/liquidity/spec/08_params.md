@@ -13,7 +13,7 @@ The liquidity module contains the following parameters:
 | LiquidityPoolTypes       | []LiquidityPoolType | [{"pool_type_index":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
 | MinInitDepositToPool     | string (sdk.Int)    | "1000000"                                                                                                                        |
 | InitPoolCoinMintAmount   | string (sdk.Int)    | "1000000"                                                                                                                        |
-| ReserveTokenLimitAmount  | string (sdk.Int)    | "1000000000000"                                                                                                                  |
+| ReserveCoinLimitAmount   | string (sdk.Int)    | "1000000000000"                                                                                                                  |
 | LiquidityPoolCreationFee | sdk.Coins           | [{"denom":"stake","amount":"100000000"}]                                                                                         |
 | SwapFeeRate              | string (sdk.Dec)    | "0.003000000000000000"                                                                                                           |
 | WithdrawFeeRate          | string (sdk.Dec)    | "0.003000000000000000"                                                                                                           |
@@ -42,10 +42,10 @@ Minimum number of coins to be deposited to the liquidity pool upon pool creation
 
 Initial mint amount of pool coin upon pool creation
 
-## ReserveTokenLimitAmount
+## ReserveCoinLimitAmount
 
 Limit the size of each liquidity pool in the beginning phase of Liquidity Module adoption to minimize risk on error or exploitation
-deposit transaction will fail if the total reserve token amount after the deposit is larger than the parameter
+deposit transaction will fail if the total reserve coin amount after the deposit is larger than the parameter
 default value is zero, zero means no limit
 
 ## LiquidityPoolCreationFee
@@ -59,7 +59,7 @@ and remaining half of fee as `ExchangedCoinFee` is collected when batch is execu
 
 ## WithdrawFeeRate
 
-Reserve token withdrawal with less proportion by `WithdrawFeeRate` to prevent attack vectors from repeated deposit/withdraw
+Reserve coin withdrawal with less proportion by `WithdrawFeeRate` to prevent attack vectors from repeated deposit/withdraw
 
 ## MaxOrderAmountRatio
 

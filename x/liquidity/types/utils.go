@@ -81,12 +81,12 @@ func CoinSafeSubAmount(coinA sdk.Coin, coinBamt sdk.Int) sdk.Coin {
 //}
 
 // Check the decimals equal approximately
-func CheckDecApproxEqual(a , b, threshold sdk.Dec) bool {
+func CheckDecApproxEqual(a, b, threshold sdk.Dec) bool {
 	if a.IsZero() && b.IsZero() {
 		return true
 	} else if a.IsZero() || b.IsZero() {
 		return false
-	} else if a.Quo(b).Sub(sdk.OneDec()).Abs().LTE(threshold){
+	} else if a.Quo(b).Sub(sdk.OneDec()).Abs().LTE(threshold) {
 		return true
 	} else {
 		fmt.Println(a, b)
