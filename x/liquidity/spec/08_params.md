@@ -50,7 +50,7 @@ default value is zero, zero means no limit
 
 ## LiquidityPoolCreationFee
 
-Fee paid for new LiquidityPool creation to prevent spamming
+Fee paid for new LiquidityPool creation to prevent spamming, It collected in community pool of distribution module
 
 ## SwapFeeRate
 

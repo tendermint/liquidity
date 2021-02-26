@@ -3,6 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 	"strconv"
 )
@@ -148,6 +149,9 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	}
 
 	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
+	// pool creation fees are collected in community pool
+	// TODO: verify distr community pool is consistency safe for collected fee
+	poolCreationFeePoolAcc := k.accountKeeper.GetModuleAddress(distrtypes.ModuleName)
 	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(pool.PoolCoinDenom, params.InitPoolCoinMintAmount))
 	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
 		return types.LiquidityPool{}, err
@@ -156,8 +160,6 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	var inputs []banktypes.Input
 	var outputs []banktypes.Output
 
-	// TODO: write test case
-	poolCreationFeePoolAcc := types.GetLiquidityModuleFeePoolAcc()
 	inputs = append(inputs, banktypes.NewInput(poolCreator, params.LiquidityPoolCreationFee))
 	outputs = append(outputs, banktypes.NewOutput(poolCreationFeePoolAcc, params.LiquidityPoolCreationFee))
 
