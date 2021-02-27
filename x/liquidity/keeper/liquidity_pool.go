@@ -48,6 +48,10 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 		return types.ErrEqualDenom
 	}
 
+	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, msg.DepositCoins); err != nil {
+		return err
+	}
+
 	poolKey := types.GetPoolKey(reserveCoinDenoms, msg.PoolTypeIndex)
 	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	_, found := k.GetLiquidityPoolByReserveAccIndex(ctx, reserveAcc)
@@ -257,6 +261,11 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 		return types.ErrNumOfReserveCoin
 	}
 
+	params := k.GetParams(ctx)
+	reserveCoins := k.GetReserveCoins(ctx, pool)
+	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, reserveCoins.Add(msg.DepositCoins...)); err != nil {
+		return err
+	}
 	// TODO: validate msgIndex
 
 	denomA, denomB := types.AlphabeticalDenomPair(msg.DepositCoins[0].Denom, msg.DepositCoins[1].Denom)
