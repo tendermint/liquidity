@@ -210,12 +210,12 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		switch result.PriceDirection {
 		// check whether the calculated swapPrice is actually increased from last pool price
 		case types.Increase:
-			if !result.SwapPrice.GT(currentYPriceOverX) {
+			if !result.SwapPrice.GTE(currentYPriceOverX) {
 				panic("invariant check fail swapPrice Increase")
 			}
 		// check whether the calculated swapPrice is actually decreased from last pool price
 		case types.Decrease:
-			if !result.SwapPrice.LT(currentYPriceOverX) {
+			if !result.SwapPrice.LTE(currentYPriceOverX) {
 				panic("invariant check fail swapPrice Decrease")
 			}
 		// check whether the calculated swapPrice is actually equal to last pool price
