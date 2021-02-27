@@ -97,9 +97,9 @@ func TestSwapScenario(t *testing.T) {
 	require.NotEqual(t, types.NoMatch, result.MatchType)
 
 	matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY := types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX,
-		result.SwapPrice, sdk.ZeroDec(), ctx.BlockHeight())
+		result.SwapPrice, ctx.BlockHeight())
 	matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX := types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
-		result.SwapPrice, sdk.ZeroDec(), ctx.BlockHeight())
+		result.SwapPrice, ctx.BlockHeight())
 
 	XtoY, YtoX, XDec, YDec, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		simapp.LiquidityKeeper.UpdateState(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)

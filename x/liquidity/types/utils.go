@@ -81,16 +81,38 @@ func CoinSafeSubAmount(coinA sdk.Coin, coinBamt sdk.Int) sdk.Coin {
 //}
 
 // Check the decimals equal approximately
-func CheckDecApproxEqual(a , b, threshold sdk.Dec) bool {
+func CheckDecApproxEqual(a, b, threshold sdk.Dec) bool {
 	if a.IsZero() && b.IsZero() {
 		return true
 	} else if a.IsZero() || b.IsZero() {
 		return false
-	} else if a.Quo(b).Sub(sdk.OneDec()).Abs().LTE(threshold){
+	} else if a.Quo(b).Sub(sdk.OneDec()).Abs().LTE(threshold) {
 		return true
 	} else {
 		fmt.Println(a, b)
 		fmt.Println(a.Quo(b).Sub(sdk.OneDec()).Abs())
 		return false
+	}
+}
+
+// Get Total amount of the coins
+func GetCoinsTotalAmount(coins sdk.Coins) sdk.Int {
+	totalAmount := sdk.ZeroInt()
+	for _, coin := range coins {
+		totalAmount = totalAmount.Add(coin.Amount)
+	}
+	return totalAmount
+}
+
+// Check Validity of the depositCoins exceed reserveCoinLimitAmount
+// TODO: Get balance of pool, check with
+func ValidateReserveCoinLimit(reserveCoinLimitAmount sdk.Int, depositCoins sdk.Coins) error {
+	totalAmount := GetCoinsTotalAmount(depositCoins)
+	if reserveCoinLimitAmount.IsZero() {
+		return nil
+	} else if totalAmount.GT(reserveCoinLimitAmount) {
+		return ErrExceededReserveCoinLimit
+	} else {
+		return nil
 	}
 }

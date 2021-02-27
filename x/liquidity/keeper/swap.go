@@ -24,7 +24,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	}
 	k.SetLiquidityPoolBatchSwapMsgPointers(ctx, pool.PoolId, swapMsgs)
 
-	params := k.GetParams(ctx)
 	currentHeight := ctx.BlockHeight()
 	invariantCheckFlag := true // temporary flag for test
 
@@ -55,9 +54,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	if result.MatchType != types.NoMatch {
 		var poolXDeltaXtoY, poolXDeltaYtoX, poolYDeltaYtoX, poolYDeltaXtoY sdk.Int
 		matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX,
-			result.SwapPrice, params.SwapFeeRate, currentHeight)
+			result.SwapPrice, currentHeight)
 		matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
-			result.SwapPrice, params.SwapFeeRate, currentHeight)
+			result.SwapPrice, currentHeight)
 		poolXdelta = poolXDeltaXtoY.Add(poolXDeltaYtoX)
 		poolYdelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
@@ -210,12 +209,12 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		switch result.PriceDirection {
 		// check whether the calculated swapPrice is actually increased from last pool price
 		case types.Increase:
-			if !result.SwapPrice.GT(currentYPriceOverX) {
+			if !result.SwapPrice.GTE(currentYPriceOverX) {
 				panic("invariant check fail swapPrice Increase")
 			}
 		// check whether the calculated swapPrice is actually decreased from last pool price
 		case types.Decrease:
-			if !result.SwapPrice.LT(currentYPriceOverX) {
+			if !result.SwapPrice.LTE(currentYPriceOverX) {
 				panic("invariant check fail swapPrice Decrease")
 			}
 		// check whether the calculated swapPrice is actually equal to last pool price
