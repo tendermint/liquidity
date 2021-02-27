@@ -40,8 +40,8 @@ var (
 	KeyWithdrawFeeRate          = []byte("WithdrawFeeRate")
 	KeyMaxOrderAmountRatio      = []byte("MaxOrderAmountRatio")
 
-	DefaultMinInitDepositToPool   = sdk.NewInt(1000000)
-	DefaultInitPoolCoinMintAmount = sdk.NewInt(1000000)
+	DefaultMinInitDepositToPool     = sdk.NewInt(1000000)
+	DefaultInitPoolCoinMintAmount   = sdk.NewInt(1000000)
 	DefaultReserveCoinLimitAmount   = sdk.ZeroInt()
 	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultWithdrawFeeRate          = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"

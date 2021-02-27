@@ -180,7 +180,7 @@ func TestReserveCoinLimit(t *testing.T) {
 	simapp.LiquidityKeeper.ExecutePoolBatch(ctx)
 	require.NoError(t, err)
 
-	ctx = ctx.WithBlockHeight(ctx.BlockHeight()+1)
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
 	app.SaveAccount(simapp, ctx, addrs[1], deposit)
 	depositMsg = types.NewMsgDepositToLiquidityPool(addrs[1], lp.PoolId, deposit)
