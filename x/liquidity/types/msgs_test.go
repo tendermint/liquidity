@@ -174,7 +174,7 @@ func TestMsgValidateBasic(t *testing.T) {
 			},
 			{
 				types.MsgCreateLiquidityPool{PoolCreatorAddress: validAddr, PoolTypeIndex: validPoolTypeIndex},
-				types.ErrBadDepositCoinsAmount.Error(),
+				types.ErrNumOfReserveCoin.Error(),
 			},
 			{
 				types.MsgCreateLiquidityPool{

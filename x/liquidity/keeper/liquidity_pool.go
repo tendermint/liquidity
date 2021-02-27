@@ -3,6 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 	"strconv"
 )
@@ -45,6 +46,10 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 
 	if denomA == denomB {
 		return types.ErrEqualDenom
+	}
+
+	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, msg.DepositCoins); err != nil {
+		return err
 	}
 
 	poolKey := types.GetPoolKey(reserveCoinDenoms, msg.PoolTypeIndex)
@@ -148,6 +153,9 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	}
 
 	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
+	// pool creation fees are collected in community pool
+	// TODO: verify distr community pool is consistency safe for collected fee
+	poolCreationFeePoolAcc := k.accountKeeper.GetModuleAddress(distrtypes.ModuleName)
 	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(pool.PoolCoinDenom, params.InitPoolCoinMintAmount))
 	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
 		return types.LiquidityPool{}, err
@@ -156,8 +164,6 @@ func (k Keeper) CreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidi
 	var inputs []banktypes.Input
 	var outputs []banktypes.Output
 
-	// TODO: write test case
-	poolCreationFeePoolAcc := types.GetLiquidityModuleFeePoolAcc()
 	inputs = append(inputs, banktypes.NewInput(poolCreator, params.LiquidityPoolCreationFee))
 	outputs = append(outputs, banktypes.NewOutput(poolCreationFeePoolAcc, params.LiquidityPoolCreationFee))
 
@@ -255,6 +261,11 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 		return types.ErrNumOfReserveCoin
 	}
 
+	params := k.GetParams(ctx)
+	reserveCoins := k.GetReserveCoins(ctx, pool)
+	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, reserveCoins.Add(msg.DepositCoins...)); err != nil {
+		return err
+	}
 	// TODO: validate msgIndex
 
 	denomA, denomB := types.AlphabeticalDenomPair(msg.DepositCoins[0].Denom, msg.DepositCoins[1].Denom)
