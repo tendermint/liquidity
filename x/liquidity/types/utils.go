@@ -89,8 +89,6 @@ func CheckDecApproxEqual(a, b, threshold sdk.Dec) bool {
 	} else if a.Quo(b).Sub(sdk.OneDec()).Abs().LTE(threshold) {
 		return true
 	} else {
-		fmt.Println(a, b)
-		fmt.Println(a.Quo(b).Sub(sdk.OneDec()).Abs())
 		return false
 	}
 }

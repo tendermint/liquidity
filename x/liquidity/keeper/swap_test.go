@@ -2,14 +2,15 @@ package keeper_test
 
 import (
 	"fmt"
+	"math/rand"
+	"testing"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
-	"math/rand"
-	"testing"
-	"time"
 )
 
 func TestSimulationSwapExecution(t *testing.T) {
@@ -323,3 +324,39 @@ func TestGetRandomOrders(t *testing.T) {
 //	require.Equal(t, 0, fractionalCntX)
 //	require.Equal(t, 3, fractionalCntY)
 //}
+
+func TestBadSwapExecution(t *testing.T) {
+	r := rand.New(rand.NewSource(0))
+
+	simapp, ctx := app.CreateTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	denomX, denomY := types.AlphabeticalDenomPair("denomX", "denomY")
+
+
+	// add pool creator account
+	X, Y := app.GetRandPoolAmt(r, params.MinInitDepositToPool)
+	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
+	creatorAddr := app.AddRandomTestAddr(simapp, ctx, deposit.Add(params.LiquidityPoolCreationFee...))
+	balanceX := simapp.BankKeeper.GetBalance(ctx, creatorAddr, denomX)
+	balanceY := simapp.BankKeeper.GetBalance(ctx, creatorAddr, denomY)
+	creatorBalance := sdk.NewCoins(balanceX, balanceY)
+	require.Equal(t, deposit, creatorBalance)
+
+	// create pool
+	createPoolMsg := types.NewMsgCreateLiquidityPool(creatorAddr, types.DefaultPoolTypeIndex, creatorBalance)
+	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, createPoolMsg)
+	require.NoError(t, err)
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	offerCoin := sdk.NewCoin(denomX, sdk.NewInt(10000))
+	offerCoinFee := types.GetOfferCoinFee(offerCoin, params.SwapFeeRate)
+	testAddr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(offerCoin.Add(offerCoinFee)))
+
+	currentPrice := X.ToDec().Quo(Y.ToDec())
+	swapMsg := types.NewMsgSwap(testAddr, 0, types.DefaultSwapType, offerCoin, denomY, currentPrice, params.SwapFeeRate)
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg, 0)
+	require.ErrorIs(t, err, types.ErrPoolNotExists)
+
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+}

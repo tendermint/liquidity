@@ -139,13 +139,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	// Make index map for match result
 	matchResultMap := make(map[uint64]types.MatchResult)
-	for _, msg := range matchResultXtoY {
-		if _, ok := matchResultMap[msg.OrderMsgIndex]; ok {
-			panic("duplicatedMatchOrder")
-		}
-		matchResultMap[msg.OrderMsgIndex] = msg
-	}
-	for _, msg := range matchResultYtoX {
+	for _, msg := range append(matchResultXtoY, matchResultYtoX...) {
 		if _, ok := matchResultMap[msg.OrderMsgIndex]; ok {
 			panic("duplicatedMatchOrder")
 		}
