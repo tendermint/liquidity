@@ -234,8 +234,6 @@ func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int
 			if !order.Succeeded || !order.ToBeDeleted {
 				panic("broken state consistency for not matched order")
 			}
-			order.Succeeded = true
-			order.ToBeDeleted = true
 			continue
 		}
 		// set toDelete, expired msgs
@@ -243,8 +241,6 @@ func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int
 			if order.Succeeded || !order.ToBeDeleted {
 				panic("broken state consistency for fractional matched order")
 			}
-			order.Succeeded = false
-			order.ToBeDeleted = true
 			continue
 		}
 		if expireThisHeight && currentHeight == order.OrderExpiryHeight {
