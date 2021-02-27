@@ -277,7 +277,7 @@ func CalculateMatchStay(currentPrice sdk.Dec, orderBook OrderBook) (r BatchResul
 
 // Find matched orders and set status for msgs
 func FindOrderMatch(direction int, swapList []*BatchPoolSwapMsg, executableAmt sdk.Int,
-	swapPrice, swapFeeRate sdk.Dec, height int64) (
+	swapPrice sdk.Dec, height int64) (
 	matchResultList []MatchResult, swapListExecuted []*BatchPoolSwapMsg, poolXdelta, poolYdelta sdk.Int) {
 
 	poolXdelta = sdk.ZeroInt()

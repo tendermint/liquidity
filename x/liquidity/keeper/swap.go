@@ -24,7 +24,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	}
 	k.SetLiquidityPoolBatchSwapMsgPointers(ctx, pool.PoolId, swapMsgs)
 
-	params := k.GetParams(ctx)
 	currentHeight := ctx.BlockHeight()
 	invariantCheckFlag := true // temporary flag for test
 
@@ -55,9 +54,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	if result.MatchType != types.NoMatch {
 		var poolXDeltaXtoY, poolXDeltaYtoX, poolYDeltaYtoX, poolYDeltaXtoY sdk.Int
 		matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX,
-			result.SwapPrice, params.SwapFeeRate, currentHeight)
+			result.SwapPrice, currentHeight)
 		matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
-			result.SwapPrice, params.SwapFeeRate, currentHeight)
+			result.SwapPrice, currentHeight)
 		poolXdelta = poolXDeltaXtoY.Add(poolXDeltaYtoX)
 		poolYdelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
