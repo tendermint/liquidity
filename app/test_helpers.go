@@ -106,8 +106,8 @@ func createIncrementalAccounts(accNum int) []sdk.AccAddress {
 
 // AddTestAddrs constructs and returns accNum amount of accounts with an
 // initial balance of accAmt in random order
-func AddTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Int) []sdk.AccAddress {
-	return addTestAddrs(app, ctx, accNum, accAmt, createIncrementalAccounts)
+func AddTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Coins) []sdk.AccAddress {
+	return addTestAddrsCoins(app, ctx, accNum, accAmt, createIncrementalAccounts)
 }
 
 // AddTestAddrs constructs and returns accNum amount of accounts with an
@@ -116,10 +116,26 @@ func AddTestAddrsIncremental(app *LiquidityApp, ctx sdk.Context, accNum int, acc
 	return addTestAddrs(app, ctx, accNum, accAmt, createIncrementalAccounts)
 }
 
+func AddRandomTestAddr(app *LiquidityApp, ctx sdk.Context, initCoins sdk.Coins) sdk.AccAddress {
+	addr := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
+	initAccountWithCoins(app, ctx, addr, initCoins)
+	return addr
+}
+
 func addTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Int, strategy GenerateAccountStrategy) []sdk.AccAddress {
 	testAddrs := strategy(accNum)
 
 	initCoins := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt))
+
+	for _, addr := range testAddrs {
+		initAccountWithCoins(app, ctx, addr, initCoins)
+	}
+
+	return testAddrs
+}
+
+func addTestAddrsCoins(app *LiquidityApp, ctx sdk.Context, accNum int, initCoins sdk.Coins, strategy GenerateAccountStrategy) []sdk.AccAddress {
+	testAddrs := strategy(accNum)
 
 	for _, addr := range testAddrs {
 		initAccountWithCoins(app, ctx, addr, initCoins)
