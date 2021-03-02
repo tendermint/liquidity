@@ -284,7 +284,7 @@ func TestAppStateDeterminism(t *testing.T) {
 	config.AllInvariants = false
 	config.ChainID = helpers.SimAppChainID
 
-	numSeeds := 2
+	numSeeds := 1
 	numTimesToRunPerSeed := 1
 	appHashList := make([]json.RawMessage, numTimesToRunPerSeed)
 
