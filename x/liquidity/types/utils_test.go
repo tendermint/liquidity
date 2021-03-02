@@ -96,6 +96,9 @@ func TestIsPoolCoinDenom(t *testing.T) {
 	require.Equal(t, "denomX/denomY/1", poolKey)
 	poolCoinDenom := types.GetPoolCoinDenom(poolKey)
 	require.True(t, types.IsPoolCoinDenom(poolCoinDenom))
+	require.False(t, types.IsPoolCoinDenom(""))
+	require.False(t, types.IsPoolCoinDenom("pool"))
+	require.False(t, types.IsPoolCoinDenom("pool/"))
 	require.True(t, types.IsPoolCoinDenom("pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
 	require.False(t, types.IsPoolCoinDenom("D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
 	require.False(t, types.IsPoolCoinDenom("ibc/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
@@ -103,6 +106,9 @@ func TestIsPoolCoinDenom(t *testing.T) {
 }
 
 func TestCheckDecApproxEqual(t *testing.T) {
+	require.True(t, types.CheckDecApproxEqual(sdk.ZeroDec(), sdk.ZeroDec(), types.DecimalErrThreshold3))
+	require.False(t, types.CheckDecApproxEqual(sdk.ZeroDec(), sdk.OneDec(), types.DecimalErrThreshold3))
+
 	a := sdk.NewDecWithPrec(9999999999, 10)
 	b := sdk.NewDecWithPrec(9999999998, 10)
 	res := types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
@@ -142,4 +148,45 @@ func TestCheckDecApproxEqual(t *testing.T) {
 	b = sdk.NewDec(2)
 	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
 	require.False(t, res)
+}
+func TestGetCoinsTotalAmount(t *testing.T) {
+	denomA := "uCoinA"
+	denomB := "uCoinB"
+	a := sdk.NewCoin(denomA, sdk.NewInt(100))
+	b := sdk.NewCoin(denomB, sdk.NewInt(100))
+	sum := types.GetCoinsTotalAmount(sdk.NewCoins(a, b))
+	require.Equal(t, sdk.NewInt(200), sum)
+
+	a = sdk.NewCoin(denomA, sdk.NewInt(100))
+	b = sdk.NewCoin(denomB, sdk.NewInt(300))
+	sum = types.GetCoinsTotalAmount(sdk.NewCoins(a, b))
+	require.Equal(t, sdk.NewInt(400), sum)
+
+	a = sdk.NewCoin(denomA, sdk.NewInt(500))
+	sum = types.GetCoinsTotalAmount(sdk.NewCoins(a))
+	require.Equal(t, sdk.NewInt(500), sum)
+}
+
+func TestValidateReserveCoinLimit(t *testing.T) {
+	denomA := "uCoinA"
+	denomB := "uCoinB"
+
+	a := sdk.NewCoin(denomA, sdk.NewInt(1000000000000))
+	b := sdk.NewCoin(denomB, sdk.NewInt(100))
+
+	err := types.ValidateReserveCoinLimit(sdk.ZeroInt(), sdk.NewCoins(a, b))
+	require.NoError(t, err)
+
+	err = types.ValidateReserveCoinLimit(sdk.NewInt(1000000000000), sdk.NewCoins(a, b))
+	require.Equal(t, types.ErrExceededReserveCoinLimit, err)
+
+	a = sdk.NewCoin(denomA, sdk.NewInt(500000000000))
+	b = sdk.NewCoin(denomB, sdk.NewInt(500000000000))
+	err = types.ValidateReserveCoinLimit(sdk.NewInt(1000000000000), sdk.NewCoins(a, b))
+	require.NoError(t, err)
+
+	a = sdk.NewCoin(denomA, sdk.NewInt(500000000001))
+	b = sdk.NewCoin(denomB, sdk.NewInt(500000000000))
+	err = types.ValidateReserveCoinLimit(sdk.NewInt(1000000000000), sdk.NewCoins(a, b))
+	require.Equal(t, types.ErrExceededReserveCoinLimit, err)
 }
