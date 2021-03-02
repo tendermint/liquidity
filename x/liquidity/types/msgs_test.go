@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -50,6 +51,29 @@ func TestMsgCreateLiquidityPool(t *testing.T) {
 	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
+}
+
+func TestMsgCreateLiquidityPoolRosettaOperation(t *testing.T) {
+	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
+	msg := types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeIndex, coins)
+	require.IsType(t, &types.MsgCreateLiquidityPool{}, msg)
+	require.Equal(t, types.RouterKey, msg.Route())
+	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
+
+	err := msg.ValidateBasic()
+	require.NoError(t, err)
+	signers := msg.GetSigners()
+	require.Len(t, signers, 1)
+	require.Equal(t, msg.GetPoolCreator(), signers[0])
+	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+
+	ops := msg.ToOperations(true, true)
+	fmt.Println(ops)
+	var msgFromOps types.MsgCreateLiquidityPool
+	sdkMsg, err := msgFromOps.FromOperations(ops)
+	require.NoError(t, err)
+	require.Equal(t, msg, sdkMsg)
 }
 
 func TestMsgDepositToLiquidityPool(t *testing.T) {
@@ -121,6 +145,26 @@ func TestMsgSwap(t *testing.T) {
 	require.Len(t, signers, 1)
 	require.Equal(t, msg.GetSwapRequester(), signers[0])
 	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+}
+
+func TestMsgSwapRosettaOperation(t *testing.T) {
+	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	coin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
+	orderPrice, err := sdk.NewDecFromStr("0.1")
+	require.NoError(t, err)
+	msg := types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coin, DenomY, orderPrice, types.DefaultSwapFeeRate)
+	require.IsType(t, &types.MsgSwap{}, msg)
+	require.Equal(t, types.RouterKey, msg.Route())
+	require.Equal(t, types.TypeMsgSwap, msg.Type())
+
+	err = msg.ValidateBasic()
+	require.NoError(t, err)
+	ops := msg.ToOperations(true, true)
+	fmt.Println(ops)
+	var msgFromOps types.MsgSwap
+	sdkMsg, err := msgFromOps.FromOperations(ops)
+	require.NoError(t, err)
+	require.Equal(t, msg, sdkMsg)
 }
 
 func TestMsgPanics(t *testing.T) {

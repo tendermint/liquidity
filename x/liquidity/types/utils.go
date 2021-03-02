@@ -5,6 +5,7 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
+	"sort"
 	"strings"
 )
 
@@ -15,6 +16,20 @@ func AlphabeticalDenomPair(denom1, denom2 string) (resDenom1, resDenom2 string) 
 	} else {
 		return denom1, denom2
 	}
+}
+
+// SortDenoms sorts denoms in an alphabetical order
+func SortDenoms(denoms []string) []string {
+	sort.Strings(denoms)
+	return denoms
+}
+
+// Get Coin denoms of the coins
+func GetCoinDenoms(coins sdk.Coins) (coinDenoms []string) {
+	for _, coin := range coins {
+		coinDenoms = append(coinDenoms, coin.Denom)
+	}
+	return SortDenoms(coinDenoms)
 }
 
 // GetPoolReserveAcc returns the poor account for the provided poolKey (reserve denoms + poolType)

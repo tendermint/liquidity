@@ -2,9 +2,9 @@ package types
 
 import (
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	rosettatypes "github.com/coinbase/rosetta-sdk-go/types"
 	"github.com/cosmos/cosmos-sdk/server/rosetta"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gogo/protobuf/proto"
 	"strconv"
 	"strings"
@@ -351,7 +351,7 @@ func (msg *MsgSwap) ToOperations(withStatus bool, hasError bool) []*rosettatypes
 			"pool_id": msg.PoolId,
 			"swap_type": msg.SwapType,
 			"demand_coind_denom": msg.DemandCoinDenom,
-			"order_price": msg.OfferCoin,
+			"order_price": msg.OrderPrice,
 			"offer_coin_fee": msg.OfferCoinFee,
 		},
 	}
@@ -373,7 +373,6 @@ func (msg *MsgSwap) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, erro
 		offerCoinFee sdk.Coin
 		err     error
 	)
-	var m map[string]interface{}
 	for _, op := range ops {
 		if strings.HasPrefix(op.Amount.Value, "-") {
 			if op.Account == nil {
@@ -383,26 +382,108 @@ func (msg *MsgSwap) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, erro
 			if err != nil {
 				return nil, err
 			}
+		} else {
+			if op.Account == nil {
+				return nil, fmt.Errorf("account identifier must be specified")
+			}
+			amount, err := strconv.ParseInt(op.Amount.Value, 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("invalid amount: %w", err)
+			}
+			offerCoin = sdk.NewCoin(op.Amount.Currency.Symbol, sdk.NewInt(amount))
+			poolId = op.Account.Metadata["pool_id"].(uint64)
+			swapType = op.Account.Metadata["swap_type"].(uint32)
+			demandCoinDenom = op.Account.Metadata["demand_coind_denom"].(string)
+			orderPrice = op.Account.Metadata["order_price"].(sdk.Dec)
+			offerCoinFee = op.Account.Metadata["offer_coin_fee"].(sdk.Coin)
+		}
+	}
+	offerCoin = offerCoin.Sub(offerCoinFee)
+	return NewMsgSwapWithOfferCoinFee(swapRequester, poolId, swapType, offerCoin, demandCoinDenom, orderPrice, offerCoinFee), nil
+}
+
+func (msg *MsgCreateLiquidityPool) ToOperations(withStatus bool, hasError bool) []*rosettatypes.Operation {
+	var operations []*rosettatypes.Operation
+	poolCreator := msg.PoolCreatorAddress
+	coins := msg.DepositCoins
+	swapOp := func(account *rosettatypes.AccountIdentifier, amount string, index int) *rosettatypes.Operation {
+		var status string
+		if withStatus {
+			status = rosetta.StatusSuccess
+			if hasError {
+				status = rosetta.StatusReverted
+			}
+		}
+		return &rosettatypes.Operation{
+			OperationIdentifier: &rosettatypes.OperationIdentifier{
+				Index: int64(index),
+			},
+			Type:    proto.MessageName(msg),
+			Status:  status,
+			Account: account,
+			Amount: &rosettatypes.Amount{
+				Value: amount,
+				Currency: &rosettatypes.Currency{
+					Symbol: coins.GetDenomByIndex(index%2),
+				},
+			},
+		}
+	}
+	creatorAcc := &rosettatypes.AccountIdentifier{
+		Address: poolCreator,
+	}
+	poolAcc := &rosettatypes.AccountIdentifier{
+		Address: "liquidity_pool",
+		Metadata: map[string]interface{}{
+			"pool_type_index": msg.PoolTypeIndex,
+			//"reserve_coin_denoms": GetCoinDenoms(coins),
+		},
+	}
+	index := 0
+	for _, coin := range coins {
+		operations = append(operations,
+			swapOp(creatorAcc, "-"+coin.Amount.String(), index),
+		)
+		index += 1
+	}
+	for _, coin := range coins {
+		operations = append(operations,
+			swapOp(poolAcc, coin.Amount.String(), index),
+		)
+		index += 1
+	}
+	return operations
+}
+
+func (msg *MsgCreateLiquidityPool) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, error) {
+	var (
+		poolCreator sdk.AccAddress
+		poolTypeIndex uint32
+		depositCoins sdk.Coins
+		err     error
+	)
+	for _, op := range ops {
+		if strings.HasPrefix(op.Amount.Value, "-") {
+			if op.Account == nil {
+				return nil, fmt.Errorf("account identifier must be specified")
+			}
+			poolCreator, err = sdk.AccAddressFromBech32(op.Account.Address)
+			if err != nil {
+				return nil, err
+			}
 			continue
 		} else {
 			if op.Account == nil {
 				return nil, fmt.Errorf("account identifier must be specified")
 			}
-			m = op.Metadata
+			poolTypeIndex = op.Account.Metadata["pool_type_index"].(uint32)
+			//reserveCoinDenoms = op.Account.Metadata["reserve_coin_denoms"].([]string)
 		}
-
 		amount, err := strconv.ParseInt(op.Amount.Value, 10, 64)
+		depositCoins = depositCoins.Add(sdk.NewCoin(op.Amount.Currency.Symbol, sdk.NewInt(amount)))
 		if err != nil {
 			return nil, fmt.Errorf("invalid amount: %w", err)
 		}
-
-		poolId = m["pool_id"].(uint64)
-		swapType = m["swap_type"].(uint32)
-		demandCoinDenom = m["demand_coind_denom"].(string)
-		orderPrice = m["order_price"].(sdk.Dec)
-		offerCoinFee = m["offer_coin_fee"].(sdk.Coin)
-		offerCoin = sdk.NewCoin(op.Amount.Currency.Symbol, sdk.NewInt(amount)).Sub(offerCoinFee)
 	}
-
-	return NewMsgSwapWithOfferCoinFee(swapRequester, poolId, swapType, offerCoin, demandCoinDenom, orderPrice, offerCoinFee), nil
+	return NewMsgCreateLiquidityPool(poolCreator, poolTypeIndex, depositCoins), nil
 }

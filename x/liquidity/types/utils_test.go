@@ -19,6 +19,22 @@ func TestAlphabeticalDenomPair(t *testing.T) {
 	require.Equal(t, denomB, afterDenomB)
 }
 
+func TestSortDenoms(t *testing.T) {
+	tests := []struct {
+		denoms         []string
+		expectedDenoms []string
+	}{
+		{[]string{"uCoinB", "uCoinA"}, []string{"uCoinA", "uCoinB"}},
+		{[]string{"uCoinC", "uCoinA", "uCoinB"}, []string{"uCoinA", "uCoinB", "uCoinC"}},
+		{[]string{"uCoinC", "uCoinA", "uCoinD", "uCoinB"}, []string{"uCoinA", "uCoinB", "uCoinC", "uCoinD"}},
+	}
+
+	for _, tc := range tests {
+		sortedDenoms := types.SortDenoms(tc.denoms)
+		require.Equal(t, tc.expectedDenoms, sortedDenoms)
+	}
+}
+
 func TestStringInSlice(t *testing.T) {
 	denomA := "uCoinA"
 	denomB := "uCoinB"
