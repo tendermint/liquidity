@@ -141,7 +141,9 @@ func SimulateMsgCreateLiquidityPool(ak types.AccountKeeper, bk types.BankKeeper,
 		}
 
 		poolCreator := account.GetAddress()
-		depositCoins := sdk.NewCoins(randomDepositCoin(r, denomA), randomDepositCoin(r, denomB))
+		depositCoinA := randomDepositCoin(r, params.MinInitDepositToPool, denomA)
+		depositCoinB := randomDepositCoin(r, params.MinInitDepositToPool, denomB)
+		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
 		msg := types.NewMsgCreateLiquidityPool(poolCreator, types.DefaultPoolTypeIndex, depositCoins)
 
@@ -206,8 +208,12 @@ func SimulateMsgDepositToLiquidityPool(ak types.AccountKeeper, bk types.BankKeep
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositToLiquidityPool, "unable to generate fees"), nil, err
 		}
 
+		params := k.GetParams(ctx)
+
 		depositor := account.GetAddress()
-		depositCoins := sdk.NewCoins(randomDepositCoin(r, pool.ReserveCoinDenoms[0]), randomDepositCoin(r, pool.ReserveCoinDenoms[1]))
+		depositCoinA := randomDepositCoin(r, params.MinInitDepositToPool, pool.ReserveCoinDenoms[0])
+		depositCoinB := randomDepositCoin(r, params.MinInitDepositToPool, pool.ReserveCoinDenoms[1])
+		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
 		msg := types.NewMsgDepositToLiquidityPool(depositor, pool.PoolId, depositCoins)
 
@@ -413,9 +419,9 @@ func randomDenoms(r *rand.Rand) (string, string) {
 	return denomA, denomB
 }
 
-// randomDepositCoin returns deposit amount between DefaultMinInitDepositToPool and 1e9
-func randomDepositCoin(r *rand.Rand, denom string) sdk.Coin {
-	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e9))))
+// randomDepositCoin returns deposit amount between minInitDepositToPool+1 and 1e9
+func randomDepositCoin(r *rand.Rand, minInitDepositToPool sdk.Int, denom string) sdk.Coin {
+	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(minInitDepositToPool.Int64()+1), 1e9))))
 }
 
 // randomLiquidity returns random liquidity pool with given access to the keeper and ctx
