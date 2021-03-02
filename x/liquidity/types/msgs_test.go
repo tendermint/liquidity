@@ -1,7 +1,6 @@
 package types_test
 
 import (
-	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -69,7 +68,6 @@ func TestMsgCreateLiquidityPoolRosettaOperation(t *testing.T) {
 	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 
 	ops := msg.ToOperations(true, true)
-	fmt.Println(ops)
 	var msgFromOps types.MsgCreateLiquidityPool
 	sdkMsg, err := msgFromOps.FromOperations(ops)
 	require.NoError(t, err)
@@ -104,6 +102,29 @@ func TestMsgDepositToLiquidityPool(t *testing.T) {
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
+
+func TestMsgDepositToLiquidityPoolRosettaOperation(t *testing.T) {
+	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
+	msg := types.NewMsgDepositToLiquidityPool(addr, DefaultPoolId, coins)
+	require.IsType(t, &types.MsgDepositToLiquidityPool{}, msg)
+	require.Equal(t, types.RouterKey, msg.Route())
+	require.Equal(t, types.TypeMsgDepositToLiquidityPool, msg.Type())
+
+	err := msg.ValidateBasic()
+	require.NoError(t, err)
+	signers := msg.GetSigners()
+	require.Len(t, signers, 1)
+	require.Equal(t, msg.GetDepositor(), signers[0])
+	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+
+	ops := msg.ToOperations(true, true)
+	var msgFromOps types.MsgDepositToLiquidityPool
+	sdkMsg, err := msgFromOps.FromOperations(ops)
+	require.NoError(t, err)
+	require.Equal(t, msg, sdkMsg)
+}
+
 func TestMsgWithdrawFromLiquidityPool(t *testing.T) {
 	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
 	coin := sdk.NewCoin(DenomPoolCoin, sdk.NewInt(1000))
@@ -127,6 +148,28 @@ func TestMsgWithdrawFromLiquidityPool(t *testing.T) {
 	msg = types.NewMsgWithdrawFromLiquidityPool(sdk.AccAddress{}, DefaultPoolId, coin)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
+}
+
+func TestMsgWithdrawFromLiquidityPoolRosettaOperation(t *testing.T) {
+	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	coin := sdk.NewCoin(DenomPoolCoin, sdk.NewInt(1000))
+	msg := types.NewMsgWithdrawFromLiquidityPool(addr, DefaultPoolId, coin)
+	require.IsType(t, &types.MsgWithdrawFromLiquidityPool{}, msg)
+	require.Equal(t, types.RouterKey, msg.Route())
+	require.Equal(t, types.TypeMsgWithdrawFromLiquidityPool, msg.Type())
+
+	err := msg.ValidateBasic()
+	require.NoError(t, err)
+	signers := msg.GetSigners()
+	require.Len(t, signers, 1)
+	require.Equal(t, msg.GetWithdrawer(), signers[0])
+	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+
+	ops := msg.ToOperations(true, true)
+	var msgFromOps types.MsgWithdrawFromLiquidityPool
+	sdkMsg, err := msgFromOps.FromOperations(ops)
+	require.NoError(t, err)
+	require.Equal(t, msg, sdkMsg)
 }
 
 func TestMsgSwap(t *testing.T) {
@@ -160,7 +203,6 @@ func TestMsgSwapRosettaOperation(t *testing.T) {
 	err = msg.ValidateBasic()
 	require.NoError(t, err)
 	ops := msg.ToOperations(true, true)
-	fmt.Println(ops)
 	var msgFromOps types.MsgSwap
 	sdkMsg, err := msgFromOps.FromOperations(ops)
 	require.NoError(t, err)

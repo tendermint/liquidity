@@ -319,7 +319,7 @@ func (msg *MsgSwap) ToOperations(withStatus bool, hasError bool) []*rosettatypes
 	var operations []*rosettatypes.Operation
 	swapRequester := msg.SwapRequesterAddress
 	coin := msg.OfferCoin.Add(msg.OfferCoinFee)
-	swapOp := func(account *rosettatypes.AccountIdentifier, amount string, index int) *rosettatypes.Operation {
+	op := func(account *rosettatypes.AccountIdentifier, amount string, index int) *rosettatypes.Operation {
 		var status string
 		if withStatus {
 			status = rosetta.StatusSuccess
@@ -356,8 +356,8 @@ func (msg *MsgSwap) ToOperations(withStatus bool, hasError bool) []*rosettatypes
 		},
 	}
 	operations = append(operations,
-		swapOp(swapAcc, "-"+coin.Amount.String(), 0),
-		swapOp(poolAcc, coin.Amount.String(), 1),
+		op(swapAcc, "-"+coin.Amount.String(), 0),
+		op(poolAcc, coin.Amount.String(), 1),
 	)
 	return operations
 }
@@ -406,7 +406,7 @@ func (msg *MsgCreateLiquidityPool) ToOperations(withStatus bool, hasError bool) 
 	var operations []*rosettatypes.Operation
 	poolCreator := msg.PoolCreatorAddress
 	coins := msg.DepositCoins
-	swapOp := func(account *rosettatypes.AccountIdentifier, amount string, index int) *rosettatypes.Operation {
+	op := func(account *rosettatypes.AccountIdentifier, amount string, index int) *rosettatypes.Operation {
 		var status string
 		if withStatus {
 			status = rosetta.StatusSuccess
@@ -442,13 +442,13 @@ func (msg *MsgCreateLiquidityPool) ToOperations(withStatus bool, hasError bool) 
 	index := 0
 	for _, coin := range coins {
 		operations = append(operations,
-			swapOp(creatorAcc, "-"+coin.Amount.String(), index),
+			op(creatorAcc, "-"+coin.Amount.String(), index),
 		)
 		index += 1
 	}
 	for _, coin := range coins {
 		operations = append(operations,
-			swapOp(poolAcc, coin.Amount.String(), index),
+			op(poolAcc, coin.Amount.String(), index),
 		)
 		index += 1
 	}
@@ -486,4 +486,165 @@ func (msg *MsgCreateLiquidityPool) FromOperations(ops []*rosettatypes.Operation)
 		}
 	}
 	return NewMsgCreateLiquidityPool(poolCreator, poolTypeIndex, depositCoins), nil
+}
+
+func (msg *MsgDepositToLiquidityPool) ToOperations(withStatus bool, hasError bool) []*rosettatypes.Operation {
+	var operations []*rosettatypes.Operation
+	depositor := msg.DepositorAddress
+	poolId := msg.PoolId
+	coins := msg.DepositCoins
+	op := func(account *rosettatypes.AccountIdentifier, amount string, index int) *rosettatypes.Operation {
+		var status string
+		if withStatus {
+			status = rosetta.StatusSuccess
+			if hasError {
+				status = rosetta.StatusReverted
+			}
+		}
+		return &rosettatypes.Operation{
+			OperationIdentifier: &rosettatypes.OperationIdentifier{
+				Index: int64(index),
+			},
+			Type:    proto.MessageName(msg),
+			Status:  status,
+			Account: account,
+			Amount: &rosettatypes.Amount{
+				Value: amount,
+				Currency: &rosettatypes.Currency{
+					Symbol: coins.GetDenomByIndex(index%2),
+				},
+			},
+		}
+	}
+	creatorAcc := &rosettatypes.AccountIdentifier{
+		Address: depositor,
+	}
+	poolAcc := &rosettatypes.AccountIdentifier{
+		Address: "liquidity_pool",
+		Metadata: map[string]interface{}{
+			"pool_id": poolId,
+		},
+	}
+	index := 0
+	for _, coin := range coins {
+		operations = append(operations,
+			op(creatorAcc, "-"+coin.Amount.String(), index),
+		)
+		index += 1
+	}
+	for _, coin := range coins {
+		operations = append(operations,
+			op(poolAcc, coin.Amount.String(), index),
+		)
+		index += 1
+	}
+	return operations
+}
+
+func (msg *MsgDepositToLiquidityPool) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, error) {
+	var (
+		depositor sdk.AccAddress
+		poolId uint64
+		depositCoins sdk.Coins
+		err     error
+	)
+	for _, op := range ops {
+		if strings.HasPrefix(op.Amount.Value, "-") {
+			if op.Account == nil {
+				return nil, fmt.Errorf("account identifier must be specified")
+			}
+			depositor, err = sdk.AccAddressFromBech32(op.Account.Address)
+			if err != nil {
+				return nil, err
+			}
+			continue
+		} else {
+			if op.Account == nil {
+				return nil, fmt.Errorf("account identifier must be specified")
+			}
+			poolId = op.Account.Metadata["pool_id"].(uint64)
+		}
+		amount, err := strconv.ParseInt(op.Amount.Value, 10, 64)
+		depositCoins = depositCoins.Add(sdk.NewCoin(op.Amount.Currency.Symbol, sdk.NewInt(amount)))
+		if err != nil {
+			return nil, fmt.Errorf("invalid amount: %w", err)
+		}
+	}
+	return NewMsgDepositToLiquidityPool(depositor, poolId, depositCoins), nil
+}
+
+func (msg *MsgWithdrawFromLiquidityPool) ToOperations(withStatus bool, hasError bool) []*rosettatypes.Operation {
+	var operations []*rosettatypes.Operation
+	withdrawer := msg.WithdrawerAddress
+	poolId := msg.PoolId
+	coin := msg.PoolCoin
+	op := func(account *rosettatypes.AccountIdentifier, amount string, index int) *rosettatypes.Operation {
+		var status string
+		if withStatus {
+			status = rosetta.StatusSuccess
+			if hasError {
+				status = rosetta.StatusReverted
+			}
+		}
+		return &rosettatypes.Operation{
+			OperationIdentifier: &rosettatypes.OperationIdentifier{
+				Index: int64(index),
+			},
+			Type:    proto.MessageName(msg),
+			Status:  status,
+			Account: account,
+			Amount: &rosettatypes.Amount{
+				Value: amount,
+				Currency: &rosettatypes.Currency{
+					Symbol: coin.Denom,
+				},
+			},
+		}
+	}
+	withdrawerAcc := &rosettatypes.AccountIdentifier{
+		Address: withdrawer,
+	}
+	poolAcc := &rosettatypes.AccountIdentifier{
+		Address: "liquidity_pool",
+		Metadata: map[string]interface{}{
+			"pool_id": poolId,
+		},
+	}
+	operations = append(operations,
+		op(withdrawerAcc, "-"+coin.Amount.String(), 0),
+		op(poolAcc, coin.Amount.String(), 1),
+	)
+	return operations
+}
+
+func (msg *MsgWithdrawFromLiquidityPool) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, error) {
+	var (
+		withdrawer sdk.AccAddress
+		poolId uint64
+		poolCoin sdk.Coin
+		err     error
+	)
+	for _, op := range ops {
+		if strings.HasPrefix(op.Amount.Value, "-") {
+			if op.Account == nil {
+				return nil, fmt.Errorf("account identifier must be specified")
+			}
+			withdrawer, err = sdk.AccAddressFromBech32(op.Account.Address)
+			if err != nil {
+				return nil, err
+			}
+			continue
+		} else {
+			if op.Account == nil {
+				return nil, fmt.Errorf("account identifier must be specified")
+			}
+			poolId = op.Account.Metadata["pool_id"].(uint64)
+		}
+		amount, err := strconv.ParseInt(op.Amount.Value, 10, 64)
+		poolCoin = sdk.NewCoin(op.Amount.Currency.Symbol, sdk.NewInt(amount))
+		if err != nil {
+			return nil, fmt.Errorf("invalid amount: %w", err)
+		}
+	}
+	return NewMsgWithdrawFromLiquidityPool(withdrawer, poolId, poolCoin), nil
 }
