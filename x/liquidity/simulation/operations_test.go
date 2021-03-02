@@ -66,6 +66,12 @@ func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
 	r := rand.New(s)
 	accounts := getTestingAccounts(t, r, app, ctx, 1)
 
+	// setup randomly generated liquidity pool creation fees
+	feeCoins := simulation.GenLiquidityPoolCreationFee(r)
+	params := app.LiquidityKeeper.GetParams(ctx)
+	params.LiquidityPoolCreationFee = feeCoins
+	app.LiquidityKeeper.SetParams(ctx, params)
+
 	// begin a new block
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
 
@@ -80,7 +86,7 @@ func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetPoolCreator().String())
 	require.Equal(t, types.DefaultPoolTypeIndex, msg.PoolTypeIndex)
-	require.Equal(t, "3625353331IXnku,1883778273nhwJy", msg.DepositCoins.String())
+	require.Equal(t, "618138289IXnku,444632889NEUz", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -111,7 +117,7 @@ func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetDepositor().String())
-	require.Equal(t, "922627189Qfyze,210282199VIkPZ", msg.DepositCoins.String())
+	require.Equal(t, "922627191Qfyze,210282200VIkPZ", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgDepositToLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -142,7 +148,7 @@ func TestSimulateMsgWithdrawFromLiquidityPool(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetWithdrawer().String())
-	require.Equal(t, "953848pool/2D59CF15954FA399BBEA5EE6A2E73D09BC39FC8720F2E922AC17C9AC06758EA8", msg.PoolCoin.String())
+	require.Equal(t, "70867pool/2D59CF15954FA399BBEA5EE6A2E73D09BC39FC8720F2E922AC17C9AC06758EA8", msg.PoolCoin.String())
 	require.Equal(t, types.TypeMsgWithdrawFromLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }

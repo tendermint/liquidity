@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/tendermint/liquidity/x/liquidity/types"
@@ -110,15 +108,6 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 
 // In order to deal with the batch at once, the coins of msgs deposited in escrow.
 func (k Keeper) HoldEscrow(ctx sdk.Context, depositor sdk.AccAddress, depositCoins sdk.Coins) error {
-	for _, dc := range depositCoins {
-		balance := k.bankKeeper.GetBalance(ctx, depositor, dc.Denom)
-		fmt.Println("balance: ", balance) // 2591591574toeA
-		fmt.Println("depositCoin: ", dc)  // 8834780187toeA
-		if balance.Amount.LT(dc.Amount) {
-			continue
-		}
-	}
-
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, depositCoins); err != nil {
 		return err
 	}

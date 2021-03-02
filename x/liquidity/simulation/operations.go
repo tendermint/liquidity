@@ -1,7 +1,6 @@
 package simulation
 
 import (
-	"fmt"
 	"math/rand"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -90,8 +89,6 @@ func SimulateMsgCreateLiquidityPool(ak types.AccountKeeper, bk types.BankKeeper,
 			2. Check if the same liquidity pool already exists and balances of both denoms
 			3. Create new liquidity pool with random deposit amount of coins
 		*/
-
-		fmt.Println("TypeMsgCreateLiquidityPool: ", types.TypeMsgCreateLiquidityPool)
 
 		params := k.GetParams(ctx)
 
@@ -186,8 +183,6 @@ func SimulateMsgDepositToLiquidityPool(ak types.AccountKeeper, bk types.BankKeep
 			3. Deposit random amount of coins the to liquidity pool
 		*/
 
-		fmt.Println("TypeMsgDepositToLiquidityPool: ", types.TypeMsgDepositToLiquidityPool)
-
 		if len(k.GetAllLiquidityPools(ctx)) == 0 {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositToLiquidityPool, "number of liquidity pools equals zero"), nil, nil
 		}
@@ -219,16 +214,6 @@ func SimulateMsgDepositToLiquidityPool(ak types.AccountKeeper, bk types.BankKeep
 		depositCoinA := randomDepositCoin(r, params.MinInitDepositToPool, pool.ReserveCoinDenoms[0])
 		depositCoinB := randomDepositCoin(r, params.MinInitDepositToPool, pool.ReserveCoinDenoms[1])
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
-
-		for _, depositCoin := range depositCoins {
-			// make sure simaccount has more coins than deposit amount
-			balance := bk.GetBalance(ctx, depositor, depositCoin.Denom)
-
-			fmt.Println("")
-			fmt.Println("depositor: ", simAccount.Address.String())
-			fmt.Println("balance: ", balance)         // 197580429807toeA
-			fmt.Println("depositCoin: ", depositCoin) //   8834780187toeA
-		}
 
 		msg := types.NewMsgDepositToLiquidityPool(depositor, pool.PoolId, depositCoins)
 
@@ -269,8 +254,6 @@ func SimulateMsgWithdrawFromLiquidityPool(ak types.AccountKeeper, bk types.BankK
 			3. Withdraw random amounts from the liquidity pool
 		*/
 
-		fmt.Println("TypeMsgWithdrawFromLiquidityPool: ", types.TypeMsgWithdrawFromLiquidityPool)
-
 		if len(k.GetAllLiquidityPools(ctx)) == 0 {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawFromLiquidityPool, "number of liquidity pools equals zero"), nil, nil
 		}
@@ -303,21 +286,6 @@ func SimulateMsgWithdrawFromLiquidityPool(ak types.AccountKeeper, bk types.BankK
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawFromLiquidityPool, "unable to generate fees"), nil, err
 		}
-
-		allBalance := bk.GetAllBalances(ctx, simAccount.Address)
-
-		/*
-			account가 얼마만큼 유동성을 제공했는지 알 수 있는 방법이 있나?
-			poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
-			if msg.PoolCoin.Amount.GT(poolCoinTotalSupply) {
-				return types.ErrBadPoolCoinAmount
-			}
-
-			batch.go에 아래 코드에서 걸림
-			if err := k.HoldEscrow(ctx, msg.GetWithdrawer(), sdk.NewCoins(msg.PoolCoin)); err != nil {
-				return types.BatchPoolWithdrawMsg{}, err
-			}
-		*/
 
 		withdrawer := account.GetAddress()
 		withdrawCoin := randomWithdrawCoin(r, poolCoinDenom, balance.Amount)
@@ -445,7 +413,7 @@ func mintCoins(r *rand.Rand, address sdk.AccAddress, denoms []string, bk types.B
 
 // randomDepositCoin returns deposit amount between minInitDepositToPool+1 and 1e9
 func randomDepositCoin(r *rand.Rand, minInitDepositToPool sdk.Int, denom string) sdk.Coin {
-	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(minInitDepositToPool.Int64()+1), 1e10))))
+	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(minInitDepositToPool.Int64()+1), 1e9))))
 }
 
 // randomLiquidity returns random liquidity pool with given access to the keeper and ctx
@@ -460,9 +428,9 @@ func randomLiquidity(r *rand.Rand, k keeper.Keeper, ctx sdk.Context) (pool types
 	return pools[i], true
 }
 
-// randomWithdrawCoin returns random withdraw amount between 1 and the account's current balance divide by 50
+// randomWithdrawCoin returns random withdraw amount between 1 and the account's current balance divide by 10
 func randomWithdrawCoin(r *rand.Rand, denom string, balance sdk.Int) sdk.Coin {
-	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1, int(balance.Quo(sdk.NewInt(50)).Int64())))))
+	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1, int(balance.Quo(sdk.NewInt(10)).Int64())))))
 }
 
 // randomOrderPrice returns random order price amount between 0.01 to 1
