@@ -54,12 +54,12 @@ func GenInitPoolCoinMintAmount(r *rand.Rand) sdk.Int {
 }
 
 // GenLiquidityPoolCreationFee randomized LiquidityPoolCreationFee
-// list of 1 to 10 coins with an amount greater than 1
+// list of 1 to 4 coins with an amount greater than 1
 func GenLiquidityPoolCreationFee(r *rand.Rand) sdk.Coins {
 	var coins sdk.Coins
 	var denoms []string
 
-	count := simulation.RandIntBetween(r, 1, 10)
+	count := simulation.RandIntBetween(r, 1, 4)
 	for i := 0; i < count; i++ {
 		randomDenom := simulation.RandStringOfLength(r, simulation.RandIntBetween(r, 4, 6))
 		denoms = append(denoms, randomDenom)
