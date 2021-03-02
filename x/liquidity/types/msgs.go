@@ -348,11 +348,11 @@ func (msg *MsgSwap) ToOperations(withStatus bool, hasError bool) []*rosettatypes
 	poolAcc := &rosettatypes.AccountIdentifier{
 		Address: "liquidity_pool",
 		Metadata: map[string]interface{}{
-			"pool_id": msg.PoolId,
-			"swap_type": msg.SwapType,
+			"pool_id":            msg.PoolId,
+			"swap_type":          msg.SwapType,
 			"demand_coind_denom": msg.DemandCoinDenom,
-			"order_price": msg.OrderPrice,
-			"offer_coin_fee": msg.OfferCoinFee,
+			"order_price":        msg.OrderPrice,
+			"offer_coin_fee":     msg.OfferCoinFee,
 		},
 	}
 	operations = append(operations,
@@ -364,14 +364,14 @@ func (msg *MsgSwap) ToOperations(withStatus bool, hasError bool) []*rosettatypes
 
 func (msg *MsgSwap) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, error) {
 	var (
-		swapRequester sdk.AccAddress
-		poolId uint64
-		swapType uint32
-		offerCoin sdk.Coin
+		swapRequester   sdk.AccAddress
+		poolId          uint64
+		swapType        uint32
+		offerCoin       sdk.Coin
 		demandCoinDenom string
-		orderPrice sdk.Dec
-		offerCoinFee sdk.Coin
-		err     error
+		orderPrice      sdk.Dec
+		offerCoinFee    sdk.Coin
+		err             error
 	)
 	for _, op := range ops {
 		if strings.HasPrefix(op.Amount.Value, "-") {
@@ -424,7 +424,7 @@ func (msg *MsgCreateLiquidityPool) ToOperations(withStatus bool, hasError bool) 
 			Amount: &rosettatypes.Amount{
 				Value: amount,
 				Currency: &rosettatypes.Currency{
-					Symbol: coins.GetDenomByIndex(index%2),
+					Symbol: coins.GetDenomByIndex(index % 2),
 				},
 			},
 		}
@@ -457,10 +457,10 @@ func (msg *MsgCreateLiquidityPool) ToOperations(withStatus bool, hasError bool) 
 
 func (msg *MsgCreateLiquidityPool) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, error) {
 	var (
-		poolCreator sdk.AccAddress
+		poolCreator   sdk.AccAddress
 		poolTypeIndex uint32
-		depositCoins sdk.Coins
-		err     error
+		depositCoins  sdk.Coins
+		err           error
 	)
 	for _, op := range ops {
 		if strings.HasPrefix(op.Amount.Value, "-") {
@@ -511,7 +511,7 @@ func (msg *MsgDepositToLiquidityPool) ToOperations(withStatus bool, hasError boo
 			Amount: &rosettatypes.Amount{
 				Value: amount,
 				Currency: &rosettatypes.Currency{
-					Symbol: coins.GetDenomByIndex(index%2),
+					Symbol: coins.GetDenomByIndex(index % 2),
 				},
 			},
 		}
@@ -543,10 +543,10 @@ func (msg *MsgDepositToLiquidityPool) ToOperations(withStatus bool, hasError boo
 
 func (msg *MsgDepositToLiquidityPool) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, error) {
 	var (
-		depositor sdk.AccAddress
-		poolId uint64
+		depositor    sdk.AccAddress
+		poolId       uint64
 		depositCoins sdk.Coins
-		err     error
+		err          error
 	)
 	for _, op := range ops {
 		if strings.HasPrefix(op.Amount.Value, "-") {
@@ -620,9 +620,9 @@ func (msg *MsgWithdrawFromLiquidityPool) ToOperations(withStatus bool, hasError 
 func (msg *MsgWithdrawFromLiquidityPool) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, error) {
 	var (
 		withdrawer sdk.AccAddress
-		poolId uint64
-		poolCoin sdk.Coin
-		err     error
+		poolId     uint64
+		poolCoin   sdk.Coin
+		err        error
 	)
 	for _, op := range ops {
 		if strings.HasPrefix(op.Amount.Value, "-") {

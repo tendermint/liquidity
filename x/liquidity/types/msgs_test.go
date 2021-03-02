@@ -335,14 +335,14 @@ func TestMsgValidateBasic(t *testing.T) {
 			{
 				types.MsgDepositToLiquidityPool{
 					DepositorAddress: validAddr,
-					DepositCoins: sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MinReserveCoinNum)-1))),
+					DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MinReserveCoinNum)-1))),
 				},
 				types.ErrNumOfReserveCoin.Error(),
 			},
 			{
 				types.MsgDepositToLiquidityPool{
 					DepositorAddress: validAddr,
-					DepositCoins: sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MaxReserveCoinNum)+1))),
+					DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MaxReserveCoinNum)+1))),
 				},
 				types.ErrNumOfReserveCoin.Error(),
 			},
@@ -353,11 +353,11 @@ func TestMsgValidateBasic(t *testing.T) {
 	})
 	t.Run("MsgWithdrawFromLiquidityPool", func(t *testing.T) {
 		for _, tc := range []struct {
-			msg types.MsgWithdrawFromLiquidityPool
+			msg    types.MsgWithdrawFromLiquidityPool
 			errMsg string
-		} {
+		}{
 			{
-				types.MsgWithdrawFromLiquidityPool{ },
+				types.MsgWithdrawFromLiquidityPool{},
 				types.ErrEmptyWithdrawerAddr.Error(),
 			},
 			{

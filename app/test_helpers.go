@@ -79,7 +79,6 @@ func Setup(isCheckTx bool) *LiquidityApp {
 	return app
 }
 
-
 type GenerateAccountStrategy func(int) []sdk.AccAddress
 
 // createIncrementalAccounts is a strategy used by addTestAddrs() in order to generated addresses in ascending order.
