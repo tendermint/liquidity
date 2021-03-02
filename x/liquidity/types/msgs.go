@@ -236,6 +236,27 @@ func NewMsgSwap(
 	}
 }
 
+// NewMsgSwapWithOfferCoinFee creates a new MsgSwap object with explicit OfferCoinFee.
+func NewMsgSwapWithOfferCoinFee(
+	swapRequester sdk.AccAddress,
+	poolId uint64,
+	swapType uint32,
+	offerCoin sdk.Coin,
+	demandCoinDenom string,
+	orderPrice sdk.Dec,
+	offerCoinFee sdk.Coin,
+) *MsgSwap {
+	return &MsgSwap{
+		SwapRequesterAddress: swapRequester.String(),
+		PoolId:               poolId,
+		SwapType:             swapType,
+		OfferCoin:            offerCoin,
+		OfferCoinFee:         offerCoinFee,
+		DemandCoinDenom:      demandCoinDenom,
+		OrderPrice:           orderPrice,
+	}
+}
+
 //func (msg MsgSwap) GetOfferCoinFee() sdk.Coin {
 //	return GetOfferCoinFee(msg.OfferCoin)
 //}
@@ -297,7 +318,7 @@ func (msg MsgSwap) GetSwapRequester() sdk.AccAddress {
 func (msg *MsgSwap) ToOperations(withStatus bool, hasError bool) []*rosettatypes.Operation {
 	var operations []*rosettatypes.Operation
 	swapRequester := msg.SwapRequesterAddress
-	coin := msg.OfferCoin
+	coin := msg.OfferCoin.Add(msg.OfferCoinFee)
 	swapOp := func(account *rosettatypes.AccountIdentifier, amount string, index int) *rosettatypes.Operation {
 		var status string
 		if withStatus {
@@ -324,9 +345,19 @@ func (msg *MsgSwap) ToOperations(withStatus bool, hasError bool) []*rosettatypes
 	swapAcc := &rosettatypes.AccountIdentifier{
 		Address: swapRequester,
 	}
+	poolAcc := &rosettatypes.AccountIdentifier{
+		Address: "liquidity_pool",
+		Metadata: map[string]interface{}{
+			"pool_id": msg.PoolId,
+			"swap_type": msg.SwapType,
+			"demand_coind_denom": msg.DemandCoinDenom,
+			"order_price": msg.OfferCoin,
+			"offer_coin_fee": msg.OfferCoinFee,
+		},
+	}
 	operations = append(operations,
 		swapOp(swapAcc, "-"+coin.Amount.String(), 0),
-		//swapOp(valAcc, coin.Amount.String(), 1),
+		swapOp(poolAcc, coin.Amount.String(), 1),
 	)
 	return operations
 }
@@ -339,10 +370,10 @@ func (msg *MsgSwap) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, erro
 		offerCoin sdk.Coin
 		demandCoinDenom string
 		orderPrice sdk.Dec
-		swapFeeRate sdk.Dec
+		offerCoinFee sdk.Coin
 		err     error
 	)
-
+	var m map[string]interface{}
 	for _, op := range ops {
 		if strings.HasPrefix(op.Amount.Value, "-") {
 			if op.Account == nil {
@@ -353,6 +384,11 @@ func (msg *MsgSwap) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, erro
 				return nil, err
 			}
 			continue
+		} else {
+			if op.Account == nil {
+				return nil, fmt.Errorf("account identifier must be specified")
+			}
+			m = op.Metadata
 		}
 
 		amount, err := strconv.ParseInt(op.Amount.Value, 10, 64)
@@ -360,8 +396,13 @@ func (msg *MsgSwap) FromOperations(ops []*rosettatypes.Operation) (sdk.Msg, erro
 			return nil, fmt.Errorf("invalid amount: %w", err)
 		}
 
-		offerCoin = sdk.NewCoin(op.Amount.Currency.Symbol, sdk.NewInt(amount))
+		poolId = m["pool_id"].(uint64)
+		swapType = m["swap_type"].(uint32)
+		demandCoinDenom = m["demand_coind_denom"].(string)
+		orderPrice = m["order_price"].(sdk.Dec)
+		offerCoinFee = m["offer_coin_fee"].(sdk.Coin)
+		offerCoin = sdk.NewCoin(op.Amount.Currency.Symbol, sdk.NewInt(amount)).Sub(offerCoinFee)
 	}
 
-	return NewMsgSwap(swapRequester, poolId, swapType, offerCoin, demandCoinDenom, orderPrice, swapFeeRate), nil
+	return NewMsgSwapWithOfferCoinFee(swapRequester, poolId, swapType, offerCoin, demandCoinDenom, orderPrice, offerCoinFee), nil
 }
