@@ -1,5 +1,7 @@
 package app
 
+// DONTCOVER
+
 import (
 	"bytes"
 	"encoding/hex"
