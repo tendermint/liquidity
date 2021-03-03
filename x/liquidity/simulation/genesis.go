@@ -26,20 +26,9 @@ const (
 	UnitBatchSize            = "unit_batch_size"
 )
 
-// GenLiquidityPoolTypes randomized LiquidityPoolTypes
-func GenLiquidityPoolTypes(r *rand.Rand) []types.LiquidityPoolType {
-	liquidityPoolTypes := []types.LiquidityPoolType{}
-
-	liquidityPoolType := types.LiquidityPoolType{
-		PoolTypeIndex:     types.DefaultLiquidityPoolType.PoolTypeIndex,
-		Name:              types.DefaultLiquidityPoolType.Name,
-		MinReserveCoinNum: types.DefaultLiquidityPoolType.MinReserveCoinNum,
-		MaxReserveCoinNum: types.DefaultLiquidityPoolType.MaxReserveCoinNum,
-		Description:       types.DefaultLiquidityPoolType.Description,
-	}
-
-	liquidityPoolTypes = append(liquidityPoolTypes, liquidityPoolType)
-
+// GenLiquidityPoolTypes return default PoolType temporarily, It will be randomized in the liquidity v2
+func GenLiquidityPoolTypes(r *rand.Rand) (liquidityPoolTypes []types.LiquidityPoolType) {
+	liquidityPoolTypes = append(liquidityPoolTypes, types.DefaultLiquidityPoolType)
 	return liquidityPoolTypes
 }
 

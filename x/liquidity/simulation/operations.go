@@ -462,7 +462,7 @@ func randomOfferCoin(r *rand.Rand, k keeper.Keeper, ctx sdk.Context, pool types.
 	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1, int(maximumOrderableAmt.Int64())))))
 }
 
-// randomFees returns a random fee by selecting a random coin denomination and
+// randomFees returns a random fee by selecting a random coin denomination except pool coin and
 // amount from the account's available balance. If the user doesn't have enough
 // funds for paying fees, it returns empty coins.
 func randomFees(r *rand.Rand, ctx sdk.Context, spendableCoins sdk.Coins) (sdk.Coins, error) {
