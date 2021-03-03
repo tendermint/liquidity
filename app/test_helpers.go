@@ -402,6 +402,7 @@ func CreateTestInput() (*LiquidityApp, sdk.Context) {
 		app.GetSubspace(types.ModuleName),
 		app.BankKeeper,
 		app.AccountKeeper,
+		app.DistrKeeper,
 	)
 
 	return app, ctx

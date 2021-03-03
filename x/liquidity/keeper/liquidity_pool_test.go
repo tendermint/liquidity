@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity/types"
@@ -67,6 +68,50 @@ func TestCreateLiquidityPool(t *testing.T) {
 
 	_, err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
 	require.Error(t, err, types.ErrPoolAlreadyExists)
+}
+
+func TestLiquidityPoolCreationFee(t *testing.T) {
+	simapp, ctx := createTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	poolTypeIndex := types.DefaultPoolTypeIndex
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+
+	denomA := "uETH"
+	denomB := "uUSD"
+	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+
+	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
+	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	depositBalance := sdk.NewCoins(depositA, depositB)
+
+	require.Equal(t, deposit, depositBalance)
+
+	// Set LiquidityPoolCreationFee for fail (insufficient balances for pool creation fee)
+	params.LiquidityPoolCreationFee = depositBalance
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
+	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
+
+	// Set LiquidityPoolCreationFee for success
+	params.LiquidityPoolCreationFee = types.DefaultLiquidityPoolCreationFee
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+	feePoolAcc := simapp.AccountKeeper.GetModuleAddress(distrtypes.ModuleName)
+	feePoolBalance := simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
+	msg = types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
+	_, err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	require.NoError(t, err)
+
+	// Verify PoolCreationFee pay successfully
+	feePoolBalance = feePoolBalance.Add(params.LiquidityPoolCreationFee...)
+	require.Equal(t, params.LiquidityPoolCreationFee, feePoolBalance)
+	require.Equal(t, feePoolBalance, simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc))
 }
 
 func TestDepositLiquidityPool(t *testing.T) {
