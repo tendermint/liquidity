@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.0.2
+  version: 2.0.3
 paths:
   /liquidity/pools:
     post:
@@ -2344,11 +2344,14 @@ paths:
                     format: sdk.Int
                     example: '1000000'
                     title: Initial mint amount of pool coin upon pool creation
-                  swap_fee_rate:
+                  reserve_coin_limit_amount:
                     type: string
-                    format: sdk.Dec
-                    example: '0.003'
-                    title: Swap fee rate for every executed swap
+                    format: sdk.Int
+                    example: '1000000000000'
+                    title: >-
+                      Limit the size of each liquidity pool in the beginning
+                      phase of Liquidity Module adoption to minimize risk, 0
+                      means no limit
                   liquidity_pool_creation_fee:
                     type: array
                     format: sdk.Coins
@@ -2373,6 +2376,30 @@ paths:
                     title: >-
                       Fee paid for new LiquidityPool creation to prevent
                       spamming
+                  swap_fee_rate:
+                    type: string
+                    format: sdk.Dec
+                    example: '0.003'
+                    title: Swap fee rate for every executed swap
+                  withdraw_fee_rate:
+                    type: string
+                    format: sdk.Dec
+                    example: '0.003'
+                    title: >-
+                      Reserve coin withdrawal with less proportion by
+                      withdrawFeeRate
+                  max_order_amount_ratio:
+                    type: string
+                    format: sdk.Dec
+                    example: '0.003'
+                    title: >-
+                      Maximum ratio of reserve coins that can be ordered at a
+                      swap order
+                  unit_batch_size:
+                    type: integer
+                    format: uint32
+                    example: '1'
+                    title: The smallest unit batch size for every liquidity pool
             description: >-
               the response type for the QueryParamsResponse RPC method. This
               includes current parameter of the liquidity module.
@@ -5527,11 +5554,13 @@ definitions:
         format: sdk.Int
         example: '1000000'
         title: Initial mint amount of pool coin upon pool creation
-      swap_fee_rate:
+      reserve_coin_limit_amount:
         type: string
-        format: sdk.Dec
-        example: '0.003'
-        title: Swap fee rate for every executed swap
+        format: sdk.Int
+        example: '1000000000000'
+        title: >-
+          Limit the size of each liquidity pool in the beginning phase of
+          Liquidity Module adoption to minimize risk, 0 means no limit
       liquidity_pool_creation_fee:
         type: array
         format: sdk.Coins
@@ -5551,6 +5580,26 @@ definitions:
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
         title: Fee paid for new LiquidityPool creation to prevent spamming
+      swap_fee_rate:
+        type: string
+        format: sdk.Dec
+        example: '0.003'
+        title: Swap fee rate for every executed swap
+      withdraw_fee_rate:
+        type: string
+        format: sdk.Dec
+        example: '0.003'
+        title: Reserve coin withdrawal with less proportion by withdrawFeeRate
+      max_order_amount_ratio:
+        type: string
+        format: sdk.Dec
+        example: '0.003'
+        title: Maximum ratio of reserve coins that can be ordered at a swap order
+      unit_batch_size:
+        type: integer
+        format: uint32
+        example: '1'
+        title: The smallest unit batch size for every liquidity pool
   tendermint.liquidity.QueryLiquidityPoolBatchResponse:
     type: object
     properties:
@@ -6012,11 +6061,13 @@ definitions:
             format: sdk.Int
             example: '1000000'
             title: Initial mint amount of pool coin upon pool creation
-          swap_fee_rate:
+          reserve_coin_limit_amount:
             type: string
-            format: sdk.Dec
-            example: '0.003'
-            title: Swap fee rate for every executed swap
+            format: sdk.Int
+            example: '1000000000000'
+            title: >-
+              Limit the size of each liquidity pool in the beginning phase of
+              Liquidity Module adoption to minimize risk, 0 means no limit
           liquidity_pool_creation_fee:
             type: array
             format: sdk.Coins
@@ -6039,6 +6090,26 @@ definitions:
 
                 signatures required by gogoproto.
             title: Fee paid for new LiquidityPool creation to prevent spamming
+          swap_fee_rate:
+            type: string
+            format: sdk.Dec
+            example: '0.003'
+            title: Swap fee rate for every executed swap
+          withdraw_fee_rate:
+            type: string
+            format: sdk.Dec
+            example: '0.003'
+            title: Reserve coin withdrawal with less proportion by withdrawFeeRate
+          max_order_amount_ratio:
+            type: string
+            format: sdk.Dec
+            example: '0.003'
+            title: Maximum ratio of reserve coins that can be ordered at a swap order
+          unit_batch_size:
+            type: integer
+            format: uint32
+            example: '1'
+            title: The smallest unit batch size for every liquidity pool
     description: >-
       the response type for the QueryParamsResponse RPC method. This includes
       current parameter of the liquidity module.
