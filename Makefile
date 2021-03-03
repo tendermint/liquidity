@@ -155,22 +155,16 @@ test-sim-nondeterminism:
 
 test-sim-import-export: runsim
 	@echo "Running application import/export simulation. This may take several minutes..."
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 5 TestAppImportExport
+	@$(BINDIR)/runsim -Jobs=1 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 5 TestAppImportExport
 
 test-sim-after-import: runsim
 	@echo "Running application simulation-after-import. This may take several minutes..."
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 5 TestAppSimulationAfterImport
-
-test-sim-custom-genesis-multi-seed: runsim
-	@echo "Running multi-seed custom genesis simulation..."
-	@echo "By default, ${HOME}/.liquidityd/config/genesis.json will be used."
-	@$(BINDIR)/runsim -Genesis=${HOME}/.liquidityd/config/genesis.json -SimAppPkg=$(SIMAPP) -ExitOnFail 400 5 TestFullAppSimulation
+	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 1 1 TestAppSimulationAfterImport
 
 .PHONY: \
 test-sim-nondeterminism \
 test-sim-import-export \
-test-sim-after-import \
-test-sim-custom-genesis-multi-seed
+test-sim-after-import 
 
 SIM_NUM_BLOCKS ?= 50
 SIM_BLOCK_SIZE ?= 50
