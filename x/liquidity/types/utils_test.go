@@ -1,10 +1,12 @@
 package types_test
 
 import (
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
 	"github.com/tendermint/liquidity/x/liquidity/types"
-	"testing"
 )
 
 func TestAlphabeticalDenomPair(t *testing.T) {
@@ -17,6 +19,22 @@ func TestAlphabeticalDenomPair(t *testing.T) {
 	afterDenomA, afterDenomB = types.AlphabeticalDenomPair(denomB, denomA)
 	require.Equal(t, denomA, afterDenomA)
 	require.Equal(t, denomB, afterDenomB)
+}
+
+func TestSortDenoms(t *testing.T) {
+	tests := []struct {
+		denoms         []string
+		expectedDenoms []string
+	}{
+		{[]string{"uCoinB", "uCoinA"}, []string{"uCoinA", "uCoinB"}},
+		{[]string{"uCoinC", "uCoinA", "uCoinB"}, []string{"uCoinA", "uCoinB", "uCoinC"}},
+		{[]string{"uCoinC", "uCoinA", "uCoinD", "uCoinB"}, []string{"uCoinA", "uCoinB", "uCoinC", "uCoinD"}},
+	}
+
+	for _, tc := range tests {
+		sortedDenoms := types.SortDenoms(tc.denoms)
+		require.Equal(t, tc.expectedDenoms, sortedDenoms)
+	}
 }
 
 func TestStringInSlice(t *testing.T) {
@@ -131,7 +149,6 @@ func TestCheckDecApproxEqual(t *testing.T) {
 	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
 	require.False(t, res)
 }
-
 func TestGetCoinsTotalAmount(t *testing.T) {
 	denomA := "uCoinA"
 	denomB := "uCoinB"
