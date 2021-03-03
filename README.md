@@ -1,5 +1,5 @@
 [![codecov](https://codecov.io/gh/tendermint/liquidity/branch/develop/graph/badge.svg)](https://codecov.io/gh/tendermint/liquidity?branch=develop)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/tendermint/liquidity)](https://pkg.go.dev/github.com/tendermint/liquidity)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/tendermint/liquidity)](https://pkg.go.dev/github.com/tendermint/liquidity@v1.2.0)
 
 # Liquidity Module
 the Liquidity module of the Cosmos-SDK, which serves AMM(Automated Market Makers) style decentralized liquidity providing and coin swap functions.
@@ -40,7 +40,7 @@ For detailed Mechanism, you can find on our recent [Paper](doc/LiquidityModuleLi
 | Requirement | Notes            |
 | ----------- | ---------------- |
 | Go version  | Go1.15 or higher |
-| Cosmos-SDK  | v0.41.0          |
+| Cosmos-SDK  | v0.41.3          |
 
 ### Get Liquidity Module source code 
 ```bash 
@@ -357,6 +357,6 @@ $ make proto-swagger-gen
  - [Liquidity Module Lite Paper (Chinese)](doc/LiquidityModuleLightPaper_ZH.pdf)
  - [Proposal and milestone](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
  - [swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs/2.0.2)
- - [godoc](https://pkg.go.dev/github.com/tendermint/liquidity)
+ - [godoc](https://pkg.go.dev/github.com/tendermint/liquidity@v1.2.0)
  - [liquidityd client doc](doc/client.md)
  
