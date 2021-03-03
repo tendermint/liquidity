@@ -1,5 +1,7 @@
 package liquidity
 
+// DONTCOVER
+
 import (
 	"context"
 	"encoding/json"
