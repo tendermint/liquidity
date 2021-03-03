@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.0.2
+  version: 2.0.3
 paths:
   /liquidity/pools:
     post:
@@ -50,7 +50,7 @@ paths:
                             amount:
                               type: string
                           description: >-
-                            Coin defines a coin with a denomination and an
+                            Coin defines a token with a denomination and an
                             amount.
 
 
@@ -183,7 +183,7 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
@@ -205,8 +205,8 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        DecCoin defines a coin with a denomination and a decimal
-                        amount.
+                        DecCoin defines a token with a denomination and a
+                        decimal amount.
 
 
                         NOTE: The amount field is an Dec which implements the
@@ -270,7 +270,7 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
@@ -349,11 +349,6 @@ paths:
                           example: '1'
                           title: id of the pool
                         pool_coin_total_supply:
-                          format: sdk.Coin
-                          example:
-                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                            amount: '1000000'
-                          title: pool coin issued at the pool
                           type: object
                           properties:
                             denom:
@@ -361,7 +356,7 @@ paths:
                             amount:
                               type: string
                           description: >-
-                            Coin defines a coin with a denomination and an
+                            Coin defines a token with a denomination and an
                             amount.
 
 
@@ -369,6 +364,11 @@ paths:
                             the custom method
 
                             signatures required by gogoproto.
+                          format: sdk.Coin
+                          example:
+                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                            amount: '1000000'
+                          title: pool coin issued at the pool
                         reserve_coins:
                           type: array
                           format: sdk.Coins
@@ -385,7 +385,7 @@ paths:
                               amount:
                                 type: string
                             description: >-
-                              Coin defines a coin with a denomination and an
+                              Coin defines a token with a denomination and an
                               amount.
 
 
@@ -456,11 +456,6 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
             description: >-
               the response type for the QueryLiquidityPoolsResponse RPC method.
               This includes list of all liquidity pools currently existed and
@@ -539,10 +534,12 @@ paths:
             include
 
             a count of the total number of items available for pagination in
-            UIs. count_total
+            UIs.
 
-            is only respected when offset is used. It is ignored when key is
-            set.
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
           in: query
           required: false
           type: boolean
@@ -597,7 +594,7 @@ paths:
                             amount:
                               type: string
                           description: >-
-                            Coin defines a coin with a denomination and an
+                            Coin defines a token with a denomination and an
                             amount.
 
 
@@ -736,7 +733,7 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
@@ -758,8 +755,8 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        DecCoin defines a coin with a denomination and a decimal
-                        amount.
+                        DecCoin defines a token with a denomination and a
+                        decimal amount.
 
 
                         NOTE: The amount field is an Dec which implements the
@@ -826,7 +823,7 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
@@ -938,7 +935,7 @@ paths:
                               amount:
                                 type: string
                             description: >-
-                              Coin defines a coin with a denomination and an
+                              Coin defines a token with a denomination and an
                               amount.
 
 
@@ -983,11 +980,6 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
             description: >-
               the response type for the QueryPoolBatchDeposit RPC method. This
               includes a list of all currently existing deposit messages of the
@@ -1072,10 +1064,12 @@ paths:
             include
 
             a count of the total number of items available for pagination in
-            UIs. count_total
+            UIs.
 
-            is only respected when offset is used. It is ignored when key is
-            set.
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
           in: query
           required: false
           type: boolean
@@ -1130,7 +1124,7 @@ paths:
                             amount:
                               type: string
                           description: >-
-                            Coin defines a coin with a denomination and an
+                            Coin defines a token with a denomination and an
                             amount.
 
 
@@ -1267,7 +1261,7 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
@@ -1289,8 +1283,8 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        DecCoin defines a coin with a denomination and a decimal
-                        amount.
+                        DecCoin defines a token with a denomination and a
+                        decimal amount.
 
 
                         NOTE: The amount field is an Dec which implements the
@@ -1350,19 +1344,24 @@ paths:
                       id of swap type type, only 1 is allowed on this version,
                       Must match the value in the pool.
                   offer_coin:
-                    format: sdk.Coin
-                    example:
-                      denom: denomA
-                      amount: '1000000'
-                    description: >-
-                      offer sdk.coin for the swap request, Must match the denom
-                      in the pool.
                     type: object
                     properties:
                       denom:
                         type: string
                       amount:
                         type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                    format: sdk.Coin
+                    example:
+                      denom: denomA
+                      amount: '1000000'
                   demand_coin_denom:
                     type: string
                     example: denomB
@@ -1370,11 +1369,6 @@ paths:
                       denom of demand coin to be exchanged on the swap request,
                       Must match the denom in the pool.
                   offer_coin_fee:
-                    format: sdk.Coin
-                    example:
-                      denom: denomA
-                      amount: '5000'
-                    title: offer coin fee for pay fees in half offer coin
                     type: object
                     properties:
                       denom:
@@ -1382,13 +1376,18 @@ paths:
                       amount:
                         type: string
                     description: >-
-                      Coin defines a coin with a denomination and an amount.
+                      Coin defines a token with a denomination and an amount.
 
 
                       NOTE: The amount field is an Int which implements the
                       custom method
 
                       signatures required by gogoproto.
+                    format: sdk.Coin
+                    example:
+                      denom: denomA
+                      amount: '5000'
+                    title: offer coin fee for pay fees in half offer coin
                   order_price:
                     type: string
                     format: sdk.Dec
@@ -1484,11 +1483,26 @@ paths:
                         swap orders are cancelled when current height is equal
                         or higher than ExpiryHeight
                     exchanged_offer_coin:
+                      type: object
+                      properties:
+                        denom:
+                          type: string
+                        amount:
+                          type: string
+                      description: >-
+                        Coin defines a token with a denomination and an amount.
+
+
+                        NOTE: The amount field is an Int which implements the
+                        custom method
+
+                        signatures required by gogoproto.
                       format: sdk.Coin
                       example:
                         denom: denomA
                         amount: '600000'
                       title: offer coin exchanged until now
+                    remaining_offer_coin:
                       type: object
                       properties:
                         denom:
@@ -1496,19 +1510,19 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
                         custom method
 
                         signatures required by gogoproto.
-                    remaining_offer_coin:
                       format: sdk.Coin
                       example:
                         denom: denomA
                         amount: '400000'
                       title: offer coin currently remaining to be exchanged
+                    OfferCoinFeeReserve:
                       type: object
                       properties:
                         denom:
@@ -1516,33 +1530,18 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
                         custom method
 
                         signatures required by gogoproto.
-                    OfferCoinFeeReserve:
                       format: sdk.Coin
                       example:
                         denom: denomA
                         amount: '5000'
                       title: reserve fee for pays fee in half offer coin
-                      type: object
-                      properties:
-                        denom:
-                          type: string
-                        amount:
-                          type: string
-                      description: >-
-                        Coin defines a coin with a denomination and an amount.
-
-
-                        NOTE: The amount field is an Int which implements the
-                        custom method
-
-                        signatures required by gogoproto.
                     Msg:
                       title: MsgSwap
                       type: object
@@ -1566,31 +1565,6 @@ paths:
                             id of swap type type, only 1 is allowed on this
                             version, Must match the value in the pool.
                         offer_coin:
-                          format: sdk.Coin
-                          example:
-                            denom: denomA
-                            amount: '1000000'
-                          description: >-
-                            offer sdk.coin for the swap request, Must match the
-                            denom in the pool.
-                          type: object
-                          properties:
-                            denom:
-                              type: string
-                            amount:
-                              type: string
-                        demand_coin_denom:
-                          type: string
-                          example: denomB
-                          description: >-
-                            denom of demand coin to be exchanged on the swap
-                            request, Must match the denom in the pool.
-                        offer_coin_fee:
-                          format: sdk.Coin
-                          example:
-                            denom: denomA
-                            amount: '5000'
-                          title: offer coin fee for pay fees in half offer coin
                           type: object
                           properties:
                             denom:
@@ -1598,7 +1572,7 @@ paths:
                             amount:
                               type: string
                           description: >-
-                            Coin defines a coin with a denomination and an
+                            Coin defines a token with a denomination and an
                             amount.
 
 
@@ -1606,6 +1580,37 @@ paths:
                             the custom method
 
                             signatures required by gogoproto.
+                          format: sdk.Coin
+                          example:
+                            denom: denomA
+                            amount: '1000000'
+                        demand_coin_denom:
+                          type: string
+                          example: denomB
+                          description: >-
+                            denom of demand coin to be exchanged on the swap
+                            request, Must match the denom in the pool.
+                        offer_coin_fee:
+                          type: object
+                          properties:
+                            denom:
+                              type: string
+                            amount:
+                              type: string
+                          description: >-
+                            Coin defines a token with a denomination and an
+                            amount.
+
+
+                            NOTE: The amount field is an Int which implements
+                            the custom method
+
+                            signatures required by gogoproto.
+                          format: sdk.Coin
+                          example:
+                            denom: denomA
+                            amount: '5000'
+                          title: offer coin fee for pay fees in half offer coin
                         order_price:
                           type: string
                           format: sdk.Dec
@@ -1659,11 +1664,6 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
             description: >-
               the response type for the QueryPoolBatchSwapMsgs RPC method. This
               includes list of all currently existing swap messages of the batch
@@ -1748,10 +1748,12 @@ paths:
             include
 
             a count of the total number of items available for pagination in
-            UIs. count_total
+            UIs.
 
-            is only respected when offset is used. It is ignored when key is
-            set.
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
           in: query
           required: false
           type: boolean
@@ -1806,7 +1808,7 @@ paths:
                             amount:
                               type: string
                           description: >-
-                            Coin defines a coin with a denomination and an
+                            Coin defines a token with a denomination and an
                             amount.
 
 
@@ -1945,7 +1947,7 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
@@ -1967,8 +1969,8 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        DecCoin defines a coin with a denomination and a decimal
-                        amount.
+                        DecCoin defines a token with a denomination and a
+                        decimal amount.
 
 
                         NOTE: The amount field is an Dec which implements the
@@ -2020,10 +2022,6 @@ paths:
                     example: '1'
                     title: id of the target pool
                   pool_coin:
-                    format: sdk.Coin
-                    example:
-                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                      amount: '1000'
                     type: object
                     properties:
                       denom:
@@ -2031,13 +2029,17 @@ paths:
                       amount:
                         type: string
                     description: >-
-                      Coin defines a coin with a denomination and an amount.
+                      Coin defines a token with a denomination and an amount.
 
 
                       NOTE: The amount field is an Int which implements the
                       custom method
 
                       signatures required by gogoproto.
+                    format: sdk.Coin
+                    example:
+                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      amount: '1000'
                 description: >-
                   `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that
                   supports submitting withdraw request to the batch of the
@@ -2127,10 +2129,6 @@ paths:
                           example: '1'
                           title: id of the target pool
                         pool_coin:
-                          format: sdk.Coin
-                          example:
-                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                            amount: '1000'
                           type: object
                           properties:
                             denom:
@@ -2138,7 +2136,7 @@ paths:
                             amount:
                               type: string
                           description: >-
-                            Coin defines a coin with a denomination and an
+                            Coin defines a token with a denomination and an
                             amount.
 
 
@@ -2146,6 +2144,10 @@ paths:
                             the custom method
 
                             signatures required by gogoproto.
+                          format: sdk.Coin
+                          example:
+                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                            amount: '1000'
                       description: >-
                         `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type
                         that supports submitting withdraw request to the batch
@@ -2182,11 +2184,6 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
             description: >-
               the response type for the QueryPoolBatchWithdraw RPC method. This
               includes a list of all currently existing withdraw messages of the
@@ -2271,10 +2268,12 @@ paths:
             include
 
             a count of the total number of items available for pagination in
-            UIs. count_total
+            UIs.
 
-            is only respected when offset is used. It is ignored when key is
-            set.
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
           in: query
           required: false
           type: boolean
@@ -2344,11 +2343,14 @@ paths:
                     format: sdk.Int
                     example: '1000000'
                     title: Initial mint amount of pool coin upon pool creation
-                  swap_fee_rate:
+                  reserve_coin_limit_amount:
                     type: string
-                    format: sdk.Dec
-                    example: '0.003'
-                    title: Swap fee rate for every executed swap
+                    format: sdk.Int
+                    example: '1000000000000'
+                    title: >-
+                      Limit the size of each liquidity pool in the beginning
+                      phase of Liquidity Module adoption to minimize risk, 0
+                      means no limit
                   liquidity_pool_creation_fee:
                     type: array
                     format: sdk.Coins
@@ -2363,7 +2365,7 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
@@ -2373,6 +2375,30 @@ paths:
                     title: >-
                       Fee paid for new LiquidityPool creation to prevent
                       spamming
+                  swap_fee_rate:
+                    type: string
+                    format: sdk.Dec
+                    example: '0.003'
+                    title: Swap fee rate for every executed swap
+                  withdraw_fee_rate:
+                    type: string
+                    format: sdk.Dec
+                    example: '0.003'
+                    title: >-
+                      Reserve coin withdrawal with less proportion by
+                      withdrawFeeRate
+                  max_order_amount_ratio:
+                    type: string
+                    format: sdk.Dec
+                    example: '0.003'
+                    title: >-
+                      Maximum ratio of reserve coins that can be ordered at a
+                      swap order
+                  unit_batch_size:
+                    type: integer
+                    format: uint32
+                    example: '1'
+                    title: The smallest unit batch size for every liquidity pool
             description: >-
               the response type for the QueryParamsResponse RPC method. This
               includes current parameter of the liquidity module.
@@ -2497,11 +2523,6 @@ paths:
                       PageRequest.count_total
 
                       was set, its value is undefined otherwise
-                title: >-
-                  PageResponse is to be embedded in gRPC response messages where
-                  the corresponding
-
-                  request message has used PageRequest
             description: >-
               the response type for the QueryLiquidityPoolsBatchResponse RPC
               method. This includes list of all batches that all currently
@@ -2581,10 +2602,12 @@ paths:
             include
 
             a count of the total number of items available for pagination in
-            UIs. count_total
+            UIs.
 
-            is only respected when offset is used. It is ignored when key is
-            set.
+            count_total is only respected when offset is used. It is ignored
+            when key
+
+            is set.
           in: query
           required: false
           type: boolean
@@ -2646,11 +2669,6 @@ paths:
                     example: '1'
                     title: id of the pool
                   pool_coin_total_supply:
-                    format: sdk.Coin
-                    example:
-                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                      amount: '1000000'
-                    title: pool coin issued at the pool
                     type: object
                     properties:
                       denom:
@@ -2658,13 +2676,18 @@ paths:
                       amount:
                         type: string
                     description: >-
-                      Coin defines a coin with a denomination and an amount.
+                      Coin defines a token with a denomination and an amount.
 
 
                       NOTE: The amount field is an Int which implements the
                       custom method
 
                       signatures required by gogoproto.
+                    format: sdk.Coin
+                    example:
+                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      amount: '1000000'
+                    title: pool coin issued at the pool
                   reserve_coins:
                     type: array
                     format: sdk.Coins
@@ -2681,7 +2704,7 @@ paths:
                         amount:
                           type: string
                       description: >-
-                        Coin defines a coin with a denomination and an amount.
+                        Coin defines a token with a denomination and an amount.
 
 
                         NOTE: The amount field is an Int which implements the
@@ -2952,7 +2975,7 @@ paths:
                             amount:
                               type: string
                           description: >-
-                            Coin defines a coin with a denomination and an
+                            Coin defines a token with a denomination and an
                             amount.
 
 
@@ -3088,11 +3111,26 @@ paths:
                       swap orders are cancelled when current height is equal or
                       higher than ExpiryHeight
                   exchanged_offer_coin:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
                     format: sdk.Coin
                     example:
                       denom: denomA
                       amount: '600000'
                     title: offer coin exchanged until now
+                  remaining_offer_coin:
                     type: object
                     properties:
                       denom:
@@ -3100,19 +3138,19 @@ paths:
                       amount:
                         type: string
                     description: >-
-                      Coin defines a coin with a denomination and an amount.
+                      Coin defines a token with a denomination and an amount.
 
 
                       NOTE: The amount field is an Int which implements the
                       custom method
 
                       signatures required by gogoproto.
-                  remaining_offer_coin:
                     format: sdk.Coin
                     example:
                       denom: denomA
                       amount: '400000'
                     title: offer coin currently remaining to be exchanged
+                  OfferCoinFeeReserve:
                     type: object
                     properties:
                       denom:
@@ -3120,33 +3158,18 @@ paths:
                       amount:
                         type: string
                     description: >-
-                      Coin defines a coin with a denomination and an amount.
+                      Coin defines a token with a denomination and an amount.
 
 
                       NOTE: The amount field is an Int which implements the
                       custom method
 
                       signatures required by gogoproto.
-                  OfferCoinFeeReserve:
                     format: sdk.Coin
                     example:
                       denom: denomA
                       amount: '5000'
                     title: reserve fee for pays fee in half offer coin
-                    type: object
-                    properties:
-                      denom:
-                        type: string
-                      amount:
-                        type: string
-                    description: >-
-                      Coin defines a coin with a denomination and an amount.
-
-
-                      NOTE: The amount field is an Int which implements the
-                      custom method
-
-                      signatures required by gogoproto.
                   Msg:
                     title: MsgSwap
                     type: object
@@ -3170,19 +3193,25 @@ paths:
                           id of swap type type, only 1 is allowed on this
                           version, Must match the value in the pool.
                       offer_coin:
-                        format: sdk.Coin
-                        example:
-                          denom: denomA
-                          amount: '1000000'
-                        description: >-
-                          offer sdk.coin for the swap request, Must match the
-                          denom in the pool.
                         type: object
                         properties:
                           denom:
                             type: string
                           amount:
                             type: string
+                        description: >-
+                          Coin defines a token with a denomination and an
+                          amount.
+
+
+                          NOTE: The amount field is an Int which implements the
+                          custom method
+
+                          signatures required by gogoproto.
+                        format: sdk.Coin
+                        example:
+                          denom: denomA
+                          amount: '1000000'
                       demand_coin_denom:
                         type: string
                         example: denomB
@@ -3190,11 +3219,6 @@ paths:
                           denom of demand coin to be exchanged on the swap
                           request, Must match the denom in the pool.
                       offer_coin_fee:
-                        format: sdk.Coin
-                        example:
-                          denom: denomA
-                          amount: '5000'
-                        title: offer coin fee for pay fees in half offer coin
                         type: object
                         properties:
                           denom:
@@ -3202,13 +3226,19 @@ paths:
                           amount:
                             type: string
                         description: >-
-                          Coin defines a coin with a denomination and an amount.
+                          Coin defines a token with a denomination and an
+                          amount.
 
 
                           NOTE: The amount field is an Int which implements the
                           custom method
 
                           signatures required by gogoproto.
+                        format: sdk.Coin
+                        example:
+                          denom: denomA
+                          amount: '5000'
+                        title: offer coin fee for pay fees in half offer coin
                       order_price:
                         type: string
                         format: sdk.Dec
@@ -3359,10 +3389,6 @@ paths:
                         example: '1'
                         title: id of the target pool
                       pool_coin:
-                        format: sdk.Coin
-                        example:
-                          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                          amount: '1000'
                         type: object
                         properties:
                           denom:
@@ -3370,13 +3396,18 @@ paths:
                           amount:
                             type: string
                         description: >-
-                          Coin defines a coin with a denomination and an amount.
+                          Coin defines a token with a denomination and an
+                          amount.
 
 
                           NOTE: The amount field is an Int which implements the
                           custom method
 
                           signatures required by gogoproto.
+                        format: sdk.Coin
+                        example:
+                          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                          amount: '1000'
                     description: >-
                       `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type
                       that supports submitting withdraw request to the batch of
@@ -3463,7 +3494,7 @@ definitions:
       amount:
         type: string
     description: |-
-      Coin defines a coin with a denomination and an amount.
+      Coin defines a token with a denomination and an amount.
 
       NOTE: The amount field is an Int which implements the custom method
       signatures required by gogoproto.
@@ -3475,7 +3506,7 @@ definitions:
       amount:
         type: string
     description: |-
-      DecCoin defines a coin with a denomination and a decimal amount.
+      DecCoin defines a token with a denomination and a decimal amount.
 
       NOTE: The amount field is an Dec which implements the custom method
       signatures required by gogoproto.
@@ -3554,7 +3585,7 @@ definitions:
             amount:
               type: string
           description: |-
-            Coin defines a coin with a denomination and an amount.
+            Coin defines a token with a denomination and an amount.
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
@@ -3573,7 +3604,7 @@ definitions:
             amount:
               type: string
           description: |-
-            DecCoin defines a coin with a denomination and a decimal amount.
+            DecCoin defines a token with a denomination and a decimal amount.
 
             NOTE: The amount field is an Dec which implements the custom method
             signatures required by gogoproto.
@@ -3619,7 +3650,7 @@ definitions:
             amount:
               type: string
           description: |-
-            Coin defines a coin with a denomination and an amount.
+            Coin defines a token with a denomination and an amount.
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
@@ -3656,7 +3687,7 @@ definitions:
             amount:
               type: string
           description: |-
-            Coin defines a coin with a denomination and an amount.
+            Coin defines a token with a denomination and an amount.
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
@@ -3714,7 +3745,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -3736,7 +3767,8 @@ definitions:
                 amount:
                   type: string
               description: >-
-                DecCoin defines a coin with a denomination and a decimal amount.
+                DecCoin defines a token with a denomination and a decimal
+                amount.
 
 
                 NOTE: The amount field is an Dec which implements the custom
@@ -3796,7 +3828,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -3840,7 +3872,7 @@ definitions:
                     amount:
                       type: string
                   description: >-
-                    Coin defines a coin with a denomination and an amount.
+                    Coin defines a token with a denomination and an amount.
 
 
                     NOTE: The amount field is an Int which implements the custom
@@ -3917,7 +3949,7 @@ definitions:
             amount:
               type: string
           description: |-
-            Coin defines a coin with a denomination and an amount.
+            Coin defines a token with a denomination and an amount.
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
@@ -3987,7 +4019,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -4009,7 +4041,8 @@ definitions:
                 amount:
                   type: string
               description: >-
-                DecCoin defines a coin with a denomination and a decimal amount.
+                DecCoin defines a token with a denomination and a decimal
+                amount.
 
 
                 NOTE: The amount field is an Dec which implements the custom
@@ -4072,7 +4105,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -4131,7 +4164,7 @@ definitions:
                     amount:
                       type: string
                   description: >-
-                    Coin defines a coin with a denomination and an amount.
+                    Coin defines a token with a denomination and an amount.
 
 
                     NOTE: The amount field is an Int which implements the custom
@@ -4201,29 +4234,6 @@ definitions:
           id of swap type type, only 1 is allowed on this version, Must match
           the value in the pool.
       offer_coin:
-        format: sdk.Coin
-        example:
-          denom: denomA
-          amount: '1000000'
-        description: 'offer sdk.coin for the swap request, Must match the denom in the pool.'
-        type: object
-        properties:
-          denom:
-            type: string
-          amount:
-            type: string
-      demand_coin_denom:
-        type: string
-        example: denomB
-        description: >-
-          denom of demand coin to be exchanged on the swap request, Must match
-          the denom in the pool.
-      offer_coin_fee:
-        format: sdk.Coin
-        example:
-          denom: denomA
-          amount: '5000'
-        title: offer coin fee for pay fees in half offer coin
         type: object
         properties:
           denom:
@@ -4231,10 +4241,37 @@ definitions:
           amount:
             type: string
         description: |-
-          Coin defines a coin with a denomination and an amount.
+          Coin defines a token with a denomination and an amount.
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
+        format: sdk.Coin
+        example:
+          denom: denomA
+          amount: '1000000'
+      demand_coin_denom:
+        type: string
+        example: denomB
+        description: >-
+          denom of demand coin to be exchanged on the swap request, Must match
+          the denom in the pool.
+      offer_coin_fee:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
+        format: sdk.Coin
+        example:
+          denom: denomA
+          amount: '5000'
+        title: offer coin fee for pay fees in half offer coin
       order_price:
         type: string
         format: sdk.Dec
@@ -4314,7 +4351,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -4336,7 +4373,8 @@ definitions:
                 amount:
                   type: string
               description: >-
-                DecCoin defines a coin with a denomination and a decimal amount.
+                DecCoin defines a token with a denomination and a decimal
+                amount.
 
 
                 NOTE: The amount field is an Dec which implements the custom
@@ -4392,19 +4430,24 @@ definitions:
               id of swap type type, only 1 is allowed on this version, Must
               match the value in the pool.
           offer_coin:
-            format: sdk.Coin
-            example:
-              denom: denomA
-              amount: '1000000'
-            description: >-
-              offer sdk.coin for the swap request, Must match the denom in the
-              pool.
             type: object
             properties:
               denom:
                 type: string
               amount:
                 type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+            format: sdk.Coin
+            example:
+              denom: denomA
+              amount: '1000000'
           demand_coin_denom:
             type: string
             example: denomB
@@ -4412,11 +4455,6 @@ definitions:
               denom of demand coin to be exchanged on the swap request, Must
               match the denom in the pool.
           offer_coin_fee:
-            format: sdk.Coin
-            example:
-              denom: denomA
-              amount: '5000'
-            title: offer coin fee for pay fees in half offer coin
             type: object
             properties:
               denom:
@@ -4424,13 +4462,18 @@ definitions:
               amount:
                 type: string
             description: >-
-              Coin defines a coin with a denomination and an amount.
+              Coin defines a token with a denomination and an amount.
 
 
               NOTE: The amount field is an Int which implements the custom
               method
 
               signatures required by gogoproto.
+            format: sdk.Coin
+            example:
+              denom: denomA
+              amount: '5000'
+            title: offer coin fee for pay fees in half offer coin
           order_price:
             type: string
             format: sdk.Dec
@@ -4494,7 +4537,7 @@ definitions:
                     amount:
                       type: string
                   description: >-
-                    Coin defines a coin with a denomination and an amount.
+                    Coin defines a token with a denomination and an amount.
 
 
                     NOTE: The amount field is an Int which implements the custom
@@ -4554,10 +4597,6 @@ definitions:
         example: '1'
         title: id of the target pool
       pool_coin:
-        format: sdk.Coin
-        example:
-          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-          amount: '1000'
         type: object
         properties:
           denom:
@@ -4565,10 +4604,14 @@ definitions:
           amount:
             type: string
         description: |-
-          Coin defines a coin with a denomination and an amount.
+          Coin defines a token with a denomination and an amount.
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
+        format: sdk.Coin
+        example:
+          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+          amount: '1000'
     description: >-
       `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports
       submitting withdraw request to the batch of the liquidity pool
@@ -4634,7 +4677,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -4656,7 +4699,8 @@ definitions:
                 amount:
                   type: string
               description: >-
-                DecCoin defines a coin with a denomination and a decimal amount.
+                DecCoin defines a token with a denomination and a decimal
+                amount.
 
 
                 NOTE: The amount field is an Dec which implements the custom
@@ -4704,10 +4748,6 @@ definitions:
             example: '1'
             title: id of the target pool
           pool_coin:
-            format: sdk.Coin
-            example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-              amount: '1000'
             type: object
             properties:
               denom:
@@ -4715,13 +4755,17 @@ definitions:
               amount:
                 type: string
             description: >-
-              Coin defines a coin with a denomination and an amount.
+              Coin defines a token with a denomination and an amount.
 
 
               NOTE: The amount field is an Int which implements the custom
               method
 
               signatures required by gogoproto.
+            format: sdk.Coin
+            example:
+              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              amount: '1000'
         description: >-
           `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports
           submitting withdraw request to the batch of the liquidity pool
@@ -4773,7 +4817,7 @@ definitions:
                     amount:
                       type: string
                   description: >-
-                    Coin defines a coin with a denomination and an amount.
+                    Coin defines a token with a denomination and an amount.
 
 
                     NOTE: The amount field is an Int which implements the custom
@@ -4894,7 +4938,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -4939,7 +4983,7 @@ definitions:
     title: >-
       Base response struct of result of the requested Tx, standard of
       tendermint/cosmos-sdk
-  cosmos.query.PageRequest:
+  cosmos.base.query.v1beta1.PageRequest:
     type: object
     properties:
       key:
@@ -4971,18 +5015,20 @@ definitions:
           include
 
           a count of the total number of items available for pagination in UIs.
-          count_total
 
-          is only respected when offset is used. It is ignored when key is set.
+          count_total is only respected when offset is used. It is ignored when
+          key
+
+          is set.
     description: |-
       message SomeRequest {
                Foo some_parameter = 1;
-               PageRequest page = 2;
+               PageRequest pagination = 2;
        }
     title: |-
       PageRequest is to be embedded in gRPC request messages for efficient
       pagination. Ex:
-  cosmos.query.PageResponse:
+  cosmos.base.query.v1beta1.PageResponse:
     type: object
     properties:
       next_key:
@@ -4998,15 +5044,13 @@ definitions:
           total is total number of results available if PageRequest.count_total
           was set, its value is undefined otherwise
     description: |-
-      message SomeResponse {
+      PageResponse is to be embedded in gRPC response messages where the
+      corresponding request message has used PageRequest.
+
+       message SomeResponse {
                repeated Bar results = 1;
                PageResponse page = 2;
        }
-    title: >-
-      PageResponse is to be embedded in gRPC response messages where the
-      corresponding
-
-      request message has used PageRequest
   tendermint.liquidity.BatchPoolDepositMsg:
     type: object
     properties:
@@ -5064,7 +5108,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -5122,11 +5166,23 @@ definitions:
           swap orders are cancelled when current height is equal or higher than
           ExpiryHeight
       exchanged_offer_coin:
+        type: object
+        properties:
+          denom:
+            type: string
+          amount:
+            type: string
+        description: |-
+          Coin defines a token with a denomination and an amount.
+
+          NOTE: The amount field is an Int which implements the custom method
+          signatures required by gogoproto.
         format: sdk.Coin
         example:
           denom: denomA
           amount: '600000'
         title: offer coin exchanged until now
+      remaining_offer_coin:
         type: object
         properties:
           denom:
@@ -5134,16 +5190,16 @@ definitions:
           amount:
             type: string
         description: |-
-          Coin defines a coin with a denomination and an amount.
+          Coin defines a token with a denomination and an amount.
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
-      remaining_offer_coin:
         format: sdk.Coin
         example:
           denom: denomA
           amount: '400000'
         title: offer coin currently remaining to be exchanged
+      OfferCoinFeeReserve:
         type: object
         properties:
           denom:
@@ -5151,27 +5207,15 @@ definitions:
           amount:
             type: string
         description: |-
-          Coin defines a coin with a denomination and an amount.
+          Coin defines a token with a denomination and an amount.
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
-      OfferCoinFeeReserve:
         format: sdk.Coin
         example:
           denom: denomA
           amount: '5000'
         title: reserve fee for pays fee in half offer coin
-        type: object
-        properties:
-          denom:
-            type: string
-          amount:
-            type: string
-        description: |-
-          Coin defines a coin with a denomination and an amount.
-
-          NOTE: The amount field is an Int which implements the custom method
-          signatures required by gogoproto.
       Msg:
         title: MsgSwap
         type: object
@@ -5195,19 +5239,24 @@ definitions:
               id of swap type type, only 1 is allowed on this version, Must
               match the value in the pool.
           offer_coin:
-            format: sdk.Coin
-            example:
-              denom: denomA
-              amount: '1000000'
-            description: >-
-              offer sdk.coin for the swap request, Must match the denom in the
-              pool.
             type: object
             properties:
               denom:
                 type: string
               amount:
                 type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+            format: sdk.Coin
+            example:
+              denom: denomA
+              amount: '1000000'
           demand_coin_denom:
             type: string
             example: denomB
@@ -5215,11 +5264,6 @@ definitions:
               denom of demand coin to be exchanged on the swap request, Must
               match the denom in the pool.
           offer_coin_fee:
-            format: sdk.Coin
-            example:
-              denom: denomA
-              amount: '5000'
-            title: offer coin fee for pay fees in half offer coin
             type: object
             properties:
               denom:
@@ -5227,13 +5271,18 @@ definitions:
               amount:
                 type: string
             description: >-
-              Coin defines a coin with a denomination and an amount.
+              Coin defines a token with a denomination and an amount.
 
 
               NOTE: The amount field is an Int which implements the custom
               method
 
               signatures required by gogoproto.
+            format: sdk.Coin
+            example:
+              denom: denomA
+              amount: '5000'
+            title: offer coin fee for pay fees in half offer coin
           order_price:
             type: string
             format: sdk.Dec
@@ -5305,10 +5354,6 @@ definitions:
             example: '1'
             title: id of the target pool
           pool_coin:
-            format: sdk.Coin
-            example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-              amount: '1000'
             type: object
             properties:
               denom:
@@ -5316,13 +5361,17 @@ definitions:
               amount:
                 type: string
             description: >-
-              Coin defines a coin with a denomination and an amount.
+              Coin defines a token with a denomination and an amount.
 
 
               NOTE: The amount field is an Int which implements the custom
               method
 
               signatures required by gogoproto.
+            format: sdk.Coin
+            example:
+              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              amount: '1000'
         description: >-
           `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports
           submitting withdraw request to the batch of the liquidity pool
@@ -5414,11 +5463,6 @@ definitions:
         example: '1'
         title: id of the pool
       pool_coin_total_supply:
-        format: sdk.Coin
-        example:
-          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-          amount: '1000000'
-        title: pool coin issued at the pool
         type: object
         properties:
           denom:
@@ -5426,10 +5470,15 @@ definitions:
           amount:
             type: string
         description: |-
-          Coin defines a coin with a denomination and an amount.
+          Coin defines a token with a denomination and an amount.
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
+        format: sdk.Coin
+        example:
+          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+          amount: '1000000'
+        title: pool coin issued at the pool
       reserve_coins:
         type: array
         format: sdk.Coins
@@ -5446,7 +5495,7 @@ definitions:
             amount:
               type: string
           description: |-
-            Coin defines a coin with a denomination and an amount.
+            Coin defines a token with a denomination and an amount.
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
@@ -5527,11 +5576,13 @@ definitions:
         format: sdk.Int
         example: '1000000'
         title: Initial mint amount of pool coin upon pool creation
-      swap_fee_rate:
+      reserve_coin_limit_amount:
         type: string
-        format: sdk.Dec
-        example: '0.003'
-        title: Swap fee rate for every executed swap
+        format: sdk.Int
+        example: '1000000000000'
+        title: >-
+          Limit the size of each liquidity pool in the beginning phase of
+          Liquidity Module adoption to minimize risk, 0 means no limit
       liquidity_pool_creation_fee:
         type: array
         format: sdk.Coins
@@ -5546,11 +5597,31 @@ definitions:
             amount:
               type: string
           description: |-
-            Coin defines a coin with a denomination and an amount.
+            Coin defines a token with a denomination and an amount.
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
         title: Fee paid for new LiquidityPool creation to prevent spamming
+      swap_fee_rate:
+        type: string
+        format: sdk.Dec
+        example: '0.003'
+        title: Swap fee rate for every executed swap
+      withdraw_fee_rate:
+        type: string
+        format: sdk.Dec
+        example: '0.003'
+        title: Reserve coin withdrawal with less proportion by withdrawFeeRate
+      max_order_amount_ratio:
+        type: string
+        format: sdk.Dec
+        example: '0.003'
+        title: Maximum ratio of reserve coins that can be ordered at a swap order
+      unit_batch_size:
+        type: integer
+        format: uint32
+        example: '1'
+        title: The smallest unit batch size for every liquidity pool
   tendermint.liquidity.QueryLiquidityPoolBatchResponse:
     type: object
     properties:
@@ -5636,11 +5707,6 @@ definitions:
             example: '1'
             title: id of the pool
           pool_coin_total_supply:
-            format: sdk.Coin
-            example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-              amount: '1000000'
-            title: pool coin issued at the pool
             type: object
             properties:
               denom:
@@ -5648,13 +5714,18 @@ definitions:
               amount:
                 type: string
             description: >-
-              Coin defines a coin with a denomination and an amount.
+              Coin defines a token with a denomination and an amount.
 
 
               NOTE: The amount field is an Int which implements the custom
               method
 
               signatures required by gogoproto.
+            format: sdk.Coin
+            example:
+              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              amount: '1000000'
+            title: pool coin issued at the pool
           reserve_coins:
             type: array
             format: sdk.Coins
@@ -5671,7 +5742,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -5789,11 +5860,6 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
     description: >-
       the response type for the QueryLiquidityPoolsBatchResponse RPC method.
       This includes list of all batches that all currently existing pools and
@@ -5845,11 +5911,6 @@ definitions:
                   example: '1'
                   title: id of the pool
                 pool_coin_total_supply:
-                  format: sdk.Coin
-                  example:
-                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                    amount: '1000000'
-                  title: pool coin issued at the pool
                   type: object
                   properties:
                     denom:
@@ -5857,13 +5918,18 @@ definitions:
                     amount:
                       type: string
                   description: >-
-                    Coin defines a coin with a denomination and an amount.
+                    Coin defines a token with a denomination and an amount.
 
 
                     NOTE: The amount field is an Int which implements the custom
                     method
 
                     signatures required by gogoproto.
+                  format: sdk.Coin
+                  example:
+                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    amount: '1000000'
+                  title: pool coin issued at the pool
                 reserve_coins:
                   type: array
                   format: sdk.Coins
@@ -5880,7 +5946,7 @@ definitions:
                       amount:
                         type: string
                     description: >-
-                      Coin defines a coin with a denomination and an amount.
+                      Coin defines a token with a denomination and an amount.
 
 
                       NOTE: The amount field is an Int which implements the
@@ -5950,11 +6016,6 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
     description: >-
       the response type for the QueryLiquidityPoolsResponse RPC method. This
       includes list of all liquidity pools currently existed and paging results
@@ -6012,11 +6073,13 @@ definitions:
             format: sdk.Int
             example: '1000000'
             title: Initial mint amount of pool coin upon pool creation
-          swap_fee_rate:
+          reserve_coin_limit_amount:
             type: string
-            format: sdk.Dec
-            example: '0.003'
-            title: Swap fee rate for every executed swap
+            format: sdk.Int
+            example: '1000000000000'
+            title: >-
+              Limit the size of each liquidity pool in the beginning phase of
+              Liquidity Module adoption to minimize risk, 0 means no limit
           liquidity_pool_creation_fee:
             type: array
             format: sdk.Coins
@@ -6031,7 +6094,7 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
@@ -6039,6 +6102,26 @@ definitions:
 
                 signatures required by gogoproto.
             title: Fee paid for new LiquidityPool creation to prevent spamming
+          swap_fee_rate:
+            type: string
+            format: sdk.Dec
+            example: '0.003'
+            title: Swap fee rate for every executed swap
+          withdraw_fee_rate:
+            type: string
+            format: sdk.Dec
+            example: '0.003'
+            title: Reserve coin withdrawal with less proportion by withdrawFeeRate
+          max_order_amount_ratio:
+            type: string
+            format: sdk.Dec
+            example: '0.003'
+            title: Maximum ratio of reserve coins that can be ordered at a swap order
+          unit_batch_size:
+            type: integer
+            format: uint32
+            example: '1'
+            title: The smallest unit batch size for every liquidity pool
     description: >-
       the response type for the QueryParamsResponse RPC method. This includes
       current parameter of the liquidity module.
@@ -6102,7 +6185,7 @@ definitions:
                     amount:
                       type: string
                   description: >-
-                    Coin defines a coin with a denomination and an amount.
+                    Coin defines a token with a denomination and an amount.
 
 
                     NOTE: The amount field is an Int which implements the custom
@@ -6191,7 +6274,7 @@ definitions:
                       amount:
                         type: string
                     description: >-
-                      Coin defines a coin with a denomination and an amount.
+                      Coin defines a token with a denomination and an amount.
 
 
                       NOTE: The amount field is an Int which implements the
@@ -6235,11 +6318,6 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
     description: >-
       the response type for the QueryPoolBatchDeposit RPC method. This includes
       a list of all currently existing deposit messages of the batch and paging
@@ -6282,11 +6360,26 @@ definitions:
               swap orders are cancelled when current height is equal or higher
               than ExpiryHeight
           exchanged_offer_coin:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
             format: sdk.Coin
             example:
               denom: denomA
               amount: '600000'
             title: offer coin exchanged until now
+          remaining_offer_coin:
             type: object
             properties:
               denom:
@@ -6294,19 +6387,19 @@ definitions:
               amount:
                 type: string
             description: >-
-              Coin defines a coin with a denomination and an amount.
+              Coin defines a token with a denomination and an amount.
 
 
               NOTE: The amount field is an Int which implements the custom
               method
 
               signatures required by gogoproto.
-          remaining_offer_coin:
             format: sdk.Coin
             example:
               denom: denomA
               amount: '400000'
             title: offer coin currently remaining to be exchanged
+          OfferCoinFeeReserve:
             type: object
             properties:
               denom:
@@ -6314,33 +6407,18 @@ definitions:
               amount:
                 type: string
             description: >-
-              Coin defines a coin with a denomination and an amount.
+              Coin defines a token with a denomination and an amount.
 
 
               NOTE: The amount field is an Int which implements the custom
               method
 
               signatures required by gogoproto.
-          OfferCoinFeeReserve:
             format: sdk.Coin
             example:
               denom: denomA
               amount: '5000'
             title: reserve fee for pays fee in half offer coin
-            type: object
-            properties:
-              denom:
-                type: string
-              amount:
-                type: string
-            description: >-
-              Coin defines a coin with a denomination and an amount.
-
-
-              NOTE: The amount field is an Int which implements the custom
-              method
-
-              signatures required by gogoproto.
           Msg:
             title: MsgSwap
             type: object
@@ -6364,19 +6442,24 @@ definitions:
                   id of swap type type, only 1 is allowed on this version, Must
                   match the value in the pool.
               offer_coin:
-                format: sdk.Coin
-                example:
-                  denom: denomA
-                  amount: '1000000'
-                description: >-
-                  offer sdk.coin for the swap request, Must match the denom in
-                  the pool.
                 type: object
                 properties:
                   denom:
                     type: string
                   amount:
                     type: string
+                description: >-
+                  Coin defines a token with a denomination and an amount.
+
+
+                  NOTE: The amount field is an Int which implements the custom
+                  method
+
+                  signatures required by gogoproto.
+                format: sdk.Coin
+                example:
+                  denom: denomA
+                  amount: '1000000'
               demand_coin_denom:
                 type: string
                 example: denomB
@@ -6384,11 +6467,6 @@ definitions:
                   denom of demand coin to be exchanged on the swap request, Must
                   match the denom in the pool.
               offer_coin_fee:
-                format: sdk.Coin
-                example:
-                  denom: denomA
-                  amount: '5000'
-                title: offer coin fee for pay fees in half offer coin
                 type: object
                 properties:
                   denom:
@@ -6396,13 +6474,18 @@ definitions:
                   amount:
                     type: string
                 description: >-
-                  Coin defines a coin with a denomination and an amount.
+                  Coin defines a token with a denomination and an amount.
 
 
                   NOTE: The amount field is an Int which implements the custom
                   method
 
                   signatures required by gogoproto.
+                format: sdk.Coin
+                example:
+                  denom: denomA
+                  amount: '5000'
+                title: offer coin fee for pay fees in half offer coin
               order_price:
                 type: string
                 format: sdk.Dec
@@ -6476,11 +6559,26 @@ definitions:
                 swap orders are cancelled when current height is equal or higher
                 than ExpiryHeight
             exchanged_offer_coin:
+              type: object
+              properties:
+                denom:
+                  type: string
+                amount:
+                  type: string
+              description: >-
+                Coin defines a token with a denomination and an amount.
+
+
+                NOTE: The amount field is an Int which implements the custom
+                method
+
+                signatures required by gogoproto.
               format: sdk.Coin
               example:
                 denom: denomA
                 amount: '600000'
               title: offer coin exchanged until now
+            remaining_offer_coin:
               type: object
               properties:
                 denom:
@@ -6488,19 +6586,19 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
                 method
 
                 signatures required by gogoproto.
-            remaining_offer_coin:
               format: sdk.Coin
               example:
                 denom: denomA
                 amount: '400000'
               title: offer coin currently remaining to be exchanged
+            OfferCoinFeeReserve:
               type: object
               properties:
                 denom:
@@ -6508,33 +6606,18 @@ definitions:
                 amount:
                   type: string
               description: >-
-                Coin defines a coin with a denomination and an amount.
+                Coin defines a token with a denomination and an amount.
 
 
                 NOTE: The amount field is an Int which implements the custom
                 method
 
                 signatures required by gogoproto.
-            OfferCoinFeeReserve:
               format: sdk.Coin
               example:
                 denom: denomA
                 amount: '5000'
               title: reserve fee for pays fee in half offer coin
-              type: object
-              properties:
-                denom:
-                  type: string
-                amount:
-                  type: string
-              description: >-
-                Coin defines a coin with a denomination and an amount.
-
-
-                NOTE: The amount field is an Int which implements the custom
-                method
-
-                signatures required by gogoproto.
             Msg:
               title: MsgSwap
               type: object
@@ -6558,19 +6641,24 @@ definitions:
                     id of swap type type, only 1 is allowed on this version,
                     Must match the value in the pool.
                 offer_coin:
-                  format: sdk.Coin
-                  example:
-                    denom: denomA
-                    amount: '1000000'
-                  description: >-
-                    offer sdk.coin for the swap request, Must match the denom in
-                    the pool.
                   type: object
                   properties:
                     denom:
                       type: string
                     amount:
                       type: string
+                  description: >-
+                    Coin defines a token with a denomination and an amount.
+
+
+                    NOTE: The amount field is an Int which implements the custom
+                    method
+
+                    signatures required by gogoproto.
+                  format: sdk.Coin
+                  example:
+                    denom: denomA
+                    amount: '1000000'
                 demand_coin_denom:
                   type: string
                   example: denomB
@@ -6578,11 +6666,6 @@ definitions:
                     denom of demand coin to be exchanged on the swap request,
                     Must match the denom in the pool.
                 offer_coin_fee:
-                  format: sdk.Coin
-                  example:
-                    denom: denomA
-                    amount: '5000'
-                  title: offer coin fee for pay fees in half offer coin
                   type: object
                   properties:
                     denom:
@@ -6590,13 +6673,18 @@ definitions:
                     amount:
                       type: string
                   description: >-
-                    Coin defines a coin with a denomination and an amount.
+                    Coin defines a token with a denomination and an amount.
 
 
                     NOTE: The amount field is an Int which implements the custom
                     method
 
                     signatures required by gogoproto.
+                  format: sdk.Coin
+                  example:
+                    denom: denomA
+                    amount: '5000'
+                  title: offer coin fee for pay fees in half offer coin
                 order_price:
                   type: string
                   format: sdk.Dec
@@ -6647,11 +6735,6 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
     description: >-
       the response type for the QueryPoolBatchSwapMsgs RPC method. This includes
       list of all currently existing swap messages of the batch and paging
@@ -6701,10 +6784,6 @@ definitions:
                 example: '1'
                 title: id of the target pool
               pool_coin:
-                format: sdk.Coin
-                example:
-                  denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                  amount: '1000'
                 type: object
                 properties:
                   denom:
@@ -6712,13 +6791,17 @@ definitions:
                   amount:
                     type: string
                 description: >-
-                  Coin defines a coin with a denomination and an amount.
+                  Coin defines a token with a denomination and an amount.
 
 
                   NOTE: The amount field is an Int which implements the custom
                   method
 
                   signatures required by gogoproto.
+                format: sdk.Coin
+                example:
+                  denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                  amount: '1000'
             description: >-
               `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that
               supports submitting withdraw request to the batch of the liquidity
@@ -6785,10 +6868,6 @@ definitions:
                   example: '1'
                   title: id of the target pool
                 pool_coin:
-                  format: sdk.Coin
-                  example:
-                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                    amount: '1000'
                   type: object
                   properties:
                     denom:
@@ -6796,13 +6875,17 @@ definitions:
                     amount:
                       type: string
                   description: >-
-                    Coin defines a coin with a denomination and an amount.
+                    Coin defines a token with a denomination and an amount.
 
 
                     NOTE: The amount field is an Int which implements the custom
                     method
 
                     signatures required by gogoproto.
+                  format: sdk.Coin
+                  example:
+                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    amount: '1000'
               description: >-
                 `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that
                 supports submitting withdraw request to the batch of the
@@ -6839,11 +6922,6 @@ definitions:
               PageRequest.count_total
 
               was set, its value is undefined otherwise
-        title: >-
-          PageResponse is to be embedded in gRPC response messages where the
-          corresponding
-
-          request message has used PageRequest
     description: >-
       the response type for the QueryPoolBatchWithdraw RPC method. This includes
       a list of all currently existing withdraw messages of the batch and paging

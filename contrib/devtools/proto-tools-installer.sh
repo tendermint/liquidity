@@ -8,7 +8,7 @@ UNAME_S="$(uname -s 2>/dev/null)"
 UNAME_M="$(uname -m 2>/dev/null)"
 BUF_VERSION=0.11.0
 PROTOC_VERSION=3.13.0
-PROTOC_GRPC_GATEWAY_VERSION=1.15.2
+PROTOC_GRPC_GATEWAY_VERSION=1.16.0
 
 f_abort() {
   local l_rc=$1
