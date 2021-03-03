@@ -624,42 +624,42 @@ func TestGetOrderMapEdgeCase(t *testing.T) {
 func TestCheckValidityOrderBook(t *testing.T) {
 	currentPrice := sdk.MustNewDecFromStr("1.0")
 	for _, testCase := range []struct {
-		buyPrice string
+		buyPrice  string
 		sellPrice string
-		valid bool
+		valid     bool
 	}{
 		{
-			buyPrice: "0.99",
+			buyPrice:  "0.99",
 			sellPrice: "1.01",
-			valid: true,
+			valid:     true,
 		},
 		{
 			// maxBuyOrderPrice > minSellOrderPrice
-			buyPrice: "1.01",
+			buyPrice:  "1.01",
 			sellPrice: "0.99",
-			valid: false,
+			valid:     false,
 		},
 		{
-			buyPrice: "1.1",
+			buyPrice:  "1.1",
 			sellPrice: "1.2",
-			valid: true,
+			valid:     true,
 		},
 		{
 			// maxBuyOrderPrice/currentPrice > 1.10
-			buyPrice: "1.11",
+			buyPrice:  "1.11",
 			sellPrice: "1.2",
-			valid: false,
+			valid:     false,
 		},
 		{
-			buyPrice: "0.8",
+			buyPrice:  "0.8",
 			sellPrice: "0.9",
-			valid: true,
+			valid:     true,
 		},
 		{
 			// minSellOrderPrice/currentPrice < 0.90
-			buyPrice: "0.8",
+			buyPrice:  "0.8",
 			sellPrice: "0.89",
-			valid: false,
+			valid:     false,
 		},
 	} {
 		buyPrice := sdk.MustNewDecFromStr(testCase.buyPrice)
