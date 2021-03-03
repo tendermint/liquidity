@@ -1,5 +1,7 @@
 package app
 
+// DONTCOVER
+
 import (
 	"io"
 	"net/http"
