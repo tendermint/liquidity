@@ -26,3 +26,8 @@ type AccountKeeper interface {
 	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 	GetModuleAddress(name string) sdk.AccAddress
 }
+
+// DistributionKeeper defines the expected distribution keeper
+type DistributionKeeper interface {
+	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
+}
