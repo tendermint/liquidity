@@ -39,18 +39,18 @@ func TestRandomizedGenState(t *testing.T) {
 	var liquidityGenesis types.GenesisState
 	simState.Cdc.MustUnmarshalJSON(simState.GenState[types.ModuleName], &liquidityGenesis)
 
-	dec1, _ := sdk.NewIntFromString("40122540")
+	dec1, _ := sdk.NewIntFromString("4122540")
 	dec2, _ := sdk.NewIntFromString("11240456")
-	dec4, _ := sdk.NewDecFromStr("0.378210000000000000")
-	dec5, _ := sdk.NewDecFromStr("0.438000000000000000")
-	dec6, _ := sdk.NewDecFromStr("0.448590000000000000")
+	dec4, _ := sdk.NewDecFromStr("0.632640000000000000")
+	dec5, _ := sdk.NewDecFromStr("0.315590000000000000")
+	dec6, _ := sdk.NewDecFromStr("0.433440000000000000")
 
 	require.Equal(t, dec1, liquidityGenesis.Params.MinInitDepositToPool)
 	require.Equal(t, dec2, liquidityGenesis.Params.InitPoolCoinMintAmount)
 	require.Equal(t, dec4, liquidityGenesis.Params.SwapFeeRate)
 	require.Equal(t, dec5, liquidityGenesis.Params.WithdrawFeeRate)
 	require.Equal(t, dec6, liquidityGenesis.Params.MaxOrderAmountRatio)
-	require.Equal(t, uint32(3), liquidityGenesis.Params.UnitBatchSize)
+	require.Equal(t, uint32(1), liquidityGenesis.Params.UnitBatchSize)
 }
 
 // TestRandomizedGenState tests abnormal scenarios of applying RandomizedGenState.

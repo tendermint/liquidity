@@ -86,7 +86,7 @@ func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetPoolCreator().String())
 	require.Equal(t, types.DefaultPoolTypeIndex, msg.PoolTypeIndex)
-	require.Equal(t, "618138289IXnku,444632889NEUz", msg.DepositCoins.String())
+	require.Equal(t, "171625357AnNB,279341739HRGdI", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -117,7 +117,7 @@ func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetDepositor().String())
-	require.Equal(t, "922627191Qfyze,210282200VIkPZ", msg.DepositCoins.String())
+	require.Equal(t, "160538706Qfyze,478362889VIkPZ", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgDepositToLiquidityPool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
