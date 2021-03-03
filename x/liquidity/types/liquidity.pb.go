@@ -1764,10 +1764,7 @@ func (m *LiquidityPoolType) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthLiquidity
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthLiquidity
 			}
 			if (iNdEx + skippy) > l {
@@ -2105,10 +2102,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthLiquidity
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthLiquidity
 			}
 			if (iNdEx + skippy) > l {
@@ -2292,10 +2286,7 @@ func (m *LiquidityPool) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthLiquidity
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthLiquidity
 			}
 			if (iNdEx + skippy) > l {
@@ -2431,10 +2422,7 @@ func (m *LiquidityPoolMetadata) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthLiquidity
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthLiquidity
 			}
 			if (iNdEx + skippy) > l {
@@ -2618,10 +2606,7 @@ func (m *LiquidityPoolBatch) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthLiquidity
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthLiquidity
 			}
 			if (iNdEx + skippy) > l {
@@ -2805,10 +2790,7 @@ func (m *BatchPoolDepositMsg) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthLiquidity
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthLiquidity
 			}
 			if (iNdEx + skippy) > l {
@@ -2992,10 +2974,7 @@ func (m *BatchPoolWithdrawMsg) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthLiquidity
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthLiquidity
 			}
 			if (iNdEx + skippy) > l {
@@ -3297,10 +3276,7 @@ func (m *BatchPoolSwapMsg) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthLiquidity
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthLiquidity
 			}
 			if (iNdEx + skippy) > l {

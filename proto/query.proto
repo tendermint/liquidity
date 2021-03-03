@@ -390,27 +390,27 @@ message QueryLiquidityPoolBatchResponse {
 // the request type for the QueryLiquidityPools RPC method. requestable including pagination offset, limit, key.
 message QueryLiquidityPoolsRequest {
     // pagination defines an optional pagination for the request.
-    cosmos.query.PageRequest pagination = 1;
+    cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
 // the response type for the QueryLiquidityPoolsResponse RPC method. This includes list of all liquidity pools currently existed and paging results containing next_key and total count.
 message QueryLiquidityPoolsResponse {
     repeated QueryLiquidityPoolResponse pools = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
-    cosmos.query.PageResponse pagination = 2;
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // the request type for the QueryLiquidityPoolsBatch RPC method, requestable including pagination offset, limit, key.
 message QueryLiquidityPoolsBatchRequest {
     // pagination defines an optional pagination for the request.
-    cosmos.query.PageRequest pagination = 1;
+    cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
 // the response type for the QueryLiquidityPoolsBatchResponse RPC method. This includes list of all batches that all currently existing pools and paging results containing next_key and total count.
 message QueryLiquidityPoolsBatchResponse {
     repeated QueryLiquidityPoolBatchResponse pools_batch = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
-    cosmos.query.PageResponse pagination = 2;
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryParamsRequest is request type for the QueryParams RPC method.
@@ -427,7 +427,7 @@ message QueryPoolBatchSwapMsgsRequest {
     // id of the target pool for query
     uint64 pool_id = 1;
     // pagination defines an optional pagination for the request.
-    cosmos.query.PageRequest pagination = 2;
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // the request type for the QueryPoolBatchSwap RPC method. requestable including specified pool_id and msg_index
@@ -442,7 +442,7 @@ message QueryPoolBatchSwapMsgRequest {
 message QueryPoolBatchSwapMsgsResponse {
     repeated BatchPoolSwapMsg swaps = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
-    cosmos.query.PageResponse pagination = 2;
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // the response type for the QueryPoolBatchSwapMsg RPC method. This includes a batch swap message of the batch
@@ -455,7 +455,7 @@ message QueryPoolBatchDepositMsgsRequest {
     // id of the target pool for query
     uint64 pool_id = 1;
     // pagination defines an optional pagination for the request.
-    cosmos.query.PageRequest pagination = 2;
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // the request type for the QueryPoolBatchDeposit RPC method. requestable including specified pool_id and msg_index
@@ -470,7 +470,7 @@ message QueryPoolBatchDepositMsgRequest {
 message QueryPoolBatchDepositMsgsResponse {
     repeated BatchPoolDepositMsg deposits = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
-    cosmos.query.PageResponse pagination = 2;
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // the response type for the QueryPoolBatchDepositMsg RPC method. This includes a batch swap message of the batch
@@ -484,7 +484,7 @@ message QueryPoolBatchWithdrawMsgsRequest {
     // id of the target pool for query
     uint64 pool_id = 1;
     // pagination defines an optional pagination for the request.
-    cosmos.query.PageRequest pagination = 2;
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // the request type for the QueryPoolBatchWithdraw RPC method. requestable including specified pool_id and msg_index
@@ -499,7 +499,7 @@ message QueryPoolBatchWithdrawMsgRequest {
 message QueryPoolBatchWithdrawMsgsResponse {
     repeated BatchPoolWithdrawMsg withdraws = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
-    cosmos.query.PageResponse pagination = 2;
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // the response type for the QueryPoolBatchWithdrawMsg RPC method. This includes a batch swap message of the batch
