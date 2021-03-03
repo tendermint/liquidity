@@ -332,7 +332,6 @@ func TestBadSwapExecution(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	denomX, denomY := types.AlphabeticalDenomPair("denomX", "denomY")
 
-
 	// add pool creator account
 	X, Y := app.GetRandPoolAmt(r, params.MinInitDepositToPool)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))

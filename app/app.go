@@ -1,6 +1,11 @@
 package app
 
 import (
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 	"github.com/cosmos/cosmos-sdk/server/config"
@@ -10,10 +15,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
+	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	"github.com/tendermint/liquidity/x/liquidity"
 
@@ -328,7 +330,7 @@ func NewLiquidityApp(
 
 	app.LiquidityKeeper = liquiditykeeper.NewKeeper(
 		appCodec, keys[liquiditytypes.StoreKey], app.GetSubspace(liquiditytypes.ModuleName),
-		app.BankKeeper, app.AccountKeeper,
+		app.BankKeeper, app.AccountKeeper, app.DistrKeeper,
 	)
 
 	var skipGenesisInvariants = cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
@@ -355,7 +357,7 @@ func NewLiquidityApp(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
-		liquidity.NewAppModule(appCodec, app.LiquidityKeeper, app.AccountKeeper, app.BankKeeper),
+		liquidity.NewAppModule(appCodec, app.LiquidityKeeper, app.AccountKeeper, app.BankKeeper, app.DistrKeeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -406,11 +408,12 @@ func NewLiquidityApp(
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
-		liquidity.NewAppModule(appCodec, app.LiquidityKeeper, app.AccountKeeper, app.BankKeeper),
+		liquidity.NewAppModule(appCodec, app.LiquidityKeeper, app.AccountKeeper, app.BankKeeper, app.DistrKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 	)
 
+	// register the store decoders for simulation tests
 	app.sm.RegisterStoreDecoders()
 
 	// initialize stores
@@ -480,7 +483,9 @@ func (app *LiquidityApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) a
 // InitChainer application update at chain initialization
 func (app *LiquidityApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState GenesisState
-	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
+	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
+		panic(err)
+	}
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 

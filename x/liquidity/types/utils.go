@@ -3,18 +3,27 @@ package types
 import (
 	"crypto/sha256"
 	"fmt"
+	"sort"
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
-	"strings"
 )
 
 // Get denom pair alphabetical ordered
+// [NOTE] WILL BE DEPRECATED in v2
 func AlphabeticalDenomPair(denom1, denom2 string) (resDenom1, resDenom2 string) {
 	if denom1 > denom2 {
 		return denom2, denom1
 	} else {
 		return denom1, denom2
 	}
+}
+
+// SortDenoms sorts denoms in an alphabetical order
+func SortDenoms(denoms []string) []string {
+	sort.Strings(denoms)
+	return denoms
 }
 
 // GetPoolReserveAcc returns the poor account for the provided poolKey (reserve denoms + poolType)

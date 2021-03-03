@@ -31,8 +31,8 @@ $BINARY --home $CHAINDIR/$CHAINID init test --chain-id=$CHAINID
 echo "Adding genesis accounts..."
 echo $MNEMONIC1 | $BINARY --home $CHAINDIR/$CHAINID keys add user1 --recover --keyring-backend=test 
 echo $MNEMONIC2 | $BINARY --home $CHAINDIR/$CHAINID keys add validator --recover --keyring-backend=test 
-$BINARY --home $CHAINDIR/$CHAINID add-genesis-account $($BINARY keys show validator --keyring-backend test -a) 2000000000stake,1000000000token
-$BINARY --home $CHAINDIR/$CHAINID add-genesis-account $($BINARY keys show user1 --keyring-backend test -a) 1000000000stake,1000000000atom
+$BINARY --home $CHAINDIR/$CHAINID add-genesis-account $($BINARY --home $CHAINDIR/$CHAINID keys show validator --keyring-backend test -a) 2000000000stake,1000000000token
+$BINARY --home $CHAINDIR/$CHAINID add-genesis-account $($BINARY --home $CHAINDIR/$CHAINID keys show user1 --keyring-backend test -a) 1000000000stake,1000000000atom
 
 echo "Creating and collecting gentx..."
 $BINARY --home $CHAINDIR/$CHAINID gentx validator 1000000000stake --chain-id $CHAINID --keyring-backend test

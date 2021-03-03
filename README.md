@@ -31,7 +31,7 @@ near future
     - More freedom on how to provide liquidity : Limit orders
     - Combination of pool liquidity and limit order liquidity provides users more enriched trading environment
 
-For detailed Mechanism, you can find on our recent [Paper](https://github.com/tendermint/liquidity/raw/develop/doc/LiquidityModuleLightPaper_EN.pdf)
+For detailed Mechanism, you can find on our recent [Paper](doc/LiquidityModuleLightPaper_EN.pdf)
 
 ## Installation
 

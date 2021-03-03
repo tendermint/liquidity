@@ -1,32 +1,30 @@
 package liquidity
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/types/module"
-)
-
-// DONTCOVER
-
-import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/gorilla/mux"
+	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/gorilla/mux"
-	"github.com/spf13/cobra"
+
 	"github.com/tendermint/liquidity/x/liquidity/client/cli"
 	"github.com/tendermint/liquidity/x/liquidity/client/rest"
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/simulation"
 	"github.com/tendermint/liquidity/x/liquidity/types"
+
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -42,15 +40,16 @@ type AppModuleBasic struct {
 }
 
 // Name returns the liquidity module's name.
-func (AppModuleBasic) Name() string { return types.ModuleName }
+func (AppModuleBasic) Name() string {
+	return types.ModuleName
+}
 
 // RegisterLegacyAminoCodec registers the gov module's types for the given codec.
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	types.RegisterLegacyAminoCodec(cdc)
 }
 
-// DefaultGenesis returns default genesis state as raw bytes for the liquidity
-// module.
+// DefaultGenesis returns default genesis state as raw bytes for the liquidity module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONMarshaler) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
@@ -70,11 +69,6 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 	rest.RegisterHandlers(clientCtx, rtr)
 }
 
-// RegisterGRPCRoutes registers the gRPC Gateway routes for the liquidity module.
-func (a AppModuleBasic) RegisterGRPCRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-
 // GetTxCmd returns the root tx command for the liquidity module.
 func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.GetTxCmd()
@@ -90,6 +84,23 @@ func (a AppModuleBasic) RegisterInterfaces(registry codectypes.InterfaceRegistry
 	types.RegisterInterfaces(registry)
 }
 
+// RegisterGRPCRoutes registers the gRPC Gateway routes for the liquidity module.
+func (a AppModuleBasic) RegisterGRPCRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
+
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the liquidity module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx sdkclient.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
+
+// RegisterServices registers module services.
+func (am AppModule) RegisterServices(cfg module.Configurator) {
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
+	querier := keeper.Querier{Keeper: am.keeper}
+	types.RegisterQueryServer(cfg.QueryServer(), querier)
+}
+
 //____________________________________________________________________________
 
 // AppModule implements an application module for the liquidity module.
@@ -99,25 +110,29 @@ type AppModule struct {
 	keeper        keeper.Keeper
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
+	distrKeeper   types.DistributionKeeper
+}
+
+// NewAppModule creates a new AppModule object
+func NewAppModule(cdc codec.Marshaler, keeper keeper.Keeper, ak types.AccountKeeper, bk types.BankKeeper, dk types.DistributionKeeper) AppModule {
+	return AppModule{
+		AppModuleBasic: AppModuleBasic{cdc: cdc},
+		keeper:         keeper,
+		accountKeeper:  ak,
+		bankKeeper:     bk,
+		distrKeeper:    dk,
+	}
+}
+
+// Name returns the liquidity module's name.
+func (AppModule) Name() string {
+	return types.ModuleName
 }
 
 // RegisterLegacyAminoCodec registers the gov module's types for the given codec.
 func (AppModule) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	types.RegisterLegacyAminoCodec(cdc)
 }
-
-// NewAppModule creates a new AppModule object
-func NewAppModule(cdc codec.Marshaler, keeper keeper.Keeper, ak types.AccountKeeper, bk types.BankKeeper) AppModule {
-	return AppModule{
-		AppModuleBasic: AppModuleBasic{cdc: cdc},
-		keeper:         keeper,
-		accountKeeper:  ak,
-		bankKeeper:     bk,
-	}
-}
-
-// Name returns the liquidity module's name.
-func (AppModule) Name() string { return types.ModuleName }
 
 // RegisterInvariants registers the liquidity module invariants.
 func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
@@ -130,7 +145,9 @@ func (am AppModule) Route() sdk.Route {
 }
 
 // QuerierRoute returns the liquidity module's querier route name.
-func (AppModule) QuerierRoute() string { return types.QuerierRoute }
+func (AppModule) QuerierRoute() string {
+	return types.QuerierRoute
+}
 
 // LegacyQuerierHandler returns the liquidity module sdk.Querier.
 func (am AppModule) LegacyQuerierHandler(legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
@@ -143,15 +160,10 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONMarshaler, data j
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, am.keeper, genesisState)
-	// TODO: validate as type level without keeper
-	if err := am.keeper.ValidateGenesis(ctx, genesisState); err != nil {
-		panic(fmt.Errorf("panic for ValidateGenesis,%v", err))
-	}
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis returns the exported genesis state as raw bytes for the liquidity
-// module.
+// ExportGenesis returns the exported genesis state as raw bytes for the liquidity module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONMarshaler) json.RawMessage {
 	gs := ExportGenesis(ctx, am.keeper)
 	return cdc.MustMarshalJSON(gs)
@@ -162,8 +174,7 @@ func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
 	BeginBlocker(ctx, am.keeper)
 }
 
-// EndBlock returns the end blocker for the liquidity module. It returns no validator
-// updates.
+// EndBlock returns the end blocker for the liquidity module. It returns no validator updates.
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	EndBlocker(ctx, am.keeper)
 	return []abci.ValidatorUpdate{}
@@ -195,17 +206,8 @@ func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
 
 // WeightedOperations returns the all the liquidity module operations with their respective weights.
 func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
-	return nil
-}
-
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the distribution module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx sdkclient.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-
-// RegisterServices registers module services.
-func (am AppModule) RegisterServices(cfg module.Configurator) {
-	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
-	querier := keeper.Querier{Keeper: am.keeper}
-	types.RegisterQueryServer(cfg.QueryServer(), querier)
+	return simulation.WeightedOperations(
+		simState.AppParams, simState.Cdc,
+		am.accountKeeper, am.bankKeeper, am.keeper,
+	)
 }
