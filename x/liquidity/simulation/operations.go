@@ -215,11 +215,20 @@ func SimulateMsgDepositToLiquidityPool(ak types.AccountKeeper, bk types.BankKeep
 		}
 
 		params := k.GetParams(ctx)
+		params.ReserveCoinLimitAmount = GenReserveCoinLimitAmount(r)
+		k.SetParams(ctx, params)
 
 		depositor := account.GetAddress()
 		depositCoinA := randomDepositCoin(r, params.MinInitDepositToPool, pool.ReserveCoinDenoms[0])
 		depositCoinB := randomDepositCoin(r, params.MinInitDepositToPool, pool.ReserveCoinDenoms[1])
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
+
+		reserveCoins := k.GetReserveCoins(ctx, pool)
+
+		if reserveCoins.AmountOf(pool.ReserveCoinDenoms[0]).Add(depositCoinA.Amount).GT(params.ReserveCoinLimitAmount) ||
+			reserveCoins.AmountOf(pool.ReserveCoinDenoms[1]).Add(depositCoinB.Amount).GT(params.ReserveCoinLimitAmount) {
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositToLiquidityPool, "can not exceed reserve coin limit amount"), nil, nil
+		}
 
 		msg := types.NewMsgDepositToLiquidityPool(depositor, pool.PoolId, depositCoins)
 
