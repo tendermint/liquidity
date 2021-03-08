@@ -91,16 +91,10 @@ type OrderMap map[string]OrderByPrice
 
 // Make orderbook by sort orderMap.
 func (orderMap OrderMap) SortOrderBook() (orderBook OrderBook) {
-	orderPriceList := make([]sdk.Dec, 0, len(orderMap))
-	for _, v := range orderMap {
-		orderPriceList = append(orderPriceList, v.OrderPrice)
+	for _, o := range orderMap {
+		orderBook = append(orderBook, o)
 	}
-	sort.Slice(orderPriceList, func(i, j int) bool {
-		return orderPriceList[i].LT(orderPriceList[j])
-	})
-	for _, k := range orderPriceList {
-		orderBook = append(orderBook, orderMap[k.String()])
-	}
+	orderBook.Sort()
 	return orderBook
 }
 
