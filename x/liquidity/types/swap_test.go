@@ -322,32 +322,6 @@ func TestOrderBookSort(t *testing.T) {
 	require.Equal(t, c, orderBook[0].OrderPrice)
 }
 
-func TestMinMaxDec(t *testing.T) {
-	a, _ := sdk.NewDecFromStr("0.1")
-	b, _ := sdk.NewDecFromStr("0.2")
-	c, _ := sdk.NewDecFromStr("0.3")
-
-	require.Equal(t, a, types.MinDec(a, b))
-	require.Equal(t, a, types.MinDec(a, c))
-	require.Equal(t, b, types.MaxDec(a, b))
-	require.Equal(t, c, types.MaxDec(a, c))
-	require.Equal(t, a, types.MaxDec(a, a))
-	require.Equal(t, a, types.MinDec(a, a))
-}
-
-func TestMaxInt(t *testing.T) {
-	a := sdk.NewInt(1)
-	b := sdk.NewInt(2)
-	c := sdk.NewInt(3)
-
-	require.Equal(t, a, types.MinInt(a, b))
-	require.Equal(t, a, types.MinInt(a, c))
-	require.Equal(t, b, types.MaxInt(a, b))
-	require.Equal(t, c, types.MaxInt(a, c))
-	require.Equal(t, a, types.MaxInt(a, a))
-	require.Equal(t, a, types.MinInt(a, a))
-}
-
 func TestGetExecutableAmt(t *testing.T) {
 	orderMap := make(types.OrderMap)
 	a, _ := sdk.NewDecFromStr("0.1")
