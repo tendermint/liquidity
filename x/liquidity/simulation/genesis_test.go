@@ -41,12 +41,14 @@ func TestRandomizedGenState(t *testing.T) {
 
 	dec1, _ := sdk.NewIntFromString("4122540")
 	dec2, _ := sdk.NewIntFromString("11240456")
-	dec4, _ := sdk.NewDecFromStr("0.632640000000000000")
-	dec5, _ := sdk.NewDecFromStr("0.315590000000000000")
-	dec6, _ := sdk.NewDecFromStr("0.433440000000000000")
+	dec3, _ := sdk.NewIntFromString("2040480279449")
+	dec4, _ := sdk.NewDecFromStr("0.448590000000000000")
+	dec5, _ := sdk.NewDecFromStr("0.732160000000000000")
+	dec6, _ := sdk.NewDecFromStr("0.237840000000000000")
 
 	require.Equal(t, dec1, liquidityGenesis.Params.MinInitDepositToPool)
 	require.Equal(t, dec2, liquidityGenesis.Params.InitPoolCoinMintAmount)
+	require.Equal(t, dec3, liquidityGenesis.Params.ReserveCoinLimitAmount)
 	require.Equal(t, dec4, liquidityGenesis.Params.SwapFeeRate)
 	require.Equal(t, dec5, liquidityGenesis.Params.WithdrawFeeRate)
 	require.Equal(t, dec6, liquidityGenesis.Params.MaxOrderAmountRatio)

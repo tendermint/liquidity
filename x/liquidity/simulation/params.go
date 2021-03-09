@@ -27,6 +27,11 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 				return fmt.Sprintf("\"%d\"", GenInitPoolCoinMintAmount(r).Int64())
 			},
 		),
+		simulation.NewSimParamChange(types.ModuleName, string(types.KeyReserveCoinLimitAmount),
+			func(r *rand.Rand) string {
+				return fmt.Sprintf("\"%d\"", GenReserveCoinLimitAmount(r).Int64())
+			},
+		),
 		simulation.NewSimParamChange(types.ModuleName, string(types.KeySwapFeeRate),
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenSwapFeeRate(r))
