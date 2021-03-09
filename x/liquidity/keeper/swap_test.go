@@ -353,7 +353,7 @@ func TestBadSwapExecution(t *testing.T) {
 	testAddr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(offerCoin.Add(offerCoinFee)))
 
 	currentPrice := X.ToDec().Quo(Y.ToDec())
-	swapMsg := types.NewMsgSwap(testAddr, 0, types.DefaultSwapType, offerCoin, denomY, currentPrice, params.SwapFeeRate)
+	swapMsg := types.NewMsgSwap(testAddr, 0, types.DefaultSwapTypeIndex, offerCoin, denomY, currentPrice, params.SwapFeeRate)
 	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg, 0)
 	require.ErrorIs(t, err, types.ErrPoolNotExists)
 

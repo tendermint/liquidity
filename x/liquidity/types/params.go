@@ -24,8 +24,8 @@ const (
 	// index of target pool type, only 1 is allowed on this version.
 	DefaultPoolTypeIndex uint32 = 1
 
-	// swap type of available swap request, only 1 is allowed on this version.
-	DefaultSwapType uint32 = 1
+	// swap type index of available swap request, only 1 (InstantSwap) is allowed on this version.
+	DefaultSwapTypeIndex uint32 = 1
 )
 
 // Parameter store keys

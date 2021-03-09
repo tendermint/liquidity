@@ -698,7 +698,7 @@ func TestSwapPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoin
 			require.True(t, false)
 		}
 
-		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i], params.SwapFeeRate)
+		swapMsg := types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapTypeIndex, offerCoinList[i], demandCoinDenom, orderPrices[i], params.SwapFeeRate)
 		batchPoolSwapMsg, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg, 0)
 		require.NoError(t, err)
 
@@ -748,7 +748,7 @@ func GetSwapMsg(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, offerCoinLi
 			require.True(t, false)
 		}
 
-		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapType, offerCoinList[i], demandCoinDenom, orderPrices[i], params.SwapFeeRate))
+		msgList = append(msgList, types.NewMsgSwap(addrs[i], poolId, types.DefaultSwapTypeIndex, offerCoinList[i], demandCoinDenom, orderPrices[i], params.SwapFeeRate))
 	}
 	return msgList
 }

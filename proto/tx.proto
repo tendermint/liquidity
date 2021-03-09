@@ -252,8 +252,8 @@ message MsgSwap {
 //      format: "uint32"
 //    }];
 
-  // id of swap type type, only 1 is allowed on this version, Must match the value in the pool.
-  uint32 swap_type = 3 [(gogoproto.moretags) = "yaml:\"swap_type\"",
+  // index of swap type, only 1 is allowed on this version, Must match the value in the pool.
+  uint32 swap_type_index = 3 [(gogoproto.moretags) = "yaml:\"swap_type_index\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       example: "\"1\"",
       format: "uint32"

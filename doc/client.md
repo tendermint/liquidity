@@ -387,9 +387,9 @@ result
 `$ liquidityd tx liquidity swap --help`
 
 ```bash  
-swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]
+swap [pool-id] [swap-type-index] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]
 
-Swap offer to the Liquidity pool with the specified pool-id, swap-type demand-coin-denom
+Swap offer to the Liquidity pool with the specified pool-id, swap-type-index demand-coin-denom
 with the coin and the price you're offering
 
 this requests are stacked in the batch of the liquidity pool, not immediately processed and
@@ -404,7 +404,7 @@ Must have sufficient balance half the of the swapFee Rate of the offer coin to r
 
 For explicit calculations, you must enter the params.swap_fee_rate value of the current parameter state.
 
-Currently, only the default pool-type, swap-type 1 is available on this version
+Currently, only the default pool-type, swap-type-index 1 is available on this version
 The detailed swap algorithm can be found here.
 https://github.com/tendermint/liquidity
 ```

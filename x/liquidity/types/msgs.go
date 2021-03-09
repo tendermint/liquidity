@@ -213,7 +213,7 @@ func (msg MsgWithdrawFromLiquidityPool) GetWithdrawer() sdk.AccAddress {
 func NewMsgSwap(
 	swapRequester sdk.AccAddress,
 	poolId uint64,
-	swapType uint32,
+	swapTypeIndex uint32,
 	offerCoin sdk.Coin,
 	demandCoinDenom string,
 	orderPrice sdk.Dec,
@@ -222,7 +222,7 @@ func NewMsgSwap(
 	return &MsgSwap{
 		SwapRequesterAddress: swapRequester.String(),
 		PoolId:               poolId,
-		SwapType:             swapType,
+		SwapTypeIndex:        swapTypeIndex,
 		OfferCoin:            offerCoin,
 		OfferCoinFee:         GetOfferCoinFee(offerCoin, swapFeeRate),
 		DemandCoinDenom:      demandCoinDenom,

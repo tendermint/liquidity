@@ -52,7 +52,7 @@ order: 7
 | swap_to_batch | liquidity_pool_id | {liquidityPoolId} |
 | swap_to_batch | batch_index       | {batchIndex}      |
 | swap_to_batch | msg_index         | {swapMsgIndex}    |
-| swap_to_batch | swap_type         | {swapType}        |
+| swap_to_batch | swap_type_index   | {swapTypeIndex}   |
 | swap_to_batch | offer_coin_denom  | {offerCoinDenom}  |
 | swap_to_batch | offer_coin_amount | {offerCoinAmount} |
 | swap_to_batch | demand_coin_denom | {demandCoinDenom} |
@@ -98,7 +98,7 @@ order: 7
 | swap_transacted | batch_index                   | {batchIndex}                |
 | swap_transacted | msg_index                     | {swapMsgIndex}              |
 | swap_transacted | swap_requester                | {swapRequesterAddress}      |
-| swap_transacted | swap_type                     | {swapType}                  |
+| swap_transacted | swap_type_index               | {swapTypeIndex}             |
 | swap_transacted | offer_coin_denom              | {offerCoinDenom}            |
 | swap_transacted | offer_coin_amount             | {offerCoinAmount}           |
 | swap_transacted | order_price                   | {orderPrice}                |
@@ -119,7 +119,7 @@ order: 7
 | swap_cancel | batch_index                   | {batchIndex}                |
 | swap_cancel | msg_index                     | {swapMsgIndex}              |
 | swap_cancel | swap_requester                | {swapRequesterAddress}      |
-| swap_cancel | swap_type                     | {swapType}                  |
+| swap_cancel | swap_type_index               | {swapTypeIndex}             |
 | swap_cancel | offer_coin_denom              | {offerCoinDenom}            |
 | swap_cancel | offer_coin_amount             | {offerCoinAmount}           |
 | swap_cancel | offer_coin_fee_amount         | {offerCoinFeeAmount}        |

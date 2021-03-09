@@ -401,7 +401,7 @@ message BatchPoolSwapMsg {
         }];
 
     // reserve fee for pays fee in half offer coin
-    cosmos.base.v1beta1.Coin OfferCoinFeeReserve = 9 [
+    cosmos.base.v1beta1.Coin offer_coin_fee_reserve = 9 [
         (gogoproto.nullable)     = false,
         (gogoproto.moretags)     = "yaml:\"offer_coin_fee_reserve\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -411,5 +411,5 @@ message BatchPoolSwapMsg {
     ];
 
     // MsgSwap
-    MsgSwap Msg = 10 [(gogoproto.moretags) = "yaml:\"msg\""];
+    MsgSwap msg = 10 [(gogoproto.moretags) = "yaml:\"msg\""];
 }

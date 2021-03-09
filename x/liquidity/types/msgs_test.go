@@ -13,7 +13,7 @@ import (
 const (
 	DefaultPoolTypeIndex = uint32(1)
 	DefaultPoolId        = uint64(1)
-	DefaultSwapType      = uint32(1)
+	DefaultSwapTypeIndex = uint32(1)
 	DenomX               = "denomX"
 	DenomY               = "denomY"
 	DenomPoolCoin        = "denomPoolCoin"
@@ -110,7 +110,7 @@ func TestMsgSwap(t *testing.T) {
 	coin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
 	orderPrice, err := sdk.NewDecFromStr("0.1")
 	require.NoError(t, err)
-	msg := types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapType, coin, DenomY, orderPrice, types.DefaultSwapFeeRate)
+	msg := types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapTypeIndex, coin, DenomY, orderPrice, types.DefaultSwapFeeRate)
 	require.IsType(t, &types.MsgSwap{}, msg)
 	require.Equal(t, types.RouterKey, msg.Route())
 	require.Equal(t, types.TypeMsgSwap, msg.Type())

@@ -144,7 +144,7 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSw
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
 			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.BatchIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
-			sdk.NewAttribute(types.AttributeValueSwapType, strconv.FormatUint(uint64(batchMsg.Msg.SwapType), 10)),
+			sdk.NewAttribute(types.AttributeValueSwapTypeIndex, strconv.FormatUint(uint64(batchMsg.Msg.SwapTypeIndex), 10)),
 			sdk.NewAttribute(types.AttributeValueOfferCoinDenom, batchMsg.Msg.OfferCoin.Denom),
 			sdk.NewAttribute(types.AttributeValueOfferCoinAmount, batchMsg.Msg.OfferCoin.Amount.String()),
 			sdk.NewAttribute(types.AttributeValueOfferCoinFeeAmount, batchMsg.Msg.OfferCoinFee.Amount.String()),

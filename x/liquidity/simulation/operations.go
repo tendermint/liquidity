@@ -387,7 +387,7 @@ func SimulateMsgSwap(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keepe
 		params.SwapFeeRate = swapFeeRate
 		k.SetParams(ctx, params)
 
-		msg := types.NewMsgSwap(swapRequester, pool.PoolId, types.DefaultSwapType, offerCoin, demandCoinDenom, orderPrice, swapFeeRate)
+		msg := types.NewMsgSwap(swapRequester, pool.PoolId, types.DefaultSwapTypeIndex, offerCoin, demandCoinDenom, orderPrice, swapFeeRate)
 
 		txGen := simappparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(

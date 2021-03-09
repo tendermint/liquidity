@@ -66,7 +66,7 @@ type MsgWithdrawFromLiquidityPool struct {
 type MsgSwap struct {
 	SwapRequesterAddress string     // account address of the origin of this message
 	PoolId               uint64     // id of the liquidity pool where this message is belong to
-	SwapType             uint32     // swap type of this swap message, default 1: InstantSwap, requesting instant swap
+	SwapTypeIndex        uint32     // swap type index of this swap message, default 1: InstantSwap, requesting instant swap
 	OfferCoin            sdk.Coin   // offer coin of this swap message
 	DemandCoinDenom      string     // denom of demand coin of this swap message
 	OfferCoinFee         sdk.Coin   // offer coin fee for pay fees in half offer coin
@@ -79,7 +79,7 @@ type MsgSwap struct {
 - `MsgSwap` failes if
   - `SwapRequester` address does not exist
   - `PoolId` does not exist
-  - `SwapType` does not exist
+  - `SwapTypeIndex` does not exist
   - denoms of `OfferCoin` or `DemandCoin` do not exist in `bank` module
   - if the balance of `SwapRequester` does not have enough amount of coins for `OfferCoin`
   - if `OrderPrice` <= zero

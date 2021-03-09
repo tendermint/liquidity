@@ -1336,12 +1336,12 @@ paths:
                     format: uint64
                     example: '1'
                     title: id of the target pool
-                  swap_type:
+                  swap_type_index:
                     type: integer
                     format: uint32
                     example: '1'
                     description: >-
-                      id of swap type type, only 1 is allowed on this version,
+                      index of swap type, only 1 is allowed on this version,
                       Must match the value in the pool.
                   offer_coin:
                     type: object
@@ -1522,7 +1522,7 @@ paths:
                         denom: denomA
                         amount: '400000'
                       title: offer coin currently remaining to be exchanged
-                    OfferCoinFeeReserve:
+                    offer_coin_fee_reserve:
                       type: object
                       properties:
                         denom:
@@ -1542,7 +1542,7 @@ paths:
                         denom: denomA
                         amount: '5000'
                       title: reserve fee for pays fee in half offer coin
-                    Msg:
+                    msg:
                       title: MsgSwap
                       type: object
                       properties:
@@ -1557,12 +1557,12 @@ paths:
                           format: uint64
                           example: '1'
                           title: id of the target pool
-                        swap_type:
+                        swap_type_index:
                           type: integer
                           format: uint32
                           example: '1'
                           description: >-
-                            id of swap type type, only 1 is allowed on this
+                            index of swap type, only 1 is allowed on this
                             version, Must match the value in the pool.
                         offer_coin:
                           type: object
@@ -3150,7 +3150,7 @@ paths:
                       denom: denomA
                       amount: '400000'
                     title: offer coin currently remaining to be exchanged
-                  OfferCoinFeeReserve:
+                  offer_coin_fee_reserve:
                     type: object
                     properties:
                       denom:
@@ -3170,7 +3170,7 @@ paths:
                       denom: denomA
                       amount: '5000'
                     title: reserve fee for pays fee in half offer coin
-                  Msg:
+                  msg:
                     title: MsgSwap
                     type: object
                     properties:
@@ -3185,13 +3185,13 @@ paths:
                         format: uint64
                         example: '1'
                         title: id of the target pool
-                      swap_type:
+                      swap_type_index:
                         type: integer
                         format: uint32
                         example: '1'
                         description: >-
-                          id of swap type type, only 1 is allowed on this
-                          version, Must match the value in the pool.
+                          index of swap type, only 1 is allowed on this version,
+                          Must match the value in the pool.
                       offer_coin:
                         type: object
                         properties:
@@ -4226,13 +4226,13 @@ definitions:
         format: uint64
         example: '1'
         title: id of the target pool
-      swap_type:
+      swap_type_index:
         type: integer
         format: uint32
         example: '1'
         description: >-
-          id of swap type type, only 1 is allowed on this version, Must match
-          the value in the pool.
+          index of swap type, only 1 is allowed on this version, Must match the
+          value in the pool.
       offer_coin:
         type: object
         properties:
@@ -4422,13 +4422,13 @@ definitions:
             format: uint64
             example: '1'
             title: id of the target pool
-          swap_type:
+          swap_type_index:
             type: integer
             format: uint32
             example: '1'
             description: >-
-              id of swap type type, only 1 is allowed on this version, Must
-              match the value in the pool.
+              index of swap type, only 1 is allowed on this version, Must match
+              the value in the pool.
           offer_coin:
             type: object
             properties:
@@ -5199,7 +5199,7 @@ definitions:
           denom: denomA
           amount: '400000'
         title: offer coin currently remaining to be exchanged
-      OfferCoinFeeReserve:
+      offer_coin_fee_reserve:
         type: object
         properties:
           denom:
@@ -5216,7 +5216,7 @@ definitions:
           denom: denomA
           amount: '5000'
         title: reserve fee for pays fee in half offer coin
-      Msg:
+      msg:
         title: MsgSwap
         type: object
         properties:
@@ -5231,13 +5231,13 @@ definitions:
             format: uint64
             example: '1'
             title: id of the target pool
-          swap_type:
+          swap_type_index:
             type: integer
             format: uint32
             example: '1'
             description: >-
-              id of swap type type, only 1 is allowed on this version, Must
-              match the value in the pool.
+              index of swap type, only 1 is allowed on this version, Must match
+              the value in the pool.
           offer_coin:
             type: object
             properties:
@@ -6399,7 +6399,7 @@ definitions:
               denom: denomA
               amount: '400000'
             title: offer coin currently remaining to be exchanged
-          OfferCoinFeeReserve:
+          offer_coin_fee_reserve:
             type: object
             properties:
               denom:
@@ -6419,7 +6419,7 @@ definitions:
               denom: denomA
               amount: '5000'
             title: reserve fee for pays fee in half offer coin
-          Msg:
+          msg:
             title: MsgSwap
             type: object
             properties:
@@ -6434,12 +6434,12 @@ definitions:
                 format: uint64
                 example: '1'
                 title: id of the target pool
-              swap_type:
+              swap_type_index:
                 type: integer
                 format: uint32
                 example: '1'
                 description: >-
-                  id of swap type type, only 1 is allowed on this version, Must
+                  index of swap type, only 1 is allowed on this version, Must
                   match the value in the pool.
               offer_coin:
                 type: object
@@ -6598,7 +6598,7 @@ definitions:
                 denom: denomA
                 amount: '400000'
               title: offer coin currently remaining to be exchanged
-            OfferCoinFeeReserve:
+            offer_coin_fee_reserve:
               type: object
               properties:
                 denom:
@@ -6618,7 +6618,7 @@ definitions:
                 denom: denomA
                 amount: '5000'
               title: reserve fee for pays fee in half offer coin
-            Msg:
+            msg:
               title: MsgSwap
               type: object
               properties:
@@ -6633,13 +6633,13 @@ definitions:
                   format: uint64
                   example: '1'
                   title: id of the target pool
-                swap_type:
+                swap_type_index:
                   type: integer
                   format: uint32
                   example: '1'
                   description: >-
-                    id of swap type type, only 1 is allowed on this version,
-                    Must match the value in the pool.
+                    index of swap type, only 1 is allowed on this version, Must
+                    match the value in the pool.
                 offer_coin:
                   type: object
                   properties:

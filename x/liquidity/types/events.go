@@ -42,7 +42,7 @@ const (
 	AttributeValuePoolCoin             = "pool_coin"
 	AttributeValueWithdrawCoins        = "withdraw_coins"
 	AttributeValueSwapRequester        = "swap_requester"
-	AttributeValueSwapType             = "swap_type"
+	AttributeValueSwapTypeIndex        = "swap_type_index"
 	AttributeValueAcceptedOfferCoin    = "accepted_offer_coin"
 	AttributeValueRefundedOfferCoin    = "refunded_offer_coin"
 	AttributeValueReceivedDemandCoin   = "received_demand_coin"
