@@ -36,13 +36,13 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	// get current pool pair and price
 	X := reserveCoins[0].Amount.ToDec()
 	Y := reserveCoins[1].Amount.ToDec()
-	currentYPriceOverX := X.Quo(Y)
+	currentPoolPrice := X.Quo(Y)
 
 	denomX := reserveCoins[0].Denom
 	denomY := reserveCoins[1].Denom
 
 	// make orderMap, orderbook by sort orderMap
-	orderMap, XtoY, YtoX := types.GetOrderMap(swapMsgs, denomX, denomY, false)
+	orderMap, XtoY, YtoX := types.MakeOrderMap(swapMsgs, denomX, denomY, false)
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
@@ -127,7 +127,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
 	types.ValidateStateAndExpireOrders(YtoX, currentHeight, false)
 
-	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
+	orderMapExecuted, _, _ := types.MakeOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	if !orderBookExecuted.Validate(lastPrice) {
 		panic(types.ErrOrderBookInvalidity)
@@ -202,17 +202,17 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		switch result.PriceDirection {
 		// check whether the calculated swapPrice is actually increased from last pool price
 		case types.Increase:
-			if !result.SwapPrice.GTE(currentYPriceOverX) {
+			if !result.SwapPrice.GTE(currentPoolPrice) {
 				panic("invariant check fail swapPrice Increase")
 			}
 		// check whether the calculated swapPrice is actually decreased from last pool price
 		case types.Decrease:
-			if !result.SwapPrice.LTE(currentYPriceOverX) {
+			if !result.SwapPrice.LTE(currentPoolPrice) {
 				panic("invariant check fail swapPrice Decrease")
 			}
 		// check whether the calculated swapPrice is actually equal to last pool price
 		case types.Stay:
-			if !result.SwapPrice.Equal(currentYPriceOverX) {
+			if !result.SwapPrice.Equal(currentPoolPrice) {
 				panic("invariant check fail swapPrice Stay")
 			}
 		}

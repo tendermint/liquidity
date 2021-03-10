@@ -141,7 +141,7 @@ type MatchResult struct {
 // to derive match result with the price direction.
 func (orderBook OrderBook) Match(X, Y sdk.Dec) BatchResult {
 	currentPrice := X.Quo(Y)
-	priceDirection := orderBook.GetPriceDirection(currentPrice)
+	priceDirection := orderBook.PriceDirection(currentPrice)
 	if priceDirection == Stay {
 		return orderBook.CalculateMatchStay(currentPrice)
 	}
@@ -177,7 +177,7 @@ func (orderBook OrderBook) Validate(currentPrice sdk.Dec) bool {
 func (orderBook OrderBook) CalculateMatchStay(currentPrice sdk.Dec) (r BatchResult) {
 	r = NewBatchResult()
 	r.SwapPrice = currentPrice
-	r.OriginalEX, r.OriginalEY = orderBook.GetExecutableAmt(r.SwapPrice)
+	r.OriginalEX, r.OriginalEY = orderBook.ExecutableAmt(r.SwapPrice)
 	r.EX = r.OriginalEX
 	r.EY = r.OriginalEY
 	r.PriceDirection = Stay
@@ -223,7 +223,7 @@ func (orderBook OrderBook) CalculateMatch(direction int, X, Y sdk.Dec) (maxScena
 	maxScenario = NewBatchResult()
 	maxScenario.TransactAmt = sdk.ZeroInt()
 	for _, s := range matchScenarioList {
-		MEX, MEY := orderBook.GetMustExecutableAmt(s.SwapPrice)
+		MEX, MEY := orderBook.MustExecutableAmt(s.SwapPrice)
 		if s.EX.GTE(MEX) && s.EY.GTE(MEY) {
 			if s.MatchType == ExactMatch && s.TransactAmt.IsPositive() {
 				maxScenario = s
@@ -240,7 +240,7 @@ func (orderBook OrderBook) CalculateMatch(direction int, X, Y sdk.Dec) (maxScena
 // Calculates the batch results with the processing logic for each direction
 func (orderBook OrderBook) CalculateSwap(direction int, X, Y, orderPrice, lastOrderPrice sdk.Dec) (r BatchResult) {
 	r = NewBatchResult()
-	r.OriginalEX, r.OriginalEY = orderBook.GetExecutableAmt(lastOrderPrice.Add(orderPrice).Quo(sdk.NewDec(2)))
+	r.OriginalEX, r.OriginalEY = orderBook.ExecutableAmt(lastOrderPrice.Add(orderPrice).Quo(sdk.NewDec(2)))
 	r.EX = r.OriginalEX
 	r.EY = r.OriginalEY
 
@@ -271,7 +271,7 @@ func (orderBook OrderBook) CalculateSwap(direction int, X, Y, orderPrice, lastOr
 	}
 
 	if r.MatchType == 0 {
-		r.OriginalEX, r.OriginalEY = orderBook.GetExecutableAmt(orderPrice)
+		r.OriginalEX, r.OriginalEY = orderBook.ExecutableAmt(orderPrice)
 		r.EX = r.OriginalEX
 		r.EY = r.OriginalEY
 		r.SwapPrice = orderPrice
@@ -308,7 +308,7 @@ func (orderBook OrderBook) CalculateSwap(direction int, X, Y, orderPrice, lastOr
 }
 
 // Get Price direction of the orderbook with current Price
-func (orderBook OrderBook) GetPriceDirection(currentPrice sdk.Dec) int {
+func (orderBook OrderBook) PriceDirection(currentPrice sdk.Dec) int {
 	buyAmtOverCurrentPrice := sdk.ZeroDec()
 	buyAmtAtCurrentPrice := sdk.ZeroDec()
 	sellAmtUnderCurrentPrice := sdk.ZeroDec()
@@ -334,7 +334,7 @@ func (orderBook OrderBook) GetPriceDirection(currentPrice sdk.Dec) int {
 }
 
 // calculate the executable amount of the orderbook for each X, Y
-func (orderBook OrderBook) GetExecutableAmt(swapPrice sdk.Dec) (executableBuyAmtX, executableSellAmtY sdk.Int) {
+func (orderBook OrderBook) ExecutableAmt(swapPrice sdk.Dec) (executableBuyAmtX, executableSellAmtY sdk.Int) {
 	executableBuyAmtX = sdk.ZeroInt()
 	executableSellAmtY = sdk.ZeroInt()
 	for _, order := range orderBook {
@@ -349,7 +349,7 @@ func (orderBook OrderBook) GetExecutableAmt(swapPrice sdk.Dec) (executableBuyAmt
 }
 
 // Check swap executable amount validity of the orderbook
-func (orderBook OrderBook) GetMustExecutableAmt(swapPrice sdk.Dec) (mustExecutableBuyAmtX, mustExecutableSellAmtY sdk.Int) {
+func (orderBook OrderBook) MustExecutableAmt(swapPrice sdk.Dec) (mustExecutableBuyAmtX, mustExecutableSellAmtY sdk.Int) {
 	mustExecutableBuyAmtX = sdk.ZeroInt()
 	mustExecutableSellAmtY = sdk.ZeroInt()
 	for _, order := range orderBook {
@@ -364,7 +364,7 @@ func (orderBook OrderBook) GetMustExecutableAmt(swapPrice sdk.Dec) (mustExecutab
 }
 
 // make orderMap key as swap price, value as Buy, Sell Amount from swap msgs, with split as Buy XtoY, Sell YtoX msg list.
-func GetOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMatched bool) (OrderMap, []*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
+func MakeOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMatched bool) (OrderMap, []*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
 	orderMap := make(OrderMap)
 	var XtoY []*BatchPoolSwapMsg // buying Y from X
 	var YtoX []*BatchPoolSwapMsg // selling Y for X
