@@ -5,12 +5,13 @@ import (
 	"math/rand"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/stretchr/testify/require"
 
 	"github.com/tendermint/liquidity/x/liquidity/simulation"
 	"github.com/tendermint/liquidity/x/liquidity/types"
@@ -52,7 +53,7 @@ func TestRandomizedGenState(t *testing.T) {
 	require.Equal(t, dec4, liquidityGenesis.Params.SwapFeeRate)
 	require.Equal(t, dec5, liquidityGenesis.Params.WithdrawFeeRate)
 	require.Equal(t, dec6, liquidityGenesis.Params.MaxOrderAmountRatio)
-	require.Equal(t, uint32(1), liquidityGenesis.Params.UnitBatchSize)
+	require.Equal(t, uint32(6), liquidityGenesis.Params.UnitBatchSize)
 }
 
 // TestRandomizedGenState tests abnormal scenarios of applying RandomizedGenState.

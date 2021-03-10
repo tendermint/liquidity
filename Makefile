@@ -151,7 +151,7 @@ benchmark:
 test-sim-nondeterminism:
 	@echo "Running non-determinism test..."
 	@go test -mod=readonly $(SIMAPP) -run TestAppStateDeterminism -Enabled=true \
-		-NumBlocks=50 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
+		-NumBlocks=100 -BlockSize=1000 -Commit=true -Period=0 -v -timeout 24h
 
 test-sim-import-export: runsim
 	@echo "Running application import/export simulation. This may take several minutes..."
