@@ -104,10 +104,10 @@ func TestSwapScenario(t *testing.T) {
 	XtoY, YtoX, XDec, YDec, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		simapp.LiquidityKeeper.UpdateState(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
-	require.Equal(t, 0, (types.BatchPoolSwapMsgs)(XtoY).CountNotMatchedMsgs())
-	require.Equal(t, 0, (types.BatchPoolSwapMsgs)(XtoY).CountFractionalMatchedMsgs())
-	require.Equal(t, 1, (types.BatchPoolSwapMsgs)(YtoX).CountNotMatchedMsgs())
-	require.Equal(t, 0, (types.BatchPoolSwapMsgs)(YtoX).CountFractionalMatchedMsgs())
+	require.Equal(t, 0, types.CountNotMatchedMsgs(XtoY))
+	require.Equal(t, 0, types.CountFractionalMatchedMsgs(XtoY))
+	require.Equal(t, 1, types.CountNotMatchedMsgs(YtoX))
+	require.Equal(t, 0, types.CountFractionalMatchedMsgs(YtoX))
 	require.Equal(t, 3, len(XtoY))
 	require.Equal(t, 1, len(YtoX))
 
@@ -129,9 +129,9 @@ func TestSwapScenario(t *testing.T) {
 	fmt.Println("Y", YDec)
 	require.True(t, orderBookExecuted.Validate(lastPrice))
 
-	require.Equal(t, 0, (types.BatchPoolSwapMsgs)(orderMapExecuted[orderPriceList[0].String()].MsgList).CountNotMatchedMsgs())
-	require.Equal(t, 1, (types.BatchPoolSwapMsgs)(orderMapExecuted[orderPriceListY[0].String()].MsgList).CountNotMatchedMsgs())
-	require.Equal(t, 1, (types.BatchPoolSwapMsgs)(orderBookExecuted[0].MsgList).CountNotMatchedMsgs())
+	require.Equal(t, 0, types.CountNotMatchedMsgs(orderMapExecuted[orderPriceList[0].String()].MsgList))
+	require.Equal(t, 1, types.CountNotMatchedMsgs(orderMapExecuted[orderPriceListY[0].String()].MsgList))
+	require.Equal(t, 1, types.CountNotMatchedMsgs(orderBookExecuted[0].MsgList))
 
 	types.ValidateStateAndExpireOrders(XtoY, ctx.BlockHeight(), true)
 	types.ValidateStateAndExpireOrders(YtoX, ctx.BlockHeight(), true)
@@ -140,8 +140,8 @@ func TestSwapScenario(t *testing.T) {
 	orderBookCleared := orderMapCleared.SortOrderBook()
 	require.True(t, orderBookCleared.Validate(lastPrice))
 
-	require.Equal(t, 0, (types.BatchPoolSwapMsgs)(orderMapCleared[orderPriceList[0].String()].MsgList).CountNotMatchedMsgs())
-	require.Equal(t, 0, (types.BatchPoolSwapMsgs)(orderMapCleared[orderPriceListY[0].String()].MsgList).CountNotMatchedMsgs())
+	require.Equal(t, 0, types.CountNotMatchedMsgs(orderMapCleared[orderPriceList[0].String()].MsgList))
+	require.Equal(t, 0, types.CountNotMatchedMsgs(orderMapCleared[orderPriceListY[0].String()].MsgList))
 	require.Equal(t, 0, len(orderBookCleared))
 
 	// next block

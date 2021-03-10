@@ -61,11 +61,8 @@ func (orderBook OrderBook) Reverse() {
 	})
 }
 
-// The pointer list of the swap batch message.
-type BatchPoolSwapMsgs []*BatchPoolSwapMsg
-
 // Get number of not matched messages on the list.
-func (msgList BatchPoolSwapMsgs) CountNotMatchedMsgs() int {
+func CountNotMatchedMsgs(msgList []*BatchPoolSwapMsg) int {
 	cnt := 0
 	for _, m := range msgList {
 		if m.Executed && !m.Succeeded {
@@ -76,7 +73,7 @@ func (msgList BatchPoolSwapMsgs) CountNotMatchedMsgs() int {
 }
 
 // Get number of fractional matched messages on the list.
-func (msgList BatchPoolSwapMsgs) CountFractionalMatchedMsgs() int {
+func CountFractionalMatchedMsgs(msgList []*BatchPoolSwapMsg) int {
 	cnt := 0
 	for _, m := range msgList {
 		if m.Executed && m.Succeeded && !m.ToBeDeleted {

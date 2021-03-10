@@ -76,10 +76,10 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	if invariantCheckFlag {
 		beforeXtoYLen := len(XtoY)
 		beforeYtoXLen := len(YtoX)
-		if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != (types.BatchPoolSwapMsgs)(XtoY).CountNotMatchedMsgs()+(types.BatchPoolSwapMsgs)(XtoY).CountFractionalMatchedMsgs() {
+		if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
 			panic(beforeXtoYLen)
 		}
-		if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != (types.BatchPoolSwapMsgs)(YtoX).CountNotMatchedMsgs()+(types.BatchPoolSwapMsgs)(YtoX).CountFractionalMatchedMsgs() {
+		if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != types.CountNotMatchedMsgs(YtoX)+types.CountFractionalMatchedMsgs(YtoX) {
 			panic(beforeYtoXLen)
 		}
 
