@@ -374,7 +374,7 @@ func TestPriceDirection(t *testing.T) {
 	orderBook := orderMap.SortOrderBook()
 	poolPrice, _ := sdk.NewDecFromStr("1.0")
 	result := orderBook.PriceDirection(poolPrice)
-	require.Equal(t, types.Increase, result)
+	require.Equal(t, types.Increasing, result)
 
 	// decrease case
 	orderMap = make(types.OrderMap)
@@ -400,7 +400,7 @@ func TestPriceDirection(t *testing.T) {
 	orderBook = orderMap.SortOrderBook()
 	poolPrice, _ = sdk.NewDecFromStr("1.0")
 	result = orderBook.PriceDirection(poolPrice)
-	require.Equal(t, types.Decrease, result)
+	require.Equal(t, types.Decreasing, result)
 
 	// stay case
 	orderMap = make(types.OrderMap)
@@ -414,7 +414,7 @@ func TestPriceDirection(t *testing.T) {
 	orderBook = orderMap.SortOrderBook()
 	poolPrice, _ = sdk.NewDecFromStr("1.0")
 	result = orderBook.PriceDirection(poolPrice)
-	require.Equal(t, types.Stay, result)
+	require.Equal(t, types.Staying, result)
 }
 
 func TestComputePriceDirection(t *testing.T) {
