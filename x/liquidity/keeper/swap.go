@@ -1,10 +1,11 @@
 package keeper
 
 import (
-	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/liquidity/x/liquidity/types"
 	"sort"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 // Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.
@@ -45,7 +46,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
-	result := types.MatchOrderbook(X, Y, currentYPriceOverX, orderBook)
+	result := orderBook.Match(X, Y)
 
 	// find order match, calculate pool delta with the total x, y amount for the invariant check
 	var matchResultXtoY, matchResultYtoX []types.MatchResult
@@ -75,10 +76,10 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	if invariantCheckFlag {
 		beforeXtoYLen := len(XtoY)
 		beforeYtoXLen := len(YtoX)
-		if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != (types.MsgList)(XtoY).CountNotMatchedMsgs()+(types.MsgList)(XtoY).CountFractionalMatchedMsgs() {
+		if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != (types.BatchPoolSwapMsgs)(XtoY).CountNotMatchedMsgs()+(types.BatchPoolSwapMsgs)(XtoY).CountFractionalMatchedMsgs() {
 			panic(beforeXtoYLen)
 		}
-		if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != (types.MsgList)(YtoX).CountNotMatchedMsgs()+(types.MsgList)(YtoX).CountFractionalMatchedMsgs() {
+		if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != (types.BatchPoolSwapMsgs)(YtoX).CountNotMatchedMsgs()+(types.BatchPoolSwapMsgs)(YtoX).CountFractionalMatchedMsgs() {
 			panic(beforeYtoXLen)
 		}
 
@@ -128,9 +129,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 
 	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
-	orderBookValidity := types.CheckValidityOrderBook(orderBookExecuted, lastPrice)
-	if !orderBookValidity {
-		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity")
+	if !orderBookExecuted.Validate(lastPrice) {
 		panic(types.ErrOrderBookInvalidity)
 	}
 
