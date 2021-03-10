@@ -2,7 +2,6 @@ syntax = "proto3";
 package tendermint.liquidity;
 
 import "gogoproto/gogo.proto";
-import "google/api/annotations.proto";
 import "cosmos_proto/coin.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
@@ -16,48 +15,16 @@ option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 service Msg {
 
   // Submit create liquidity pool message.
-  rpc CreateLiquidityPool(MsgCreateLiquidityPool) returns (MsgCreateLiquidityPoolResponse) {
-    option (google.api.http) = {
-      post: "/liquidity/pools"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      deprecated: true
-    };
-  };
+  rpc CreateLiquidityPool(MsgCreateLiquidityPool) returns (MsgCreateLiquidityPoolResponse);
 
   // Submit deposit to the liquidity pool batch.
-  rpc DepositToLiquidityPool(MsgDepositToLiquidityPool) returns (MsgDepositToLiquidityPoolResponse) {
-    option (google.api.http) = {
-      post: "/liquidity/pools/{pool_id}/batch/deposits"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      deprecated: true
-    };
-  };
+  rpc DepositToLiquidityPool(MsgDepositToLiquidityPool) returns (MsgDepositToLiquidityPoolResponse);
 
   // Submit withdraw from to the liquidity pool batch.
-  rpc WithdrawFromLiquidityPool(MsgWithdrawFromLiquidityPool) returns (MsgWithdrawFromLiquidityPoolResponse) {
-    option (google.api.http) = {
-      post: "/liquidity/pools/{pool_id}/batch/withdraws"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      deprecated: true
-    };
-  };
+  rpc WithdrawFromLiquidityPool(MsgWithdrawFromLiquidityPool) returns (MsgWithdrawFromLiquidityPoolResponse);
 
   // Submit swap to the liquidity pool batch.
-  rpc Swap(MsgSwap) returns (MsgSwapResponse) {
-    option (google.api.http) = {
-      post: "/liquidity/pools/{pool_id}/batch/swaps"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      deprecated: true
-    };
-  };
+  rpc Swap(MsgSwap) returns (MsgSwapResponse);
 }
 
 // MsgCreateLiquidityPool defines an sdk.Msg type that supports submitting create liquidity pool
