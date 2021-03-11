@@ -659,19 +659,19 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					// Add transacted coins to multisend
 					// TODO: coverage
 					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
 					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
 					inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt)))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
 					outputs = append(outputs, banktypes.NewOutput(batchMsg.Msg.GetSwapRequester(),
-						sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt)))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
 
 					// Add swap offer coin fee to multisend
 					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 
 					// Add swap exchanged coin fee to multisend, It cause temporary insufficient funds when InputOutputCoins, skip offsetting input, output
 					//inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
@@ -686,19 +686,19 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 
 					// Add transacted coins to multisend
 					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
 					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
 					inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt)))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
 					outputs = append(outputs, banktypes.NewOutput(batchMsg.Msg.GetSwapRequester(),
-						sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt)))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
 
 					// Add swap offer coin fee to multisend
 					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 
 					// Add swap exchanged coin fee to multisend, It cause temporary insufficient funds when InputOutputCoins, skip offsetting input, output
 					//inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
@@ -723,19 +723,19 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 			} else if batchMsg.RemainingOfferCoin.IsZero() {
 				// full matched case, Add transacted coins to multisend
 				inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-					sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt))))
+					sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
 				outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-					sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt))))
+					sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
 				inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
-					sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt)))))
+					sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
 				outputs = append(outputs, banktypes.NewOutput(batchMsg.Msg.GetSwapRequester(),
-					sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt)))))
+					sdk.NewCoins(sdk.NewCoin(batchMsg.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
 
 				// Add swap offer coin fee to multisend
 				inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-					sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt))))
+					sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 				outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-					sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt))))
+					sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 
 				// Add swap exchanged coin fee to multisend, It cause temporary insufficient funds when InputOutputCoins, skip offsetting input, output
 				//inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
