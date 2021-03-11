@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+
 	"gopkg.in/yaml.v2"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -49,11 +50,10 @@ var (
 	DefaultLiquidityPoolCreationFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
 	MinOfferCoinAmount              = sdk.NewInt(100)
 
-	halfRatio, _ = sdk.NewDecFromStr("0.5")
-	HalfRatio    = halfRatio
+	HalfRatio = sdk.MustNewDecFromStr("0.5")
 
-	DecimalErrThreshold3  = sdk.NewDecFromIntWithPrec(sdk.OneInt(), 3)
-	DecimalErrThreshold10 = sdk.NewDecFromIntWithPrec(sdk.OneInt(), 10)
+	DecimalErrThreshold3  = sdk.NewDecWithPrec(1, 3)
+	DecimalErrThreshold10 = sdk.NewDecWithPrec(1, 10)
 
 	DefaultLiquidityPoolType = LiquidityPoolType{
 		PoolTypeIndex:     1,

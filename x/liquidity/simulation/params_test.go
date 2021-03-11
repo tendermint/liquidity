@@ -21,15 +21,16 @@ func TestParamChanges(t *testing.T) {
 	}{
 		{"liquidity/MinInitDepositToPool", "MinInitDepositToPool", "\"3498081\"", "liquidity"},
 		{"liquidity/InitPoolCoinMintAmount", "InitPoolCoinMintAmount", "\"40727887\"", "liquidity"},
-		{"liquidity/SwapFeeRate", "SwapFeeRate", "\"0.461190000000000000\"", "liquidity"},
-		{"liquidity/WithdrawFeeRate", "WithdrawFeeRate", "\"0.934590000000000000\"", "liquidity"},
-		{"liquidity/MaxOrderAmountRatio", "MaxOrderAmountRatio", "\"0.112010000000000000\"", "liquidity"},
-		{"liquidity/UnitBatchSize", "UnitBatchSize", "1", "liquidity"},
+		{"liquidity/ReserveCoinLimitAmount", "ReserveCoinLimitAmount", "\"4611666145821\"", "liquidity"},
+		{"liquidity/SwapFeeRate", "SwapFeeRate", "\"0.934590000000000000\"", "liquidity"},
+		{"liquidity/WithdrawFeeRate", "WithdrawFeeRate", "\"0.112010000000000000\"", "liquidity"},
+		{"liquidity/MaxOrderAmountRatio", "MaxOrderAmountRatio", "\"0.560680000000000000\"", "liquidity"},
+		{"liquidity/UnitBatchSize", "UnitBatchSize", "19", "liquidity"},
 	}
 
 	paramChanges := simulation.ParamChanges(r)
 
-	require.Len(t, paramChanges, 6)
+	require.Len(t, paramChanges, 7)
 
 	for i, p := range paramChanges {
 		require.Equal(t, expected[i].composedKey, p.ComposedKey())

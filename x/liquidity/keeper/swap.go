@@ -1,10 +1,11 @@
 package keeper
 
 import (
-	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/liquidity/x/liquidity/types"
 	"sort"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 // Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.
@@ -35,17 +36,17 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	// get current pool pair and price
 	X := reserveCoins[0].Amount.ToDec()
 	Y := reserveCoins[1].Amount.ToDec()
-	currentYPriceOverX := X.Quo(Y)
+	currentPoolPrice := X.Quo(Y)
 
 	denomX := reserveCoins[0].Denom
 	denomY := reserveCoins[1].Denom
 
 	// make orderMap, orderbook by sort orderMap
-	orderMap, XtoY, YtoX := types.GetOrderMap(swapMsgs, denomX, denomY, false)
+	orderMap, XtoY, YtoX := types.MakeOrderMap(swapMsgs, denomX, denomY, false)
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
-	result := types.MatchOrderbook(X, Y, currentYPriceOverX, orderBook)
+	result := orderBook.Match(X, Y)
 
 	// find order match, calculate pool delta with the total x, y amount for the invariant check
 	var matchResultXtoY, matchResultYtoX []types.MatchResult
@@ -75,10 +76,10 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	if invariantCheckFlag {
 		beforeXtoYLen := len(XtoY)
 		beforeYtoXLen := len(YtoX)
-		if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != (types.MsgList)(XtoY).CountNotMatchedMsgs()+(types.MsgList)(XtoY).CountFractionalMatchedMsgs() {
+		if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
 			panic(beforeXtoYLen)
 		}
-		if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != (types.MsgList)(YtoX).CountNotMatchedMsgs()+(types.MsgList)(YtoX).CountFractionalMatchedMsgs() {
+		if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != types.CountNotMatchedMsgs(YtoX)+types.CountFractionalMatchedMsgs(YtoX) {
 			panic(beforeYtoXLen)
 		}
 
@@ -126,11 +127,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
 	types.ValidateStateAndExpireOrders(YtoX, currentHeight, false)
 
-	orderMapExecuted, _, _ := types.GetOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
+	orderMapExecuted, _, _ := types.MakeOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
-	orderBookValidity := types.CheckValidityOrderBook(orderBookExecuted, lastPrice)
-	if !orderBookValidity {
-		fmt.Println(orderBookValidity, "ErrOrderBookInvalidity")
+	if !orderBookExecuted.Validate(lastPrice) {
 		panic(types.ErrOrderBookInvalidity)
 	}
 
@@ -202,18 +201,18 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 		// invariant check, swapPrice check
 		switch result.PriceDirection {
 		// check whether the calculated swapPrice is actually increased from last pool price
-		case types.Increase:
-			if !result.SwapPrice.GTE(currentYPriceOverX) {
+		case types.Increasing:
+			if !result.SwapPrice.GTE(currentPoolPrice) {
 				panic("invariant check fail swapPrice Increase")
 			}
 		// check whether the calculated swapPrice is actually decreased from last pool price
-		case types.Decrease:
-			if !result.SwapPrice.LTE(currentYPriceOverX) {
+		case types.Decreasing:
+			if !result.SwapPrice.LTE(currentPoolPrice) {
 				panic("invariant check fail swapPrice Decrease")
 			}
 		// check whether the calculated swapPrice is actually equal to last pool price
-		case types.Stay:
-			if !result.SwapPrice.Equal(currentYPriceOverX) {
+		case types.Staying:
+			if !result.SwapPrice.Equal(currentPoolPrice) {
 				panic("invariant check fail swapPrice Stay")
 			}
 		}

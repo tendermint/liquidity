@@ -3,7 +3,9 @@ package keeper_test
 import (
 	gocontext "context"
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/types/query"
+
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
