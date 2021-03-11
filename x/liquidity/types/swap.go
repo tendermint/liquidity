@@ -154,9 +154,6 @@ func (orderBook OrderBook) Match(X, Y sdk.Dec) BatchResult {
 	if priceDirection == Staying {
 		return orderBook.CalculateMatchStay(currentPrice)
 	}
-	if priceDirection == Decreasing {
-		orderBook.Reverse()
-	}
 	return orderBook.CalculateMatch(priceDirection, X, Y)
 }
 
@@ -213,7 +210,12 @@ func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec
 	currentPrice := X.Quo(Y)
 	lastOrderPrice := currentPrice
 	var matchScenarioList []BatchResult
-	for _, order := range orderBook {
+	start, end, delta := 0, len(orderBook)-1, 1
+	if direction == Decreasing {
+		start, end, delta = end, start, -1
+	}
+	for i := start; i != end; i += delta {
+		order := orderBook[i]
 		if (direction == Increasing && order.OrderPrice.LT(currentPrice)) ||
 			(direction == Decreasing && order.OrderPrice.GT(currentPrice)) {
 			continue
