@@ -172,7 +172,7 @@ func validateLiquidityPoolTypes(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if v == nil {
-		return fmt.Errorf("empty parameter: LiquidityPoolTypes #{i}")
+		return fmt.Errorf("empty parameter: LiquidityPoolTypes")
 	}
 	for i, p := range v {
 		if i+1 != int(p.PoolTypeIndex) {
