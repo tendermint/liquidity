@@ -499,6 +499,17 @@ func TestComputePriceDirection(t *testing.T) {
 	require.Equal(t, orderBook.CalculateMatchStay(poolPrice), result)
 }
 
+func TestCalculateMatchStay(t *testing.T) {
+	currentPrice := sdk.MustNewDecFromStr("1.0")
+	orderBook := types.OrderBook{
+		{OrderPrice: sdk.MustNewDecFromStr("1.0"), BuyOfferAmt: sdk.NewInt(5), SellOfferAmt: sdk.NewInt(7)},
+	}
+	require.Equal(t, types.Staying, orderBook.PriceDirection(currentPrice))
+	r := orderBook.CalculateMatchStay(currentPrice)
+	require.Equal(t, sdk.NewInt(5), r.EX)
+	require.Equal(t, sdk.NewInt(5), r.EY)
+}
+
 // Match Stay case with fractional match type
 func TestCalculateMatchStayEdgeCase(t *testing.T) {
 	currentPrice, err := sdk.NewDecFromStr("1.844380246375231658")
@@ -652,5 +663,63 @@ func TestOrderbookValidate(t *testing.T) {
 		}
 		orderBook := orderMap.SortOrderBook()
 		require.Equal(t, testCase.valid, orderBook.Validate(currentPrice))
+	}
+}
+
+func TestCountNotMatchedMsgs(t *testing.T) {
+	for _, tc := range []struct {
+		msgs []*types.BatchPoolSwapMsg
+		cnt  int
+	}{
+		{
+			[]*types.BatchPoolSwapMsg{},
+			0,
+		},
+		{
+			[]*types.BatchPoolSwapMsg{
+				{Executed: true, Succeeded: false},
+				{Executed: true, Succeeded: false},
+			},
+			2,
+		},
+		{
+			[]*types.BatchPoolSwapMsg{
+				{},
+				{Executed: true, Succeeded: true, ToBeDeleted: false},
+				{Executed: true, Succeeded: true, ToBeDeleted: true},
+			},
+			0,
+		},
+	} {
+		require.Equal(t, tc.cnt, types.CountNotMatchedMsgs(tc.msgs))
+	}
+}
+
+func TestCountFractionalMatchedMsgs(t *testing.T) {
+	for _, tc := range []struct {
+		msgs []*types.BatchPoolSwapMsg
+		cnt  int
+	}{
+		{
+			[]*types.BatchPoolSwapMsg{},
+			0,
+		},
+		{
+			[]*types.BatchPoolSwapMsg{
+				{Executed: true, Succeeded: true, ToBeDeleted: false},
+				{Executed: true, Succeeded: true, ToBeDeleted: false},
+			},
+			2,
+		},
+		{
+			[]*types.BatchPoolSwapMsg{
+				{},
+				{Executed: true, Succeeded: false},
+				{Executed: true, Succeeded: true, ToBeDeleted: true},
+			},
+			0,
+		},
+	} {
+		require.Equal(t, tc.cnt, types.CountFractionalMatchedMsgs(tc.msgs))
 	}
 }
