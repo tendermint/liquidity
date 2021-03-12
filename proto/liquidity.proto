@@ -12,8 +12,8 @@ option (gogoproto.goproto_getters_all) = false;
 message LiquidityPoolType {
     option (gogoproto.equal) = true;
 
-    // index of target pool type, only 1 is allowed on this version.
-    uint32 pool_type_index = 1 [(gogoproto.moretags) = "yaml:\"pool_type_index\"",
+    // id of target pool type, only 1 is allowed on this version.
+    uint32 pool_type_id = 1 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
@@ -154,8 +154,8 @@ message LiquidityPool {
             format: "uint64"
         }];
 
-    // index of the pool type
-    uint32 pool_type_index = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\"",
+    // id of the pool type
+    uint32 pool_type_id = 2 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
