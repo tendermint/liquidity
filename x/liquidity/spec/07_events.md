@@ -113,6 +113,8 @@ order: 7
 
 ### Cancel Result for MsgSwap on Batch
 
+The spec, msg for cancellation of the swap order will be added from v2
+
 | Type        | Attribute Key                 | Attribute Value             |
 | ----------- | ----------------------------- | --------------------------- |
 | swap_cancel | liquidity_pool_id             | {liquidityPoolId}           |
