@@ -129,11 +129,11 @@ func SimulateMsgCreateLiquidityPool(ak types.AccountKeeper, bk types.BankKeeper,
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateLiquidityPool, "unable to mint and send coins"), nil, nil
 		}
 
-		poolKey := types.GetPoolKey(reserveCoinDenoms, types.DefaultPoolTypeIndex)
+		poolKey := types.PoolName(reserveCoinDenoms, types.DefaultPoolTypeIndex)
 		reserveAcc := types.GetPoolReserveAcc(poolKey)
 
 		// ensure the liquidity pool doesn't exist
-		_, found := k.GetLiquidityPoolByReserveAccIndex(ctx, reserveAcc)
+		_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
 		if found {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreateLiquidityPool, "liquidity pool already exists"), nil, nil
 		}
@@ -197,7 +197,7 @@ func SimulateMsgDepositToLiquidityPool(ak types.AccountKeeper, bk types.BankKeep
 			3. Deposit random amount of coins the to liquidity pool
 		*/
 
-		if len(k.GetAllLiquidityPools(ctx)) == 0 {
+		if len(k.GetAllPools(ctx)) == 0 {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositToLiquidityPool, "number of liquidity pools equals zero"), nil, nil
 		}
 
@@ -278,7 +278,7 @@ func SimulateMsgWithdrawFromLiquidityPool(ak types.AccountKeeper, bk types.BankK
 			3. Withdraw random amounts from the liquidity pool
 		*/
 
-		if len(k.GetAllLiquidityPools(ctx)) == 0 {
+		if len(k.GetAllPools(ctx)) == 0 {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawFromLiquidityPool, "number of liquidity pools equals zero"), nil, nil
 		}
 
@@ -351,7 +351,7 @@ func SimulateMsgSwap(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keepe
 			3. Swap random amount of denomA with denomB
 		*/
 
-		if len(k.GetAllLiquidityPools(ctx)) == 0 {
+		if len(k.GetAllPools(ctx)) == 0 {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwap, "number of liquidity pools equals zero"), nil, nil
 		}
 
@@ -448,10 +448,10 @@ func randomDepositCoin(r *rand.Rand, minInitDepositToPool sdk.Int, denom string)
 }
 
 // randomLiquidity returns random liquidity pool with given access to the keeper and ctx
-func randomLiquidity(r *rand.Rand, k keeper.Keeper, ctx sdk.Context) (pool types.LiquidityPool, ok bool) {
-	pools := k.GetAllLiquidityPools(ctx)
+func randomLiquidity(r *rand.Rand, k keeper.Keeper, ctx sdk.Context) (pool types.Pool, ok bool) {
+	pools := k.GetAllPools(ctx)
 	if len(pools) == 0 {
-		return types.LiquidityPool{}, false
+		return types.Pool{}, false
 	}
 
 	i := r.Intn(len(pools))
@@ -470,7 +470,7 @@ func randomOrderPrice(r *rand.Rand) sdk.Dec {
 }
 
 // randomOfferCoin returns random offer amount of coin
-func randomOfferCoin(r *rand.Rand, k keeper.Keeper, ctx sdk.Context, pool types.LiquidityPool, denom string) sdk.Coin {
+func randomOfferCoin(r *rand.Rand, k keeper.Keeper, ctx sdk.Context, pool types.Pool, denom string) sdk.Coin {
 	params := k.GetParams(ctx)
 
 	// prevent from "can not exceed max order ratio of reserve coins that can be ordered at a order" error

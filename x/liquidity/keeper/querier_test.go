@@ -16,13 +16,13 @@ import (
 
 const custom = "custom"
 
-func getQueriedLiquidityPool(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, poolId uint64) (types.LiquidityPool, error) {
+func getQueriedLiquidityPool(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, poolId uint64) (types.Pool, error) {
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryLiquidityPool}, "/"),
 		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId: poolId}),
 	}
 
-	pool := types.LiquidityPool{}
+	pool := types.Pool{}
 	bz, err := querier(ctx, []string{types.QueryLiquidityPool}, query)
 	if err != nil {
 		return pool, err
@@ -68,9 +68,9 @@ func TestNewQuerier(t *testing.T) {
 	}
 	queryFailCase := abci.RequestQuery{
 		Path: strings.Join([]string{"failCustom", "failRoute", "failQuery"}, "/"),
-		Data: cdc.MustMarshalJSON(types.LiquidityPool{}),
+		Data: cdc.MustMarshalJSON(types.Pool{}),
 	}
-	pool := types.LiquidityPool{}
+	pool := types.Pool{}
 	bz, err := querier(ctx, []string{types.QueryLiquidityPool}, query)
 	require.NoError(t, err)
 	require.Nil(t, cdc.UnmarshalJSON(bz, &pool))

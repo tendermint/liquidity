@@ -127,7 +127,7 @@ func (m *MsgCreateLiquidityPoolRequest) GetMsg() *MsgCreateLiquidityPool {
 	return nil
 }
 
-// MsgCreateLiquidityPoolResponse defines the Msg/CreateLiquidityPool response type.
+// MsgCreateLiquidityPoolResponse defines the Msg/CreatePool response type.
 type MsgCreateLiquidityPoolResponse struct {
 	StdTx *StdTx `protobuf:"bytes,1,opt,name=std_tx,json=stdTx,proto3" json:"std_tx,omitempty" yaml:"std_tx"`
 }
@@ -1157,7 +1157,7 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 
 func (c *msgClient) CreateLiquidityPool(ctx context.Context, in *MsgCreateLiquidityPool, opts ...grpc.CallOption) (*MsgCreateLiquidityPoolResponse, error) {
 	out := new(MsgCreateLiquidityPoolResponse)
-	err := c.cc.Invoke(ctx, "/tendermint.liquidity.Msg/CreateLiquidityPool", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/tendermint.liquidity.Msg/CreatePool", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1208,7 +1208,7 @@ type UnimplementedMsgServer struct {
 }
 
 func (*UnimplementedMsgServer) CreateLiquidityPool(ctx context.Context, req *MsgCreateLiquidityPool) (*MsgCreateLiquidityPoolResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateLiquidityPool not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePool not implemented")
 }
 func (*UnimplementedMsgServer) DepositToLiquidityPool(ctx context.Context, req *MsgDepositToLiquidityPool) (*MsgDepositToLiquidityPoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DepositToLiquidityPool not implemented")
@@ -1234,7 +1234,7 @@ func _Msg_CreateLiquidityPool_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/tendermint.liquidity.Msg/CreateLiquidityPool",
+		FullMethod: "/tendermint.liquidity.Msg/CreatePool",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MsgServer).CreateLiquidityPool(ctx, req.(*MsgCreateLiquidityPool))
@@ -1301,7 +1301,7 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateLiquidityPool",
+			MethodName: "CreatePool",
 			Handler:    _Msg_CreateLiquidityPool_Handler,
 		},
 		{

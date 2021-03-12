@@ -34,10 +34,10 @@ const (
 
 // Type of order map to index at price, having the pointer list of the swap batch message.
 type OrderByPrice struct {
-	Price        sdk.Dec
-	BuyOfferAmt  sdk.Int
-	SellOfferAmt sdk.Int
-	MsgList      []*BatchPoolSwapMsg
+	Price         sdk.Dec
+	BuyOfferAmt   sdk.Int
+	SellOfferAmt  sdk.Int
+	SwapMsgStates []*SwapMsgState
 }
 
 // list of orderByPrice
@@ -71,9 +71,9 @@ func (orderBook OrderBook) Reverse() {
 }
 
 // Get number of not matched messages on the list.
-func CountNotMatchedMsgs(msgList []*BatchPoolSwapMsg) int {
+func CountNotMatchedMsgs(swapMsgStates []*SwapMsgState) int {
 	cnt := 0
-	for _, m := range msgList {
+	for _, m := range swapMsgStates {
 		if m.Executed && !m.Succeeded {
 			cnt++
 		}
@@ -82,9 +82,9 @@ func CountNotMatchedMsgs(msgList []*BatchPoolSwapMsg) int {
 }
 
 // Get number of fractional matched messages on the list.
-func CountFractionalMatchedMsgs(msgList []*BatchPoolSwapMsg) int {
+func CountFractionalMatchedMsgs(swapMsgStates []*SwapMsgState) int {
 	cnt := 0
-	for _, m := range msgList {
+	for _, m := range swapMsgStates {
 		if m.Executed && m.Succeeded && !m.ToBeDeleted {
 			cnt++
 		}
@@ -143,7 +143,7 @@ type MatchResult struct {
 	ExchangedDemandCoinAmt sdk.Dec
 	OfferCoinFeeAmt        sdk.Dec
 	ExchangedCoinFeeAmt    sdk.Dec
-	BatchMsg               *BatchPoolSwapMsg
+	BatchMsg               *SwapMsgState
 }
 
 // The price and coins of swap messages in orderbook are calculated
@@ -374,10 +374,10 @@ func (orderBook OrderBook) MustExecutableAmt(swapPrice sdk.Dec) (mustExecutableB
 }
 
 // make orderMap key as swap price, value as Buy, Sell Amount from swap msgs, with split as Buy XtoY, Sell YtoX msg list.
-func MakeOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMatched bool) (OrderMap, []*BatchPoolSwapMsg, []*BatchPoolSwapMsg) {
+func MakeOrderMap(swapMsgs []*SwapMsgState, denomX, denomY string, onlyNotMatched bool) (OrderMap, []*SwapMsgState, []*SwapMsgState) {
 	orderMap := make(OrderMap)
-	var XtoY []*BatchPoolSwapMsg // buying Y from X
-	var YtoX []*BatchPoolSwapMsg // selling Y for X
+	var XtoY []*SwapMsgState // buying Y from X
+	var YtoX []*SwapMsgState // selling Y for X
 	for _, m := range swapMsgs {
 		if onlyNotMatched && (m.ToBeDeleted || m.RemainingOfferCoin.IsZero()) {
 			continue
@@ -410,15 +410,15 @@ func MakeOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMa
 		default:
 			panic(ErrInvalidDenom)
 		}
-		order.MsgList = append(order.MsgList, m)
+		order.SwapMsgStates = append(order.SwapMsgStates, m)
 		orderMap[orderPriceString] = order
 	}
 	return orderMap, XtoY, YtoX
 }
 
 //check validity state of the batch swap messages, and set to delete state to height timeout expired order
-func ValidateStateAndExpireOrders(msgList []*BatchPoolSwapMsg, currentHeight int64, expireThisHeight bool) {
-	for _, order := range msgList {
+func ValidateStateAndExpireOrders(swapMsgStates []*SwapMsgState, currentHeight int64, expireThisHeight bool) {
+	for _, order := range swapMsgStates {
 		if !order.Executed {
 			panic("not executed")
 		}
@@ -464,8 +464,8 @@ func CheckSwapPrice(matchResultXtoY, matchResultYtoX []MatchResult, swapPrice sd
 }
 
 // Find matched orders and set status for msgs
-func FindOrderMatch(direction OrderDirection, swapList []*BatchPoolSwapMsg, executableAmt, swapPrice sdk.Dec, height int64) (
-	matchResultList []MatchResult, swapListExecuted []*BatchPoolSwapMsg, poolXdelta, poolYdelta sdk.Dec) {
+func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executableAmt, swapPrice sdk.Dec, height int64) (
+	matchResultList []MatchResult, swapListExecuted []*SwapMsgState, poolXdelta, poolYdelta sdk.Dec) {
 
 	poolXdelta = sdk.ZeroDec()
 	poolYdelta = sdk.ZeroDec()
@@ -482,7 +482,7 @@ func FindOrderMatch(direction OrderDirection, swapList []*BatchPoolSwapMsg, exec
 
 	matchAmt := sdk.ZeroInt()
 	accumMatchAmt := sdk.ZeroInt()
-	var matchOrderList []*BatchPoolSwapMsg
+	var matchOrderList []*SwapMsgState
 
 	if executableAmt.IsZero() {
 		return

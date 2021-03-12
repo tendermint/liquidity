@@ -65,7 +65,7 @@ func TestCoinSafeSubAmount(t *testing.T) {
 }
 
 func TestGetPoolReserveAcc(t *testing.T) {
-	poolKey := types.GetPoolKey([]string{"denomX", "denomY"}, 1)
+	poolKey := types.PoolName([]string{"denomX", "denomY"}, 1)
 	require.Equal(t, "denomX/denomY/1", poolKey)
 	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	require.NotNil(t, reserveAcc)
@@ -74,7 +74,7 @@ func TestGetPoolReserveAcc(t *testing.T) {
 }
 
 func TestGetPoolReserveAcc2(t *testing.T) {
-	poolKey := types.GetPoolKey([]string{"stake", "token"}, 1)
+	poolKey := types.PoolName([]string{"stake", "token"}, 1)
 	require.Equal(t, "stake/token/1", poolKey)
 	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	require.NotNil(t, reserveAcc)
@@ -83,7 +83,7 @@ func TestGetPoolReserveAcc2(t *testing.T) {
 }
 
 func TestGetPoolReserveAcc3(t *testing.T) {
-	poolKey := types.GetPoolKey([]string{"acoin", "bcoin"}, 1)
+	poolKey := types.PoolName([]string{"acoin", "bcoin"}, 1)
 	require.Equal(t, "acoin/bcoin/1", poolKey)
 	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	require.NotNil(t, reserveAcc)
@@ -92,7 +92,7 @@ func TestGetPoolReserveAcc3(t *testing.T) {
 }
 
 func TestIsPoolCoinDenom(t *testing.T) {
-	poolKey := types.GetPoolKey([]string{"denomX", "denomY"}, 1)
+	poolKey := types.PoolName([]string{"denomX", "denomY"}, 1)
 	require.Equal(t, "denomX/denomY/1", poolKey)
 	poolCoinDenom := types.GetPoolCoinDenom(poolKey)
 	require.True(t, types.IsPoolCoinDenom(poolCoinDenom))

@@ -27,17 +27,17 @@ func AllInvariants(k Keeper) sdk.Invariant {
 func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		remainingCoins := sdk.NewCoins()
-		batches := k.GetAllLiquidityPoolBatches(ctx)
+		batches := k.GetAllPoolBatches(ctx)
 		for _, batch := range batches {
-			swapMsgs := k.GetAllNotToDeleteLiquidityPoolBatchSwapMsgs(ctx, batch)
+			swapMsgs := k.GetAllPoolBatchSwapMsgStatesNotToBeDeleted(ctx, batch)
 			for _, msg := range swapMsgs {
 				remainingCoins = remainingCoins.Add(msg.RemainingOfferCoin)
 			}
-			depositMsgs := k.GetAllNotToDeleteLiquidityPoolBatchDepositMsgs(ctx, batch)
+			depositMsgs := k.GetAllPoolBatchDepositMsgStatesNotToBeDeleted(ctx, batch)
 			for _, msg := range depositMsgs {
 				remainingCoins = remainingCoins.Add(msg.Msg.DepositCoins...)
 			}
-			withdrawMsgs := k.GetAllNotToDeleteLiquidityPoolBatchWithdrawMsgs(ctx, batch)
+			withdrawMsgs := k.GetAllPoolBatchWithdrawMsgStatesNotToBeDeleted(ctx, batch)
 			for _, msg := range withdrawMsgs {
 				remainingCoins = remainingCoins.Add(msg.Msg.PoolCoin)
 			}
