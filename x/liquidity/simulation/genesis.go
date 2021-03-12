@@ -87,8 +87,7 @@ func GenMaxOrderAmountRatio(r *rand.Rand) sdk.Dec {
 
 // GenUnitBatchSize randomized UnitBatchSize ranging from 1 to 20
 func GenUnitBatchSize(r *rand.Rand) uint32 {
-	return uint32(1) // due to simulation error, set 1 temporarily
-	// return uint32(simulation.RandIntBetween(r, int(types.DefaultUnitBatchSize), 20))
+	return uint32(simulation.RandIntBetween(r, int(types.DefaultUnitBatchSize), 20))
 }
 
 // RandomizedGenState generates a random GenesisState for liquidity

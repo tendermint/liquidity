@@ -258,6 +258,7 @@ func addTotalSupply(app *LiquidityApp, ctx sdk.Context, coins sdk.Coins) {
 	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(coins...)))
 }
 
+// AddRandomTestAddr creates new account with random address.
 func AddRandomTestAddr(app *LiquidityApp, ctx sdk.Context, initCoins sdk.Coins) sdk.AccAddress {
 	addr := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
 	addTotalSupply(app, ctx, initCoins)
