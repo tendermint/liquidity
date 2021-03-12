@@ -1083,7 +1083,7 @@ example query command with result
          "denom": "token",
          "amount": "0"
        },
-       "offer_coin_fee_reserve": {
+       "reserved_offer_coin_fee": {
          "denom": "token",
          "amount": "0"
        },

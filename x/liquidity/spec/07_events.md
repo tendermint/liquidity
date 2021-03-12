@@ -92,43 +92,43 @@ order: 7
 
 ### Batch Result for MsgSwap
 
-| Type            | Attribute Key                 | Attribute Value             |
-| --------------- | ----------------------------- | --------------------------- |
-| swap_transacted | liquidity_pool_id             | {liquidityPoolId}           |
-| swap_transacted | batch_index                   | {batchIndex}                |
-| swap_transacted | msg_index                     | {swapMsgIndex}              |
-| swap_transacted | swap_requester                | {swapRequesterAddress}      |
-| swap_transacted | swap_type_id                  | {swapTypeId}                |
-| swap_transacted | offer_coin_denom              | {offerCoinDenom}            |
-| swap_transacted | offer_coin_amount             | {offerCoinAmount}           |
-| swap_transacted | order_price                   | {orderPrice}                |
-| swap_transacted | swap_price                    | {swapPrice}                 |
-| swap_transacted | transacted_coin_amount        | {transactedCoinAmount}      |
-| swap_transacted | remaining_offer_coin_amount   | {remainingOfferCoinAmount}  |
-| swap_transacted | exchanged_offer_coin_amount   | {exchangedOfferCoinAmount}  |
-| swap_transacted | offer_coin_fee_amount         | {offerCoinFeeAmount}        |
-| swap_transacted | offer_coin_fee_reserve_amount | {offerCoinFeeReserveAmount} |
-| swap_transacted | order_expiry_height           | {orderExpiryHeight}         |
-| swap_transacted | success                       | {success}                   |
+| Type            | Attribute Key                  | Attribute Value              |
+| --------------- | ------------------------------ | ---------------------------- |
+| swap_transacted | liquidity_pool_id              | {liquidityPoolId}            |
+| swap_transacted | batch_index                    | {batchIndex}                 |
+| swap_transacted | msg_index                      | {swapMsgIndex}               |
+| swap_transacted | swap_requester                 | {swapRequesterAddress}       |
+| swap_transacted | swap_type_id                   | {swapTypeId}                 |
+| swap_transacted | offer_coin_denom               | {offerCoinDenom}             |
+| swap_transacted | offer_coin_amount              | {offerCoinAmount}            |
+| swap_transacted | order_price                    | {orderPrice}                 |
+| swap_transacted | swap_price                     | {swapPrice}                  |
+| swap_transacted | transacted_coin_amount         | {transactedCoinAmount}       |
+| swap_transacted | remaining_offer_coin_amount    | {remainingOfferCoinAmount}   |
+| swap_transacted | exchanged_offer_coin_amount    | {exchangedOfferCoinAmount}   |
+| swap_transacted | offer_coin_fee_amount          | {offerCoinFeeAmount}         |
+| swap_transacted | reserved_offer_coin_fee_amount | {reservedOfferCoinFeeAmount} |
+| swap_transacted | order_expiry_height            | {orderExpiryHeight}          |
+| swap_transacted | success                        | {success}                    |
 
 ### Cancel Result for MsgSwap on Batch
 
 The spec, msg for cancellation of the swap order will be added from v2
 
-| Type        | Attribute Key                 | Attribute Value             |
-| ----------- | ----------------------------- | --------------------------- |
-| swap_cancel | liquidity_pool_id             | {liquidityPoolId}           |
-| swap_cancel | batch_index                   | {batchIndex}                |
-| swap_cancel | msg_index                     | {swapMsgIndex}              |
-| swap_cancel | swap_requester                | {swapRequesterAddress}      |
-| swap_cancel | swap_type_id                  | {swapTypeId}                |
-| swap_cancel | offer_coin_denom              | {offerCoinDenom}            |
-| swap_cancel | offer_coin_amount             | {offerCoinAmount}           |
-| swap_cancel | offer_coin_fee_amount         | {offerCoinFeeAmount}        |
-| swap_cancel | offer_coin_fee_reserve_amount | {offerCoinFeeReserveAmount} |
-| swap_cancel | order_price                   | {orderPrice}                |
-| swap_cancel | swap_price                    | {swapPrice}                 |
-| swap_cancel | cancelled_coin_amount         | {cancelledOfferCoinAmount}  |
-| swap_cancel | remaining_offer_coin_amount   | {remainingOfferCoinAmount}  |
-| swap_cancel | order_expiry_height           | {orderExpiryHeight}         |
-| swap_cancel | success                       | {success}                   |
+| Type        | Attribute Key                  | Attribute Value              |
+| ----------- | ------------------------------ | ---------------------------- |
+| swap_cancel | liquidity_pool_id              | {liquidityPoolId}            |
+| swap_cancel | batch_index                    | {batchIndex}                 |
+| swap_cancel | msg_index                      | {swapMsgIndex}               |
+| swap_cancel | swap_requester                 | {swapRequesterAddress}       |
+| swap_cancel | swap_type_id                   | {swapTypeId}                 |
+| swap_cancel | offer_coin_denom               | {offerCoinDenom}             |
+| swap_cancel | offer_coin_amount              | {offerCoinAmount}            |
+| swap_cancel | offer_coin_fee_amount          | {offerCoinFeeAmount}         |
+| swap_cancel | reserved_offer_coin_fee_amount | {reservedOfferCoinFeeAmount} |
+| swap_cancel | order_price                    | {orderPrice}                 |
+| swap_cancel | swap_price                     | {swapPrice}                  |
+| swap_cancel | cancelled_coin_amount          | {cancelledOfferCoinAmount}   |
+| swap_cancel | remaining_offer_coin_amount    | {remainingOfferCoinAmount}   |
+| swap_cancel | order_expiry_height            | {orderExpiryHeight}          |
+| swap_cancel | success                        | {success}                    |

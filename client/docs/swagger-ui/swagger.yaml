@@ -1514,7 +1514,7 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                    offer_coin_fee_reserve:
+                    reserved_offer_coin_fee:
                       format: sdk.Coin
                       example:
                         denom: denomA
@@ -3135,7 +3135,7 @@ paths:
                       custom method
 
                       signatures required by gogoproto.
-                  offer_coin_fee_reserve:
+                  reserved_offer_coin_fee:
                     format: sdk.Coin
                     example:
                       denom: denomA
@@ -5169,7 +5169,7 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
-      offer_coin_fee_reserve:
+      reserved_offer_coin_fee:
         format: sdk.Coin
         example:
           denom: denomA
@@ -6362,7 +6362,7 @@ definitions:
               method
 
               signatures required by gogoproto.
-          offer_coin_fee_reserve:
+          reserved_offer_coin_fee:
             format: sdk.Coin
             example:
               denom: denomA
@@ -6556,7 +6556,7 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            offer_coin_fee_reserve:
+            reserved_offer_coin_fee:
               format: sdk.Coin
               example:
                 denom: denomA

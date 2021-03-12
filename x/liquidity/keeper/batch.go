@@ -218,7 +218,7 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap, Or
 		ToBeDeleted:         false,
 		ExchangedOfferCoin:  sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
 		RemainingOfferCoin:  msg.OfferCoin,
-		OfferCoinFeeReserve: msg.OfferCoinFee,
+		ReservedOfferCoinFee: msg.OfferCoinFee,
 		Msg:                 msg,
 	}
 	// TODO: add logic if OrderExpiryHeight==0, pass on batch logic
