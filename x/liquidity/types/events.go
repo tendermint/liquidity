@@ -50,11 +50,11 @@ const (
 	AttributeValuePaidSwapFee          = "paid_swap_fee"
 	AttributeValuePaidLiquidityPoolFee = "paid_liquidity_pool_fee"
 
-	AttributeValueTransactedCoinAmount      = "transacted_coin_amount"
-	AttributeValueRemainingOfferCoinAmount  = "remaining_offer_coin_amount"
-	AttributeValueExchangedOfferCoinAmount  = "exchanged_offer_coin_amount"
+	AttributeValueTransactedCoinAmount       = "transacted_coin_amount"
+	AttributeValueRemainingOfferCoinAmount   = "remaining_offer_coin_amount"
+	AttributeValueExchangedOfferCoinAmount   = "exchanged_offer_coin_amount"
 	AttributeValueReservedOfferCoinFeeAmount = "reserved_offer_coin_fee_amount"
-	AttributeValueOrderExpiryHeight         = "order_expiry_height"
+	AttributeValueOrderExpiryHeight          = "order_expiry_height"
 
 	AttributeValueCategory = ModuleName
 
