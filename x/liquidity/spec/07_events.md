@@ -11,7 +11,7 @@ order: 7
 | Type                  | Attribute Key             | Attribute Value                  |
 | --------------------- | ------------------------- | -------------------------------- |
 | create_liquidity_pool | liquidity_pool_id         | {liquidityPoolId}                |
-| create_liquidity_pool | liquidity_pool_type_index | {liquidityPoolTypeIndex}         |
+| create_liquidity_pool | liquidity_pool_type_id    | {liquidityPoolTypeId}            |
 | create_liquidity_pool | liquidity_pool_key        | {AttributeValueLiquidityPoolKey} |
 | create_liquidity_pool | reserve_account           | {reserveAccountAddress}          |
 | create_liquidity_pool | deposit_coins             | {depositCoins}                   |
@@ -52,7 +52,7 @@ order: 7
 | swap_to_batch | liquidity_pool_id | {liquidityPoolId} |
 | swap_to_batch | batch_index       | {batchIndex}      |
 | swap_to_batch | msg_index         | {swapMsgIndex}    |
-| swap_to_batch | swap_type_index   | {swapTypeIndex}   |
+| swap_to_batch | swap_type_id      | {swapTypeId}      |
 | swap_to_batch | offer_coin_denom  | {offerCoinDenom}  |
 | swap_to_batch | offer_coin_amount | {offerCoinAmount} |
 | swap_to_batch | demand_coin_denom | {demandCoinDenom} |
@@ -98,7 +98,7 @@ order: 7
 | swap_transacted | batch_index                   | {batchIndex}                |
 | swap_transacted | msg_index                     | {swapMsgIndex}              |
 | swap_transacted | swap_requester                | {swapRequesterAddress}      |
-| swap_transacted | swap_type_index               | {swapTypeIndex}             |
+| swap_transacted | swap_type_id                  | {swapTypeId}                |
 | swap_transacted | offer_coin_denom              | {offerCoinDenom}            |
 | swap_transacted | offer_coin_amount             | {offerCoinAmount}           |
 | swap_transacted | order_price                   | {orderPrice}                |
@@ -121,7 +121,7 @@ The spec, msg for cancellation of the swap order will be added from v2
 | swap_cancel | batch_index                   | {batchIndex}                |
 | swap_cancel | msg_index                     | {swapMsgIndex}              |
 | swap_cancel | swap_requester                | {swapRequesterAddress}      |
-| swap_cancel | swap_type_index               | {swapTypeIndex}             |
+| swap_cancel | swap_type_id                  | {swapTypeId}                |
 | swap_cancel | offer_coin_denom              | {offerCoinDenom}            |
 | swap_cancel | offer_coin_amount             | {offerCoinAmount}           |
 | swap_cancel | offer_coin_fee_amount         | {offerCoinFeeAmount}        |

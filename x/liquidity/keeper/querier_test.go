@@ -111,7 +111,7 @@ func TestQueries(t *testing.T) {
 	poolRes, err := getQueriedLiquidityPool(t, ctx, cdc, querier, poolId)
 	require.NoError(t, err)
 	require.Equal(t, poolId, poolRes.PoolId)
-	require.Equal(t, types.DefaultPoolTypeIndex, poolRes.PoolTypeIndex)
+	require.Equal(t, types.DefaultPoolTypeId, poolRes.PoolTypeId)
 	require.Equal(t, []string{DenomX, DenomY}, poolRes.ReserveCoinDenoms)
 	require.NotNil(t, poolRes.PoolCoinDenom)
 	require.NotNil(t, poolRes.ReserveAccountAddress)

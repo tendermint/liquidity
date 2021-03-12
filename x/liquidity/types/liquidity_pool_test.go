@@ -16,7 +16,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	require.Equal(t, types.ErrPoolNotExists, pool.Validate())
 	pool.PoolId = 1
 	require.Equal(t, types.ErrPoolTypeNotExists, pool.Validate())
-	pool.PoolTypeIndex = 1
+	pool.PoolTypeId = 1
 	require.Equal(t, types.ErrNumOfReserveCoinDenoms, pool.Validate())
 	pool.ReserveCoinDenoms = []string{DenomY, DenomX, DenomX}
 	require.Equal(t, types.ErrNumOfReserveCoinDenoms, pool.Validate())
@@ -36,7 +36,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 
 	require.NoError(t, pool.Validate())
 
-	require.Equal(t, pool.GetPoolKey(), types.GetPoolKey(pool.ReserveCoinDenoms, pool.PoolTypeIndex))
+	require.Equal(t, pool.GetPoolKey(), types.GetPoolKey(pool.ReserveCoinDenoms, pool.PoolTypeId))
 	require.Equal(t, pool.PoolId, pool.GetPoolId())
 	require.Equal(t, pool.PoolCoinDenom, pool.GetPoolCoinDenom())
 

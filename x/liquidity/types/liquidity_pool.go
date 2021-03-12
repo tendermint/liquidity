@@ -13,7 +13,7 @@ import (
 // a letter, a number or a separator ('/').
 // reDnmString = `[a-zA-Z][a-zA-Z0-9/]{2,127}`.
 func (lp LiquidityPool) GetPoolKey() string {
-	return GetPoolKey(lp.ReserveCoinDenoms, lp.PoolTypeIndex)
+	return GetPoolKey(lp.ReserveCoinDenoms, lp.PoolTypeId)
 }
 
 // Validate each constraint of the liquidity pool
@@ -21,7 +21,7 @@ func (lp LiquidityPool) Validate() error {
 	if lp.PoolId == 0 {
 		return ErrPoolNotExists
 	}
-	if lp.PoolTypeIndex == 0 {
+	if lp.PoolTypeId == 0 {
 		return ErrPoolTypeNotExists
 	}
 	if lp.ReserveCoinDenoms == nil || len(lp.ReserveCoinDenoms) == 0 {
@@ -54,8 +54,8 @@ func (lp LiquidityPool) Validate() error {
 }
 
 // Calculate unique Pool key of the liquidity pool
-func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
-	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeIndex), 10)), "/")
+func GetPoolKey(reserveCoinDenoms []string, poolTypeId uint32) string {
+	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeId), 10)), "/")
 }
 
 func NewLiquidityPoolBatch(poolId, batchIndex uint64) LiquidityPoolBatch {

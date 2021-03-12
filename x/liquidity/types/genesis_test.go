@@ -89,7 +89,7 @@ func TestGenesisState(t *testing.T) {
 	require.Error(t, err)
 
 	malformedPoolType := types.DefaultLiquidityPoolType
-	malformedPoolType.PoolTypeIndex = 0
+	malformedPoolType.PoolTypeId = 0
 	params.LiquidityPoolTypes = []types.LiquidityPoolType{malformedPoolType, types.DefaultLiquidityPoolType}
 	err = params.Validate()
 	require.Error(t, err)

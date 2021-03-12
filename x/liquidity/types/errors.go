@@ -42,6 +42,6 @@ var (
 	ErrLessThanMinOfferAmount       = sdkerrors.Register(ModuleName, 34, "offer amount should over 100 micro")
 	ErrBadOfferCoinFee              = sdkerrors.Register(ModuleName, 35, "bad offer coin fee")
 	ErrNotMatchedReserveCoin        = sdkerrors.Register(ModuleName, 36, "does not match the reserve coin of the pool")
-	ErrBadPoolTypeIndex             = sdkerrors.Register(ModuleName, 37, "invalid index of the pooltype")
+	ErrBadPoolTypeId                = sdkerrors.Register(ModuleName, 37, "invalid index of the pooltype")
 	ErrExceededReserveCoinLimit     = sdkerrors.Register(ModuleName, 38, "can not exceed reserve coin limit amount")
 )
