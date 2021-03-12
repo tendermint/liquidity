@@ -1157,7 +1157,7 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 
 func (c *msgClient) CreateLiquidityPool(ctx context.Context, in *MsgCreateLiquidityPool, opts ...grpc.CallOption) (*MsgCreateLiquidityPoolResponse, error) {
 	out := new(MsgCreateLiquidityPoolResponse)
-	err := c.cc.Invoke(ctx, "/tendermint.liquidity.Msg/CreatePool", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/tendermint.liquidity.Msg/CreateLiquidityPool", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1208,7 +1208,7 @@ type UnimplementedMsgServer struct {
 }
 
 func (*UnimplementedMsgServer) CreateLiquidityPool(ctx context.Context, req *MsgCreateLiquidityPool) (*MsgCreateLiquidityPoolResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreatePool not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method CreateLiquidityPool not implemented")
 }
 func (*UnimplementedMsgServer) DepositToLiquidityPool(ctx context.Context, req *MsgDepositToLiquidityPool) (*MsgDepositToLiquidityPoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DepositToLiquidityPool not implemented")
@@ -1234,7 +1234,7 @@ func _Msg_CreateLiquidityPool_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/tendermint.liquidity.Msg/CreatePool",
+		FullMethod: "/tendermint.liquidity.Msg/CreateLiquidityPool",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MsgServer).CreateLiquidityPool(ctx, req.(*MsgCreateLiquidityPool))
@@ -1301,7 +1301,7 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreatePool",
+			MethodName: "CreateLiquidityPool",
 			Handler:    _Msg_CreateLiquidityPool_Handler,
 		},
 		{
