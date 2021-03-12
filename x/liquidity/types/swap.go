@@ -34,7 +34,7 @@ const (
 
 // Type of order map to index at price, having the pointer list of the swap batch message.
 type OrderByPrice struct {
-	OrderPrice   sdk.Dec
+	Price        sdk.Dec
 	BuyOfferAmt  sdk.Int
 	SellOfferAmt sdk.Int
 	MsgList      []*BatchPoolSwapMsg
@@ -48,7 +48,7 @@ func (orderBook OrderBook) Len() int { return len(orderBook) }
 
 // Less implements sort.Interface for OrderBook
 func (orderBook OrderBook) Less(i, j int) bool {
-	return orderBook[i].OrderPrice.LT(orderBook[j].OrderPrice)
+	return orderBook[i].Price.LT(orderBook[j].Price)
 }
 
 // Swap implements sort.Interface for OrderBook
@@ -58,7 +58,7 @@ func (orderBook OrderBook) Swap(i, j int) { orderBook[i], orderBook[j] = orderBo
 func (orderBook OrderBook) Sort() {
 	//sort.Sort(orderBook)
 	sort.Slice(orderBook, func(i, j int) bool {
-		return orderBook[i].OrderPrice.LT(orderBook[j].OrderPrice)
+		return orderBook[i].Price.LT(orderBook[j].Price)
 	})
 }
 
@@ -66,7 +66,7 @@ func (orderBook OrderBook) Sort() {
 func (orderBook OrderBook) Reverse() {
 	//sort.Reverse(orderBook)
 	sort.Slice(orderBook, func(i, j int) bool {
-		return orderBook[i].OrderPrice.GT(orderBook[j].OrderPrice)
+		return orderBook[i].Price.GT(orderBook[j].Price)
 	})
 }
 
@@ -163,11 +163,11 @@ func (orderBook OrderBook) Validate(currentPrice sdk.Dec) bool {
 	maxBuyOrderPrice := sdk.ZeroDec()
 	minSellOrderPrice := sdk.NewDec(1000000000000) // TODO: fix naive logic
 	for _, order := range orderBook {
-		if order.BuyOfferAmt.IsPositive() && order.OrderPrice.GT(maxBuyOrderPrice) {
-			maxBuyOrderPrice = order.OrderPrice
+		if order.BuyOfferAmt.IsPositive() && order.Price.GT(maxBuyOrderPrice) {
+			maxBuyOrderPrice = order.Price
 		}
-		if order.SellOfferAmt.IsPositive() && (order.OrderPrice.LT(minSellOrderPrice)) {
-			minSellOrderPrice = order.OrderPrice
+		if order.SellOfferAmt.IsPositive() && (order.Price.LT(minSellOrderPrice)) {
+			minSellOrderPrice = order.Price
 		}
 	}
 	// TODO: fix naive error rate
@@ -216,11 +216,11 @@ func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec
 	}
 	for i := start; i != end; i += delta {
 		order := orderBook[i]
-		if (direction == Increasing && order.OrderPrice.LT(currentPrice)) ||
-			(direction == Decreasing && order.OrderPrice.GT(currentPrice)) {
+		if (direction == Increasing && order.Price.LT(currentPrice)) ||
+			(direction == Decreasing && order.Price.GT(currentPrice)) {
 			continue
 		} else {
-			orderPrice := order.OrderPrice
+			orderPrice := order.Price
 			r := orderBook.CalculateSwap(direction, X, Y, orderPrice, lastOrderPrice)
 			// Check to see if it exceeds a value that can be a decimal error
 			if (direction == Increasing && r.PoolY.Sub(r.EX.Quo(r.SwapPrice)).GTE(sdk.OneDec())) ||
@@ -325,12 +325,12 @@ func (orderBook OrderBook) PriceDirection(currentPrice sdk.Dec) PriceDirection {
 	sellAmtAtCurrentPrice := sdk.ZeroDec()
 
 	for _, order := range orderBook {
-		if order.OrderPrice.GT(currentPrice) {
+		if order.Price.GT(currentPrice) {
 			buyAmtOverCurrentPrice = buyAmtOverCurrentPrice.Add(order.BuyOfferAmt.ToDec())
-		} else if order.OrderPrice.Equal(currentPrice) {
+		} else if order.Price.Equal(currentPrice) {
 			buyAmtAtCurrentPrice = buyAmtAtCurrentPrice.Add(order.BuyOfferAmt.ToDec())
 			sellAmtAtCurrentPrice = sellAmtAtCurrentPrice.Add(order.SellOfferAmt.ToDec())
-		} else if order.OrderPrice.LT(currentPrice) {
+		} else if order.Price.LT(currentPrice) {
 			sellAmtUnderCurrentPrice = sellAmtUnderCurrentPrice.Add(order.SellOfferAmt.ToDec())
 		}
 	}
@@ -348,10 +348,10 @@ func (orderBook OrderBook) ExecutableAmt(swapPrice sdk.Dec) (executableBuyAmtX, 
 	executableBuyAmtX = sdk.ZeroInt()
 	executableSellAmtY = sdk.ZeroInt()
 	for _, order := range orderBook {
-		if order.OrderPrice.GTE(swapPrice) {
+		if order.Price.GTE(swapPrice) {
 			executableBuyAmtX = executableBuyAmtX.Add(order.BuyOfferAmt)
 		}
-		if order.OrderPrice.LTE(swapPrice) {
+		if order.Price.LTE(swapPrice) {
 			executableSellAmtY = executableSellAmtY.Add(order.SellOfferAmt)
 		}
 	}
@@ -363,10 +363,10 @@ func (orderBook OrderBook) MustExecutableAmt(swapPrice sdk.Dec) (mustExecutableB
 	mustExecutableBuyAmtX = sdk.ZeroInt()
 	mustExecutableSellAmtY = sdk.ZeroInt()
 	for _, order := range orderBook {
-		if order.OrderPrice.GT(swapPrice) {
+		if order.Price.GT(swapPrice) {
 			mustExecutableBuyAmtX = mustExecutableBuyAmtX.Add(order.BuyOfferAmt)
 		}
-		if order.OrderPrice.LT(swapPrice) {
+		if order.Price.LT(swapPrice) {
 			mustExecutableSellAmtY = mustExecutableSellAmtY.Add(order.SellOfferAmt)
 		}
 	}
@@ -383,7 +383,7 @@ func MakeOrderMap(swapMsgs []*BatchPoolSwapMsg, denomX, denomY string, onlyNotMa
 			continue
 		}
 		order := OrderByPrice{
-			OrderPrice:   m.Msg.OrderPrice,
+			Price:        m.Msg.OrderPrice,
 			BuyOfferAmt:  sdk.ZeroInt(),
 			SellOfferAmt: sdk.ZeroInt(),
 		}
