@@ -52,3 +52,47 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 			"batch escrow amount LT batch remaining amount"), broken
 	}
 }
+
+// MintingPoolCoinsInvariant checks the correct minting amount of pool coins. The difference can be smaller than 1.
+func MintingPoolCoinsInvariant() {
+}
+
+// DepositReserveCoinsInvariant checks the after deposit amounts.
+func DepositReserveCoinsInvariant() {
+}
+
+// DepositRatioInvariant checks the correct ratio of deposit coin amounts.
+func DepositRatioInvariant() {
+}
+
+// ImmutablePoolPriceAfterDepositInvariant checks immutable pool price after depositing coins
+func ImmutablePoolPriceAfterDepositInvariant() {
+}
+
+// BurningPoolCoinsInvariant checks the correct burning amount of pool coins
+func BurningPoolCoinsInvariant() {
+}
+
+// WithdrawReserveCoinsInvariant checks the after withdraw amounts
+func WithdrawReserveCoinsInvariant() {
+}
+
+// WithdrawRatioInvariant checks the correct ratio of withdraw coin amounts
+func WithdrawRatioInvariant() {
+}
+
+// ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins
+func ImmutablePoolPriceAfterWithdrawInvariant() {
+}
+
+// SwapPriceInvariants checks the calculated swap price is increased, decreased, or equal from the last pool price
+func SwapPriceInvariants() {
+}
+
+// OrdersWithNotExecutedStateInvariants checks all executed orders have order price which is not "unexecutable"
+func OrdersWithNotExecutedStateInvariants() {
+}
+
+// OrdersWithExecutedStateInvariants checks all unexecuted orders have order price which is not "executable"
+func OrdersWithExecutedStateInvariants() {
+}
