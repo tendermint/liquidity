@@ -56,7 +56,7 @@ var (
 	DecimalErrThreshold10 = sdk.NewDecWithPrec(1, 10)
 
 	DefaultPoolType = PoolType{
-		PoolTypeId:     1,
+		PoolTypeId:        1,
 		Name:              "DefaultPoolType",
 		MinReserveCoinNum: MinReserveCoinNum,
 		MaxReserveCoinNum: MaxReserveCoinNum,

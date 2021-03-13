@@ -53,7 +53,7 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 		return err
 	}
 
-	poolKey := types.GetPoolKey(reserveCoinDenoms, msg.PoolTypeIndex)
+	poolKey := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
 	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
 	if found {
@@ -68,9 +68,9 @@ func (k Keeper) ValidatePool(ctx sdk.Context, pool *types.Pool) error {
 	var poolType types.PoolType
 
 	// check poolType exist, get poolType from param
-	if len(params.LiquidityPoolTypes) >= int(pool.PoolTypeIndex) {
-		poolType = params.LiquidityPoolTypes[pool.PoolTypeIndex-1]
-		if poolType.PoolTypeIndex != pool.PoolTypeIndex {
+	if len(params.PoolTypes) >= int(pool.PoolTypeId) {
+		poolType = params.PoolTypes[pool.PoolTypeId-1]
+		if poolType.PoolTypeId != pool.PoolTypeId {
 			return types.ErrPoolTypeNotExists
 		}
 	} else {
@@ -147,7 +147,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (
 
 	pool := types.Pool{
 		//PoolId: will set on SetPoolAtomic
-		PoolTypeId:         msg.PoolTypeId,
+		PoolTypeId:            msg.PoolTypeId,
 		ReserveCoinDenoms:     reserveCoinDenoms,
 		ReserveAccountAddress: reserveAcc.String(),
 		PoolCoinDenom:         PoolCoinDenom,

@@ -54,7 +54,7 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 	require.Equal(t, deposit, depositBalance)
 
 	// create Liquidity pool
-	poolTypeIndex := types.DefaultPoolTypeId
+	poolTypeId := types.DefaultPoolTypeId
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
@@ -91,7 +91,7 @@ func TestSwapExecution(t *testing.T) {
 	require.Equal(t, deposit, depositBalance)
 
 	// create Liquidity pool
-	poolTypeIndex := types.DefaultPoolTypeId
+	poolTypeId := types.DefaultPoolTypeId
 	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
