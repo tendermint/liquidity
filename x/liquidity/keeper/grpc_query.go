@@ -94,9 +94,9 @@ func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPool
 	}, nil
 }
 
-// LiquidityPoolsBatch queries all liquidity pools batch.
-func (k Querier) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidityPoolsBatchRequest) (*types.QueryLiquidityPoolsBatchResponse, error) {
-	empty := &types.QueryLiquidityPoolsBatchRequest{}
+// LiquidityPoolsBatches queries all liquidity pools batch.
+func (k Querier) LiquidityPoolsBatches(c context.Context, req *types.QueryLiquidityPoolsBatchesRequest) (*types.QueryLiquidityPoolsBatchesResponse, error) {
+	empty := &types.QueryLiquidityPoolsBatchesRequest{}
 	if req == nil || req == empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
@@ -105,17 +105,14 @@ func (k Querier) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidit
 
 	store := ctx.KVStore(k.storeKey)
 	batchStore := prefix.NewStore(store, types.PoolBatchKeyPrefix)
-	var response []types.QueryLiquidityPoolBatchResponse
+	var batches []types.PoolBatch
 
 	pageRes, err := query.Paginate(batchStore, req.Pagination, func(key []byte, value []byte) error {
 		batch, err := types.UnmarshalLiquidityPoolBatch(k.cdc, value)
 		if err != nil {
 			return err
 		}
-		res := &types.QueryLiquidityPoolBatchResponse{
-			Batch: batch,
-		}
-		response = append(response, *res)
+		batches = append(batches, batch)
 		return nil
 	})
 
@@ -123,8 +120,8 @@ func (k Querier) LiquidityPoolsBatch(c context.Context, req *types.QueryLiquidit
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryLiquidityPoolsBatchResponse{
-		PoolsBatch: response,
+	return &types.QueryLiquidityPoolsBatchesResponse{
+		Batches:    batches,
 		Pagination: pageRes,
 	}, nil
 }
@@ -307,9 +304,13 @@ func (k Querier) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Pool
 	}
 
 	return &types.QueryLiquidityPoolResponse{
-		LiquidityPool:         pool,
-		LiquidityPoolMetadata: k.GetPoolMetaData(ctx, pool),
-		LiquidityPoolBatch:    batch,
+		PoolId:                pool.PoolId,
+		PoolTypeIndex:         pool.PoolTypeIndex,
+		ReserveCoinDenoms:     pool.ReserveCoinDenoms,
+		ReserveAccountAddress: pool.ReserveAccountAddress,
+		PoolCoinDenom:         pool.PoolCoinDenom,
+		Metadata:              k.GetPoolMetaData(ctx, pool),
+		Batch:                 batch,
 	}, nil
 }
 
@@ -325,9 +326,13 @@ func (k Querier) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Li
 		meta := k.GetPoolMetaData(ctx, pool)
 
 		res := types.QueryLiquidityPoolResponse{
-			LiquidityPool:         pool,
-			LiquidityPoolMetadata: meta,
-			LiquidityPoolBatch:    batch,
+			PoolId:                pool.PoolId,
+			PoolTypeIndex:         pool.PoolTypeIndex,
+			ReserveCoinDenoms:     pool.ReserveCoinDenoms,
+			ReserveAccountAddress: pool.ReserveAccountAddress,
+			PoolCoinDenom:         pool.PoolCoinDenom,
+			Metadata:              meta,
+			Batch:                 batch,
 		}
 
 		resp[i] = res

@@ -148,7 +148,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	liquidityGenesis := types.GenesisState{
 		Params: types.Params{
-			PoolTypes:       liquidityPoolTypes,
+			PoolTypes:                liquidityPoolTypes,
 			MinInitDepositToPool:     minInitDepositToPool,
 			InitPoolCoinMintAmount:   initPoolCoinMintAmount,
 			ReserveCoinLimitAmount:   reserveCoinLimitAmount,

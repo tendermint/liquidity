@@ -309,37 +309,34 @@ paths:
                 items:
                   type: object
                   properties:
-                    liquidity_pool:
-                      type: object
-                      properties:
-                        pool_id:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: id of the pool
-                        pool_type_index:
-                          type: integer
-                          format: uint32
-                          example: '1'
-                          title: index of the pool type
-                        reserve_coin_denoms:
-                          type: array
-                          example:
-                            - denomA
-                            - denomB
-                          items:
-                            type: string
-                          title: denoms of reserve coin pair of the pool
-                        reserve_account_address:
-                          type: string
-                          format: sdk.AccAddress
-                          example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                          title: reserve account address of the pool
-                        pool_coin_denom:
-                          type: string
-                          example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                          title: denom of pool coin of the pool
-                    liquidity_pool_metadata:
+                    pool_id:
+                      type: string
+                      format: uint64
+                      example: '1'
+                      title: id of the pool
+                    pool_type_index:
+                      type: integer
+                      format: uint32
+                      example: '1'
+                      title: index of the pool type
+                    reserve_coin_denoms:
+                      type: array
+                      example:
+                        - denomA
+                        - denomB
+                      items:
+                        type: string
+                      title: denoms of reserve coin pair of the pool
+                    reserve_account_address:
+                      type: string
+                      format: sdk.AccAddress
+                      example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      title: reserve account address of the pool
+                    pool_coin_denom:
+                      type: string
+                      example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      title: denom of pool coin of the pool
+                    metadata:
                       type: object
                       properties:
                         pool_id:
@@ -393,7 +390,7 @@ paths:
 
                               signatures required by gogoproto.
                           title: reserve coins deposited in the pool
-                    liquidity_pool_batch:
+                    batch:
                       type: object
                       properties:
                         pool_id:
@@ -2440,65 +2437,58 @@ paths:
         description: Find out more about the params
         url: >-
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md
-  /liquidity/pools/batch:
+  /liquidity/pools/batches:
     get:
-      summary: Get all liquidity pools batch
+      summary: Get all liquidity pools batches
       description: >-
         It returns list of all batch that all currently existing pools and
         paging results containing next_key and total count.
-      operationId: LiquidityPoolsBatch
+      operationId: LiquidityPoolsBatches
       responses:
         '200':
           description: A successful response.
           schema:
             type: object
             properties:
-              pools_batch:
+              batch:
                 type: array
                 items:
                   type: object
                   properties:
-                    batch:
-                      type: object
-                      properties:
-                        pool_id:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: id of the pool
-                        batch_index:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: index of this batch
-                        begin_height:
-                          type: string
-                          format: int64
-                          example: '1000'
-                          title: height where this batch is begun
-                        deposit_msg_index:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: last index of BatchPoolDepositMsgs
-                        withdraw_msg_index:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: last index of BatchPoolWithdrawMsgs
-                        swap_msg_index:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: last index of BatchPoolSwapMsgs
-                        executed:
-                          type: boolean
-                          example: true
-                          title: 'true if executed, false if not executed yet'
-                  description: >-
-                    the response type for the QueryLiquidityPoolBatchResponse
-                    RPC method. It returns the liquidity pool batch
-                    corresponding to the requested pool_id.
+                    pool_id:
+                      type: string
+                      format: uint64
+                      example: '1'
+                      title: id of the pool
+                    batch_index:
+                      type: string
+                      format: uint64
+                      example: '1'
+                      title: index of this batch
+                    begin_height:
+                      type: string
+                      format: int64
+                      example: '1000'
+                      title: height where this batch is begun
+                    deposit_msg_index:
+                      type: string
+                      format: uint64
+                      example: '1'
+                      title: last index of BatchPoolDepositMsgs
+                    withdraw_msg_index:
+                      type: string
+                      format: uint64
+                      example: '1'
+                      title: last index of BatchPoolWithdrawMsgs
+                    swap_msg_index:
+                      type: string
+                      format: uint64
+                      example: '1'
+                      title: last index of BatchPoolSwapMsgs
+                    executed:
+                      type: boolean
+                      example: true
+                      title: 'true if executed, false if not executed yet'
               pagination:
                 description: >-
                   pagination defines the pagination in the response. not working
@@ -2520,7 +2510,7 @@ paths:
 
                       was set, its value is undefined otherwise
             description: >-
-              the response type for the QueryLiquidityPoolsBatchResponse RPC
+              the response type for the QueryLiquidityPoolsBatchesResponse RPC
               method. This includes list of all batches that all currently
               existing pools and paging results containing next_key and total
               count.
@@ -2626,37 +2616,34 @@ paths:
           schema:
             type: object
             properties:
-              liquidity_pool:
-                type: object
-                properties:
-                  pool_id:
-                    type: string
-                    format: uint64
-                    example: '1'
-                    title: id of the pool
-                  pool_type_index:
-                    type: integer
-                    format: uint32
-                    example: '1'
-                    title: index of the pool type
-                  reserve_coin_denoms:
-                    type: array
-                    example:
-                      - denomA
-                      - denomB
-                    items:
-                      type: string
-                    title: denoms of reserve coin pair of the pool
-                  reserve_account_address:
-                    type: string
-                    format: sdk.AccAddress
-                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                    title: reserve account address of the pool
-                  pool_coin_denom:
-                    type: string
-                    example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                    title: denom of pool coin of the pool
-              liquidity_pool_metadata:
+              pool_id:
+                type: string
+                format: uint64
+                example: '1'
+                title: id of the pool
+              pool_type_index:
+                type: integer
+                format: uint32
+                example: '1'
+                title: index of the pool type
+              reserve_coin_denoms:
+                type: array
+                example:
+                  - denomA
+                  - denomB
+                items:
+                  type: string
+                title: denoms of reserve coin pair of the pool
+              reserve_account_address:
+                type: string
+                format: sdk.AccAddress
+                example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                title: reserve account address of the pool
+              pool_coin_denom:
+                type: string
+                example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                title: denom of pool coin of the pool
+              metadata:
                 type: object
                 properties:
                   pool_id:
@@ -2708,7 +2695,7 @@ paths:
 
                         signatures required by gogoproto.
                     title: reserve coins deposited in the pool
-              liquidity_pool_batch:
+              batch:
                 type: object
                 properties:
                   pool_id:
@@ -5220,36 +5207,6 @@ definitions:
         format: uint32
         example: '1'
         title: The smallest unit batch size for every liquidity pool
-  tendermint.liquidity.Pool:
-    type: object
-    properties:
-      pool_id:
-        type: string
-        format: uint64
-        example: '1'
-        title: id of the pool
-      pool_type_index:
-        type: integer
-        format: uint32
-        example: '1'
-        title: index of the pool type
-      reserve_coin_denoms:
-        type: array
-        example:
-          - denomA
-          - denomB
-        items:
-          type: string
-        title: denoms of reserve coin pair of the pool
-      reserve_account_address:
-        type: string
-        format: sdk.AccAddress
-        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-        title: reserve account address of the pool
-      pool_coin_denom:
-        type: string
-        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-        title: denom of pool coin of the pool
   tendermint.liquidity.PoolBatch:
     type: object
     properties:
@@ -5408,37 +5365,34 @@ definitions:
   tendermint.liquidity.QueryLiquidityPoolResponse:
     type: object
     properties:
-      liquidity_pool:
-        type: object
-        properties:
-          pool_id:
-            type: string
-            format: uint64
-            example: '1'
-            title: id of the pool
-          pool_type_index:
-            type: integer
-            format: uint32
-            example: '1'
-            title: index of the pool type
-          reserve_coin_denoms:
-            type: array
-            example:
-              - denomA
-              - denomB
-            items:
-              type: string
-            title: denoms of reserve coin pair of the pool
-          reserve_account_address:
-            type: string
-            format: sdk.AccAddress
-            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-            title: reserve account address of the pool
-          pool_coin_denom:
-            type: string
-            example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-            title: denom of pool coin of the pool
-      liquidity_pool_metadata:
+      pool_id:
+        type: string
+        format: uint64
+        example: '1'
+        title: id of the pool
+      pool_type_index:
+        type: integer
+        format: uint32
+        example: '1'
+        title: index of the pool type
+      reserve_coin_denoms:
+        type: array
+        example:
+          - denomA
+          - denomB
+        items:
+          type: string
+        title: denoms of reserve coin pair of the pool
+      reserve_account_address:
+        type: string
+        format: sdk.AccAddress
+        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+        title: reserve account address of the pool
+      pool_coin_denom:
+        type: string
+        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+        title: denom of pool coin of the pool
+      metadata:
         type: object
         properties:
           pool_id:
@@ -5490,7 +5444,7 @@ definitions:
 
                 signatures required by gogoproto.
             title: reserve coins deposited in the pool
-      liquidity_pool_batch:
+      batch:
         type: object
         properties:
           pool_id:
@@ -5531,55 +5485,48 @@ definitions:
       the response type for the QueryLiquidityPoolResponse RPC method. It
       returns the liquidity pool with batch and metadata containing total pool
       coin supply and reserved coins corresponding to the requested pool_id.
-  tendermint.liquidity.QueryLiquidityPoolsBatchResponse:
+  tendermint.liquidity.QueryLiquidityPoolsBatchesResponse:
     type: object
     properties:
-      pools_batch:
+      batch:
         type: array
         items:
           type: object
           properties:
-            batch:
-              type: object
-              properties:
-                pool_id:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: id of the pool
-                batch_index:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: index of this batch
-                begin_height:
-                  type: string
-                  format: int64
-                  example: '1000'
-                  title: height where this batch is begun
-                deposit_msg_index:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: last index of BatchPoolDepositMsgs
-                withdraw_msg_index:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: last index of BatchPoolWithdrawMsgs
-                swap_msg_index:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: last index of BatchPoolSwapMsgs
-                executed:
-                  type: boolean
-                  example: true
-                  title: 'true if executed, false if not executed yet'
-          description: >-
-            the response type for the QueryLiquidityPoolBatchResponse RPC
-            method. It returns the liquidity pool batch corresponding to the
-            requested pool_id.
+            pool_id:
+              type: string
+              format: uint64
+              example: '1'
+              title: id of the pool
+            batch_index:
+              type: string
+              format: uint64
+              example: '1'
+              title: index of this batch
+            begin_height:
+              type: string
+              format: int64
+              example: '1000'
+              title: height where this batch is begun
+            deposit_msg_index:
+              type: string
+              format: uint64
+              example: '1'
+              title: last index of BatchPoolDepositMsgs
+            withdraw_msg_index:
+              type: string
+              format: uint64
+              example: '1'
+              title: last index of BatchPoolWithdrawMsgs
+            swap_msg_index:
+              type: string
+              format: uint64
+              example: '1'
+              title: last index of BatchPoolSwapMsgs
+            executed:
+              type: boolean
+              example: true
+              title: 'true if executed, false if not executed yet'
       pagination:
         description: >-
           pagination defines the pagination in the response. not working on this
@@ -5601,7 +5548,7 @@ definitions:
 
               was set, its value is undefined otherwise
     description: >-
-      the response type for the QueryLiquidityPoolsBatchResponse RPC method.
+      the response type for the QueryLiquidityPoolsBatchesResponse RPC method.
       This includes list of all batches that all currently existing pools and
       paging results containing next_key and total count.
   tendermint.liquidity.QueryLiquidityPoolsResponse:
@@ -5612,37 +5559,34 @@ definitions:
         items:
           type: object
           properties:
-            liquidity_pool:
-              type: object
-              properties:
-                pool_id:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: id of the pool
-                pool_type_index:
-                  type: integer
-                  format: uint32
-                  example: '1'
-                  title: index of the pool type
-                reserve_coin_denoms:
-                  type: array
-                  example:
-                    - denomA
-                    - denomB
-                  items:
-                    type: string
-                  title: denoms of reserve coin pair of the pool
-                reserve_account_address:
-                  type: string
-                  format: sdk.AccAddress
-                  example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                  title: reserve account address of the pool
-                pool_coin_denom:
-                  type: string
-                  example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
-                  title: denom of pool coin of the pool
-            liquidity_pool_metadata:
+            pool_id:
+              type: string
+              format: uint64
+              example: '1'
+              title: id of the pool
+            pool_type_index:
+              type: integer
+              format: uint32
+              example: '1'
+              title: index of the pool type
+            reserve_coin_denoms:
+              type: array
+              example:
+                - denomA
+                - denomB
+              items:
+                type: string
+              title: denoms of reserve coin pair of the pool
+            reserve_account_address:
+              type: string
+              format: sdk.AccAddress
+              example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              title: reserve account address of the pool
+            pool_coin_denom:
+              type: string
+              example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              title: denom of pool coin of the pool
+            metadata:
               type: object
               properties:
                 pool_id:
@@ -5694,7 +5638,7 @@ definitions:
 
                       signatures required by gogoproto.
                   title: reserve coins deposited in the pool
-            liquidity_pool_batch:
+            batch:
               type: object
               properties:
                 pool_id:

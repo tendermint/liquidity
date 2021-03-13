@@ -31,7 +31,7 @@ const (
 
 // Parameter store keys
 var (
-	KeyPoolTypes       = []byte("PoolTypes")
+	KeyPoolTypes                = []byte("PoolTypes")
 	KeyMinInitDepositToPool     = []byte("MinInitDepositToPool")
 	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
 	KeyReserveCoinLimitAmount   = []byte("ReserveCoinLimitAmount")
@@ -67,7 +67,7 @@ var (
 func NewParams(liquidityPoolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
 	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
 	return Params{
-		PoolTypes:       liquidityPoolTypes,
+		PoolTypes:                liquidityPoolTypes,
 		MinInitDepositToPool:     minInitDeposit,
 		InitPoolCoinMintAmount:   initPoolCoinMint,
 		ReserveCoinLimitAmount:   reserveCoinLimit,
