@@ -9,13 +9,13 @@ import (
 )
 
 // Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.
-func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.LiquidityPoolBatch) (uint64, error) {
+func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatch) (uint64, error) {
 	// get All only not processed swap msgs, not executed, not succeed, not toDelete
-	swapMsgs := k.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, liquidityPoolBatch)
+	swapMsgs := k.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, liquidityPoolBatch)
 	if len(swapMsgs) == 0 {
 		return 0, nil
 	}
-	pool, found := k.GetLiquidityPool(ctx, liquidityPoolBatch.PoolId)
+	pool, found := k.GetPool(ctx, liquidityPoolBatch.PoolId)
 	if !found {
 		return 0, types.ErrPoolNotExists
 	}
@@ -23,7 +23,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 	for _, msg := range swapMsgs {
 		msg.Executed = true
 	}
-	k.SetLiquidityPoolBatchSwapMsgPointers(ctx, pool.PoolId, swapMsgs)
+	k.SetPoolBatchSwapMsgStatesByPointer(ctx, pool.PoolId, swapMsgs)
 
 	currentHeight := ctx.BlockHeight()
 	invariantCheckFlag := true // temporary flag for test
@@ -267,8 +267,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.Liquidit
 }
 
 // Update Buy, Sell swap batch messages using the result of match.
-func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.BatchPoolSwapMsg, matchResultXtoY, matchResultYtoX []types.MatchResult) (
-	[]*types.BatchPoolSwapMsg, []*types.BatchPoolSwapMsg, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec, int, int, sdk.Dec, sdk.Dec) {
+func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult) (
+	[]*types.SwapMsgState, []*types.SwapMsgState, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec, int, int, sdk.Dec, sdk.Dec) {
 	sort.SliceStable(XtoY, func(i, j int) bool {
 		return XtoY[i].Msg.OrderPrice.GT(XtoY[j].Msg.OrderPrice)
 	})

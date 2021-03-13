@@ -15,16 +15,16 @@ import (
 func NewDecodeStore(cdc codec.Marshaler) func(kvA, kvB kv.Pair) string {
 	return func(kvA, kvB kv.Pair) string {
 		switch {
-		case bytes.Equal(kvA.Key[:1], types.LiquidityPoolKeyPrefix),
-			bytes.Equal(kvA.Key[:1], types.LiquidityPoolByReserveIndexKeyPrefix):
-			var lpA, lpB types.LiquidityPool
+		case bytes.Equal(kvA.Key[:1], types.PoolKeyPrefix),
+			bytes.Equal(kvA.Key[:1], types.PoolByReserveAccIndexKeyPrefix):
+			var lpA, lpB types.Pool
 			cdc.MustUnmarshalBinaryBare(kvA.Value, &lpA)
 			cdc.MustUnmarshalBinaryBare(kvA.Value, &lpB)
 			return fmt.Sprintf("%v\n%v", lpA, lpB)
 
-		case bytes.Equal(kvA.Key[:1], types.LiquidityPoolBatchIndexKeyPrefix),
-			bytes.Equal(kvA.Key[:1], types.LiquidityPoolBatchKeyPrefix):
-			var lpbA, lpbB types.LiquidityPoolBatch
+		case bytes.Equal(kvA.Key[:1], types.PoolBatchIndexKeyPrefix),
+			bytes.Equal(kvA.Key[:1], types.PoolBatchKeyPrefix):
+			var lpbA, lpbB types.PoolBatch
 			cdc.MustUnmarshalBinaryBare(kvA.Value, &lpbA)
 			cdc.MustUnmarshalBinaryBare(kvA.Value, &lpbB)
 			return fmt.Sprintf("%v\n%v", lpbA, lpbB)

@@ -17,11 +17,11 @@ type KeeperTestSuite struct {
 	app          *app.LiquidityApp
 	ctx          sdk.Context
 	addrs        []sdk.AccAddress
-	pools        []types.LiquidityPool
-	batches      []types.LiquidityPoolBatch
-	depositMsgs  []types.BatchPoolDepositMsg
-	withdrawMsgs []types.BatchPoolWithdrawMsg
-	swapMsgs     []types.BatchPoolSwapMsg
+	pools        []types.Pool
+	batches      []types.PoolBatch
+	depositMsgs  []types.DepositMsgState
+	withdrawMsgs []types.WithdrawMsgState
+	swapMsgs     []types.SwapMsgState
 	queryClient  types.QueryClient
 }
 
