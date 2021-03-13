@@ -17,14 +17,14 @@ func TestDecodeLiquidityStore(t *testing.T) {
 	cdc, _ := simapp.MakeCodecs()
 	dec := simulation.NewDecodeStore(cdc)
 
-	liquidityPool := types.LiquidityPool{}
+	liquidityPool := types.Pool{}
 	liquidityPool.PoolId = 1
-	liquidityPoolBatch := types.NewLiquidityPoolBatch(1, 1)
+	liquidityPoolBatch := types.NewPoolBatch(1, 1)
 
 	kvPairs := kv.Pairs{
 		Pairs: []kv.Pair{
-			{Key: types.LiquidityPoolKeyPrefix, Value: cdc.MustMarshalBinaryBare(&liquidityPool)},
-			{Key: types.LiquidityPoolBatchKeyPrefix, Value: cdc.MustMarshalBinaryBare(&liquidityPoolBatch)},
+			{Key: types.PoolKeyPrefix, Value: cdc.MustMarshalBinaryBare(&liquidityPool)},
+			{Key: types.PoolBatchKeyPrefix, Value: cdc.MustMarshalBinaryBare(&liquidityPoolBatch)},
 			{Key: []byte{0x99}, Value: []byte{0x99}},
 		},
 	}
@@ -33,8 +33,8 @@ func TestDecodeLiquidityStore(t *testing.T) {
 		name        string
 		expectedLog string
 	}{
-		{"LiquidityPool", fmt.Sprintf("%v\n%v", liquidityPool, liquidityPool)},
-		{"LiquidityPoolBatch", fmt.Sprintf("%v\n%v", liquidityPoolBatch, liquidityPoolBatch)},
+		{"Pool", fmt.Sprintf("%v\n%v", liquidityPool, liquidityPool)},
+		{"PoolBatch", fmt.Sprintf("%v\n%v", liquidityPoolBatch, liquidityPoolBatch)},
 		{"other", ""},
 	}
 	for i, tt := range tests {

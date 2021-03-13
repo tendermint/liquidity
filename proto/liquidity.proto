@@ -9,7 +9,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 option (gogoproto.goproto_getters_all) = false;
 
-message LiquidityPoolType {
+message PoolType {
     option (gogoproto.equal) = true;
 
     // index of target pool type, only 1 is allowed on this version.
@@ -48,8 +48,8 @@ message Params {
     option (gogoproto.goproto_stringer) = false;
 
     // list of available pool types
-    repeated LiquidityPoolType liquidity_pool_types = 1 [
-        (gogoproto.moretags) = "yaml:\"liquidity_pool_types\"",
+    repeated PoolType pool_types = 1 [
+        (gogoproto.moretags) = "yaml:\"pool_types\"",
         (gogoproto.nullable) = false
     ];
 
@@ -143,7 +143,7 @@ message Params {
     //        }];
 }
 
-message LiquidityPool {
+message Pool {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
 
@@ -181,7 +181,7 @@ message LiquidityPool {
         }];
 }
 
-message LiquidityPoolMetadata {
+message PoolMetadata {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
 
@@ -212,7 +212,7 @@ message LiquidityPoolMetadata {
         }];
 }
 
-message LiquidityPoolBatch {
+message PoolBatch {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
 
@@ -237,21 +237,21 @@ message LiquidityPoolBatch {
             format: "int64"
         }];
 
-    // last index of BatchPoolDepositMsgs
+    // last index of DepositMsgStates
     uint64 deposit_msg_index = 4 [(gogoproto.moretags) = "yaml:\"deposit_msg_index\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"
         }];
 
-    // last index of BatchPoolWithdrawMsgs
+    // last index of WithdrawMsgStates
     uint64 withdraw_msg_index = 5 [(gogoproto.moretags) = "yaml:\"withdraw_msg_index\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"
         }];
 
-    // last index of BatchPoolSwapMsgs
+    // last index of SwapMsgStates
     uint64 swap_msg_index = 6 [(gogoproto.moretags) = "yaml:\"swap_msg_index\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
@@ -265,7 +265,7 @@ message LiquidityPoolBatch {
         }];
 }
 
-message BatchPoolDepositMsg {
+message DepositMsgState {
 
     // height where this message is appended to the batch
     int64 msg_height = 1 [(gogoproto.moretags) = "yaml:\"msg_height\"",
@@ -303,7 +303,7 @@ message BatchPoolDepositMsg {
     MsgDepositToLiquidityPool msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
-message BatchPoolWithdrawMsg {
+message WithdrawMsgState {
 
     // height where this message is appended to the batch
     int64 msg_height = 1 [(gogoproto.moretags) = "yaml:\"msg_height\"",
@@ -341,7 +341,7 @@ message BatchPoolWithdrawMsg {
     MsgWithdrawFromLiquidityPool msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
-message BatchPoolSwapMsg {
+message SwapMsgState {
 
     // height where this message is appended to the batch
     int64 msg_height = 1 [(gogoproto.moretags) = "yaml:\"msg_height\"",

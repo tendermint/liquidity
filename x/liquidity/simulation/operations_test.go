@@ -247,7 +247,7 @@ func setupLiquidityPools(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx 
 
 		createPoolMsg := types.NewMsgCreateLiquidityPool(account.GetAddress(), types.DefaultPoolTypeIndex, depositCoins)
 
-		_, err = app.LiquidityKeeper.CreateLiquidityPool(ctx, createPoolMsg)
+		_, err = app.LiquidityKeeper.CreatePool(ctx, createPoolMsg)
 		require.NoError(t, err)
 	}
 }

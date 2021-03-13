@@ -35,7 +35,7 @@ func queryLiquidityPool(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacy
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
-	liquidityPool, found := k.GetLiquidityPool(ctx, params.PoolId)
+	liquidityPool, found := k.GetPool(ctx, params.PoolId)
 	if !found {
 		return nil, types.ErrPoolNotExists
 	}
@@ -55,7 +55,7 @@ func queryLiquidityPools(ctx sdk.Context, req abci.RequestQuery, k Keeper, legac
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
-	liquidityPools := k.GetAllLiquidityPools(ctx)
+	liquidityPools := k.GetAllPools(ctx)
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, liquidityPools)
 	if err != nil {

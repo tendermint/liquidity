@@ -10,11 +10,11 @@ Three messages on the liquidity module need prior coin escrow before confirmatio
 
 ### MsgDepositToLiquidityPool
 
-To deposit coins into existing `LiquidityPool`, the depositor needs to escrow `DepositCoins` into `LiquidityModuleEscrowAccount`.
+To deposit coins into existing `Pool`, the depositor needs to escrow `DepositCoins` into `LiquidityModuleEscrowAccount`.
 
 ### MsgWithdrawFromLiquidityPool
 
-To withdraw coins from `LiquidityPool`, the withdrawer needs to escrow `PoolCoin` into `LiquidityModuleEscrowAccount`.
+To withdraw coins from `Pool`, the withdrawer needs to escrow `PoolCoin` into `LiquidityModuleEscrowAccount`.
 
 ### MsgSwap
 
@@ -22,17 +22,17 @@ To request coin swap, swap requestor needs to escrow `OfferCoin` into `Liquidity
 
 ## LiquidityPoolBatch Execution
 
-Batch execution causes state transitions on `Bank` module. Below categories describes state transition executed by each process in `LiquidityPoolBatch` execution.
+Batch execution causes state transitions on `Bank` module. Below categories describes state transition executed by each process in `PoolBatch` execution.
 
 ### Coin Swap
 
-After successful coin swap, coins accumulated in `LiquidityModuleEscrowAccount` for coin swaps are sent to other swap requestors(self-swap) or to the `LiquidityPool`(pool-swap). Also fees are sent to the `LiquidityPool`.
+After successful coin swap, coins accumulated in `LiquidityModuleEscrowAccount` for coin swaps are sent to other swap requestors(self-swap) or to the `Pool`(pool-swap). Also fees are sent to the `Pool`.
 
 ### LiquidityPool Deposit and Withdraw
 
-For deposit, after successful deposit, escrowed coins are sent to the `ReserveAccount` of targeted `LiquidityPool`, and new pool coins are minted and sent to the depositor.
+For deposit, after successful deposit, escrowed coins are sent to the `ReserveAccount` of targeted `Pool`, and new pool coins are minted and sent to the depositor.
 
-For withdrawal, after successful withdraw, escrowed pool coins are burnt, and corresponding amount of reserve coins are sent to the withdrawer from the `LiquidityPool`.
+For withdrawal, after successful withdraw, escrowed pool coins are burnt, and corresponding amount of reserve coins are sent to the withdrawer from the `Pool`.
 
 ### Pseudo Algorithm for LiquidityPoolBatch Execution
 
@@ -167,7 +167,7 @@ simulation script (in python) : [https://github.com/b-harvest/Liquidity-Module-F
 
 **3) Cancel unexecuted swap orders with expired CancelHeight**
 
-After execution of `LiquidityPoolBatch`, all remaining swap orders with `CancelHeight` equal or higher than current height are cancelled.
+After execution of `PoolBatch`, all remaining swap orders with `CancelHeight` equal or higher than current height are cancelled.
 
 **4) Refund escrowed coins**
 

@@ -11,7 +11,7 @@ import (
 
 func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	pool, found := app.LiquidityKeeper.GetLiquidityPool(ctx, suite.pools[0].PoolId)
+	pool, found := app.LiquidityKeeper.GetPool(ctx, suite.pools[0].PoolId)
 	suite.True(found)
 
 	var req *types.QueryLiquidityPoolRequest
@@ -41,7 +41,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 			res, err := queryClient.LiquidityPool(gocontext.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
-				suite.True(pool.Equal(&res.LiquidityPool))
+				suite.Equal(pool.PoolId, res.PoolId)
 			} else {
 				suite.Error(err)
 				suite.Nil(res)
@@ -52,7 +52,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 
 func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	pools := app.LiquidityKeeper.GetAllLiquidityPools(ctx)
+	pools := app.LiquidityKeeper.GetAllPools(ctx)
 
 	var req *types.QueryLiquidityPoolsRequest
 	testCases := []struct {
@@ -115,7 +115,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 
 func (suite *KeeperTestSuite) TestGRPCLiquidityPoolBatch() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	batch, found := app.LiquidityKeeper.GetLiquidityPoolBatch(ctx, suite.pools[0].PoolId)
+	batch, found := app.LiquidityKeeper.GetPoolBatch(ctx, suite.pools[0].PoolId)
 	suite.True(found)
 
 	var req *types.QueryLiquidityPoolBatchRequest
@@ -156,7 +156,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPoolBatch() {
 
 func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	msgs := app.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, suite.batches[0])
+	msgs := app.LiquidityKeeper.GetAllPoolBatchDepositMsgs(ctx, suite.batches[0])
 
 	var req *types.QueryPoolBatchDepositMsgsRequest
 	testCases := []struct {
@@ -230,7 +230,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 
 func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	msgs := app.LiquidityKeeper.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, suite.batches[0])
+	msgs := app.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, suite.batches[0])
 
 	var req *types.QueryPoolBatchWithdrawMsgsRequest
 	testCases := []struct {
@@ -304,7 +304,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 
 func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	msgs := app.LiquidityKeeper.GetAllLiquidityPoolBatchSwapMsgsAsPointer(ctx, suite.batches[0])
+	msgs := app.LiquidityKeeper.GetAllPoolBatchSwapMsgStatesAsPointer(ctx, suite.batches[0])
 
 	var req *types.QueryPoolBatchSwapMsgsRequest
 	testCases := []struct {

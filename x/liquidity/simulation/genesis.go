@@ -28,8 +28,8 @@ const (
 )
 
 // GenLiquidityPoolTypes return default PoolType temporarily, It will be randomized in the liquidity v2
-func GenLiquidityPoolTypes(r *rand.Rand) (liquidityPoolTypes []types.LiquidityPoolType) {
-	liquidityPoolTypes = append(liquidityPoolTypes, types.DefaultLiquidityPoolType)
+func GenLiquidityPoolTypes(r *rand.Rand) (liquidityPoolTypes []types.PoolType) {
+	liquidityPoolTypes = append(liquidityPoolTypes, types.DefaultPoolType)
 	return liquidityPoolTypes
 }
 
@@ -92,7 +92,7 @@ func GenUnitBatchSize(r *rand.Rand) uint32 {
 
 // RandomizedGenState generates a random GenesisState for liquidity
 func RandomizedGenState(simState *module.SimulationState) {
-	var liquidityPoolTypes []types.LiquidityPoolType
+	var liquidityPoolTypes []types.PoolType
 	simState.AppParams.GetOrGenerate(
 		simState.Cdc, LiquidityPoolTypes, &liquidityPoolTypes, simState.Rand,
 		func(r *rand.Rand) { liquidityPoolTypes = GenLiquidityPoolTypes(r) },
@@ -148,7 +148,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	liquidityGenesis := types.GenesisState{
 		Params: types.Params{
-			LiquidityPoolTypes:       liquidityPoolTypes,
+			PoolTypes:                liquidityPoolTypes,
 			MinInitDepositToPool:     minInitDepositToPool,
 			InitPoolCoinMintAmount:   initPoolCoinMintAmount,
 			ReserveCoinLimitAmount:   reserveCoinLimitAmount,
@@ -158,7 +158,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 			MaxOrderAmountRatio:      maxOrderAmountRatio,
 			UnitBatchSize:            unitBatchSize,
 		},
-		LiquidityPoolRecords: []types.LiquidityPoolRecord{},
+		PoolRecords: []types.PoolRecord{},
 	}
 
 	bz, err := json.MarshalIndent(&liquidityGenesis, "", " ")

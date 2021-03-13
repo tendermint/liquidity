@@ -10,7 +10,7 @@ The liquidity module contains the following parameters:
 
 | Key                      | Type                | Example                                                                                                                          |
 | ------------------------ | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| LiquidityPoolTypes       | []LiquidityPoolType | [{"pool_type_index":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
+| PoolTypes                | []PoolType          | [{"pool_type_index":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
 | MinInitDepositToPool     | string (sdk.Int)    | "1000000"                                                                                                                        |
 | InitPoolCoinMintAmount   | string (sdk.Int)    | "1000000"                                                                                                                        |
 | ReserveCoinLimitAmount   | string (sdk.Int)    | "1000000000000"                                                                                                                  |
@@ -20,12 +20,12 @@ The liquidity module contains the following parameters:
 | MaxOrderAmountRatio      | string (sdk.Dec)    | "0.100000000000000000"                                                                                                           |
 | UnitBatchSize            | uint32              | 1                                                                                                                                |
 
-## LiquidityPoolTypes
+## PoolTypes
 
-List of available LiquidityPoolType
+List of available PoolType
 
 ```go
-type LiquidityPoolType struct {
+type PoolType struct {
 	PoolTypeIndex         uint32
 	Name                  string
 	MinReserveCoinNum     uint32
@@ -83,4 +83,4 @@ The life span of swap orders in block heights
 
 ## MinReserveCoinNum, MaxReserveCoinNum
 
-min, max number of reserveCoins for LiquidityPoolType on this spec
+min, max number of reserveCoins for `PoolType` on this spec

@@ -28,7 +28,7 @@ var _ types.MsgServer = msgServer{}
 // Message server, handler for CreateLiquidityPool msg
 func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCreateLiquidityPool) (*types.MsgCreateLiquidityPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	pool, err := k.Keeper.CreateLiquidityPool(ctx, msg)
+	pool, err := k.Keeper.CreatePool(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCrea
 			types.EventTypeCreateLiquidityPool,
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolTypeIndex, fmt.Sprintf("%d", msg.PoolTypeIndex)),
-			sdk.NewAttribute(types.AttributeValueReserveCoinDenoms, pool.GetPoolKey()),
+			sdk.NewAttribute(types.AttributeValueReserveCoinDenoms, pool.Name()),
 			sdk.NewAttribute(types.AttributeValueReserveAccount, pool.ReserveAccountAddress),
 			sdk.NewAttribute(types.AttributeValueDepositCoins, msg.DepositCoins.String()),
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, pool.PoolCoinDenom),
@@ -58,8 +58,8 @@ func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCrea
 // Message server, handler for MsgDepositToLiquidityPool
 func (k msgServer) DepositToLiquidityPool(goCtx context.Context, msg *types.MsgDepositToLiquidityPool) (*types.MsgDepositToLiquidityPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	// TODO: remove redundant GetLiquidityPoolBatch
-	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolId)
+	// TODO: remove redundant GetPoolBatch
+	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
@@ -88,8 +88,8 @@ func (k msgServer) DepositToLiquidityPool(goCtx context.Context, msg *types.MsgD
 // Message server, handler for MsgWithdrawFromLiquidityPool
 func (k msgServer) WithdrawFromLiquidityPool(goCtx context.Context, msg *types.MsgWithdrawFromLiquidityPool) (*types.MsgWithdrawFromLiquidityPoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	// TODO: remove redundant GetLiquidityPoolBatch
-	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolId)
+	// TODO: remove redundant GetPoolBatch
+	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
@@ -123,8 +123,8 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSw
 	if msg.OfferCoinFee.IsZero() {
 		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
 	}
-	// TODO: remove redundant GetLiquidityPoolBatch
-	poolBatch, found := k.GetLiquidityPoolBatch(ctx, msg.PoolId)
+	// TODO: remove redundant GetPoolBatch
+	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
