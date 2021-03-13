@@ -64,10 +64,10 @@ var (
 )
 
 // NewParams liquidity paramtypes constructor
-func NewParams(liquidityPoolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
+func NewParams(poolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
 	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
 	return Params{
-		PoolTypes:                liquidityPoolTypes,
+		PoolTypes:                poolTypes,
 		MinInitDepositToPool:     minInitDeposit,
 		InitPoolCoinMintAmount:   initPoolCoinMint,
 		ReserveCoinLimitAmount:   reserveCoinLimit,

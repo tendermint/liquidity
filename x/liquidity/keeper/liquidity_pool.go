@@ -179,7 +179,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (
 	}
 
 	pool = k.SetPoolAtomic(ctx, pool)
-	batch := types.NewLiquidityPoolBatch(pool.PoolId, 1)
+	batch := types.NewPoolBatch(pool.PoolId, 1)
 
 	k.SetPoolBatch(ctx, batch)
 

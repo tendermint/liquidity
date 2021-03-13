@@ -59,7 +59,7 @@ func (k Querier) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidity
 	}, nil
 }
 
-// LiquidityPools queries all liquidity pools currently existed with each liquidity pool with batch and metadata.
+// Pools queries all liquidity pools currently existed with each liquidity pool with batch and metadata.
 func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPoolsRequest) (*types.QueryLiquidityPoolsResponse, error) {
 	empty := &types.QueryLiquidityPoolsRequest{}
 	if req == nil || req == empty {
@@ -71,10 +71,10 @@ func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPool
 	store := ctx.KVStore(k.storeKey)
 	poolStore := prefix.NewStore(store, types.PoolKeyPrefix)
 
-	var pools types.LiquidityPools
+	var pools types.Pools
 
 	pageRes, err := query.Paginate(poolStore, req.Pagination, func(key []byte, value []byte) error {
-		pool, err := types.UnmarshalLiquidityPool(k.cdc, value)
+		pool, err := types.UnmarshalPool(k.cdc, value)
 		if err != nil {
 			return err
 		}
@@ -108,7 +108,7 @@ func (k Querier) LiquidityPoolsBatches(c context.Context, req *types.QueryLiquid
 	var batches []types.PoolBatch
 
 	pageRes, err := query.Paginate(batchStore, req.Pagination, func(key []byte, value []byte) error {
-		batch, err := types.UnmarshalLiquidityPoolBatch(k.cdc, value)
+		batch, err := types.UnmarshalPoolBatch(k.cdc, value)
 		if err != nil {
 			return err
 		}
@@ -315,7 +315,7 @@ func (k Querier) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Pool
 }
 
 // MakeQueryLiquidityPoolsResponse wraps a list of QueryLiquidityPoolResponses.
-func (k Querier) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.LiquidityPools) (*[]types.QueryLiquidityPoolResponse, error) {
+func (k Querier) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Pools) (*[]types.QueryLiquidityPoolResponse, error) {
 	resp := make([]types.QueryLiquidityPoolResponse, len(pools))
 	for i, pool := range pools {
 		batch, found := k.GetPoolBatch(ctx, pool.PoolId)

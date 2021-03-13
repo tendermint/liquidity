@@ -237,21 +237,21 @@ message PoolBatch {
             format: "int64"
         }];
 
-    // last index of BatchPoolDepositMsgs
+    // last index of DepositMsgStates
     uint64 deposit_msg_index = 4 [(gogoproto.moretags) = "yaml:\"deposit_msg_index\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"
         }];
 
-    // last index of BatchPoolWithdrawMsgs
+    // last index of WithdrawMsgStates
     uint64 withdraw_msg_index = 5 [(gogoproto.moretags) = "yaml:\"withdraw_msg_index\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"
         }];
 
-    // last index of BatchPoolSwapMsgs
+    // last index of SwapMsgStates
     uint64 swap_msg_index = 6 [(gogoproto.moretags) = "yaml:\"swap_msg_index\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",

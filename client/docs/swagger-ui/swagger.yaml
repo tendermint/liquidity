@@ -412,17 +412,17 @@ paths:
                           type: string
                           format: uint64
                           example: '1'
-                          title: last index of BatchPoolDepositMsgs
+                          title: last index of DepositMsgStates
                         withdraw_msg_index:
                           type: string
                           format: uint64
                           example: '1'
-                          title: last index of BatchPoolWithdrawMsgs
+                          title: last index of WithdrawMsgStates
                         swap_msg_index:
                           type: string
                           format: uint64
                           example: '1'
-                          title: last index of BatchPoolSwapMsgs
+                          title: last index of SwapMsgStates
                         executed:
                           type: boolean
                           example: true
@@ -2450,7 +2450,7 @@ paths:
           schema:
             type: object
             properties:
-              batch:
+              batches:
                 type: array
                 items:
                   type: object
@@ -2474,17 +2474,17 @@ paths:
                       type: string
                       format: uint64
                       example: '1'
-                      title: last index of BatchPoolDepositMsgs
+                      title: last index of DepositMsgStates
                     withdraw_msg_index:
                       type: string
                       format: uint64
                       example: '1'
-                      title: last index of BatchPoolWithdrawMsgs
+                      title: last index of WithdrawMsgStates
                     swap_msg_index:
                       type: string
                       format: uint64
                       example: '1'
-                      title: last index of BatchPoolSwapMsgs
+                      title: last index of SwapMsgStates
                     executed:
                       type: boolean
                       example: true
@@ -2717,17 +2717,17 @@ paths:
                     type: string
                     format: uint64
                     example: '1'
-                    title: last index of BatchPoolDepositMsgs
+                    title: last index of DepositMsgStates
                   withdraw_msg_index:
                     type: string
                     format: uint64
                     example: '1'
-                    title: last index of BatchPoolWithdrawMsgs
+                    title: last index of WithdrawMsgStates
                   swap_msg_index:
                     type: string
                     format: uint64
                     example: '1'
-                    title: last index of BatchPoolSwapMsgs
+                    title: last index of SwapMsgStates
                   executed:
                     type: boolean
                     example: true
@@ -2819,17 +2819,17 @@ paths:
                     type: string
                     format: uint64
                     example: '1'
-                    title: last index of BatchPoolDepositMsgs
+                    title: last index of DepositMsgStates
                   withdraw_msg_index:
                     type: string
                     format: uint64
                     example: '1'
-                    title: last index of BatchPoolWithdrawMsgs
+                    title: last index of WithdrawMsgStates
                   swap_msg_index:
                     type: string
                     format: uint64
                     example: '1'
-                    title: last index of BatchPoolSwapMsgs
+                    title: last index of SwapMsgStates
                   executed:
                     type: boolean
                     example: true
@@ -5229,17 +5229,17 @@ definitions:
         type: string
         format: uint64
         example: '1'
-        title: last index of BatchPoolDepositMsgs
+        title: last index of DepositMsgStates
       withdraw_msg_index:
         type: string
         format: uint64
         example: '1'
-        title: last index of BatchPoolWithdrawMsgs
+        title: last index of WithdrawMsgStates
       swap_msg_index:
         type: string
         format: uint64
         example: '1'
-        title: last index of BatchPoolSwapMsgs
+        title: last index of SwapMsgStates
       executed:
         type: boolean
         example: true
@@ -5344,17 +5344,17 @@ definitions:
             type: string
             format: uint64
             example: '1'
-            title: last index of BatchPoolDepositMsgs
+            title: last index of DepositMsgStates
           withdraw_msg_index:
             type: string
             format: uint64
             example: '1'
-            title: last index of BatchPoolWithdrawMsgs
+            title: last index of WithdrawMsgStates
           swap_msg_index:
             type: string
             format: uint64
             example: '1'
-            title: last index of BatchPoolSwapMsgs
+            title: last index of SwapMsgStates
           executed:
             type: boolean
             example: true
@@ -5466,17 +5466,17 @@ definitions:
             type: string
             format: uint64
             example: '1'
-            title: last index of BatchPoolDepositMsgs
+            title: last index of DepositMsgStates
           withdraw_msg_index:
             type: string
             format: uint64
             example: '1'
-            title: last index of BatchPoolWithdrawMsgs
+            title: last index of WithdrawMsgStates
           swap_msg_index:
             type: string
             format: uint64
             example: '1'
-            title: last index of BatchPoolSwapMsgs
+            title: last index of SwapMsgStates
           executed:
             type: boolean
             example: true
@@ -5488,7 +5488,7 @@ definitions:
   tendermint.liquidity.QueryLiquidityPoolsBatchesResponse:
     type: object
     properties:
-      batch:
+      batches:
         type: array
         items:
           type: object
@@ -5512,17 +5512,17 @@ definitions:
               type: string
               format: uint64
               example: '1'
-              title: last index of BatchPoolDepositMsgs
+              title: last index of DepositMsgStates
             withdraw_msg_index:
               type: string
               format: uint64
               example: '1'
-              title: last index of BatchPoolWithdrawMsgs
+              title: last index of WithdrawMsgStates
             swap_msg_index:
               type: string
               format: uint64
               example: '1'
-              title: last index of BatchPoolSwapMsgs
+              title: last index of SwapMsgStates
             executed:
               type: boolean
               example: true
@@ -5660,17 +5660,17 @@ definitions:
                   type: string
                   format: uint64
                   example: '1'
-                  title: last index of BatchPoolDepositMsgs
+                  title: last index of DepositMsgStates
                 withdraw_msg_index:
                   type: string
                   format: uint64
                   example: '1'
-                  title: last index of BatchPoolWithdrawMsgs
+                  title: last index of WithdrawMsgStates
                 swap_msg_index:
                   type: string
                   format: uint64
                   example: '1'
-                  title: last index of BatchPoolSwapMsgs
+                  title: last index of SwapMsgStates
                 executed:
                   type: boolean
                   example: true

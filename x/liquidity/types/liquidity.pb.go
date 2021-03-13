@@ -220,11 +220,11 @@ type PoolBatch struct {
 	BatchIndex uint64 `protobuf:"varint,2,opt,name=batch_index,json=batchIndex,proto3" json:"batch_index,omitempty" yaml:"batch_index"`
 	// height where this batch is begun
 	BeginHeight int64 `protobuf:"varint,3,opt,name=begin_height,json=beginHeight,proto3" json:"begin_height,omitempty" yaml:"begin_height"`
-	// last index of BatchPoolDepositMsgs
+	// last index of DepositMsgStates
 	DepositMsgIndex uint64 `protobuf:"varint,4,opt,name=deposit_msg_index,json=depositMsgIndex,proto3" json:"deposit_msg_index,omitempty" yaml:"deposit_msg_index"`
-	// last index of BatchPoolWithdrawMsgs
+	// last index of WithdrawMsgStates
 	WithdrawMsgIndex uint64 `protobuf:"varint,5,opt,name=withdraw_msg_index,json=withdrawMsgIndex,proto3" json:"withdraw_msg_index,omitempty" yaml:"withdraw_msg_index"`
-	// last index of BatchPoolSwapMsgs
+	// last index of SwapMsgStates
 	SwapMsgIndex uint64 `protobuf:"varint,6,opt,name=swap_msg_index,json=swapMsgIndex,proto3" json:"swap_msg_index,omitempty" yaml:"swap_msg_index"`
 	// true if executed, false if not executed yet
 	Executed bool `protobuf:"varint,7,opt,name=executed,proto3" json:"executed,omitempty" yaml:"executed"`

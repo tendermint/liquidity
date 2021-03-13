@@ -44,7 +44,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	poolByte := types.MustMarshalPool(cdc, pool)
 	require.Equal(t, pool, types.MustUnmarshalPool(cdc, poolByte))
 	poolByte = types.MustMarshalPool(cdc, pool)
-	poolMarshaled, err := types.UnmarshalLiquidityPool(cdc, poolByte)
+	poolMarshaled, err := types.UnmarshalPool(cdc, poolByte)
 	require.NoError(t, err)
 	require.Equal(t, pool, poolMarshaled)
 
@@ -52,16 +52,16 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, pool.GetReserveAccount().Equals(addr))
 
-	require.Equal(t, strings.TrimSpace(pool.String()+"\n"+pool.String()), types.LiquidityPools{pool, pool}.String())
+	require.Equal(t, strings.TrimSpace(pool.String()+"\n"+pool.String()), types.Pools{pool, pool}.String())
 
 	simapp.LiquidityKeeper.SetPool(ctx, pool)
-	batch := types.NewLiquidityPoolBatch(pool.PoolId, 1)
+	batch := types.NewPoolBatch(pool.PoolId, 1)
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
 	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.BatchIndex)
 
 	batchByte := types.MustMarshalPoolBatch(cdc, batch)
 	require.Equal(t, batch, types.MustUnmarshalPoolBatch(cdc, batchByte))
-	batchMarshaled, err := types.UnmarshalLiquidityPoolBatch(cdc, batchByte)
+	batchMarshaled, err := types.UnmarshalPoolBatch(cdc, batchByte)
 	require.NoError(t, err)
 	require.Equal(t, batch, batchMarshaled)
 

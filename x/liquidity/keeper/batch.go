@@ -8,34 +8,34 @@ import (
 
 // Reinitialize batch messages that were not executed in the previous batch and delete batch messages that were executed or ready to delete.
 func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
-	k.IterateAllPoolBatches(ctx, func(liquidityPoolBatch types.PoolBatch) bool {
+	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		// Delete and init next batch when not empty batch on before block
-		if liquidityPoolBatch.Executed {
+		if poolBatch.Executed {
 
 			// On the other hand, BatchDeposit, BatchWithdraw, is all handled by the endblock if there is no error.
 			// If there are BatchMsgs left, reset the Executed, Succeeded flag so that it can be executed in the next batch.
-			depositMsgs := k.GetAllRemainingPoolBatchDepositMsgStates(ctx, liquidityPoolBatch)
+			depositMsgs := k.GetAllRemainingPoolBatchDepositMsgStates(ctx, poolBatch)
 			if len(depositMsgs) > 0 {
 				for _, msg := range depositMsgs {
 					msg.Executed = false
 					msg.Succeeded = false
 				}
-				k.SetPoolBatchDepositMsgStatesByPointer(ctx, liquidityPoolBatch.PoolId, depositMsgs)
+				k.SetPoolBatchDepositMsgStatesByPointer(ctx, poolBatch.PoolId, depositMsgs)
 			}
 
-			withdrawMsgs := k.GetAllRemainingPoolBatchWithdrawMsgStates(ctx, liquidityPoolBatch)
+			withdrawMsgs := k.GetAllRemainingPoolBatchWithdrawMsgStates(ctx, poolBatch)
 			if len(withdrawMsgs) > 0 {
 				for _, msg := range withdrawMsgs {
 					msg.Executed = false
 					msg.Succeeded = false
 				}
-				k.SetPoolBatchWithdrawMsgStatesByPointer(ctx, liquidityPoolBatch.PoolId, withdrawMsgs)
+				k.SetPoolBatchWithdrawMsgStatesByPointer(ctx, poolBatch.PoolId, withdrawMsgs)
 			}
 
 			height := ctx.BlockHeight()
 			// reinitialize remaining batch msgs
 			// In the case of BatchSwapMsgs, it is often fractional matched or has not yet expired since it has not passed ExpiryHeight.
-			swapMsgs := k.GetAllRemainingPoolBatchSwapMsgStates(ctx, liquidityPoolBatch)
+			swapMsgs := k.GetAllRemainingPoolBatchSwapMsgStates(ctx, poolBatch)
 			if len(swapMsgs) > 0 {
 				for _, msg := range swapMsgs {
 					if height > msg.OrderExpiryHeight {
@@ -45,61 +45,61 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 						msg.Succeeded = false
 					}
 				}
-				k.SetPoolBatchSwapMsgStatesByPointer(ctx, liquidityPoolBatch.PoolId, swapMsgs)
+				k.SetPoolBatchSwapMsgStatesByPointer(ctx, poolBatch.PoolId, swapMsgs)
 			}
 
 			// delete batch messages that were executed or ready to delete
-			k.DeleteAllReadyPoolBatchDepositMsgStates(ctx, liquidityPoolBatch)
-			k.DeleteAllReadyPoolBatchWithdrawMsgStates(ctx, liquidityPoolBatch)
-			k.DeleteAllReadyPoolBatchSwapMsgStates(ctx, liquidityPoolBatch)
+			k.DeleteAllReadyPoolBatchDepositMsgStates(ctx, poolBatch)
+			k.DeleteAllReadyPoolBatchWithdrawMsgStates(ctx, poolBatch)
+			k.DeleteAllReadyPoolBatchSwapMsgStates(ctx, poolBatch)
 
 			// Increase the batch index and initialize the values.
-			k.InitNextBatch(ctx, liquidityPoolBatch)
+			k.InitNextBatch(ctx, poolBatch)
 		}
 		return false
 	})
 }
 
 // Increase the index of the already executed batch for processing as the next batch and reinitialize the values.
-func (k Keeper) InitNextBatch(ctx sdk.Context, liquidityPoolBatch types.PoolBatch) error {
-	if !liquidityPoolBatch.Executed {
+func (k Keeper) InitNextBatch(ctx sdk.Context, poolBatch types.PoolBatch) error {
+	if !poolBatch.Executed {
 		return types.ErrBatchNotExecuted
 	}
-	liquidityPoolBatch.BatchIndex = k.GetNextPoolBatchIndexWithUpdate(ctx, liquidityPoolBatch.PoolId)
-	liquidityPoolBatch.BeginHeight = ctx.BlockHeight()
-	liquidityPoolBatch.Executed = false
-	k.SetPoolBatch(ctx, liquidityPoolBatch)
+	poolBatch.BatchIndex = k.GetNextPoolBatchIndexWithUpdate(ctx, poolBatch.PoolId)
+	poolBatch.BeginHeight = ctx.BlockHeight()
+	poolBatch.Executed = false
+	k.SetPoolBatch(ctx, poolBatch)
 	return nil
 }
 
 // In case of deposit, withdraw, and swap msgs, unlike other normal tx msgs,
 // collect them in the liquidity pool batch and perform an execution once at the endblock to calculate and use the universal price.
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
-	k.IterateAllPoolBatches(ctx, func(liquidityPoolBatch types.PoolBatch) bool {
+	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		params := k.GetParams(ctx)
-		if !liquidityPoolBatch.Executed && ctx.BlockHeight()-liquidityPoolBatch.BeginHeight+1 >= int64(params.UnitBatchSize) {
-			executedMsgCount, err := k.SwapExecution(ctx, liquidityPoolBatch)
+		if !poolBatch.Executed && ctx.BlockHeight()-poolBatch.BeginHeight+1 >= int64(params.UnitBatchSize) {
+			executedMsgCount, err := k.SwapExecution(ctx, poolBatch)
 			if err != nil {
 				panic(err)
 			}
-			k.IterateAllPoolBatchDepositMsgStates(ctx, liquidityPoolBatch, func(batchMsg types.DepositMsgState) bool {
+			k.IterateAllPoolBatchDepositMsgStates(ctx, poolBatch, func(batchMsg types.DepositMsgState) bool {
 				executedMsgCount++
-				if err := k.DepositLiquidityPool(ctx, batchMsg, liquidityPoolBatch); err != nil {
-					k.RefundDepositLiquidityPool(ctx, batchMsg, liquidityPoolBatch)
+				if err := k.DepositLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
+					k.RefundDepositLiquidityPool(ctx, batchMsg, poolBatch)
 				}
 				return false
 			})
-			k.IterateAllPoolBatchWithdrawMsgStates(ctx, liquidityPoolBatch, func(batchMsg types.WithdrawMsgState) bool {
+			k.IterateAllPoolBatchWithdrawMsgStates(ctx, poolBatch, func(batchMsg types.WithdrawMsgState) bool {
 				executedMsgCount++
-				if err := k.WithdrawLiquidityPool(ctx, batchMsg, liquidityPoolBatch); err != nil {
-					k.RefundWithdrawLiquidityPool(ctx, batchMsg, liquidityPoolBatch)
+				if err := k.WithdrawLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
+					k.RefundWithdrawLiquidityPool(ctx, batchMsg, poolBatch)
 				}
 				return false
 			})
 			// set executed when something executed
 			if executedMsgCount > 0 {
-				liquidityPoolBatch.Executed = true
-				k.SetPoolBatch(ctx, liquidityPoolBatch)
+				poolBatch.Executed = true
+				k.SetPoolBatch(ctx, poolBatch)
 			}
 		}
 		return false

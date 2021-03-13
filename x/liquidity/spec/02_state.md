@@ -35,9 +35,9 @@ type PoolBatch struct {
 	PoolId           uint64  // id of target liquidity pool
 	BatchIndex       uint64  // index of this batch
 	BeginHeight      uint64  // height where this batch is begun
-	DepositMsgIndex  uint64  // last index of BatchPoolDepositMsgs
-	WithdrawMsgIndex uint64  // last index of BatchPoolWithdrawMsgs
-	SwapMsgIndex     uint64  // last index of BatchPoolSwapMsgs
+	DepositMsgIndex  uint64  // last index of DepositMsgStates
+	WithdrawMsgIndex uint64  // last index of WithdrawMsgStates
+	SwapMsgIndex     uint64  // last index of SwapMsgStates
 	Executed         bool    // true if executed, false if not executed yet
 }
 

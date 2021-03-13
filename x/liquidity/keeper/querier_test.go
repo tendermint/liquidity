@@ -31,7 +31,7 @@ func getQueriedLiquidityPool(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmi
 	return pool, nil
 }
 
-func getQueriedLiquidityPools(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier) (types.LiquidityPools, error) {
+func getQueriedLiquidityPools(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier) (types.Pools, error) {
 	queryDelParams := types.NewQueryLiquidityPoolsParams(1, 100)
 	bz, errRes := cdc.MarshalJSON(queryDelParams)
 	fmt.Println(bz, errRes)
@@ -40,7 +40,7 @@ func getQueriedLiquidityPools(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAm
 		Data: bz,
 	}
 
-	pools := types.LiquidityPools{}
+	pools := types.Pools{}
 	bz, err := querier(ctx, []string{types.QueryLiquidityPools}, query)
 	if err != nil {
 		return pools, err

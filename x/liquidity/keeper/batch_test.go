@@ -796,7 +796,7 @@ func TestInitNextBatch(t *testing.T) {
 	}
 	simapp.LiquidityKeeper.SetPool(ctx, pool)
 
-	batch := types.NewLiquidityPoolBatch(pool.PoolId, 1)
+	batch := types.NewPoolBatch(pool.PoolId, 1)
 
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
 	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.BatchIndex)

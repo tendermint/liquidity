@@ -19,7 +19,7 @@ func TestDecodeLiquidityStore(t *testing.T) {
 
 	liquidityPool := types.Pool{}
 	liquidityPool.PoolId = 1
-	liquidityPoolBatch := types.NewLiquidityPoolBatch(1, 1)
+	liquidityPoolBatch := types.NewPoolBatch(1, 1)
 
 	kvPairs := kv.Pairs{
 		Pairs: []kv.Pair{
