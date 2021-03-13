@@ -11,7 +11,6 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		// Delete and init next batch when not empty batch on before block
 		if poolBatch.Executed {
-
 			// On the other hand, BatchDeposit, BatchWithdraw, is all handled by the endblock if there is no error.
 			// If there are BatchMsgs left, reset the Executed, Succeeded flag so that it can be executed in the next batch.
 			depositMsgs := k.GetAllRemainingPoolBatchDepositMsgStates(ctx, poolBatch)
@@ -33,6 +32,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 			}
 
 			height := ctx.BlockHeight()
+
 			// reinitialize remaining batch msgs
 			// In the case of BatchSwapMsgs, it is often fractional matched or has not yet expired since it has not passed ExpiryHeight.
 			swapMsgs := k.GetAllRemainingPoolBatchSwapMsgStates(ctx, poolBatch)
@@ -65,10 +65,13 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, poolBatch types.PoolBatch) error 
 	if !poolBatch.Executed {
 		return types.ErrBatchNotExecuted
 	}
+
 	poolBatch.BatchIndex = k.GetNextPoolBatchIndexWithUpdate(ctx, poolBatch.PoolId)
 	poolBatch.BeginHeight = ctx.BlockHeight()
 	poolBatch.Executed = false
+
 	k.SetPoolBatch(ctx, poolBatch)
+
 	return nil
 }
 
@@ -77,11 +80,13 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, poolBatch types.PoolBatch) error 
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		params := k.GetParams(ctx)
+
 		if !poolBatch.Executed && ctx.BlockHeight()-poolBatch.BeginHeight+1 >= int64(params.UnitBatchSize) {
 			executedMsgCount, err := k.SwapExecution(ctx, poolBatch)
 			if err != nil {
 				panic(err)
 			}
+
 			k.IterateAllPoolBatchDepositMsgStates(ctx, poolBatch, func(batchMsg types.DepositMsgState) bool {
 				executedMsgCount++
 				if err := k.DepositLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
@@ -89,6 +94,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 				}
 				return false
 			})
+
 			k.IterateAllPoolBatchWithdrawMsgStates(ctx, poolBatch, func(batchMsg types.WithdrawMsgState) bool {
 				executedMsgCount++
 				if err := k.WithdrawLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
@@ -96,6 +102,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 				}
 				return false
 			})
+
 			// set executed when something executed
 			if executedMsgCount > 0 {
 				poolBatch.Executed = true
@@ -134,6 +141,7 @@ func (k Keeper) ReleaseEscrowForMultiSend(withdrawer sdk.AccAddress, withdrawCoi
 	if err := banktypes.ValidateInputsOutputs([]banktypes.Input{input}, []banktypes.Output{output}); err != nil {
 		return banktypes.Input{}, banktypes.Output{}, err
 	}
+
 	return input, output, nil
 }
 
@@ -142,10 +150,12 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 	if err := k.ValidateMsgDepositLiquidityPool(ctx, *msg); err != nil {
 		return types.DepositMsgState{}, err
 	}
+
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return types.DepositMsgState{}, types.ErrPoolBatchNotExists
 	}
+
 	if poolBatch.BeginHeight == 0 {
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
@@ -164,6 +174,7 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 	k.SetPoolBatch(ctx, poolBatch)
 	k.SetPoolBatchDepositMsgState(ctx, poolBatch.PoolId, msgState)
 	// TODO: msg event with msgServer after rebase stargate version sdk
+
 	return msgState, nil
 }
 
@@ -172,10 +183,12 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 	if err := k.ValidateMsgWithdrawLiquidityPool(ctx, *msg); err != nil {
 		return types.WithdrawMsgState{}, err
 	}
+
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return types.WithdrawMsgState{}, types.ErrPoolBatchNotExists
 	}
+
 	if poolBatch.BeginHeight == 0 {
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
@@ -194,6 +207,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 	k.SetPoolBatch(ctx, poolBatch)
 	k.SetPoolBatchWithdrawMsgState(ctx, poolBatch.PoolId, batchPoolMsg)
 	// TODO: msg event with msgServer after rebase stargate version sdk
+
 	return batchPoolMsg, nil
 }
 
@@ -202,10 +216,12 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap, Or
 	if err := k.ValidateMsgSwap(ctx, *msg); err != nil {
 		return nil, err
 	}
+
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
+
 	if poolBatch.BeginHeight == 0 {
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
@@ -221,6 +237,7 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap, Or
 		OfferCoinFeeReserve: msg.OfferCoinFee,
 		Msg:                 msg,
 	}
+
 	// TODO: add logic if OrderExpiryHeight==0, pass on batch logic
 	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + OrderExpirySpanHeight
 
@@ -236,5 +253,6 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwap, Or
 	k.SetPoolBatch(ctx, poolBatch)
 	k.SetPoolBatchSwapMsgState(ctx, poolBatch.PoolId, batchPoolMsg)
 	// TODO: msg event with msgServer after rebase stargate version sdk
+
 	return &batchPoolMsg, nil
 }
