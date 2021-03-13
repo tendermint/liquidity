@@ -10,7 +10,7 @@ The liquidity module contains the following parameters:
 
 | Key                      | Type                | Example                                                                                                                          |
 | ------------------------ | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| PoolTypes                | []PoolType          | [{"pool_type_index":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
+| PoolTypes                | []PoolType          | [{"pool_type_id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}]    |
 | MinInitDepositToPool     | string (sdk.Int)    | "1000000"                                                                                                                        |
 | InitPoolCoinMintAmount   | string (sdk.Int)    | "1000000"                                                                                                                        |
 | ReserveCoinLimitAmount   | string (sdk.Int)    | "1000000000000"                                                                                                                  |
@@ -26,7 +26,7 @@ List of available PoolType
 
 ```go
 type PoolType struct {
-	PoolTypeIndex         uint32
+	PoolTypeId            uint32
 	Name                  string
 	MinReserveCoinNum     uint32
 	MaxReserveCoinNum     uint32

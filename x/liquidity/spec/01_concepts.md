@@ -44,8 +44,8 @@ Coin swaps are executed for every batch, which is composed of one or more consec
 
 #### PoolKey
 
-- `reserveCoinDenoms1/reserveCoinDenoms2/poolTypeIndex`
-- string join with reserve coin denoms and `poolTypeIndex` using separator `/`
+- `reserveCoinDenoms1/reserveCoinDenoms2/poolTypeId`
+- string join with reserve coin denoms and `poolTypeId` using separator `/`
 - e.g. `denomX/denomY/1`
 
 #### PoolReserveAcc

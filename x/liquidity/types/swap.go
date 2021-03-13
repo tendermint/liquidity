@@ -549,11 +549,11 @@ func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executab
 					}
 					// Fee, Exchanged amount are values that should not be overmeasured, so it is lowered conservatively considering the decimal error.
 					if direction == DirectionXtoY {
-						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.OfferCoinFeeReserve.Amount.ToDec().Mul(fractionalMatchRatio)
+						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.ReservedOfferCoinFee.Amount.ToDec().Mul(fractionalMatchRatio)
 						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Quo(swapPrice)
 						matchResult.ExchangedCoinFeeAmt = matchResult.OfferCoinFeeAmt.Quo(swapPrice)
 					} else if direction == DirectionYtoX {
-						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.OfferCoinFeeReserve.Amount.ToDec().Mul(fractionalMatchRatio)
+						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.ReservedOfferCoinFee.Amount.ToDec().Mul(fractionalMatchRatio)
 						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Mul(swapPrice)
 						matchResult.ExchangedCoinFeeAmt = matchResult.OfferCoinFeeAmt.Mul(swapPrice)
 					}

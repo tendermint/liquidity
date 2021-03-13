@@ -17,9 +17,9 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 	var poolType types.PoolType
 
 	// check poolType exist, get poolType from param
-	if len(params.PoolTypes) >= int(msg.PoolTypeIndex) {
-		poolType = params.PoolTypes[msg.PoolTypeIndex-1]
-		if poolType.PoolTypeIndex != msg.PoolTypeIndex {
+	if len(params.PoolTypes) >= int(msg.PoolTypeId) {
+		poolType = params.PoolTypes[msg.PoolTypeId-1]
+		if poolType.PoolTypeId != msg.PoolTypeId {
 			return types.ErrPoolTypeNotExists
 		}
 	} else {
@@ -53,7 +53,7 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 		return err
 	}
 
-	poolKey := types.PoolName(reserveCoinDenoms, msg.PoolTypeIndex)
+	poolKey := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
 	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
 	if found {
@@ -68,9 +68,9 @@ func (k Keeper) ValidatePool(ctx sdk.Context, pool *types.Pool) error {
 	var poolType types.PoolType
 
 	// check poolType exist, get poolType from param
-	if len(params.PoolTypes) >= int(pool.PoolTypeIndex) {
-		poolType = params.PoolTypes[pool.PoolTypeIndex-1]
-		if poolType.PoolTypeIndex != pool.PoolTypeIndex {
+	if len(params.PoolTypes) >= int(pool.PoolTypeId) {
+		poolType = params.PoolTypes[pool.PoolTypeId-1]
+		if poolType.PoolTypeId != pool.PoolTypeId {
 			return types.ErrPoolTypeNotExists
 		}
 	} else {
@@ -100,7 +100,7 @@ func (k Keeper) ValidatePool(ctx sdk.Context, pool *types.Pool) error {
 		return types.ErrBadOrderingReserveCoin
 	}
 
-	poolKey := types.PoolName(pool.ReserveCoinDenoms, pool.PoolTypeIndex)
+	poolKey := types.PoolName(pool.ReserveCoinDenoms, pool.PoolTypeId)
 	poolCoin := k.GetPoolCoinTotal(ctx, *pool)
 	if poolCoin.Denom != types.GetPoolCoinDenom(poolKey) {
 		return types.ErrBadPoolCoinDenom
@@ -123,7 +123,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (
 	denom1, denom2 := types.AlphabeticalDenomPair(msg.DepositCoins[0].Denom, msg.DepositCoins[1].Denom)
 	reserveCoinDenoms := []string{denom1, denom2}
 
-	poolKey := types.PoolName(reserveCoinDenoms, msg.PoolTypeIndex)
+	poolKey := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
 	reserveAcc := types.GetPoolReserveAcc(poolKey)
 
 	poolCreator := msg.GetPoolCreator()
@@ -147,7 +147,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (
 
 	pool := types.Pool{
 		//PoolId: will set on SetPoolAtomic
-		PoolTypeIndex:         msg.PoolTypeIndex,
+		PoolTypeId:            msg.PoolTypeId,
 		ReserveCoinDenoms:     reserveCoinDenoms,
 		ReserveAccountAddress: reserveAcc.String(),
 		PoolCoinDenom:         PoolCoinDenom,
@@ -672,9 +672,9 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 
 					// Add swap offer coin fee to multisend
 					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 
 					// Add swap exchanged coin fee to multisend, It cause temporary insufficient funds when InputOutputCoins, skip offsetting input, output
 					//inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
@@ -699,9 +699,9 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 
 					// Add swap offer coin fee to multisend
 					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
+						sdk.NewCoins(sdk.NewCoin(batchMsg.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 
 					// Add swap exchanged coin fee to multisend, It cause temporary insufficient funds when InputOutputCoins, skip offsetting input, output
 					//inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
@@ -736,9 +736,9 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 
 				// Add swap offer coin fee to multisend
 				inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-					sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
+					sdk.NewCoins(sdk.NewCoin(batchMsg.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 				outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-					sdk.NewCoins(sdk.NewCoin(batchMsg.OfferCoinFeeReserve.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
+					sdk.NewCoins(sdk.NewCoin(batchMsg.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 
 				// Add swap exchanged coin fee to multisend, It cause temporary insufficient funds when InputOutputCoins, skip offsetting input, output
 				//inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
@@ -759,7 +759,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
 					sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msgAfter.BatchMsg.MsgIndex, 10)),
 					sdk.NewAttribute(types.AttributeValueSwapRequester, msgAfter.BatchMsg.Msg.GetSwapRequester().String()),
-					sdk.NewAttribute(types.AttributeValueSwapType, strconv.FormatUint(uint64(msgAfter.BatchMsg.Msg.SwapType), 10)),
+					sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(msgAfter.BatchMsg.Msg.SwapTypeId), 10)),
 					sdk.NewAttribute(types.AttributeValueOfferCoinDenom, msgAfter.BatchMsg.Msg.OfferCoin.Denom),
 					sdk.NewAttribute(types.AttributeValueOfferCoinAmount, msgAfter.BatchMsg.Msg.OfferCoin.Amount.String()),
 					sdk.NewAttribute(types.AttributeValueOrderPrice, msgAfter.BatchMsg.Msg.OrderPrice.String()),
@@ -768,7 +768,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					sdk.NewAttribute(types.AttributeValueRemainingOfferCoinAmount, msgAfter.BatchMsg.RemainingOfferCoin.Amount.String()),
 					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, msgAfter.BatchMsg.ExchangedOfferCoin.Amount.String()),
 					sdk.NewAttribute(types.AttributeValueOfferCoinFeeAmount, msgAfter.OfferCoinFeeAmt.String()),
-					sdk.NewAttribute(types.AttributeValueOfferCoinFeeReserveAmount, msgAfter.BatchMsg.OfferCoinFeeReserve.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, msgAfter.BatchMsg.ReservedOfferCoinFee.Amount.String()),
 					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(msgAfter.OrderExpiryHeight, 10)),
 					sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
 				))
@@ -779,7 +779,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 				// refund remaining coins
 				// TODO: coverage
 				if input, output, err := k.ReleaseEscrowForMultiSend(batchMsg.Msg.GetSwapRequester(),
-					sdk.NewCoins(batchMsg.RemainingOfferCoin.Add(batchMsg.OfferCoinFeeReserve))); err != nil {
+					sdk.NewCoins(batchMsg.RemainingOfferCoin.Add(batchMsg.ReservedOfferCoinFee))); err != nil {
 					panic(err)
 				} else {
 					inputs = append(inputs, input)
@@ -793,7 +793,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 				// not matched and expired, remaining refund
 				// refund remaining coins
 				if input, output, err := k.ReleaseEscrowForMultiSend(batchMsg.Msg.GetSwapRequester(),
-					sdk.NewCoins(batchMsg.RemainingOfferCoin.Add(batchMsg.OfferCoinFeeReserve))); err != nil {
+					sdk.NewCoins(batchMsg.RemainingOfferCoin.Add(batchMsg.ReservedOfferCoinFee))); err != nil {
 					panic(err)
 				} else {
 					inputs = append(inputs, input)

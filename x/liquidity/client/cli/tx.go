@@ -51,7 +51,7 @@ $ %s tx liquidity create-pool 1 100000000stake,100000000token --from mykey
 Currently, only the default pool-type-index 1 is available on this version
 the number of deposit coins must be two in the pool-type-index 1
 
-{"pool_type_index":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
+{"pool_type_id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
 `,
 				version.AppName,
 			),
@@ -64,7 +64,7 @@ the number of deposit coins must be two in the pool-type-index 1
 			poolCreator := clientCtx.GetFromAddress()
 
 			// Get pool type index
-			poolTypeIndex, err := strconv.ParseUint(args[0], 10, 32)
+			poolTypeId, err := strconv.ParseUint(args[0], 10, 32)
 			if err != nil {
 				return fmt.Errorf("pool-type-index %s not a valid uint, please input a valid pool-type-index", args[0])
 			}
@@ -80,7 +80,7 @@ the number of deposit coins must be two in the pool-type-index 1
 				return err
 			}
 
-			if poolTypeIndex != 1 {
+			if poolTypeId != 1 {
 				return types.ErrPoolTypeNotExists
 			}
 
@@ -88,7 +88,7 @@ the number of deposit coins must be two in the pool-type-index 1
 				return fmt.Errorf("the number of deposit coins must be two in the pool-type-index 1")
 			}
 
-			msg := types.NewMsgCreateLiquidityPool(poolCreator, uint32(poolTypeIndex), depositCoins)
+			msg := types.NewMsgCreateLiquidityPool(poolCreator, uint32(poolTypeId), depositCoins)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -222,11 +222,11 @@ You should request the matched pool-coin as the pool.
 // Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
 func NewSwapCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]",
+		Use:   "swap [pool-id] [swap-type-index] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]",
 		Args:  cobra.ExactArgs(6),
 		Short: "Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price, swap-fee-rate",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Swap offer to the Liquidity pool with the specified pool-id, swap-type demand-coin-denom 
+			fmt.Sprintf(`Swap offer to the Liquidity pool with the specified pool-id, swap-type-index demand-coin-denom 
 with the coin and the price you're offering
 
 this requests are stacked in the batch of the liquidity pool, not immediately processed and 
@@ -241,7 +241,7 @@ Must have sufficient balance half the of the swapFee Rate of the offer coin to r
 
 For explicit calculations, you must enter the params.swap_fee_rate value of the current parameter state.
 
-Currently, only the default pool-type, swap-type 1 is available on this version
+Currently, only the default pool-type, swap-type-index 1 is available on this version
 The detailed swap algorithm can be found here.
 https://github.com/tendermint/liquidity
 `,
@@ -262,12 +262,12 @@ https://github.com/tendermint/liquidity
 			}
 
 			// Get swap type
-			swapType, err := strconv.ParseUint(args[1], 10, 32)
+			swapTypeId, err := strconv.ParseUint(args[1], 10, 32)
 			if err != nil {
-				return fmt.Errorf("swap-type %s not a valid uint, please input a valid swap-type", args[2])
+				return fmt.Errorf("swap-type-index %s not a valid uint, please input a valid swap-type-index", args[2])
 			}
 
-			if swapType != 1 {
+			if swapTypeId != 1 {
 				return types.ErrSwapTypeNotExists
 			}
 
@@ -301,7 +301,7 @@ https://github.com/tendermint/liquidity
 				return err
 			}
 
-			msg := types.NewMsgSwap(swapRequester, poolId, uint32(swapType), offerCoin, args[3], orderPrice, swapFeeRate)
+			msg := types.NewMsgSwap(swapRequester, poolId, uint32(swapTypeId), offerCoin, args[3], orderPrice, swapFeeRate)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

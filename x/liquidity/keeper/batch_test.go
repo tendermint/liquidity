@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	DefaultPoolTypeIndex = uint32(1)
-	DenomX               = "denomX"
-	DenomY               = "denomY"
-	DenomA               = "denomA"
-	DenomB               = "denomB"
+	DefaultPoolTypeId = uint32(1)
+	DenomX            = "denomX"
+	DenomY            = "denomY"
+	DenomA            = "denomA"
+	DenomB            = "denomB"
 )
 
 func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
@@ -52,8 +52,8 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	feePoolBalance := simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
 
 	// Success case, create Liquidity pool
-	poolTypeIndex := types.DefaultPoolTypeIndex
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
+	poolTypeId := types.DefaultPoolTypeId
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
@@ -68,13 +68,13 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// reset deposit balance without LiquidityPoolCreationFee of pool creator
 	// Fail case, insufficient balances for pool creation fee case
-	msgAB := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalanceAB)
+	msgAB := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msgAB)
 	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
 
 	// Success case, create another pool
-	msgAB = types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalanceAB)
+	msgAB = types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB.Add(params.LiquidityPoolCreationFee...))
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msgAB)
 	require.NoError(t, err)
@@ -254,8 +254,8 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 	require.Equal(t, deposit, depositBalance)
 
 	// create Liquidity pool
-	poolTypeIndex := types.DefaultPoolTypeIndex
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
+	poolTypeId := types.DefaultPoolTypeId
+	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
@@ -789,7 +789,7 @@ func TestInitNextBatch(t *testing.T) {
 	simapp, ctx := createTestInput()
 	pool := types.Pool{
 		PoolId:                1,
-		PoolTypeIndex:         1,
+		PoolTypeId:            1,
 		ReserveCoinDenoms:     nil,
 		ReserveAccountAddress: "",
 		PoolCoinDenom:         "",

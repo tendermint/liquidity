@@ -297,11 +297,11 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
 
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.OfferCoinFeeReserve = types.CoinSafeSubAmount(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt.TruncateInt())
+			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
 			if match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
-				match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))) {
+				match.BatchMsg.ReservedOfferCoinFee.IsGTE(sdk.NewCoin(match.BatchMsg.ReservedOfferCoinFee.Denom, sdk.NewInt(2))) {
 				panic("remaining not matched 1")
 			} else {
 				match.BatchMsg.Succeeded = true
@@ -314,14 +314,14 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
 				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.OfferCoinFeeReserve = types.CoinSafeSubAmount(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt.TruncateInt())
+			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
 			if match.BatchMsg.RemainingOfferCoin.Amount.Equal(sdk.OneInt()) {
 				match.BatchMsg.RemainingOfferCoin.Amount = sdk.ZeroInt()
 			}
 			if match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
-				match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))) {
+				match.BatchMsg.ReservedOfferCoinFee.IsGTE(sdk.NewCoin(match.BatchMsg.ReservedOfferCoinFee.Denom, sdk.NewInt(2))) {
 				panic("remaining not matched 2")
 			} else {
 				match.BatchMsg.Succeeded = true
@@ -331,7 +331,7 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 			// fractional match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.OfferCoinFeeReserve = types.CoinSafeSubAmount(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt.TruncateInt())
+			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
 			matchedIndexMapXtoY[match.BatchMsg.MsgIndex] = match.BatchMsg.RemainingOfferCoin
 			match.BatchMsg.Succeeded = true
 			match.BatchMsg.ToBeDeleted = false
@@ -347,11 +347,11 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
 				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.OfferCoinFeeReserve = types.CoinSafeSubAmount(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt.TruncateInt())
+			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
 			if match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
-				match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))) {
+				match.BatchMsg.ReservedOfferCoinFee.IsGTE(sdk.NewCoin(match.BatchMsg.ReservedOfferCoinFee.Denom, sdk.NewInt(2))) {
 				panic("remaining not matched 3")
 			} else {
 				match.BatchMsg.Succeeded = true
@@ -364,7 +364,7 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
 				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.OfferCoinFeeReserve = types.CoinSafeSubAmount(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt.TruncateInt())
+			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
 			// TODO: verify RemainingOfferCoin about decimal errors one to pool
 			if match.BatchMsg.RemainingOfferCoin.Amount.Equal(sdk.OneInt()) {
 				match.BatchMsg.RemainingOfferCoin.Amount = sdk.ZeroInt()
@@ -373,7 +373,7 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 			if match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
 				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
 				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
-				match.BatchMsg.OfferCoinFeeReserve.IsGTE(sdk.NewCoin(match.BatchMsg.OfferCoinFeeReserve.Denom, sdk.NewInt(2))) {
+				match.BatchMsg.ReservedOfferCoinFee.IsGTE(sdk.NewCoin(match.BatchMsg.ReservedOfferCoinFee.Denom, sdk.NewInt(2))) {
 				panic("remaining not matched 4")
 			} else {
 				match.BatchMsg.Succeeded = true
@@ -383,7 +383,7 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 			// fractional match
 			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
 			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.OfferCoinFeeReserve = types.CoinSafeSubAmount(match.BatchMsg.OfferCoinFeeReserve, match.OfferCoinFeeAmt.TruncateInt())
+			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
 			matchedIndexMapYtoX[match.BatchMsg.MsgIndex] = match.BatchMsg.RemainingOfferCoin
 			match.BatchMsg.Succeeded = true
 			match.BatchMsg.ToBeDeleted = false
