@@ -127,7 +127,7 @@ func (m *MsgCreateLiquidityPoolRequest) GetMsg() *MsgCreateLiquidityPool {
 	return nil
 }
 
-// MsgCreateLiquidityPoolResponse defines the Msg/CreatePool response type.
+// MsgCreateLiquidityPoolResponse defines the Msg/CreateLiquidityPool response type.
 type MsgCreateLiquidityPoolResponse struct {
 	StdTx *StdTx `protobuf:"bytes,1,opt,name=std_tx,json=stdTx,proto3" json:"std_tx,omitempty" yaml:"std_tx"`
 }
