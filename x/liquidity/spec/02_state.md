@@ -10,15 +10,15 @@ order: 2
 
 ```go
 type Pool struct {
-	PoolId                 uint64         // index of this liquidity pool
-	PoolTypeId             uint32         // pool type of this liquidity pool
+	Id                     uint64         // index of this liquidity pool
+	TypeId                 uint32         // pool type of this liquidity pool
 	ReserveCoinDenoms      []string       // list of reserve coin denoms for this liquidity pool
 	ReserveAccountAddress  string         // reserve account address for this liquidity pool to store reserve coins
 	PoolCoinDenom          string         // denom of pool coin for this liquidity pool
 }
 ```
 
-Pool: `0x11 | PoolId -> amino(Pool)`
+Pool: `0x11 | Id -> amino(Pool)`
 
 PoolByReserveAccIndex: `0x12 | ReserveAcc -> nil`
 
@@ -33,7 +33,7 @@ PoolCoinDenomPrefix: `pool`
 ```go
 type PoolBatch struct {
 	PoolId           uint64  // id of target liquidity pool
-	BatchIndex       uint64  // index of this batch
+	Index            uint64  // index of this batch
 	BeginHeight      uint64  // height where this batch is begun
 	DepositMsgIndex  uint64  // last index of DepositMsgStates
 	WithdrawMsgIndex uint64  // last index of WithdrawMsgStates
@@ -48,7 +48,7 @@ type DepositMsgState struct {
 	Executed   bool   // true if executed on this batch, false if not executed yet
 	Succeeded  bool   // true if executed successfully on this batch, false if failed
 	ToBeDelete bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
-	Msg        MsgDepositToLiquidityPool
+	Msg        MsgDepositWithinBatch
 }
 
 type WithdrawMsgState struct {
@@ -57,7 +57,7 @@ type WithdrawMsgState struct {
 	Executed   bool   // true if executed on this batch, false if not executed yet
 	Succeeded  bool   // true if executed successfully on this batch, false if failed
 	ToBeDelete bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
-	Msg        MsgWithdrawFromLiquidityPool
+	Msg        MsgWithdrawWithinBatch
 }
 
 type SwapMsgState struct {
@@ -69,7 +69,7 @@ type SwapMsgState struct {
 	OrderExpiryHeight  int64  // swap orders are cancelled when current height is equal or higher than ExpiryHeight
 	ExchangedOfferCoin sdk.Coin // offer coin exchanged until now
 	RemainingOfferCoin sdk.Coin // offer coin currently remaining to be exchanged
-	Msg                MsgSwap
+	Msg                MsgSwapWithinBatch
 }
 
 ```

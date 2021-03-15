@@ -9,9 +9,61 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// CreatePool creates new liquidity pool
-func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (types.Pool, error) {
-	if err := k.ValidateMsgCreateLiquidityPool(ctx, msg); err != nil {
+func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool) error {
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
+	params := k.GetParams(ctx)
+	var poolType types.PoolType
+
+	// check poolType exist, get poolType from param
+	if len(params.PoolTypes) >= int(msg.PoolTypeId) {
+		poolType = params.PoolTypes[msg.PoolTypeId-1]
+		if poolType.Id != msg.PoolTypeId {
+			return types.ErrPoolTypeNotExists
+		}
+	} else {
+		return types.ErrPoolTypeNotExists
+	}
+
+	if poolType.MaxReserveCoinNum > types.MaxReserveCoinNum || types.MinReserveCoinNum > poolType.MinReserveCoinNum {
+		return types.ErrNumOfReserveCoin
+	}
+
+	reserveCoinNum := uint32(msg.DepositCoins.Len())
+	if reserveCoinNum > poolType.MaxReserveCoinNum || poolType.MinReserveCoinNum > reserveCoinNum {
+		return types.ErrNumOfReserveCoin
+	}
+
+	reserveCoinDenoms := make([]string, reserveCoinNum)
+	for i := 0; i < int(reserveCoinNum); i++ {
+		reserveCoinDenoms[i] = msg.DepositCoins.GetDenomByIndex(i)
+	}
+
+	denomA, denomB := types.AlphabeticalDenomPair(reserveCoinDenoms[0], reserveCoinDenoms[1])
+	if denomA != msg.DepositCoins[0].Denom || denomB != msg.DepositCoins[1].Denom {
+		return types.ErrBadOrderingReserveCoin
+	}
+
+	if denomA == denomB {
+		return types.ErrEqualDenom
+	}
+
+	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, msg.DepositCoins); err != nil {
+		return err
+	}
+
+	poolName := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
+	reserveAcc := types.GetPoolReserveAcc(poolName)
+	_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
+	if found {
+		return types.ErrPoolAlreadyExists
+	}
+	return nil
+}
+
+func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Pool, error) {
+	if err := k.ValidateMsgCreatePool(ctx, msg); err != nil {
 		return types.Pool{}, err
 	}
 	params := k.GetParams(ctx)
@@ -19,8 +71,8 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (
 	denom1, denom2 := types.AlphabeticalDenomPair(msg.DepositCoins[0].Denom, msg.DepositCoins[1].Denom)
 	reserveCoinDenoms := []string{denom1, denom2}
 
-	poolKey := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
-	reserveAcc := types.GetPoolReserveAcc(poolKey)
+	poolName := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
+	reserveAcc := types.GetPoolReserveAcc(poolName)
 
 	poolCreator := msg.GetPoolCreator()
 	accPoolCreator := k.accountKeeper.GetAccount(ctx, poolCreator)
@@ -39,11 +91,11 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (
 		return types.Pool{}, types.ErrInsufficientPoolCreationFee
 	}
 
-	PoolCoinDenom := types.GetPoolCoinDenom(poolKey)
+	PoolCoinDenom := types.GetPoolCoinDenom(poolName)
 
 	pool := types.Pool{
-		//PoolId: will set on SetPoolAtomic
-		PoolTypeId:            msg.PoolTypeId,
+		//Id: will set on SetPoolAtomic
+		TypeId:                msg.PoolTypeId,
 		ReserveCoinDenoms:     reserveCoinDenoms,
 		ReserveAccountAddress: reserveAcc.String(),
 		PoolCoinDenom:         PoolCoinDenom,
@@ -75,7 +127,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (
 	}
 
 	pool = k.SetPoolAtomic(ctx, pool)
-	batch := types.NewPoolBatch(pool.PoolId, 1)
+	batch := types.NewPoolBatch(pool.Id, 1)
 
 	k.SetPoolBatch(ctx, batch)
 
@@ -87,7 +139,6 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (
 	return pool, nil
 }
 
-// DepositLiquidityPool deposits new deposit coins to the liquidity pool
 func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState, batch types.PoolBatch) error {
 	msg.Executed = true
 	k.SetPoolBatchDepositMsgState(ctx, msg.Msg.PoolId, msg)
@@ -236,9 +287,9 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeDepositToLiquidityPool,
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
-			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			types.EventTypeDepositToPool,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueDepositor, depositor.String()),
 			sdk.NewAttribute(types.AttributeValueAcceptedCoins, acceptedCoins.String()),
@@ -316,9 +367,9 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeWithdrawFromLiquidityPool,
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
-			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			types.EventTypeWithdrawFromPool,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueWithdrawer, withdrawer.String()),
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, msg.Msg.PoolCoin.Denom),
@@ -365,7 +416,15 @@ func (k Keeper) GetReserveCoins(ctx sdk.Context, pool types.Pool) (reserveCoins 
 // GetPoolMetaData returns metadata of the pool
 func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.Pool) types.PoolMetadata {
 	return types.PoolMetadata{
-		PoolId:              pool.PoolId,
+		PoolId:              pool.Id,
+		PoolCoinTotalSupply: k.GetPoolCoinTotal(ctx, pool),
+		ReserveCoins:        k.GetReserveCoins(ctx, pool),
+	}
+}
+
+// GetPoolMetaDataResponse returns metadata of the pool, containing pool coin total supply, Reserved Coins, skipped PoolId, It used for result of queries
+func (k Keeper) GetPoolMetaDataResponse(ctx sdk.Context, pool types.Pool) types.PoolMetadataResponse {
+	return types.PoolMetadataResponse{
 		PoolCoinTotalSupply: k.GetPoolCoinTotal(ctx, pool),
 		ReserveCoins:        k.GetReserveCoins(ctx, pool),
 	}
@@ -380,7 +439,7 @@ func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.Pool) types.PoolMeta
 
 // GetPoolRecord returns the liquidity pool record with the given pool information
 func (k Keeper) GetPoolRecord(ctx sdk.Context, pool types.Pool) (*types.PoolRecord, bool) {
-	batch, found := k.GetPoolBatch(ctx, pool.PoolId)
+	batch, found := k.GetPoolBatch(ctx, pool.Id)
 	if !found {
 		return nil, found
 	}
@@ -399,12 +458,12 @@ func (k Keeper) SetPoolRecord(ctx sdk.Context, record *types.PoolRecord) {
 	k.SetPoolAtomic(ctx, record.Pool)
 	//k.SetPool(ctx, record.Pool)
 	//k.SetPoolByReserveAccIndex(ctx, record.Pool)
-	k.GetNextPoolBatchIndexWithUpdate(ctx, record.Pool.PoolId)
+	k.GetNextPoolBatchIndexWithUpdate(ctx, record.Pool.Id)
 	record.PoolBatch.BeginHeight = ctx.BlockHeight()
 	k.SetPoolBatch(ctx, record.PoolBatch)
-	k.SetPoolBatchDepositMsgStates(ctx, record.Pool.PoolId, record.DepositMsgStates)
-	k.SetPoolBatchWithdrawMsgStates(ctx, record.Pool.PoolId, record.WithdrawMsgStates)
-	k.SetPoolBatchSwapMsgStates(ctx, record.Pool.PoolId, record.SwapMsgStates)
+	k.SetPoolBatchDepositMsgStates(ctx, record.Pool.Id, record.DepositMsgStates)
+	k.SetPoolBatchWithdrawMsgStates(ctx, record.Pool.Id, record.WithdrawMsgStates)
+	k.SetPoolBatchSwapMsgStates(ctx, record.Pool.Id, record.SwapMsgStates)
 }
 
 // RefundDepositLiquidityPool refunds deposit amounts to the depositor
@@ -423,9 +482,9 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Depos
 	k.SetPoolBatchDepositMsgState(ctx, batchMsg.Msg.PoolId, batchMsg)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeDepositToLiquidityPool,
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
-			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			types.EventTypeDepositWithinBatch,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueDepositor, batchMsg.Msg.GetDepositor().String()),
 			sdk.NewAttribute(types.AttributeValueAcceptedCoins, sdk.NewCoins().String()),
@@ -448,9 +507,9 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.With
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeWithdrawFromLiquidityPool,
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
-			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+			types.EventTypeWithdrawWithinBatch,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueWithdrawer, batchMsg.Msg.GetWithdrawer().String()),
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, batchMsg.Msg.PoolCoin.Denom),
@@ -473,7 +532,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 	var outputs []banktypes.Output
 	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	poolReserveAcc := pool.GetReserveAccount()
-	batch, found := k.GetPoolBatch(ctx, pool.PoolId)
+	batch, found := k.GetPoolBatch(ctx, pool.Id)
 	if !found {
 		return types.ErrPoolBatchNotExists
 	}
@@ -482,7 +541,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 		if !batchMsg.Executed && batchMsg.Succeeded {
 			panic("can't refund not executed with succeed msg")
 		}
-		if pool.PoolId != batchMsg.Msg.PoolId {
+		if pool.Id != batchMsg.Msg.PoolId {
 			panic("broken msg pool consistency")
 		}
 
@@ -606,8 +665,8 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeSwapTransacted,
-					sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
-					sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.BatchIndex, 10)),
+					sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+					sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
 					sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msgAfter.BatchMsg.MsgIndex, 10)),
 					sdk.NewAttribute(types.AttributeValueSwapRequester, msgAfter.BatchMsg.Msg.GetSwapRequester().String()),
 					sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(msgAfter.BatchMsg.Msg.SwapTypeId), 10)),
@@ -685,66 +744,12 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		return err
 	}
-	k.SetPoolBatchSwapMsgStatesByPointer(ctx, pool.PoolId, batchMsgs)
+	k.SetPoolBatchSwapMsgStatesByPointer(ctx, pool.Id, batchMsgs)
 	return nil
 }
 
-// ValidateMsgCreateLiquidityPool validates MsgCreateLiquidityPool
-func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) error {
-	if err := msg.ValidateBasic(); err != nil {
-		return err
-	}
-	params := k.GetParams(ctx)
-	var poolType types.PoolType
-
-	// check poolType exist, get poolType from param
-	if len(params.PoolTypes) >= int(msg.PoolTypeId) {
-		poolType = params.PoolTypes[msg.PoolTypeId-1]
-		if poolType.PoolTypeId != msg.PoolTypeId {
-			return types.ErrPoolTypeNotExists
-		}
-	} else {
-		return types.ErrPoolTypeNotExists
-	}
-
-	if poolType.MaxReserveCoinNum > types.MaxReserveCoinNum || types.MinReserveCoinNum > poolType.MinReserveCoinNum {
-		return types.ErrNumOfReserveCoin
-	}
-
-	reserveCoinNum := uint32(msg.DepositCoins.Len())
-	if reserveCoinNum > poolType.MaxReserveCoinNum || poolType.MinReserveCoinNum > reserveCoinNum {
-		return types.ErrNumOfReserveCoin
-	}
-
-	reserveCoinDenoms := make([]string, reserveCoinNum)
-	for i := 0; i < int(reserveCoinNum); i++ {
-		reserveCoinDenoms[i] = msg.DepositCoins.GetDenomByIndex(i)
-	}
-
-	denomA, denomB := types.AlphabeticalDenomPair(reserveCoinDenoms[0], reserveCoinDenoms[1])
-	if denomA != msg.DepositCoins[0].Denom || denomB != msg.DepositCoins[1].Denom {
-		return types.ErrBadOrderingReserveCoin
-	}
-
-	if denomA == denomB {
-		return types.ErrEqualDenom
-	}
-
-	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, msg.DepositCoins); err != nil {
-		return err
-	}
-
-	poolKey := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
-	reserveAcc := types.GetPoolReserveAcc(poolKey)
-	_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
-	if found {
-		return types.ErrPoolAlreadyExists
-	}
-	return nil
-}
-
-// ValidateMsgDepositLiquidityPool validates MsgDepositToLiquidityPool
-func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDepositToLiquidityPool) error {
+// ValidateMsgDepositLiquidityPool validates MsgDepositWithinBatch
+func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDepositWithinBatch) error {
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
@@ -771,8 +776,8 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 	return nil
 }
 
-// ValidateMsgWithdrawLiquidityPool validates MsgWithdrawFromLiquidityPool
-func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgWithdrawFromLiquidityPool) error {
+// ValidateMsgWithdrawLiquidityPool validates MsgWithdrawWithinBatch
+func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgWithdrawWithinBatch) error {
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
@@ -793,7 +798,7 @@ func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgW
 }
 
 // ValidateMsgSwap validates MsgSwap
-func (k Keeper) ValidateMsgSwap(ctx sdk.Context, msg types.MsgSwap) error {
+func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWithinBatch) error {
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
@@ -834,9 +839,9 @@ func (k Keeper) ValidatePool(ctx sdk.Context, pool *types.Pool) error {
 	var poolType types.PoolType
 
 	// check poolType exist, get poolType from param
-	if len(params.PoolTypes) >= int(pool.PoolTypeId) {
-		poolType = params.PoolTypes[pool.PoolTypeId-1]
-		if poolType.PoolTypeId != pool.PoolTypeId {
+	if len(params.PoolTypes) >= int(pool.TypeId) {
+		poolType = params.PoolTypes[pool.TypeId-1]
+		if poolType.Id != pool.TypeId {
 			return types.ErrPoolTypeNotExists
 		}
 	} else {
@@ -866,13 +871,13 @@ func (k Keeper) ValidatePool(ctx sdk.Context, pool *types.Pool) error {
 		return types.ErrBadOrderingReserveCoin
 	}
 
-	poolKey := types.PoolName(pool.ReserveCoinDenoms, pool.PoolTypeId)
+	poolName := types.PoolName(pool.ReserveCoinDenoms, pool.TypeId)
 	poolCoin := k.GetPoolCoinTotal(ctx, *pool)
-	if poolCoin.Denom != types.GetPoolCoinDenom(poolKey) {
+	if poolCoin.Denom != types.GetPoolCoinDenom(poolName) {
 		return types.ErrBadPoolCoinDenom
 	}
 
-	_, found := k.GetPoolBatch(ctx, pool.PoolId)
+	_, found := k.GetPoolBatch(ctx, pool.Id)
 	if !found {
 		return types.ErrPoolBatchNotExists
 	}

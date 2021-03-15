@@ -33,8 +33,8 @@ var _ = utilities.NewDoubleArray
 var _ = descriptor.ForMessage
 var _ = metadata.Join
 
-func request_MsgApi_CreateLiquidityPoolApi_0(ctx context.Context, marshaler runtime.Marshaler, client MsgApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MsgCreateLiquidityPoolRequest
+func request_MsgApi_CreatePoolApi_0(ctx context.Context, marshaler runtime.Marshaler, client MsgApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MsgCreatePoolRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -45,13 +45,13 @@ func request_MsgApi_CreateLiquidityPoolApi_0(ctx context.Context, marshaler runt
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.CreateLiquidityPoolApi(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.CreatePoolApi(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_MsgApi_CreateLiquidityPoolApi_0(ctx context.Context, marshaler runtime.Marshaler, server MsgApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MsgCreateLiquidityPoolRequest
+func local_request_MsgApi_CreatePoolApi_0(ctx context.Context, marshaler runtime.Marshaler, server MsgApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MsgCreatePoolRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -62,13 +62,13 @@ func local_request_MsgApi_CreateLiquidityPoolApi_0(ctx context.Context, marshale
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.CreateLiquidityPoolApi(ctx, &protoReq)
+	msg, err := server.CreatePoolApi(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_MsgApi_DepositToLiquidityPoolApi_0(ctx context.Context, marshaler runtime.Marshaler, client MsgApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MsgDepositToLiquidityPoolRequest
+func request_MsgApi_DepositWithinBatchApi_0(ctx context.Context, marshaler runtime.Marshaler, client MsgApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MsgDepositWithinBatchRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -97,13 +97,13 @@ func request_MsgApi_DepositToLiquidityPoolApi_0(ctx context.Context, marshaler r
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
 	}
 
-	msg, err := client.DepositToLiquidityPoolApi(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.DepositWithinBatchApi(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_MsgApi_DepositToLiquidityPoolApi_0(ctx context.Context, marshaler runtime.Marshaler, server MsgApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MsgDepositToLiquidityPoolRequest
+func local_request_MsgApi_DepositWithinBatchApi_0(ctx context.Context, marshaler runtime.Marshaler, server MsgApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MsgDepositWithinBatchRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -132,13 +132,13 @@ func local_request_MsgApi_DepositToLiquidityPoolApi_0(ctx context.Context, marsh
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
 	}
 
-	msg, err := server.DepositToLiquidityPoolApi(ctx, &protoReq)
+	msg, err := server.DepositWithinBatchApi(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_MsgApi_WithdrawFromLiquidityPoolApi_0(ctx context.Context, marshaler runtime.Marshaler, client MsgApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MsgWithdrawFromLiquidityPoolRequest
+func request_MsgApi_WithdrawWithinBatchApi_0(ctx context.Context, marshaler runtime.Marshaler, client MsgApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MsgWithdrawWithinBatchRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -167,13 +167,13 @@ func request_MsgApi_WithdrawFromLiquidityPoolApi_0(ctx context.Context, marshale
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
 	}
 
-	msg, err := client.WithdrawFromLiquidityPoolApi(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.WithdrawWithinBatchApi(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_MsgApi_WithdrawFromLiquidityPoolApi_0(ctx context.Context, marshaler runtime.Marshaler, server MsgApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MsgWithdrawFromLiquidityPoolRequest
+func local_request_MsgApi_WithdrawWithinBatchApi_0(ctx context.Context, marshaler runtime.Marshaler, server MsgApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MsgWithdrawWithinBatchRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -202,13 +202,13 @@ func local_request_MsgApi_WithdrawFromLiquidityPoolApi_0(ctx context.Context, ma
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "pool_id", err)
 	}
 
-	msg, err := server.WithdrawFromLiquidityPoolApi(ctx, &protoReq)
+	msg, err := server.WithdrawWithinBatchApi(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
 func request_MsgApi_SwapApi_0(ctx context.Context, marshaler runtime.Marshaler, client MsgApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MsgSwapRequest
+	var protoReq MsgSwapWithinBatchRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -243,7 +243,7 @@ func request_MsgApi_SwapApi_0(ctx context.Context, marshaler runtime.Marshaler, 
 }
 
 func local_request_MsgApi_SwapApi_0(ctx context.Context, marshaler runtime.Marshaler, server MsgApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MsgSwapRequest
+	var protoReq MsgSwapWithinBatchRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -283,7 +283,7 @@ func local_request_MsgApi_SwapApi_0(ctx context.Context, marshaler runtime.Marsh
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMsgApiHandlerFromEndpoint instead.
 func RegisterMsgApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MsgApiServer) error {
 
-	mux.Handle("POST", pattern_MsgApi_CreateLiquidityPoolApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MsgApi_CreatePoolApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -294,7 +294,7 @@ func RegisterMsgApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MsgApi_CreateLiquidityPoolApi_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_MsgApi_CreatePoolApi_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -302,11 +302,11 @@ func RegisterMsgApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_MsgApi_CreateLiquidityPoolApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MsgApi_CreatePoolApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_MsgApi_DepositToLiquidityPoolApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MsgApi_DepositWithinBatchApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -317,7 +317,7 @@ func RegisterMsgApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MsgApi_DepositToLiquidityPoolApi_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_MsgApi_DepositWithinBatchApi_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -325,11 +325,11 @@ func RegisterMsgApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_MsgApi_DepositToLiquidityPoolApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MsgApi_DepositWithinBatchApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_MsgApi_WithdrawFromLiquidityPoolApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MsgApi_WithdrawWithinBatchApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -340,7 +340,7 @@ func RegisterMsgApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MsgApi_WithdrawFromLiquidityPoolApi_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_MsgApi_WithdrawWithinBatchApi_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -348,7 +348,7 @@ func RegisterMsgApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_MsgApi_WithdrawFromLiquidityPoolApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MsgApi_WithdrawWithinBatchApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -416,7 +416,7 @@ func RegisterMsgApiHandler(ctx context.Context, mux *runtime.ServeMux, conn *grp
 // "MsgApiClient" to call the correct interceptors.
 func RegisterMsgApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MsgApiClient) error {
 
-	mux.Handle("POST", pattern_MsgApi_CreateLiquidityPoolApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MsgApi_CreatePoolApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -425,18 +425,18 @@ func RegisterMsgApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MsgApi_CreateLiquidityPoolApi_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_MsgApi_CreatePoolApi_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MsgApi_CreateLiquidityPoolApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MsgApi_CreatePoolApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_MsgApi_DepositToLiquidityPoolApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MsgApi_DepositWithinBatchApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -445,18 +445,18 @@ func RegisterMsgApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MsgApi_DepositToLiquidityPoolApi_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_MsgApi_DepositWithinBatchApi_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MsgApi_DepositToLiquidityPoolApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MsgApi_DepositWithinBatchApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_MsgApi_WithdrawFromLiquidityPoolApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MsgApi_WithdrawWithinBatchApi_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -465,14 +465,14 @@ func RegisterMsgApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MsgApi_WithdrawFromLiquidityPoolApi_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_MsgApi_WithdrawWithinBatchApi_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MsgApi_WithdrawFromLiquidityPoolApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MsgApi_WithdrawWithinBatchApi_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -500,21 +500,21 @@ func RegisterMsgApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 }
 
 var (
-	pattern_MsgApi_CreateLiquidityPoolApi_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"liquidity", "pools"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_MsgApi_CreatePoolApi_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"liquidity", "pools"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_MsgApi_DepositToLiquidityPoolApi_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 2, 4}, []string{"liquidity", "pools", "pool_id", "batch", "deposits"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_MsgApi_DepositWithinBatchApi_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 2, 4}, []string{"liquidity", "pools", "pool_id", "batch", "deposits"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_MsgApi_WithdrawFromLiquidityPoolApi_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 2, 4}, []string{"liquidity", "pools", "pool_id", "batch", "withdraws"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_MsgApi_WithdrawWithinBatchApi_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 2, 4}, []string{"liquidity", "pools", "pool_id", "batch", "withdraws"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_MsgApi_SwapApi_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3, 2, 4}, []string{"liquidity", "pools", "pool_id", "batch", "swaps"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
-	forward_MsgApi_CreateLiquidityPoolApi_0 = runtime.ForwardResponseMessage
+	forward_MsgApi_CreatePoolApi_0 = runtime.ForwardResponseMessage
 
-	forward_MsgApi_DepositToLiquidityPoolApi_0 = runtime.ForwardResponseMessage
+	forward_MsgApi_DepositWithinBatchApi_0 = runtime.ForwardResponseMessage
 
-	forward_MsgApi_WithdrawFromLiquidityPoolApi_0 = runtime.ForwardResponseMessage
+	forward_MsgApi_WithdrawWithinBatchApi_0 = runtime.ForwardResponseMessage
 
 	forward_MsgApi_SwapApi_0 = runtime.ForwardResponseMessage
 )

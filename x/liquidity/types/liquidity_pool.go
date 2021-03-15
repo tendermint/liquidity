@@ -14,15 +14,15 @@ import (
 // a letter, a number or a separator ('/').
 // reDnmString = `[a-zA-Z][a-zA-Z0-9/]{2,127}`.
 func (lp Pool) Name() string {
-	return PoolName(lp.ReserveCoinDenoms, lp.PoolTypeId)
+	return PoolName(lp.ReserveCoinDenoms, lp.TypeId)
 }
 
 // Validate each constraint of the liquidity pool
 func (lp Pool) Validate() error {
-	if lp.PoolId == 0 {
+	if lp.Id == 0 {
 		return ErrPoolNotExists
 	}
-	if lp.PoolTypeId == 0 {
+	if lp.TypeId == 0 {
 		return ErrPoolTypeNotExists
 	}
 	if lp.ReserveCoinDenoms == nil || len(lp.ReserveCoinDenoms) == 0 {
@@ -59,15 +59,28 @@ func PoolName(reserveCoinDenoms []string, poolTypeId uint32) string {
 	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeId), 10)), "/")
 }
 
+// NewPoolBatch creates a new PoolBatch object.
 func NewPoolBatch(poolId, batchIndex uint64) PoolBatch {
 	return PoolBatch{
 		PoolId:           poolId,
-		BatchIndex:       batchIndex,
+		Index:            batchIndex,
 		BeginHeight:      0,
 		DepositMsgIndex:  1,
 		WithdrawMsgIndex: 1,
 		SwapMsgIndex:     1,
 		Executed:         false,
+	}
+}
+
+// GetPoolBatchResponse returns a PoolBatchResponse object skipped pool_id, It used for result of queries
+func GetPoolBatchResponse(poolBatch PoolBatch) PoolBatchResponse {
+	return PoolBatchResponse{
+		Index:            poolBatch.Index,
+		BeginHeight:      poolBatch.BeginHeight,
+		DepositMsgIndex:  poolBatch.DepositMsgIndex,
+		WithdrawMsgIndex: poolBatch.WithdrawMsgIndex,
+		SwapMsgIndex:     poolBatch.SwapMsgIndex,
+		Executed:         poolBatch.Executed,
 	}
 }
 
@@ -106,7 +119,7 @@ func (lp Pool) GetReserveAccount() sdk.AccAddress {
 func (lp Pool) GetPoolCoinDenom() string { return lp.PoolCoinDenom }
 
 // return pool id of the liquidity pool
-func (lp Pool) GetPoolId() uint64 { return lp.PoolId }
+func (lp Pool) GetPoolId() uint64 { return lp.Id }
 
 // Pools is a collection of liquidityPools
 type Pools []Pool

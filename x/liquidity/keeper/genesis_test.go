@@ -66,7 +66,7 @@ func TestGenesisState(t *testing.T) {
 	err = types.ValidateGenesis(*genesisState)
 	require.NoError(t, err)
 
-	pool.PoolTypeId = 5
+	pool.TypeId = 5
 	simapp.LiquidityKeeper.SetPool(ctx, pool)
 	newGenesisBrokenPool := simapp.LiquidityKeeper.ExportGenesis(ctx)
 	err = types.ValidateGenesis(*newGenesisBrokenPool)

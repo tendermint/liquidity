@@ -8,15 +8,15 @@ order: 3
 
 Three messages on the liquidity module need prior coin escrow before confirmation, which causes state transition on `Bank` module. Below lists are describing coin escrow processes for each given message type.
 
-### MsgDepositToLiquidityPool
+### MsgDepositWithinBatch
 
 To deposit coins into existing `Pool`, the depositor needs to escrow `DepositCoins` into `LiquidityModuleEscrowAccount`.
 
-### MsgWithdrawFromLiquidityPool
+### MsgWithdrawWithinBatch
 
 To withdraw coins from `Pool`, the withdrawer needs to escrow `PoolCoin` into `LiquidityModuleEscrowAccount`.
 
-### MsgSwap
+### MsgSwapWithinBatch
 
 To request coin swap, swap requestor needs to escrow `OfferCoin` into `LiquidityModuleEscrowAccount`.
 

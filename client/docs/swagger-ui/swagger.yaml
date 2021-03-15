@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.1.0
+  version: 2.1.1
 paths:
   /liquidity/pools:
     post:
@@ -13,7 +13,7 @@ paths:
         you can broadcast adding signature to the generated tx, through endpoint
         such as /txs or rpc, After broadcast, the result can be subscribe
         through the event and please refer to the spec.
-      operationId: CreateLiquidityPoolApi
+      operationId: CreatePoolApi
       responses:
         '200':
           description: A successful response.
@@ -100,9 +100,7 @@ paths:
                 title: >-
                   Base response struct of result of the requested Tx, standard
                   of tendermint/cosmos-sdk
-            description: >-
-              MsgCreateLiquidityPoolResponse defines the Msg/CreateLiquidityPool
-              response type.
+            description: MsgCreatePoolResponse defines the Msg/CreatePool response type.
         default:
           description: An unexpected error response.
           schema:
@@ -239,7 +237,7 @@ paths:
                   Base Request struct for Post Tx, standard of
                   tendermint/cosmos-sdk
               msg:
-                title: MsgCreateLiquidityPool
+                title: MsgCreatePool
                 type: object
                 properties:
                   pool_creator_address:
@@ -279,8 +277,8 @@ paths:
                         signatures required by gogoproto.
                     title: reserve coin pair of the pool to deposit
             description: >-
-              MsgCreateLiquidityPoolRequest is the request type for the
-              Msg/MsgCreateLiquidityPoolRequest RPC method.
+              MsgCreatePoolRequest is the request type for the
+              Msg/MsgCreatePoolRequest RPC method.
       tags:
         - Tx
       externalDocs:
@@ -310,12 +308,12 @@ paths:
                 items:
                   type: object
                   properties:
-                    pool_id:
+                    id:
                       type: string
                       format: uint64
                       example: '1'
                       title: id of the pool
-                    pool_type_id:
+                    type_id:
                       type: integer
                       format: uint32
                       example: '1'
@@ -340,11 +338,6 @@ paths:
                     metadata:
                       type: object
                       properties:
-                        pool_id:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: id of the pool
                         pool_coin_total_supply:
                           type: object
                           properties:
@@ -394,12 +387,7 @@ paths:
                     batch:
                       type: object
                       properties:
-                        pool_id:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: id of the pool
-                        batch_index:
+                        index:
                           type: string
                           format: uint64
                           example: '1'
@@ -554,7 +542,7 @@ paths:
         you can broadcast adding signature to the generated tx, through endpoint
         such as /txs or rpc, After broadcast, the result can be subscribe
         through the event and please refer to the spec.
-      operationId: DepositToLiquidityPoolApi
+      operationId: DepositWithinBatchApi
       responses:
         '200':
           description: A successful response.
@@ -642,8 +630,8 @@ paths:
                   Base response struct of result of the requested Tx, standard
                   of tendermint/cosmos-sdk
             description: >-
-              MsgDepositToLiquidityPoolResponse defines the
-              Msg/DepositToLiquidityPool response type.
+              MsgDepositWithinBatchResponse defines the Msg/DepositWithinBatch
+              response type.
         default:
           description: An unexpected error response.
           schema:
@@ -791,7 +779,7 @@ paths:
                 example: '1'
                 title: id of the target pool
               msg:
-                title: MsgDepositToLiquidityPool
+                title: MsgDepositWithinBatch
                 type: object
                 properties:
                   depositor_address:
@@ -829,7 +817,7 @@ paths:
                         signatures required by gogoproto.
                     title: reserve coin pair of the pool to deposit
                 description: >-
-                  `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that
+                  `MsgDepositWithinBatch defines` an `sdk.Msg` type that
                   supports submitting deposit request to the batch of the
                   liquidity pool
 
@@ -845,8 +833,8 @@ paths:
                   See:
                   https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
             description: >-
-              MsgDepositToLiquidityPoolRequest is the request type for the
-              Msg/DepositToLiquidityPool RPC method.
+              MsgDepositWithinBatchRequest is the request type for the
+              Msg/DepositWithinBatch RPC method.
       tags:
         - Tx
       externalDocs:
@@ -903,7 +891,7 @@ paths:
                         true if ready to be deleted on kvstore, false if not
                         ready to be deleted
                     msg:
-                      title: MsgDepositToLiquidityPool
+                      title: MsgDepositWithinBatch
                       type: object
                       properties:
                         depositor_address:
@@ -942,9 +930,9 @@ paths:
                               signatures required by gogoproto.
                           title: reserve coin pair of the pool to deposit
                       description: >-
-                        `MsgDepositToLiquidityPool defines` an `sdk.Msg` type
-                        that supports submitting deposit request to the batch of
-                        the liquidity pool
+                        `MsgDepositWithinBatch defines` an `sdk.Msg` type that
+                        supports submitting deposit request to the batch of the
+                        liquidity pool
 
                         Deposit submit to the batch of the Liquidity pool with
                         the specified `pool_id`, deposit coins for reserve
@@ -1171,7 +1159,7 @@ paths:
                 title: >-
                   Base response struct of result of the requested Tx, standard
                   of tendermint/cosmos-sdk
-            description: MsgSwapResponse defines the Msg/Swap response type.
+            description: MsgSwapWithinBatchResponse defines the Msg/Swap response type.
         default:
           description: An unexpected error response.
           schema:
@@ -1319,7 +1307,7 @@ paths:
                 example: '1'
                 title: id of the target pool
               msg:
-                title: MsgSwap
+                title: MsgSwapWithinBatch
                 type: object
                 properties:
                   swap_requester_address:
@@ -1391,8 +1379,9 @@ paths:
                     example: '1.1'
                     title: limit order price for this offer
                 description: >-
-                  `MsgSwap` defines an sdk.Msg type that supports submitting
-                  swap offer request to the batch of the liquidity pool
+                  `MsgSwapWithinBatch` defines an sdk.Msg type that supports
+                  submitting swap offer request to the batch of the liquidity
+                  pool
 
                   Swap offer to the Liquidity pool with the specified `pool_id`,
                   `pool_type_id`, `swap_type`,
@@ -1416,7 +1405,9 @@ paths:
                   See: https://github.com/tendermint/liquidity/tree/develop/doc
 
                   https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-            description: MsgSwapRequest is the request type for the Query/Swap RPC method.
+            description: >-
+              MsgSwapWithinBatchRequest is the request type for the Query/Swap
+              RPC method.
       tags:
         - Tx
       externalDocs:
@@ -1540,7 +1531,7 @@ paths:
                         amount: '5000'
                       title: reserve fee for pays fee in half offer coin
                     msg:
-                      title: MsgSwap
+                      title: MsgSwapWithinBatch
                       type: object
                       properties:
                         swap_requester_address:
@@ -1614,9 +1605,9 @@ paths:
                           example: '1.1'
                           title: limit order price for this offer
                       description: >-
-                        `MsgSwap` defines an sdk.Msg type that supports
-                        submitting swap offer request to the batch of the
-                        liquidity pool
+                        `MsgSwapWithinBatch` defines an sdk.Msg type that
+                        supports submitting swap offer request to the batch of
+                        the liquidity pool
 
                         Swap offer to the Liquidity pool with the specified
                         `pool_id`, `pool_type_id`, `swap_type`,
@@ -1768,7 +1759,7 @@ paths:
         you can broadcast adding signature to the generated tx, through endpoint
         such as /txs or rpc, After broadcast, the result can be subscribe
         through the event and please refer to the spec.
-      operationId: WithdrawFromLiquidityPoolApi
+      operationId: WithdrawWithinBatchApi
       responses:
         '200':
           description: A successful response.
@@ -1856,8 +1847,8 @@ paths:
                   Base response struct of result of the requested Tx, standard
                   of tendermint/cosmos-sdk
             description: >-
-              MsgWithdrawFromLiquidityPoolResponse defines the
-              Msg/WithdrawFromLiquidityPool response type.
+              MsgWithdrawWithinBatchResponse defines the Msg/WithdrawWithinBatch
+              response type.
         default:
           description: An unexpected error response.
           schema:
@@ -2005,7 +1996,7 @@ paths:
                 example: '1'
                 title: id of the target pool
               msg:
-                title: MsgWithdrawFromLiquidityPool
+                title: MsgWithdrawWithinBatch
                 type: object
                 properties:
                   withdrawer_address:
@@ -2038,7 +2029,7 @@ paths:
                       denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                       amount: '1000'
                 description: >-
-                  `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that
+                  `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
                   supports submitting withdraw request to the batch of the
                   liquidity pool
 
@@ -2054,8 +2045,8 @@ paths:
                   See:
                   https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
             description: >-
-              MsgWithdrawFromLiquidityPoolRequest is the request type for the
-              Query/WithdrawFromLiquidityPool RPC method.
+              MsgWithdrawWithinBatchRequest is the request type for the
+              Query/WithdrawWithinBatch RPC method.
       tags:
         - Tx
       externalDocs:
@@ -2112,7 +2103,7 @@ paths:
                         true if ready to be deleted on kvstore, false if not
                         ready to be deleted
                     msg:
-                      title: MsgWithdrawFromLiquidityPool
+                      title: MsgWithdrawWithinBatch
                       type: object
                       properties:
                         withdrawer_address:
@@ -2146,9 +2137,9 @@ paths:
                             denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                             amount: '1000'
                       description: >-
-                        `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type
-                        that supports submitting withdraw request to the batch
-                        of the liquidity pool
+                        `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
+                        supports submitting withdraw request to the batch of the
+                        liquidity pool
 
                         Withdraw submit to the batch from the Liquidity pool
                         with the specified `pool_id`, `pool_coin` of the pool
@@ -2299,7 +2290,7 @@ paths:
                     items:
                       type: object
                       properties:
-                        pool_type_id:
+                        id:
                           type: integer
                           format: uint32
                           example: '1'
@@ -2464,7 +2455,7 @@ paths:
                       format: uint64
                       example: '1'
                       title: id of the pool
-                    batch_index:
+                    index:
                       type: string
                       format: uint64
                       example: '1'
@@ -2620,12 +2611,12 @@ paths:
           schema:
             type: object
             properties:
-              pool_id:
+              id:
                 type: string
                 format: uint64
                 example: '1'
                 title: id of the pool
-              pool_type_id:
+              type_id:
                 type: integer
                 format: uint32
                 example: '1'
@@ -2650,11 +2641,6 @@ paths:
               metadata:
                 type: object
                 properties:
-                  pool_id:
-                    type: string
-                    format: uint64
-                    example: '1'
-                    title: id of the pool
                   pool_coin_total_supply:
                     type: object
                     properties:
@@ -2702,12 +2688,7 @@ paths:
               batch:
                 type: object
                 properties:
-                  pool_id:
-                    type: string
-                    format: uint64
-                    example: '1'
-                    title: id of the pool
-                  batch_index:
+                  index:
                     type: string
                     format: uint64
                     example: '1'
@@ -2809,7 +2790,7 @@ paths:
                     format: uint64
                     example: '1'
                     title: id of the pool
-                  batch_index:
+                  index:
                     type: string
                     format: uint64
                     example: '1'
@@ -2933,7 +2914,7 @@ paths:
                       true if ready to be deleted on kvstore, false if not ready
                       to be deleted
                   msg:
-                    title: MsgDepositToLiquidityPool
+                    title: MsgDepositWithinBatch
                     type: object
                     properties:
                       depositor_address:
@@ -2972,7 +2953,7 @@ paths:
                             signatures required by gogoproto.
                         title: reserve coin pair of the pool to deposit
                     description: >-
-                      `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that
+                      `MsgDepositWithinBatch defines` an `sdk.Msg` type that
                       supports submitting deposit request to the batch of the
                       liquidity pool
 
@@ -3158,7 +3139,7 @@ paths:
                       amount: '5000'
                     title: reserve fee for pays fee in half offer coin
                   msg:
-                    title: MsgSwap
+                    title: MsgSwapWithinBatch
                     type: object
                     properties:
                       swap_requester_address:
@@ -3232,8 +3213,9 @@ paths:
                         example: '1.1'
                         title: limit order price for this offer
                     description: >-
-                      `MsgSwap` defines an sdk.Msg type that supports submitting
-                      swap offer request to the batch of the liquidity pool
+                      `MsgSwapWithinBatch` defines an sdk.Msg type that supports
+                      submitting swap offer request to the batch of the
+                      liquidity pool
 
                       Swap offer to the Liquidity pool with the specified
                       `pool_id`, `pool_type_id`, `swap_type`,
@@ -3362,7 +3344,7 @@ paths:
                       true if ready to be deleted on kvstore, false if not ready
                       to be deleted
                   msg:
-                    title: MsgWithdrawFromLiquidityPool
+                    title: MsgWithdrawWithinBatch
                     type: object
                     properties:
                       withdrawer_address:
@@ -3396,9 +3378,9 @@ paths:
                           denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                           amount: '1000'
                     description: >-
-                      `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type
-                      that supports submitting withdraw request to the batch of
-                      the liquidity pool
+                      `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
+                      supports submitting withdraw request to the batch of the
+                      liquidity pool
 
                       Withdraw submit to the batch from the Liquidity pool with
                       the specified `pool_id`, `pool_coin` of the pool
@@ -3643,7 +3625,7 @@ definitions:
             signatures required by gogoproto.
         title: amount is the amount of coins to be paid as a fee
     title: Fee struct of cosmos-sdk
-  tendermint.liquidity.MsgCreateLiquidityPool:
+  tendermint.liquidity.MsgCreatePool:
     type: object
     properties:
       pool_creator_address:
@@ -3680,9 +3662,9 @@ definitions:
             signatures required by gogoproto.
         title: reserve coin pair of the pool to deposit
     title: >-
-      MsgCreateLiquidityPool defines an sdk.Msg type that supports submitting
-      create liquidity pool
-  tendermint.liquidity.MsgCreateLiquidityPoolRequest:
+      MsgCreatePool defines an sdk.Msg type that supports submitting create
+      liquidity pool
+  tendermint.liquidity.MsgCreatePoolRequest:
     type: object
     properties:
       base_req:
@@ -3784,7 +3766,7 @@ definitions:
               generate_only)
         title: 'Base Request struct for Post Tx, standard of tendermint/cosmos-sdk'
       msg:
-        title: MsgCreateLiquidityPool
+        title: MsgCreatePool
         type: object
         properties:
           pool_creator_address:
@@ -3824,9 +3806,9 @@ definitions:
                 signatures required by gogoproto.
             title: reserve coin pair of the pool to deposit
     description: >-
-      MsgCreateLiquidityPoolRequest is the request type for the
-      Msg/MsgCreateLiquidityPoolRequest RPC method.
-  tendermint.liquidity.MsgCreateLiquidityPoolResponse:
+      MsgCreatePoolRequest is the request type for the Msg/MsgCreatePoolRequest
+      RPC method.
+  tendermint.liquidity.MsgCreatePoolResponse:
     type: object
     properties:
       std_tx:
@@ -3904,10 +3886,8 @@ definitions:
         title: >-
           Base response struct of result of the requested Tx, standard of
           tendermint/cosmos-sdk
-    description: >-
-      MsgCreateLiquidityPoolResponse defines the Msg/CreateLiquidityPool
-      response type.
-  tendermint.liquidity.MsgDepositToLiquidityPool:
+    description: MsgCreatePoolResponse defines the Msg/CreatePool response type.
+  tendermint.liquidity.MsgDepositWithinBatch:
     type: object
     properties:
       depositor_address:
@@ -3942,8 +3922,8 @@ definitions:
             signatures required by gogoproto.
         title: reserve coin pair of the pool to deposit
     description: >-
-      `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that supports
-      submitting deposit request to the batch of the liquidity pool
+      `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting
+      deposit request to the batch of the liquidity pool
 
       Deposit submit to the batch of the Liquidity pool with the specified
       `pool_id`, deposit coins for reserve
@@ -3956,7 +3936,7 @@ definitions:
 
       See:
       https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-  tendermint.liquidity.MsgDepositToLiquidityPoolRequest:
+  tendermint.liquidity.MsgDepositWithinBatchRequest:
     type: object
     properties:
       base_req:
@@ -4063,7 +4043,7 @@ definitions:
         example: '1'
         title: id of the target pool
       msg:
-        title: MsgDepositToLiquidityPool
+        title: MsgDepositWithinBatch
         type: object
         properties:
           depositor_address:
@@ -4101,7 +4081,7 @@ definitions:
                 signatures required by gogoproto.
             title: reserve coin pair of the pool to deposit
         description: >-
-          `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that supports
+          `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
           submitting deposit request to the batch of the liquidity pool
 
           Deposit submit to the batch of the Liquidity pool with the specified
@@ -4116,9 +4096,9 @@ definitions:
           See:
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
     description: >-
-      MsgDepositToLiquidityPoolRequest is the request type for the
-      Msg/DepositToLiquidityPool RPC method.
-  tendermint.liquidity.MsgDepositToLiquidityPoolResponse:
+      MsgDepositWithinBatchRequest is the request type for the
+      Msg/DepositWithinBatch RPC method.
+  tendermint.liquidity.MsgDepositWithinBatchResponse:
     type: object
     properties:
       std_tx:
@@ -4197,9 +4177,9 @@ definitions:
           Base response struct of result of the requested Tx, standard of
           tendermint/cosmos-sdk
     description: >-
-      MsgDepositToLiquidityPoolResponse defines the Msg/DepositToLiquidityPool
-      response type.
-  tendermint.liquidity.MsgSwap:
+      MsgDepositWithinBatchResponse defines the Msg/DepositWithinBatch response
+      type.
+  tendermint.liquidity.MsgSwapWithinBatch:
     type: object
     properties:
       swap_requester_address:
@@ -4265,8 +4245,8 @@ definitions:
         example: '1.1'
         title: limit order price for this offer
     description: >-
-      `MsgSwap` defines an sdk.Msg type that supports submitting swap offer
-      request to the batch of the liquidity pool
+      `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap
+      offer request to the batch of the liquidity pool
 
       Swap offer to the Liquidity pool with the specified `pool_id`,
       `pool_type_id`, `swap_type`,
@@ -4288,7 +4268,7 @@ definitions:
       See: https://github.com/tendermint/liquidity/tree/develop/doc
 
       https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-  tendermint.liquidity.MsgSwapRequest:
+  tendermint.liquidity.MsgSwapWithinBatchRequest:
     type: object
     properties:
       base_req:
@@ -4395,7 +4375,7 @@ definitions:
         example: '1'
         title: id of the target pool
       msg:
-        title: MsgSwap
+        title: MsgSwapWithinBatch
         type: object
         properties:
           swap_requester_address:
@@ -4467,8 +4447,8 @@ definitions:
             example: '1.1'
             title: limit order price for this offer
         description: >-
-          `MsgSwap` defines an sdk.Msg type that supports submitting swap offer
-          request to the batch of the liquidity pool
+          `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting
+          swap offer request to the batch of the liquidity pool
 
           Swap offer to the Liquidity pool with the specified `pool_id`,
           `pool_type_id`, `swap_type`,
@@ -4490,8 +4470,10 @@ definitions:
           See: https://github.com/tendermint/liquidity/tree/develop/doc
 
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-    description: MsgSwapRequest is the request type for the Query/Swap RPC method.
-  tendermint.liquidity.MsgSwapResponse:
+    description: >-
+      MsgSwapWithinBatchRequest is the request type for the Query/Swap RPC
+      method.
+  tendermint.liquidity.MsgSwapWithinBatchResponse:
     type: object
     properties:
       std_tx:
@@ -4569,8 +4551,8 @@ definitions:
         title: >-
           Base response struct of result of the requested Tx, standard of
           tendermint/cosmos-sdk
-    description: MsgSwapResponse defines the Msg/Swap response type.
-  tendermint.liquidity.MsgWithdrawFromLiquidityPool:
+    description: MsgSwapWithinBatchResponse defines the Msg/Swap response type.
+  tendermint.liquidity.MsgWithdrawWithinBatch:
     type: object
     properties:
       withdrawer_address:
@@ -4600,7 +4582,7 @@ definitions:
           denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
           amount: '1000'
     description: >-
-      `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports
+      `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
       submitting withdraw request to the batch of the liquidity pool
 
       Withdraw submit to the batch from the Liquidity pool with the specified
@@ -4614,7 +4596,7 @@ definitions:
 
       See:
       https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-  tendermint.liquidity.MsgWithdrawFromLiquidityPoolRequest:
+  tendermint.liquidity.MsgWithdrawWithinBatchRequest:
     type: object
     properties:
       base_req:
@@ -4721,7 +4703,7 @@ definitions:
         example: '1'
         title: id of the target pool
       msg:
-        title: MsgWithdrawFromLiquidityPool
+        title: MsgWithdrawWithinBatch
         type: object
         properties:
           withdrawer_address:
@@ -4754,7 +4736,7 @@ definitions:
               denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
               amount: '1000'
         description: >-
-          `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports
+          `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
           submitting withdraw request to the batch of the liquidity pool
 
           Withdraw submit to the batch from the Liquidity pool with the
@@ -4769,9 +4751,9 @@ definitions:
           See:
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
     description: >-
-      MsgWithdrawFromLiquidityPoolRequest is the request type for the
-      Query/WithdrawFromLiquidityPool RPC method.
-  tendermint.liquidity.MsgWithdrawFromLiquidityPoolResponse:
+      MsgWithdrawWithinBatchRequest is the request type for the
+      Query/WithdrawWithinBatch RPC method.
+  tendermint.liquidity.MsgWithdrawWithinBatchResponse:
     type: object
     properties:
       std_tx:
@@ -4850,8 +4832,8 @@ definitions:
           Base response struct of result of the requested Tx, standard of
           tendermint/cosmos-sdk
     description: >-
-      MsgWithdrawFromLiquidityPoolResponse defines the
-      Msg/WithdrawFromLiquidityPool response type.
+      MsgWithdrawWithinBatchResponse defines the Msg/WithdrawWithinBatch
+      response type.
   tendermint.liquidity.PubKey:
     type: object
     properties:
@@ -5066,7 +5048,7 @@ definitions:
           true if ready to be deleted on kvstore, false if not ready to be
           deleted
       msg:
-        title: MsgDepositToLiquidityPool
+        title: MsgDepositWithinBatch
         type: object
         properties:
           depositor_address:
@@ -5104,7 +5086,7 @@ definitions:
                 signatures required by gogoproto.
             title: reserve coin pair of the pool to deposit
         description: >-
-          `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that supports
+          `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
           submitting deposit request to the batch of the liquidity pool
 
           Deposit submit to the batch of the Liquidity pool with the specified
@@ -5126,7 +5108,7 @@ definitions:
         items:
           type: object
           properties:
-            pool_type_id:
+            id:
               type: integer
               format: uint32
               example: '1'
@@ -5219,7 +5201,7 @@ definitions:
         format: uint64
         example: '1'
         title: id of the pool
-      batch_index:
+      index:
         type: string
         format: uint64
         example: '1'
@@ -5248,14 +5230,41 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed, false if not executed yet'
-  tendermint.liquidity.PoolMetadata:
+  tendermint.liquidity.PoolBatchResponse:
     type: object
     properties:
-      pool_id:
+      index:
         type: string
         format: uint64
         example: '1'
-        title: id of the pool
+        title: index of this batch
+      begin_height:
+        type: string
+        format: int64
+        example: '1000'
+        title: height where this batch is begun
+      deposit_msg_index:
+        type: string
+        format: uint64
+        example: '1'
+        title: last index of DepositMsgStates
+      withdraw_msg_index:
+        type: string
+        format: uint64
+        example: '1'
+        title: last index of WithdrawMsgStates
+      swap_msg_index:
+        type: string
+        format: uint64
+        example: '1'
+        title: last index of SwapMsgStates
+      executed:
+        type: boolean
+        example: true
+        title: 'true if executed, false if not executed yet'
+  tendermint.liquidity.PoolMetadataResponse:
+    type: object
+    properties:
       pool_coin_total_supply:
         type: object
         properties:
@@ -5297,7 +5306,7 @@ definitions:
   tendermint.liquidity.PoolType:
     type: object
     properties:
-      pool_type_id:
+      id:
         type: integer
         format: uint32
         example: '1'
@@ -5334,7 +5343,7 @@ definitions:
             format: uint64
             example: '1'
             title: id of the pool
-          batch_index:
+          index:
             type: string
             format: uint64
             example: '1'
@@ -5369,12 +5378,12 @@ definitions:
   tendermint.liquidity.QueryLiquidityPoolResponse:
     type: object
     properties:
-      pool_id:
+      id:
         type: string
         format: uint64
         example: '1'
         title: id of the pool
-      pool_type_id:
+      type_id:
         type: integer
         format: uint32
         example: '1'
@@ -5399,11 +5408,6 @@ definitions:
       metadata:
         type: object
         properties:
-          pool_id:
-            type: string
-            format: uint64
-            example: '1'
-            title: id of the pool
           pool_coin_total_supply:
             type: object
             properties:
@@ -5451,12 +5455,7 @@ definitions:
       batch:
         type: object
         properties:
-          pool_id:
-            type: string
-            format: uint64
-            example: '1'
-            title: id of the pool
-          batch_index:
+          index:
             type: string
             format: uint64
             example: '1'
@@ -5502,7 +5501,7 @@ definitions:
               format: uint64
               example: '1'
               title: id of the pool
-            batch_index:
+            index:
               type: string
               format: uint64
               example: '1'
@@ -5563,12 +5562,12 @@ definitions:
         items:
           type: object
           properties:
-            pool_id:
+            id:
               type: string
               format: uint64
               example: '1'
               title: id of the pool
-            pool_type_id:
+            type_id:
               type: integer
               format: uint32
               example: '1'
@@ -5593,11 +5592,6 @@ definitions:
             metadata:
               type: object
               properties:
-                pool_id:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: id of the pool
                 pool_coin_total_supply:
                   type: object
                   properties:
@@ -5645,12 +5639,7 @@ definitions:
             batch:
               type: object
               properties:
-                pool_id:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: id of the pool
-                batch_index:
+                index:
                   type: string
                   format: uint64
                   example: '1'
@@ -5720,7 +5709,7 @@ definitions:
             items:
               type: object
               properties:
-                pool_type_id:
+                id:
                   type: integer
                   format: uint32
                   example: '1'
@@ -5842,7 +5831,7 @@ definitions:
               true if ready to be deleted on kvstore, false if not ready to be
               deleted
           msg:
-            title: MsgDepositToLiquidityPool
+            title: MsgDepositWithinBatch
             type: object
             properties:
               depositor_address:
@@ -5880,9 +5869,8 @@ definitions:
                     signatures required by gogoproto.
                 title: reserve coin pair of the pool to deposit
             description: >-
-              `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that
-              supports submitting deposit request to the batch of the liquidity
-              pool
+              `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
+              submitting deposit request to the batch of the liquidity pool
 
               Deposit submit to the batch of the Liquidity pool with the
               specified `pool_id`, deposit coins for reserve
@@ -5931,7 +5919,7 @@ definitions:
                 true if ready to be deleted on kvstore, false if not ready to be
                 deleted
             msg:
-              title: MsgDepositToLiquidityPool
+              title: MsgDepositWithinBatch
               type: object
               properties:
                 depositor_address:
@@ -5969,9 +5957,8 @@ definitions:
                       signatures required by gogoproto.
                   title: reserve coin pair of the pool to deposit
               description: >-
-                `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that
-                supports submitting deposit request to the batch of the
-                liquidity pool
+                `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
+                submitting deposit request to the batch of the liquidity pool
 
                 Deposit submit to the batch of the Liquidity pool with the
                 specified `pool_id`, deposit coins for reserve
@@ -6106,7 +6093,7 @@ definitions:
               amount: '5000'
             title: reserve fee for pays fee in half offer coin
           msg:
-            title: MsgSwap
+            title: MsgSwapWithinBatch
             type: object
             properties:
               swap_requester_address:
@@ -6178,8 +6165,8 @@ definitions:
                 example: '1.1'
                 title: limit order price for this offer
             description: >-
-              `MsgSwap` defines an sdk.Msg type that supports submitting swap
-              offer request to the batch of the liquidity pool
+              `MsgSwapWithinBatch` defines an sdk.Msg type that supports
+              submitting swap offer request to the batch of the liquidity pool
 
               Swap offer to the Liquidity pool with the specified `pool_id`,
               `pool_type_id`, `swap_type`,
@@ -6305,7 +6292,7 @@ definitions:
                 amount: '5000'
               title: reserve fee for pays fee in half offer coin
             msg:
-              title: MsgSwap
+              title: MsgSwapWithinBatch
               type: object
               properties:
                 swap_requester_address:
@@ -6377,8 +6364,8 @@ definitions:
                   example: '1.1'
                   title: limit order price for this offer
               description: >-
-                `MsgSwap` defines an sdk.Msg type that supports submitting swap
-                offer request to the batch of the liquidity pool
+                `MsgSwapWithinBatch` defines an sdk.Msg type that supports
+                submitting swap offer request to the batch of the liquidity pool
 
                 Swap offer to the Liquidity pool with the specified `pool_id`,
                 `pool_type_id`, `swap_type`,
@@ -6456,7 +6443,7 @@ definitions:
               true if ready to be deleted on kvstore, false if not ready to be
               deleted
           msg:
-            title: MsgWithdrawFromLiquidityPool
+            title: MsgWithdrawWithinBatch
             type: object
             properties:
               withdrawer_address:
@@ -6489,9 +6476,8 @@ definitions:
                   denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                   amount: '1000'
             description: >-
-              `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that
-              supports submitting withdraw request to the batch of the liquidity
-              pool
+              `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
+              submitting withdraw request to the batch of the liquidity pool
 
               Withdraw submit to the batch from the Liquidity pool with the
               specified `pool_id`, `pool_coin` of the pool
@@ -6540,7 +6526,7 @@ definitions:
                 true if ready to be deleted on kvstore, false if not ready to be
                 deleted
             msg:
-              title: MsgWithdrawFromLiquidityPool
+              title: MsgWithdrawWithinBatch
               type: object
               properties:
                 withdrawer_address:
@@ -6573,9 +6559,8 @@ definitions:
                     denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
                     amount: '1000'
               description: >-
-                `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that
-                supports submitting withdraw request to the batch of the
-                liquidity pool
+                `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
+                submitting withdraw request to the batch of the liquidity pool
 
                 Withdraw submit to the batch from the Liquidity pool with the
                 specified `pool_id`, `pool_coin` of the pool
@@ -6698,7 +6683,7 @@ definitions:
           amount: '5000'
         title: reserve fee for pays fee in half offer coin
       msg:
-        title: MsgSwap
+        title: MsgSwapWithinBatch
         type: object
         properties:
           swap_requester_address:
@@ -6770,8 +6755,8 @@ definitions:
             example: '1.1'
             title: limit order price for this offer
         description: >-
-          `MsgSwap` defines an sdk.Msg type that supports submitting swap offer
-          request to the batch of the liquidity pool
+          `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting
+          swap offer request to the batch of the liquidity pool
 
           Swap offer to the Liquidity pool with the specified `pool_id`,
           `pool_type_id`, `swap_type`,
@@ -6821,7 +6806,7 @@ definitions:
           true if ready to be deleted on kvstore, false if not ready to be
           deleted
       msg:
-        title: MsgWithdrawFromLiquidityPool
+        title: MsgWithdrawWithinBatch
         type: object
         properties:
           withdrawer_address:
@@ -6854,7 +6839,7 @@ definitions:
               denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
               amount: '1000'
         description: >-
-          `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports
+          `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
           submitting withdraw request to the batch of the liquidity pool
 
           Withdraw submit to the batch from the Liquidity pool with the

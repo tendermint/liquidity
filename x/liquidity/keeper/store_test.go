@@ -38,12 +38,12 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 
 	// create Liquidity pool
 	poolTypeIndex := types.DefaultPoolTypeId
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeIndex, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
-	var XtoY []*types.MsgSwap // buying Y from X
-	var YtoX []*types.MsgSwap // selling Y for X
+	var XtoY []*types.MsgSwapWithinBatch // buying Y from X
+	var YtoX []*types.MsgSwapWithinBatch // selling Y for X
 
 	// make random orders, set buyer, seller accounts for the orders
 	XtoY, YtoX = app.GetRandomOrders(denomX, denomY, X, Y, r, 11, 11)
@@ -60,13 +60,13 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	for i, msg := range XtoY {
 		app.SaveAccountWithFee(simapp, ctx, buyerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
 		msg.SwapRequesterAddress = buyerAccs[i].String()
-		msg.PoolId = pool.PoolId
+		msg.PoolId = pool.Id
 		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
 	}
 	for i, msg := range YtoX {
 		app.SaveAccountWithFee(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
 		msg.SwapRequesterAddress = sellerAccs[i].String()
-		msg.PoolId = pool.PoolId
+		msg.PoolId = pool.Id
 		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
 	}
 

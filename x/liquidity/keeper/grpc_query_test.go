@@ -11,7 +11,7 @@ import (
 
 func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	pool, found := app.LiquidityKeeper.GetPool(ctx, suite.pools[0].PoolId)
+	pool, found := app.LiquidityKeeper.GetPool(ctx, suite.pools[0].Id)
 	suite.True(found)
 
 	var req *types.QueryLiquidityPoolRequest
@@ -29,7 +29,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 		},
 		{"valid request",
 			func() {
-				req = &types.QueryLiquidityPoolRequest{PoolId: suite.pools[0].PoolId}
+				req = &types.QueryLiquidityPoolRequest{PoolId: suite.pools[0].Id}
 			},
 			true,
 		},
@@ -41,7 +41,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 			res, err := queryClient.LiquidityPool(gocontext.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
-				suite.Equal(pool.PoolId, res.PoolId)
+				suite.Equal(pool.Id, res.Id)
 			} else {
 				suite.Error(err)
 				suite.Nil(res)
@@ -115,7 +115,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 
 func (suite *KeeperTestSuite) TestGRPCLiquidityPoolBatch() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
-	batch, found := app.LiquidityKeeper.GetPoolBatch(ctx, suite.pools[0].PoolId)
+	batch, found := app.LiquidityKeeper.GetPoolBatch(ctx, suite.pools[0].Id)
 	suite.True(found)
 
 	var req *types.QueryLiquidityPoolBatchRequest
@@ -133,7 +133,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPoolBatch() {
 		},
 		{"valid request",
 			func() {
-				req = &types.QueryLiquidityPoolBatchRequest{PoolId: suite.pools[0].PoolId}
+				req = &types.QueryLiquidityPoolBatchRequest{PoolId: suite.pools[0].Id}
 			},
 			true,
 		},

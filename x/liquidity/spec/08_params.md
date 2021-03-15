@@ -8,17 +8,17 @@ order: 8
 
 The liquidity module contains the following parameters:
 
-| Key                      | Type                | Example                                                                                                                          |
-| ------------------------ | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| PoolTypes                | []PoolType          | [{"pool_type_id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}]    |
-| MinInitDepositToPool     | string (sdk.Int)    | "1000000"                                                                                                                        |
-| InitPoolCoinMintAmount   | string (sdk.Int)    | "1000000"                                                                                                                        |
-| ReserveCoinLimitAmount   | string (sdk.Int)    | "1000000000000"                                                                                                                  |
-| LiquidityPoolCreationFee | sdk.Coins           | [{"denom":"stake","amount":"100000000"}]                                                                                         |
-| SwapFeeRate              | string (sdk.Dec)    | "0.003000000000000000"                                                                                                           |
-| WithdrawFeeRate          | string (sdk.Dec)    | "0.003000000000000000"                                                                                                           |
-| MaxOrderAmountRatio      | string (sdk.Dec)    | "0.100000000000000000"                                                                                                           |
-| UnitBatchSize            | uint32              | 1                                                                                                                                |
+| Key                      | Type             | Example                                                                                                             |
+| ------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| PoolTypes                | []PoolType       | [{"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
+| MinInitDepositToPool     | string (sdk.Int) | "1000000"                                                                                                           |
+| InitPoolCoinMintAmount   | string (sdk.Int) | "1000000"                                                                                                           |
+| ReserveCoinLimitAmount   | string (sdk.Int) | "1000000000000"                                                                                                     |
+| LiquidityPoolCreationFee | sdk.Coins        | [{"denom":"stake","amount":"100000000"}]                                                                            |
+| SwapFeeRate              | string (sdk.Dec) | "0.003000000000000000"                                                                                              |
+| WithdrawFeeRate          | string (sdk.Dec) | "0.003000000000000000"                                                                                              |
+| MaxOrderAmountRatio      | string (sdk.Dec) | "0.100000000000000000"                                                                                              |
+| UnitBatchSize            | uint32           | 1                                                                                                                   |
 
 ## PoolTypes
 
@@ -26,7 +26,7 @@ List of available PoolType
 
 ```go
 type PoolType struct {
-	PoolTypeId            uint32
+	Id                    uint32
 	Name                  string
 	MinReserveCoinNum     uint32
 	MaxReserveCoinNum     uint32
