@@ -371,6 +371,14 @@ func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.Pool) types.PoolMeta
 	}
 }
 
+// GetPoolMetaDataResponse returns metadata of the pool, containing pool coin total supply, Reserved Coins, skipped PoolId, It used for result of queries
+func (k Keeper) GetPoolMetaDataResponse(ctx sdk.Context, pool types.Pool) types.PoolMetadataResponse {
+	return types.PoolMetadataResponse{
+		PoolCoinTotalSupply: k.GetPoolCoinTotal(ctx, pool),
+		ReserveCoins:        k.GetReserveCoins(ctx, pool),
+	}
+}
+
 // This method is added by hallazzang. Is it okay to remove?
 //func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.Pool) *types.PoolMetadata {
 //	totalSupply := sdk.NewCoin(pool.PoolCoinDenom, k.GetPoolCoinTotalSupply(ctx, pool))

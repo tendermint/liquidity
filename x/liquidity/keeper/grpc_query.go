@@ -304,13 +304,13 @@ func (k Querier) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Pool
 	}
 
 	return &types.QueryLiquidityPoolResponse{
-		PoolId:                pool.PoolId,
-		PoolTypeId:            pool.PoolTypeId,
+		Id:                pool.PoolId,
+		TypeId:            pool.PoolTypeId,
 		ReserveCoinDenoms:     pool.ReserveCoinDenoms,
 		ReserveAccountAddress: pool.ReserveAccountAddress,
 		PoolCoinDenom:         pool.PoolCoinDenom,
-		Metadata:              k.GetPoolMetaData(ctx, pool),
-		Batch:                 batch,
+		Metadata:              k.GetPoolMetaDataResponse(ctx, pool),
+		Batch:                 types.GetPoolBatchResponse(batch),
 	}, nil
 }
 
@@ -323,16 +323,16 @@ func (k Querier) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Po
 			return nil, types.ErrPoolBatchNotExists
 		}
 
-		meta := k.GetPoolMetaData(ctx, pool)
+		meta := k.GetPoolMetaDataResponse(ctx, pool)
 
 		res := types.QueryLiquidityPoolResponse{
-			PoolId:                pool.PoolId,
-			PoolTypeId:            pool.PoolTypeId,
+			Id:                pool.PoolId,
+			TypeId:            pool.PoolTypeId,
 			ReserveCoinDenoms:     pool.ReserveCoinDenoms,
 			ReserveAccountAddress: pool.ReserveAccountAddress,
 			PoolCoinDenom:         pool.PoolCoinDenom,
 			Metadata:              meta,
-			Batch:                 batch,
+			Batch:                 types.GetPoolBatchResponse(batch),
 		}
 
 		resp[i] = res

@@ -59,6 +59,7 @@ func PoolName(reserveCoinDenoms []string, poolTypeId uint32) string {
 	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeId), 10)), "/")
 }
 
+// NewPoolBatch creates a new PoolBatch object.
 func NewPoolBatch(poolId, batchIndex uint64) PoolBatch {
 	return PoolBatch{
 		PoolId:           poolId,
@@ -68,6 +69,18 @@ func NewPoolBatch(poolId, batchIndex uint64) PoolBatch {
 		WithdrawMsgIndex: 1,
 		SwapMsgIndex:     1,
 		Executed:         false,
+	}
+}
+
+// GetPoolBatchResponse returns a PoolBatchResponse object skipped pool_id, It used for result of queries
+func GetPoolBatchResponse(poolBatch PoolBatch) PoolBatchResponse {
+	return PoolBatchResponse{
+		BatchIndex:       poolBatch.BatchIndex,
+		BeginHeight:      poolBatch.BeginHeight,
+		DepositMsgIndex:  poolBatch.DepositMsgIndex,
+		WithdrawMsgIndex: poolBatch.WithdrawMsgIndex,
+		SwapMsgIndex:     poolBatch.SwapMsgIndex,
+		Executed:         poolBatch.Executed,
 	}
 }
 
