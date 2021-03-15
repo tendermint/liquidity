@@ -10,15 +10,15 @@ import (
 
 // Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.
 func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatch) (uint64, error) {
-	pool, found := k.GetPool(ctx, liquidityPoolBatch.PoolId)
-	if !found {
-		return 0, types.ErrPoolNotExists
-	}
-
 	// get all swap message batch states that are not executed, not succeeded, and not to be deleted.
 	swapMsgStates := k.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, liquidityPoolBatch)
 	if len(swapMsgStates) == 0 {
 		return 0, nil
+	}
+
+	pool, found := k.GetPool(ctx, liquidityPoolBatch.PoolId)
+	if !found {
+		return 0, types.ErrPoolNotExists
 	}
 
 	// set executed states of all messages to true
