@@ -23,10 +23,10 @@ const (
 	DefaultUnitBatchSize uint32 = 1
 
 	// index of target pool type, only 1 is allowed on this version.
-	DefaultPoolTypeIndex uint32 = 1
+	DefaultPoolTypeId uint32 = 1
 
-	// swap type of available swap request, only 1 is allowed on this version.
-	DefaultSwapType uint32 = 1
+	// swap type index of available swap request, only 1 (InstantSwap) is allowed on this version.
+	DefaultSwapTypeId uint32 = 1
 )
 
 // Parameter store keys
@@ -56,7 +56,7 @@ var (
 	DecimalErrThreshold10 = sdk.NewDecWithPrec(1, 10)
 
 	DefaultPoolType = PoolType{
-		PoolTypeIndex:     1,
+		PoolTypeId:        1,
 		Name:              "DefaultPoolType",
 		MinReserveCoinNum: MinReserveCoinNum,
 		MaxReserveCoinNum: MaxReserveCoinNum,
@@ -175,7 +175,7 @@ func validatePoolTypes(i interface{}) error {
 		return fmt.Errorf("empty parameter: PoolTypes")
 	}
 	for i, p := range v {
-		if i+1 != int(p.PoolTypeIndex) {
+		if i+1 != int(p.PoolTypeId) {
 			return fmt.Errorf("PoolTypes index must be sorted")
 		}
 	}

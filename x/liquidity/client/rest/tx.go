@@ -118,7 +118,7 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 //type CreateLiquidityPoolReq struct {
 //	BaseReq           rest.BaseReq `json:"base_req" yaml:"base_req"`
 //	PoolCreator       string       `json:"pool_creator" yaml:"pool_creator"`
-//	PoolTypeIndex     string       `json:"pool_type_index" yaml:"pool_type_index"`
+//	PoolTypeId     string       `json:"pool_type_id" yaml:"pool_type_id"`
 //	ReserveCoinDenoms string       `json:"reserve_coin_denoms" yaml:"reserve_coin_denoms"`
 //	DepositCoins      string       `json:"deposit_coins" yaml:"deposit_coins"`
 //}
@@ -144,7 +144,7 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 //	BaseReq         rest.BaseReq `json:"base_req" yaml:"base_req"`
 //	SwapRequester   string       `json:"swap_requester" yaml:"swap_requester"`
 //	PoolId          string       `json:"pool_id" yaml:"pool_id"`
-//	PoolTypeIndex   string       `json:"pool_type_index" yaml:"pool_type_index"`
+//	PoolTypeId   string       `json:"pool_type_id" yaml:"pool_type_id"`
 //	SwapType        string       `json:"swap_type" yaml:"swap_type"`
 //	OfferCoin       string       `json:"offer_coin" yaml:"offer_coin"`
 //	DemandCoinDenom string       `json:"demand_coin" yaml:"demand_coin"`

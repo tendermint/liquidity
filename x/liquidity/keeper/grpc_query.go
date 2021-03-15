@@ -305,7 +305,7 @@ func (k Querier) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Pool
 
 	return &types.QueryLiquidityPoolResponse{
 		PoolId:                pool.PoolId,
-		PoolTypeIndex:         pool.PoolTypeIndex,
+		PoolTypeId:            pool.PoolTypeId,
 		ReserveCoinDenoms:     pool.ReserveCoinDenoms,
 		ReserveAccountAddress: pool.ReserveAccountAddress,
 		PoolCoinDenom:         pool.PoolCoinDenom,
@@ -327,7 +327,7 @@ func (k Querier) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Po
 
 		res := types.QueryLiquidityPoolResponse{
 			PoolId:                pool.PoolId,
-			PoolTypeIndex:         pool.PoolTypeIndex,
+			PoolTypeId:            pool.PoolTypeId,
 			ReserveCoinDenoms:     pool.ReserveCoinDenoms,
 			ReserveAccountAddress: pool.ReserveAccountAddress,
 			PoolCoinDenom:         pool.PoolCoinDenom,

@@ -16,7 +16,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	require.Equal(t, types.ErrPoolNotExists, pool.Validate())
 	pool.PoolId = 1
 	require.Equal(t, types.ErrPoolTypeNotExists, pool.Validate())
-	pool.PoolTypeIndex = 1
+	pool.PoolTypeId = 1
 	require.Equal(t, types.ErrNumOfReserveCoinDenoms, pool.Validate())
 	pool.ReserveCoinDenoms = []string{DenomY, DenomX, DenomX}
 	require.Equal(t, types.ErrNumOfReserveCoinDenoms, pool.Validate())
@@ -36,7 +36,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 
 	require.NoError(t, pool.Validate())
 
-	require.Equal(t, pool.Name(), types.PoolName(pool.ReserveCoinDenoms, pool.PoolTypeIndex))
+	require.Equal(t, pool.Name(), types.PoolName(pool.ReserveCoinDenoms, pool.PoolTypeId))
 	require.Equal(t, pool.PoolId, pool.GetPoolId())
 	require.Equal(t, pool.PoolCoinDenom, pool.GetPoolCoinDenom())
 
@@ -68,7 +68,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	batchDepositMsg := types.DepositMsgState{}
 	batchWithdrawMsg := types.WithdrawMsgState{}
 	batchSwapMsg := types.SwapMsgState{ExchangedOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)),
-		RemainingOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)), OfferCoinFeeReserve: types.GetOfferCoinFee(sdk.NewCoin("test", sdk.NewInt(2000)), params.SwapFeeRate)}
+		RemainingOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)), ReservedOfferCoinFee: types.GetOfferCoinFee(sdk.NewCoin("test", sdk.NewInt(2000)), params.SwapFeeRate)}
 
 	byte := types.MustMarshalDepositMsgState(cdc, batchDepositMsg)
 	require.Equal(t, batchDepositMsg, types.MustUnmarshalDepositMsgState(cdc, byte))

@@ -39,8 +39,8 @@ message MsgCreateLiquidityPool {
       format: "sdk.AccAddress"
     }];
 
-  // index of target pool type, only 1 is allowed on this version, Must match the value in the pool.
-  uint32 pool_type_index = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\"",
+  // id of target pool type, only 1 is allowed on this version, Must match the value in the pool.
+  uint32 pool_type_id = 2 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       example: "\"1\"",
       format: "uint32"
@@ -185,7 +185,7 @@ message MsgWithdrawFromLiquidityPoolResponse {
 }
 
 // `MsgSwap` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
-// Swap offer to the Liquidity pool with the specified `pool_id`, `pool_type_index`, `swap_type`,
+// Swap offer to the Liquidity pool with the specified `pool_id`, `pool_type_id`, `swap_type`,
 // `demand_coin_denom` with the coin and the price you're offering
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests
@@ -212,15 +212,15 @@ message MsgSwap {
       format: "uint64"
     }];
 
-//  // index of target pool type, only 1 is allowed on this version, Must match the value in the pool.
-//  uint32 pool_type_index = 3 [(gogoproto.moretags) = "yaml:\"pool_type_index\"",
+//  // id of target pool type, only 1 is allowed on this version, Must match the value in the pool.
+//  uint32 pool_type_id = 3 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
 //    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
 //      example: "\"1\"",
 //      format: "uint32"
 //    }];
 
-  // id of swap type type, only 1 is allowed on this version, Must match the value in the pool.
-  uint32 swap_type = 3 [(gogoproto.moretags) = "yaml:\"swap_type\"",
+  // id of swap type, only 1 is allowed on this version, Must match the value in the pool.
+  uint32 swap_type_id = 3 [(gogoproto.moretags) = "yaml:\"swap_type_id\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       example: "\"1\"",
       format: "uint32"

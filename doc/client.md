@@ -58,7 +58,7 @@ $ liquidity tx liquidity create-pool 1 100000000stake,100000000token --from myke
 Currently, only the default pool-type-index 1 is available on this version
 the number of deposit coins must be two in the pool-type-index 1
 
-{"pool_type_index":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
+{"pool_type_id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
 
 Usage:
   liquidityd tx liquidity create-pool [pool-type-index] [deposit-coins] [flags]
@@ -77,7 +77,7 @@ example tx command with result
       {
         "@type": "/tendermint.liquidity.MsgCreateLiquidityPool",
         "pool_creator_address": "cosmos1ta4236u33x0rswerr9rhu2h4ervd67y0dgy098",
-        "pool_type_index": 1,
+        "pool_type_id": 1,
         "deposit_coins": [
           {
             "denom": "stake",
@@ -131,7 +131,7 @@ result
               "value": "1"
             },
             {
-              "key": "liquidity_pool_type_index",
+              "key": "liquidity_pool_type_id",
               "value": "1"
             },
             {
@@ -387,9 +387,9 @@ result
 `$ liquidityd tx liquidity swap --help`
 
 ```bash  
-swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]
+swap [pool-id] [swap-type-index] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]
 
-Swap offer to the Liquidity pool with the specified pool-id, swap-type demand-coin-denom
+Swap offer to the Liquidity pool with the specified pool-id, swap-type-index demand-coin-denom
 with the coin and the price you're offering
 
 this requests are stacked in the batch of the liquidity pool, not immediately processed and
@@ -404,7 +404,7 @@ Must have sufficient balance half the of the swapFee Rate of the offer coin to r
 
 For explicit calculations, you must enter the params.swap_fee_rate value of the current parameter state.
 
-Currently, only the default pool-type, swap-type 1 is available on this version
+Currently, only the default pool-type, swap-type-index 1 is available on this version
 The detailed swap algorithm can be found here.
 https://github.com/tendermint/liquidity
 ```
@@ -918,7 +918,7 @@ example query command with result
 liquidity_pool:
   pool_coin_denom: pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
   pool_id: "1"
-  pool_type_index: 1
+  pool_type_id: 1
   reserve_account_address: cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u
   reserve_coin_denoms:
   - stake
@@ -969,7 +969,7 @@ pools:
 - liquidity_pool:
     pool_coin_denom: pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
     pool_id: "1"
-    pool_type_index: 1
+    pool_type_id: 1
     reserve_account_address: cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u
     reserve_coin_denoms:
     - stake
@@ -995,7 +995,7 @@ pools:
 - liquidity_pool:
     pool_coin_denom: pool/4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC
     pool_id: "2"
-    pool_type_index: 1
+    pool_type_id: 1
     reserve_account_address: cosmos1guvgyffq53h87etuq5d85x9fazzh6ta5tq2rjn
     reserve_coin_denoms:
     - atom
@@ -1036,7 +1036,7 @@ liquidity_pool_types:
   max_reserve_coin_num: 2
   min_reserve_coin_num: 2
   name: DefaultPoolType
-  pool_type_index: 1
+  pool_type_id: 1
 max_order_amount_ratio: "0.100000000000000000"
 min_init_deposit_to_pool: "1000000"
 swap_fee_rate: "0.003000000000000000"
@@ -1083,14 +1083,14 @@ example query command with result
          "denom": "token",
          "amount": "0"
        },
-       "offer_coin_fee_reserve": {
+       "reserved_offer_coin_fee": {
          "denom": "token",
          "amount": "0"
        },
        "msg": {
          "swap_requester_address": "cosmos1ta4236u33x0rswerr9rhu2h4ervd67y0dgy098",
          "pool_id": "1",
-         "pool_type_index": 1,
+         "pool_type_id": 1,
          "swap_type": 1,
          "offer_coin": {
            "denom": "token",

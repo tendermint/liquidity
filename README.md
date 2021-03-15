@@ -208,7 +208,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
       "params": {
           "liquidity_pool_types": [
             {
-              "pool_type_index": 1,
+              "pool_type_id": 1,
               "name": "DefaultPoolType",
               "min_reserve_coin_num": 2,
               "max_reserve_coin_num": 2,
@@ -271,7 +271,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
           "liquidity_pool": {
             "pool_coin_denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
             "pool_id": "1",
-            "pool_type_index": 1,
+            "pool_type_id": 1,
             "reserve_account_address": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
             "reserve_coin_denoms": [
               "reservecoin1",
@@ -309,7 +309,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
       "params": {
           "liquidity_pool_types": [
             {
-              "pool_type_index": 1,
+              "pool_type_id": 1,
               "name": "DefaultPoolType",
               "min_reserve_coin_num": 2,
               "max_reserve_coin_num": 2,

@@ -27,12 +27,12 @@ const (
 // NewMsgSwap creates a new MsgSwap object.
 func NewMsgCreateLiquidityPool(
 	poolCreator sdk.AccAddress,
-	poolTypeIndex uint32,
+	poolTypeId uint32,
 	depositCoins sdk.Coins,
 ) *MsgCreateLiquidityPool {
 	return &MsgCreateLiquidityPool{
 		PoolCreatorAddress: poolCreator.String(),
-		PoolTypeIndex:      poolTypeIndex,
+		PoolTypeId:         poolTypeId,
 		DepositCoins:       depositCoins,
 	}
 }
@@ -45,8 +45,8 @@ func (msg MsgCreateLiquidityPool) Type() string { return TypeMsgCreateLiquidityP
 
 // ValidateBasic implements Msg.
 func (msg MsgCreateLiquidityPool) ValidateBasic() error {
-	if 1 > msg.PoolTypeIndex {
-		return ErrBadPoolTypeIndex
+	if 1 > msg.PoolTypeId {
+		return ErrBadPoolTypeId
 	}
 	if msg.PoolCreatorAddress == "" {
 		return ErrEmptyPoolCreatorAddr
@@ -213,7 +213,7 @@ func (msg MsgWithdrawFromLiquidityPool) GetWithdrawer() sdk.AccAddress {
 func NewMsgSwap(
 	swapRequester sdk.AccAddress,
 	poolId uint64,
-	swapType uint32,
+	swapTypeId uint32,
 	offerCoin sdk.Coin,
 	demandCoinDenom string,
 	orderPrice sdk.Dec,
@@ -222,7 +222,7 @@ func NewMsgSwap(
 	return &MsgSwap{
 		SwapRequesterAddress: swapRequester.String(),
 		PoolId:               poolId,
-		SwapType:             swapType,
+		SwapTypeId:           swapTypeId,
 		OfferCoin:            offerCoin,
 		OfferCoinFee:         GetOfferCoinFee(offerCoin, swapFeeRate),
 		DemandCoinDenom:      demandCoinDenom,

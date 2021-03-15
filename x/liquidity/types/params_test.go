@@ -33,7 +33,7 @@ func TestParams(t *testing.T) {
 	require.IsType(t, paramtypes.ParamSetPairs{}, resPair)
 
 	genesisStr := `pool_types:
-- pool_type_index: 1
+- pool_type_id: 1
   name: DefaultPoolType
   min_reserve_coin_num: 2
   max_reserve_coin_num: 2
