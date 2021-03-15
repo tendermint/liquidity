@@ -698,9 +698,9 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 	var poolType types.PoolType
 
 	// check poolType exist, get poolType from param
-	if len(params.PoolTypes) >= int(msg.PoolTypeIndex) {
-		poolType = params.PoolTypes[msg.PoolTypeIndex-1]
-		if poolType.PoolTypeIndex != msg.PoolTypeIndex {
+	if len(params.PoolTypes) >= int(msg.PoolTypeId) {
+		poolType = params.PoolTypes[msg.PoolTypeId-1]
+		if poolType.PoolTypeId != msg.PoolTypeId {
 			return types.ErrPoolTypeNotExists
 		}
 	} else {
@@ -734,7 +734,7 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 		return err
 	}
 
-	poolKey := types.PoolName(reserveCoinDenoms, msg.PoolTypeIndex)
+	poolKey := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
 	reserveAcc := types.GetPoolReserveAcc(poolKey)
 	_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
 	if found {
@@ -834,9 +834,9 @@ func (k Keeper) ValidatePool(ctx sdk.Context, pool *types.Pool) error {
 	var poolType types.PoolType
 
 	// check poolType exist, get poolType from param
-	if len(params.PoolTypes) >= int(pool.PoolTypeIndex) {
-		poolType = params.PoolTypes[pool.PoolTypeIndex-1]
-		if poolType.PoolTypeIndex != pool.PoolTypeIndex {
+	if len(params.PoolTypes) >= int(pool.PoolTypeId) {
+		poolType = params.PoolTypes[pool.PoolTypeId-1]
+		if poolType.PoolTypeId != pool.PoolTypeId {
 			return types.ErrPoolTypeNotExists
 		}
 	} else {
@@ -866,7 +866,7 @@ func (k Keeper) ValidatePool(ctx sdk.Context, pool *types.Pool) error {
 		return types.ErrBadOrderingReserveCoin
 	}
 
-	poolKey := types.PoolName(pool.ReserveCoinDenoms, pool.PoolTypeIndex)
+	poolKey := types.PoolName(pool.ReserveCoinDenoms, pool.PoolTypeId)
 	poolCoin := k.GetPoolCoinTotal(ctx, *pool)
 	if poolCoin.Denom != types.GetPoolCoinDenom(poolKey) {
 		return types.ErrBadPoolCoinDenom
