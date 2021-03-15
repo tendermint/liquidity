@@ -26,7 +26,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	k.SetPoolBatchSwapMsgStatesByPointer(ctx, pool.PoolId, swapMsgs)
 
 	currentHeight := ctx.BlockHeight()
-	invariantCheckFlag := true // temporary flag for test
 
 	types.ValidateStateAndExpireOrders(swapMsgs, currentHeight, false)
 
@@ -74,54 +73,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	lastPrice := X.Quo(Y)
 
 	if invariantCheckFlag {
-		beforeXtoYLen := len(XtoY)
-		beforeYtoXLen := len(YtoX)
-		if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
-			panic(beforeXtoYLen)
-		}
-		if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != types.CountNotMatchedMsgs(YtoX)+types.CountFractionalMatchedMsgs(YtoX) {
-			panic(beforeYtoXLen)
-		}
-
-		totalAmtX := sdk.ZeroDec()
-		totalAmtY := sdk.ZeroDec()
-
-		for _, mr := range matchResultXtoY {
-			totalAmtX = totalAmtX.Sub(mr.TransactedCoinAmt)
-			totalAmtY = totalAmtY.Add(mr.ExchangedDemandCoinAmt)
-		}
-
-		invariantCheckX := totalAmtX
-		invariantCheckY := totalAmtY
-
-		totalAmtX = sdk.ZeroDec()
-		totalAmtY = sdk.ZeroDec()
-
-		for _, mr := range matchResultYtoX {
-			totalAmtY = totalAmtY.Sub(mr.TransactedCoinAmt)
-			totalAmtX = totalAmtX.Add(mr.ExchangedDemandCoinAmt)
-		}
-
-		invariantCheckX = invariantCheckX.Add(totalAmtX)
-		invariantCheckY = invariantCheckY.Add(totalAmtY)
-
-		invariantCheckX = invariantCheckX.Add(poolXdelta)
-		invariantCheckY = invariantCheckY.Add(poolYdelta)
-
-		// print the invariant check and validity with swap, match result
-		if invariantCheckX.IsZero() && invariantCheckY.IsZero() {
-		} else {
-			panic(invariantCheckX)
-		}
-
-		if !poolXdelta.Add(decimalErrorX).Equal(poolXdelta2) || !poolYdelta.Add(decimalErrorY).Equal(poolYdelta2) {
-			panic(poolXdelta)
-		}
-
-		validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
-		if !validitySwapPrice {
-			panic("validitySwapPrice")
-		}
+		SwapPriceInvariants(XtoY, YtoX, matchResultXtoY, matchResultYtoX, fractionalCntX, fractionalCntY,
+			poolXdelta, poolYdelta, poolXdelta2, poolYdelta2, decimalErrorX, decimalErrorY, result)
 	}
 
 	types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
@@ -257,6 +210,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 			}
 		}
 	}
+
 	// execute transact, refund, expire, send coins with escrow, update state by TransactAndRefundSwapLiquidityPool
 	if err := k.TransactAndRefundSwapLiquidityPool(ctx, swapMsgs, matchResultMap, pool, result); err != nil {
 		panic(err)
