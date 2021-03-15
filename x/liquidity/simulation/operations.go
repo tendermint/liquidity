@@ -239,7 +239,7 @@ func SimulateMsgDepositToLiquidityPool(ak types.AccountKeeper, bk types.BankKeep
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositToLiquidityPool, "can not exceed reserve coin limit amount"), nil, nil
 		}
 
-		msg := types.NewMsgDepositToLiquidityPool(depositor, pool.PoolId, depositCoins)
+		msg := types.NewMsgDepositToLiquidityPool(depositor, pool.Id, depositCoins)
 
 		txGen := simappparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
@@ -313,7 +313,7 @@ func SimulateMsgWithdrawFromLiquidityPool(ak types.AccountKeeper, bk types.BankK
 		withdrawer := account.GetAddress()
 		withdrawCoin := randomWithdrawCoin(r, poolCoinDenom, balance.Amount)
 
-		msg := types.NewMsgWithdrawFromLiquidityPool(withdrawer, pool.PoolId, withdrawCoin)
+		msg := types.NewMsgWithdrawFromLiquidityPool(withdrawer, pool.Id, withdrawCoin)
 
 		txGen := simappparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
@@ -387,7 +387,7 @@ func SimulateMsgSwap(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keepe
 		params.SwapFeeRate = swapFeeRate
 		k.SetParams(ctx, params)
 
-		msg := types.NewMsgSwap(swapRequester, pool.PoolId, types.DefaultSwapTypeId, offerCoin, demandCoinDenom, orderPrice, swapFeeRate)
+		msg := types.NewMsgSwap(swapRequester, pool.Id, types.DefaultSwapTypeId, offerCoin, demandCoinDenom, orderPrice, swapFeeRate)
 
 		txGen := simappparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(

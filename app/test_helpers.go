@@ -538,7 +538,7 @@ func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sd
 	// verify created liquidity pool
 	pool, found := simapp.LiquidityKeeper.GetPool(ctx, poolId)
 	require.True(t, found)
-	require.Equal(t, poolId, pool.PoolId)
+	require.Equal(t, poolId, pool.Id)
 	require.Equal(t, denomX, pool.ReserveCoinDenoms[0])
 	require.Equal(t, denomY, pool.ReserveCoinDenoms[1])
 

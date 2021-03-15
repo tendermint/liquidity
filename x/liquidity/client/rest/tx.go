@@ -102,7 +102,7 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 		//if err != nil {
 		//	return
 		//}
-		//poolId, err := strconv.ParseUint(req.PoolId, 10, 64)
+		//poolId, err := strconv.ParseUint(req.Id, 10, 64)
 		//sdk.NewCoin
 		//msg := types.NewMsgWithdrawFromLiquidityPool(withdrawer, poolId, req.PoolCoin)
 		//if err := msg.ValidateBasic(); err != nil {
@@ -118,7 +118,7 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 //type CreateLiquidityPoolReq struct {
 //	BaseReq           rest.BaseReq `json:"base_req" yaml:"base_req"`
 //	PoolCreator       string       `json:"pool_creator" yaml:"pool_creator"`
-//	PoolTypeId     string       `json:"pool_type_id" yaml:"pool_type_id"`
+//	Id     string       `json:"pool_type_id" yaml:"pool_type_id"`
 //	ReserveCoinDenoms string       `json:"reserve_coin_denoms" yaml:"reserve_coin_denoms"`
 //	DepositCoins      string       `json:"deposit_coins" yaml:"deposit_coins"`
 //}
@@ -127,7 +127,7 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 //type WithdrawLiquidityPoolReq struct {
 //	BaseReq    rest.BaseReq `json:"base_req" yaml:"base_req"`
 //	Withdrawer string       `json:"withdrawer" yaml:"withdrawer"`
-//	PoolId     string       `json:"pool_id" yaml:"pool_id"`
+//	Id     string       `json:"pool_id" yaml:"pool_id"`
 //	PoolCoin   string       `json:"pool_coin_amount" yaml:"pool_coin"`
 //}
 //
@@ -135,7 +135,7 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 //type DepositLiquidityPoolReq struct {
 //	BaseReq      rest.BaseReq `json:"base_req" yaml:"base_req"`
 //	Depositor    string       `json:"depositor" yaml:"depositor"`
-//	PoolId       string       `json:"pool_id" yaml:"pool_id"`
+//	Id       string       `json:"pool_id" yaml:"pool_id"`
 //	DepositCoins string       `json:"deposit_coins_amount" yaml:"deposit_coins"`
 //}
 //
@@ -143,8 +143,8 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 //type SwapReq struct {
 //	BaseReq         rest.BaseReq `json:"base_req" yaml:"base_req"`
 //	SwapRequester   string       `json:"swap_requester" yaml:"swap_requester"`
-//	PoolId          string       `json:"pool_id" yaml:"pool_id"`
-//	PoolTypeId   string       `json:"pool_type_id" yaml:"pool_type_id"`
+//	Id          string       `json:"pool_id" yaml:"pool_id"`
+//	Id   string       `json:"pool_type_id" yaml:"pool_type_id"`
 //	SwapType        string       `json:"swap_type" yaml:"swap_type"`
 //	OfferCoin       string       `json:"offer_coin" yaml:"offer_coin"`
 //	DemandCoinDenom string       `json:"demand_coin" yaml:"demand_coin"`

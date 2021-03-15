@@ -66,7 +66,7 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, poolBatch types.PoolBatch) error 
 		return types.ErrBatchNotExecuted
 	}
 
-	poolBatch.BatchIndex = k.GetNextPoolBatchIndexWithUpdate(ctx, poolBatch.PoolId)
+	poolBatch.Index = k.GetNextPoolBatchIndexWithUpdate(ctx, poolBatch.PoolId)
 	poolBatch.BeginHeight = ctx.BlockHeight()
 	poolBatch.Executed = false
 

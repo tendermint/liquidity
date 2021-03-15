@@ -13,7 +13,7 @@ message PoolType {
     option (gogoproto.equal) = true;
 
     // id of target pool type, only 1 is allowed on this version.
-    uint32 pool_type_id = 1 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
+    uint32 id = 1 [(gogoproto.moretags) = "yaml:\"id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
@@ -148,14 +148,14 @@ message Pool {
     option (gogoproto.goproto_stringer) = true;
 
     // id of the pool
-    uint64 pool_id = 1 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    uint64 id = 1 [(gogoproto.moretags) = "yaml:\"id\"", (gogoproto.jsontag) = "id",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"
         }];
 
     // id of the pool type
-    uint32 pool_type_id = 2 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
+    uint32 type_id = 2 [(gogoproto.moretags) = "yaml:\"type_id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
@@ -248,7 +248,7 @@ message PoolBatch {
         }];
 
     // index of this batch
-    uint64 batch_index = 2 [(gogoproto.moretags) = "yaml:\"batch_index\"",
+    uint64 index = 2 [(gogoproto.moretags) = "yaml:\"index\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"
@@ -294,7 +294,7 @@ message PoolBatchResponse {
     option (gogoproto.goproto_stringer) = true;
 
     // index of this batch
-    uint64 batch_index = 1 [(gogoproto.moretags) = "yaml:\"batch_index\"",
+    uint64 index = 1 [(gogoproto.moretags) = "yaml:\"index\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"

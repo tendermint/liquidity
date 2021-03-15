@@ -18,7 +18,7 @@ func TestDecodeLiquidityStore(t *testing.T) {
 	dec := simulation.NewDecodeStore(cdc)
 
 	liquidityPool := types.Pool{}
-	liquidityPool.PoolId = 1
+	liquidityPool.Id = 1
 	liquidityPoolBatch := types.NewPoolBatch(1, 1)
 
 	kvPairs := kv.Pairs{

@@ -98,7 +98,7 @@ func TestSwapExecution(t *testing.T) {
 
 	// verify created liquidity pool
 	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
-	poolId := lpList[0].PoolId
+	poolId := lpList[0].Id
 	require.Equal(t, 1, len(lpList))
 	require.Equal(t, uint64(1), poolId)
 	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
@@ -164,7 +164,7 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 
 	// verify created liquidity pool
 	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
-	poolId := lpList[0].PoolId
+	poolId := lpList[0].Id
 	require.Equal(t, 1, len(lpList))
 	require.Equal(t, uint64(1), poolId)
 	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])

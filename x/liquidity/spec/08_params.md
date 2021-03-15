@@ -26,7 +26,7 @@ List of available PoolType
 
 ```go
 type PoolType struct {
-	PoolTypeId            uint32
+	Id                    uint32
 	Name                  string
 	MinReserveCoinNum     uint32
 	MaxReserveCoinNum     uint32

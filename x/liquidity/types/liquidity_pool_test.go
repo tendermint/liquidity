@@ -14,9 +14,9 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	pool := types.Pool{}
 	require.Equal(t, types.ErrPoolNotExists, pool.Validate())
-	pool.PoolId = 1
+	pool.Id = 1
 	require.Equal(t, types.ErrPoolTypeNotExists, pool.Validate())
-	pool.PoolTypeId = 1
+	pool.TypeId = 1
 	require.Equal(t, types.ErrNumOfReserveCoinDenoms, pool.Validate())
 	pool.ReserveCoinDenoms = []string{DenomY, DenomX, DenomX}
 	require.Equal(t, types.ErrNumOfReserveCoinDenoms, pool.Validate())
@@ -36,8 +36,8 @@ func TestLiquidityPoolBatch(t *testing.T) {
 
 	require.NoError(t, pool.Validate())
 
-	require.Equal(t, pool.Name(), types.PoolName(pool.ReserveCoinDenoms, pool.PoolTypeId))
-	require.Equal(t, pool.PoolId, pool.GetPoolId())
+	require.Equal(t, pool.Name(), types.PoolName(pool.ReserveCoinDenoms, pool.TypeId))
+	require.Equal(t, pool.Id, pool.GetPoolId())
 	require.Equal(t, pool.PoolCoinDenom, pool.GetPoolCoinDenom())
 
 	cdc := simapp.AppCodec()
@@ -55,9 +55,9 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	require.Equal(t, strings.TrimSpace(pool.String()+"\n"+pool.String()), types.Pools{pool, pool}.String())
 
 	simapp.LiquidityKeeper.SetPool(ctx, pool)
-	batch := types.NewPoolBatch(pool.PoolId, 1)
+	batch := types.NewPoolBatch(pool.Id, 1)
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
-	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.BatchIndex)
+	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.Index)
 
 	batchByte := types.MustMarshalPoolBatch(cdc, batch)
 	require.Equal(t, batch, types.MustUnmarshalPoolBatch(cdc, batchByte))

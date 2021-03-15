@@ -10,15 +10,15 @@ order: 2
 
 ```go
 type Pool struct {
-	PoolId                 uint64         // index of this liquidity pool
-	PoolTypeId             uint32         // pool type of this liquidity pool
+	Id                     uint64         // index of this liquidity pool
+	TypeId                 uint32         // pool type of this liquidity pool
 	ReserveCoinDenoms      []string       // list of reserve coin denoms for this liquidity pool
 	ReserveAccountAddress  string         // reserve account address for this liquidity pool to store reserve coins
 	PoolCoinDenom          string         // denom of pool coin for this liquidity pool
 }
 ```
 
-Pool: `0x11 | PoolId -> amino(Pool)`
+Pool: `0x11 | Id -> amino(Pool)`
 
 PoolByReserveAccIndex: `0x12 | ReserveAcc -> nil`
 
@@ -33,7 +33,7 @@ PoolCoinDenomPrefix: `pool`
 ```go
 type PoolBatch struct {
 	PoolId           uint64  // id of target liquidity pool
-	BatchIndex       uint64  // index of this batch
+	Index            uint64  // index of this batch
 	BeginHeight      uint64  // height where this batch is begun
 	DepositMsgIndex  uint64  // last index of DepositMsgStates
 	WithdrawMsgIndex uint64  // last index of WithdrawMsgStates

@@ -53,7 +53,7 @@ func TestMsgServerCreateLiquidityPool(t *testing.T) {
 
 	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
 	require.Equal(t, 1, len(lpList))
-	require.Equal(t, uint64(1), lpList[0].PoolId)
+	require.Equal(t, uint64(1), lpList[0].Id)
 	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextPoolId(ctx)-1)
 	require.Equal(t, denomA, lpList[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomB, lpList[0].ReserveCoinDenoms[1])
@@ -104,7 +104,7 @@ func TestMsgServerDepositLiquidityPool(t *testing.T) {
 
 	poolCoinBefore := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lp)
 
-	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[1], lp.PoolId, deposit)
+	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[1], lp.Id, deposit)
 
 	handler := liquidity.NewHandler(simapp.LiquidityKeeper)
 	_, err = handler(ctx, depositMsg)
@@ -157,7 +157,7 @@ func TestMsgServerWithdrawLiquidityPool(t *testing.T) {
 
 	fmt.Println(poolCoinBefore, withdrawerPoolCoinBefore.Amount)
 	require.Equal(t, poolCoinBefore, withdrawerPoolCoinBefore.Amount)
-	withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[0], lp.PoolId, sdk.NewCoin(lp.PoolCoinDenom, poolCoinBefore))
+	withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[0], lp.Id, sdk.NewCoin(lp.PoolCoinDenom, poolCoinBefore))
 
 	handler := liquidity.NewHandler(simapp.LiquidityKeeper)
 	_, err = handler(ctx, withdrawMsg)
@@ -211,7 +211,7 @@ func TestMsgServerGetLiquidityPoolMetadata(t *testing.T) {
 
 	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
 	require.Equal(t, 1, len(lpList))
-	require.Equal(t, uint64(1), lpList[0].PoolId)
+	require.Equal(t, uint64(1), lpList[0].Id)
 	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextPoolId(ctx)-1)
 	require.Equal(t, denomA, lpList[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomB, lpList[0].ReserveCoinDenoms[1])
@@ -224,7 +224,7 @@ func TestMsgServerGetLiquidityPoolMetadata(t *testing.T) {
 	require.Error(t, err, types.ErrPoolAlreadyExists)
 
 	metaData := simapp.LiquidityKeeper.GetPoolMetaData(ctx, lpList[0])
-	require.Equal(t, lpList[0].PoolId, metaData.PoolId)
+	require.Equal(t, lpList[0].Id, metaData.PoolId)
 
 	reserveCoin := simapp.LiquidityKeeper.GetReserveCoins(ctx, lpList[0])
 	require.Equal(t, reserveCoin, metaData.ReserveCoins)

@@ -8,6 +8,7 @@ import (
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	"fmt"
 	"testing"
 )
 
@@ -33,7 +34,7 @@ func TestParams(t *testing.T) {
 	require.IsType(t, paramtypes.ParamSetPairs{}, resPair)
 
 	genesisStr := `pool_types:
-- pool_type_id: 1
+- id: 1
   name: DefaultPoolType
   min_reserve_coin_num: 2
   max_reserve_coin_num: 2
@@ -49,7 +50,7 @@ withdraw_fee_rate: "0.003000000000000000"
 max_order_amount_ratio: "0.100000000000000000"
 unit_batch_size: 1
 `
-
+	fmt.Println(params.String())
 	require.Equal(t, genesisStr, params.String())
 	require.NoError(t, params.Validate())
 

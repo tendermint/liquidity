@@ -298,14 +298,14 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 
 // MakeQueryLiquidityPoolResponse wraps MakeQueryLiquidityPoolResponse.
 func (k Querier) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Pool) (*types.QueryLiquidityPoolResponse, error) {
-	batch, found := k.GetPoolBatch(ctx, pool.PoolId)
+	batch, found := k.GetPoolBatch(ctx, pool.Id)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
 
 	return &types.QueryLiquidityPoolResponse{
-		Id:                pool.PoolId,
-		TypeId:            pool.PoolTypeId,
+		Id:                pool.Id,
+		TypeId:            pool.TypeId,
 		ReserveCoinDenoms:     pool.ReserveCoinDenoms,
 		ReserveAccountAddress: pool.ReserveAccountAddress,
 		PoolCoinDenom:         pool.PoolCoinDenom,
@@ -318,7 +318,7 @@ func (k Querier) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Pool
 func (k Querier) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Pools) (*[]types.QueryLiquidityPoolResponse, error) {
 	resp := make([]types.QueryLiquidityPoolResponse, len(pools))
 	for i, pool := range pools {
-		batch, found := k.GetPoolBatch(ctx, pool.PoolId)
+		batch, found := k.GetPoolBatch(ctx, pool.Id)
 		if !found {
 			return nil, types.ErrPoolBatchNotExists
 		}
@@ -326,8 +326,8 @@ func (k Querier) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Po
 		meta := k.GetPoolMetaDataResponse(ctx, pool)
 
 		res := types.QueryLiquidityPoolResponse{
-			Id:                pool.PoolId,
-			TypeId:            pool.PoolTypeId,
+			Id:                pool.Id,
+			TypeId:            pool.TypeId,
 			ReserveCoinDenoms:     pool.ReserveCoinDenoms,
 			ReserveAccountAddress: pool.ReserveAccountAddress,
 			PoolCoinDenom:         pool.PoolCoinDenom,

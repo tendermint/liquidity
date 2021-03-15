@@ -60,13 +60,13 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	for i, msg := range XtoY {
 		app.SaveAccountWithFee(simapp, ctx, buyerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
 		msg.SwapRequesterAddress = buyerAccs[i].String()
-		msg.PoolId = pool.PoolId
+		msg.PoolId = pool.Id
 		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
 	}
 	for i, msg := range YtoX {
 		app.SaveAccountWithFee(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
 		msg.SwapRequesterAddress = sellerAccs[i].String()
-		msg.PoolId = pool.PoolId
+		msg.PoolId = pool.Id
 		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
 	}
 

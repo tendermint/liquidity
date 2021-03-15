@@ -41,7 +41,7 @@ func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCrea
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeCreateLiquidityPool,
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.PoolId, 10)),
+			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.Id, 10)),
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolTypeId, fmt.Sprintf("%d", msg.PoolTypeId)),
 			sdk.NewAttribute(types.AttributeValueReserveCoinDenoms, pool.Name()),
 			sdk.NewAttribute(types.AttributeValueReserveAccount, pool.ReserveAccountAddress),
@@ -77,7 +77,7 @@ func (k msgServer) DepositToLiquidityPool(goCtx context.Context, msg *types.MsgD
 		sdk.NewEvent(
 			types.EventTypeDepositToLiquidityPoolToBatch,
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
-			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.BatchIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueDepositCoins, batchMsg.Msg.DepositCoins.String()),
 		),
@@ -107,7 +107,7 @@ func (k msgServer) WithdrawFromLiquidityPool(goCtx context.Context, msg *types.M
 		sdk.NewEvent(
 			types.EventTypeWithdrawFromLiquidityPoolToBatch,
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
-			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.BatchIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, batchMsg.Msg.PoolCoin.Denom),
 			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, batchMsg.Msg.PoolCoin.Amount.String()),
@@ -142,7 +142,7 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSw
 		sdk.NewEvent(
 			types.EventTypeSwapToBatch,
 			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
-			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.BatchIndex, 10)),
+			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(batchMsg.Msg.SwapTypeId), 10)),
 			sdk.NewAttribute(types.AttributeValueOfferCoinDenom, batchMsg.Msg.OfferCoin.Denom),
