@@ -2,10 +2,11 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.1.0
+  version: 2.1.1
 paths:
   /liquidity/pools:
     post:
+      deprecated: true
       summary: Submit create liquidity pool message.
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -534,6 +535,7 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
+      deprecated: true
       summary: Submit deposit to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1063,6 +1065,7 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
+      deprecated: true
       summary: Submit swap to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1749,6 +1752,7 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
+      deprecated: true
       summary: Submit withdraw from to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
