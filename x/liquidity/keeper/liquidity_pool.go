@@ -62,8 +62,6 @@ func (k Keeper) ValidateMsgCreateLiquidityPool(ctx sdk.Context, msg *types.MsgCr
 	return nil
 }
 
-
-
 func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreateLiquidityPool) (types.Pool, error) {
 	if err := k.ValidateMsgCreateLiquidityPool(ctx, msg); err != nil {
 		return types.Pool{}, err

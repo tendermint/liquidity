@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -8,7 +9,6 @@ import (
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	"fmt"
 	"testing"
 )
 
