@@ -378,8 +378,8 @@ message QueryLiquidityPoolResponse {
             format: "uint64"
         }];
 
-    // index of the pool type
-    uint32 pool_type_index = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\"",
+    // id of the pool type
+    uint32 pool_type_id = 2 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
