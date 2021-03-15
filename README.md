@@ -269,10 +269,10 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
           "batch_pool_swap_msgs": [],
           "batch_pool_withdraw_msgs": [],
           "liquidity_pool": {
-            "pool_coin_denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
+            "pool_coin_denom": "pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4",
             "pool_id": "1",
             "pool_type_id": 1,
-            "reserve_account_address": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
+            "reserve_account_address": "cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3",
             "reserve_coin_denoms": [
               "reservecoin1",
               "reservecoin2"
@@ -290,7 +290,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
           "liquidity_pool_meta_data": {
             "pool_coin_total_supply": {
               "amount": "1000000",
-              "denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs"
+              "denom": "pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"
             },
             "pool_id": "1",
             "reserve_coins": [

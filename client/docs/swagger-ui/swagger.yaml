@@ -6,7 +6,6 @@ info:
 paths:
   /liquidity/pools:
     post:
-      deprecated: true
       summary: Submit create liquidity pool message.
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -329,11 +328,12 @@ paths:
                     reserve_account_address:
                       type: string
                       format: sdk.AccAddress
-                      example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                       title: reserve account address of the pool
                     pool_coin_denom:
                       type: string
-                      example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      example: >-
+                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       title: denom of pool coin of the pool
                     metadata:
                       type: object
@@ -356,7 +356,7 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                            denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                             amount: '1000000'
                           title: pool coin issued at the pool
                         reserve_coins:
@@ -445,20 +445,16 @@ paths:
               the response type for the QueryLiquidityPoolsResponse RPC method.
               This includes list of all liquidity pools currently existed and
               paging results containing next_key and total count.
-        '400':
-          description: Bad Request
-          schema: {}
-          examples:
-            application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = There are no pools present.:
+                key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -535,7 +531,6 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
-      deprecated: true
       summary: Submit deposit to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -974,15 +969,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -1065,7 +1066,6 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
-      deprecated: true
       summary: Submit swap to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1661,15 +1661,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -1752,7 +1758,6 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
-      deprecated: true
       summary: Submit withdraw from to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -2026,7 +2031,8 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      denom: >-
+                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       amount: '1000'
                 description: >-
                   `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
@@ -2134,7 +2140,8 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                            denom: >-
+                              pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                             amount: '1000'
                       description: >-
                         `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
@@ -2181,15 +2188,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -2390,20 +2403,6 @@ paths:
             description: >-
               the response type for the QueryParamsResponse RPC method. This
               includes current parameter of the liquidity module.
-        '400':
-          description: Bad Request
-          schema: {}
-          examples:
-            application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
-        '500':
-          description: Internal Server Error
-          schema: {}
-          examples:
-            application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2509,20 +2508,16 @@ paths:
               method. This includes list of all batches that all currently
               existing pools and paging results containing next_key and total
               count.
-        '400':
-          description: Bad Request
-          schema: {}
-          examples:
-            application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = There are no batches present.:
+                key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -2632,11 +2627,12 @@ paths:
               reserve_account_address:
                 type: string
                 format: sdk.AccAddress
-                example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                 title: reserve account address of the pool
               pool_coin_denom:
                 type: string
-                example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                example: >-
+                  pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                 title: denom of pool coin of the pool
               metadata:
                 type: object
@@ -2658,7 +2654,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                       amount: '1000000'
                     title: pool coin issued at the pool
                   reserve_coins:
@@ -2727,15 +2723,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -2828,15 +2830,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -2976,8 +2984,11 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: msg_index, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
@@ -3248,8 +3259,11 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: msg_index, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
@@ -3375,7 +3389,8 @@ paths:
                           signatures required by gogoproto.
                         format: sdk.Coin
                         example:
-                          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                          denom: >-
+                            pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                           amount: '1000'
                     description: >-
                       `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
@@ -3401,8 +3416,11 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: msg_index, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
@@ -4579,7 +4597,8 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+          denom: >-
+            pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
           amount: '1000'
     description: >-
       `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -4733,7 +4752,8 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              denom: >-
+                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               amount: '1000'
         description: >-
           `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -5279,7 +5299,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+          denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
           amount: '1000000'
         title: pool coin issued at the pool
       reserve_coins:
@@ -5399,11 +5419,11 @@ definitions:
       reserve_account_address:
         type: string
         format: sdk.AccAddress
-        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+        example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
         title: reserve account address of the pool
       pool_coin_denom:
         type: string
-        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+        example: pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
         title: denom of pool coin of the pool
       metadata:
         type: object
@@ -5425,7 +5445,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
               amount: '1000000'
             title: pool coin issued at the pool
           reserve_coins:
@@ -5583,11 +5603,12 @@ definitions:
             reserve_account_address:
               type: string
               format: sdk.AccAddress
-              example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
               title: reserve account address of the pool
             pool_coin_denom:
               type: string
-              example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              example: >-
+                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               title: denom of pool coin of the pool
             metadata:
               type: object
@@ -5609,7 +5630,7 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                     amount: '1000000'
                   title: pool coin issued at the pool
                 reserve_coins:
@@ -6473,7 +6494,8 @@ definitions:
                   signatures required by gogoproto.
                 format: sdk.Coin
                 example:
-                  denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                  denom: >-
+                    pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                   amount: '1000'
             description: >-
               `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -6556,7 +6578,8 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    denom: >-
+                      pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                     amount: '1000'
               description: >-
                 `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -6836,7 +6859,8 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              denom: >-
+                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               amount: '1000'
         description: >-
           `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
