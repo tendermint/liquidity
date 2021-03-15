@@ -28,16 +28,16 @@ func GetTxCmd() *cobra.Command {
 	}
 
 	liquidityTxCmd.AddCommand(
-		NewCreateLiquidityPoolCmd(),
-		NewDepositToLiquidityPoolCmd(),
-		NewWithdrawFromLiquidityPoolCmd(),
+		NewCreatePoolCmd(),
+		NewDepositWithinBatchCmd(),
+		NewWithdrawWithinBatchCmd(),
 		NewSwapCmd(),
 	)
 
 	return liquidityTxCmd
 }
 
-func NewCreateLiquidityPoolCmd() *cobra.Command {
+func NewCreatePoolCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-pool [pool-type-index] [deposit-coins]",
 		Args:  cobra.ExactArgs(2),
@@ -88,7 +88,7 @@ the number of deposit coins must be two in the pool-type-index 1
 				return fmt.Errorf("the number of deposit coins must be two in the pool-type-index 1")
 			}
 
-			msg := types.NewMsgCreateLiquidityPool(poolCreator, uint32(poolTypeId), depositCoins)
+			msg := types.NewMsgCreatePool(poolCreator, uint32(poolTypeId), depositCoins)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -102,7 +102,7 @@ the number of deposit coins must be two in the pool-type-index 1
 }
 
 // Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins
-func NewDepositToLiquidityPoolCmd() *cobra.Command {
+func NewDepositWithinBatchCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit [pool-id] [deposit-coins]",
 		Args:  cobra.ExactArgs(2),
@@ -149,7 +149,7 @@ You should deposit the same coin as the reserve coin.
 				return fmt.Errorf("the number of deposit coins must be two in the pool-type-index 1")
 			}
 
-			msg := types.NewMsgDepositToLiquidityPool(depositor, poolId, depositCoins)
+			msg := types.NewMsgDepositWithinBatch(depositor, poolId, depositCoins)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -163,7 +163,7 @@ You should deposit the same coin as the reserve coin.
 }
 
 // Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
-func NewWithdrawFromLiquidityPoolCmd() *cobra.Command {
+func NewWithdrawWithinBatchCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "withdraw [pool-id] [pool-coin]",
 		Args:  cobra.ExactArgs(2),
@@ -206,7 +206,7 @@ You should request the matched pool-coin as the pool.
 				return err
 			}
 
-			msg := types.NewMsgWithdrawFromLiquidityPool(withdrawer, poolId, poolCoin)
+			msg := types.NewMsgWithdrawWithinBatch(withdrawer, poolId, poolCoin)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -301,7 +301,7 @@ https://github.com/tendermint/liquidity
 				return err
 			}
 
-			msg := types.NewMsgSwap(swapRequester, poolId, uint32(swapTypeId), offerCoin, args[3], orderPrice, swapFeeRate)
+			msg := types.NewMsgSwapWithinBatch(swapRequester, poolId, uint32(swapTypeId), offerCoin, args[3], orderPrice, swapFeeRate)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

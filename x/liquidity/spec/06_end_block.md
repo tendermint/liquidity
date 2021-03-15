@@ -6,7 +6,7 @@ order: 6
 
 ## 1) Append messages to LiquidityPoolBatch
 
-After successful message verification and coin `escrow` process, the incoming `MsgDepositToLiquidityPool`, `MsgWithdrawFromLiquidityPool`, and `MsgSwap` are appended into the current `PoolBatch` of the corresponding `Pool`
+After successful message verification and coin `escrow` process, the incoming `MsgDepositWithinBatch`, `MsgWithdrawWithinBatch`, and `MsgSwapWithinBatch` are appended into the current `PoolBatch` of the corresponding `Pool`
 
 # End-Block
 

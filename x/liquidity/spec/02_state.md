@@ -48,7 +48,7 @@ type DepositMsgState struct {
 	Executed   bool   // true if executed on this batch, false if not executed yet
 	Succeeded  bool   // true if executed successfully on this batch, false if failed
 	ToBeDelete bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
-	Msg        MsgDepositToLiquidityPool
+	Msg        MsgDepositWithinBatch
 }
 
 type WithdrawMsgState struct {
@@ -57,7 +57,7 @@ type WithdrawMsgState struct {
 	Executed   bool   // true if executed on this batch, false if not executed yet
 	Succeeded  bool   // true if executed successfully on this batch, false if failed
 	ToBeDelete bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
-	Msg        MsgWithdrawFromLiquidityPool
+	Msg        MsgWithdrawWithinBatch
 }
 
 type SwapMsgState struct {
@@ -69,7 +69,7 @@ type SwapMsgState struct {
 	OrderExpiryHeight  int64  // swap orders are cancelled when current height is equal or higher than ExpiryHeight
 	ExchangedOfferCoin sdk.Coin // offer coin exchanged until now
 	RemainingOfferCoin sdk.Coin // offer coin currently remaining to be exchanged
-	Msg                MsgSwap
+	Msg                MsgSwapWithinBatch
 }
 
 ```

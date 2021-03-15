@@ -369,8 +369,8 @@ message DepositMsgState {
             example: "true",
         }];
 
-    // MsgDepositToLiquidityPool
-    MsgDepositToLiquidityPool msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
+    // MsgDepositWithinBatch
+    MsgDepositWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message WithdrawMsgState {
@@ -407,8 +407,8 @@ message WithdrawMsgState {
             example: "true",
         }];
 
-    // MsgWithdrawFromLiquidityPool
-    MsgWithdrawFromLiquidityPool msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
+    // MsgWithdrawWithinBatch
+    MsgWithdrawWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message SwapMsgState {
@@ -480,6 +480,6 @@ message SwapMsgState {
         }
     ];
 
-    // MsgSwap
-    MsgSwap msg = 10 [(gogoproto.moretags) = "yaml:\"msg\""];
+    // MsgSwapWithinBatch
+    MsgSwapWithinBatch msg = 10 [(gogoproto.moretags) = "yaml:\"msg\""];
 }

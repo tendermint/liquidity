@@ -25,8 +25,8 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-// Message server, handler for CreateLiquidityPool msg
-func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCreateLiquidityPool) (*types.MsgCreateLiquidityPoolResponse, error) {
+// Message server, handler for CreatePool msg
+func (k msgServer) CreatePool(goCtx context.Context, msg *types.MsgCreatePool) (*types.MsgCreatePoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	pool, err := k.Keeper.CreatePool(ctx, msg)
 	if err != nil {
@@ -40,23 +40,20 @@ func (k msgServer) CreateLiquidityPool(goCtx context.Context, msg *types.MsgCrea
 	)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeCreateLiquidityPool,
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(pool.Id, 10)),
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolTypeId, fmt.Sprintf("%d", msg.PoolTypeId)),
-			sdk.NewAttribute(types.AttributeValueReserveCoinDenoms, pool.Name()),
+			types.EventTypeCreatePool,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+			sdk.NewAttribute(types.AttributeValuePoolTypeId, fmt.Sprintf("%d", msg.PoolTypeId)),
+			sdk.NewAttribute(types.AttributeValuePoolName, pool.Name()),
 			sdk.NewAttribute(types.AttributeValueReserveAccount, pool.ReserveAccountAddress),
 			sdk.NewAttribute(types.AttributeValueDepositCoins, msg.DepositCoins.String()),
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, pool.PoolCoinDenom),
-			//sdk.NewAttribute(types.AttributeValueSwapFeeRate, ""),
-			//sdk.NewAttribute(types.AttributeValueLiquidityPoolFeeRate, ""),
-			//sdk.NewAttribute(types.AttributeValueBatchSize, ""),
 		),
 	)
-	return &types.MsgCreateLiquidityPoolResponse{}, nil
+	return &types.MsgCreatePoolResponse{}, nil
 }
 
-// Message server, handler for MsgDepositToLiquidityPool
-func (k msgServer) DepositToLiquidityPool(goCtx context.Context, msg *types.MsgDepositToLiquidityPool) (*types.MsgDepositToLiquidityPoolResponse, error) {
+// Message server, handler for MsgDepositWithinBatch
+func (k msgServer) DepositWithinBatch(goCtx context.Context, msg *types.MsgDepositWithinBatch) (*types.MsgDepositWithinBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	// TODO: remove redundant GetPoolBatch
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
@@ -75,18 +72,18 @@ func (k msgServer) DepositToLiquidityPool(goCtx context.Context, msg *types.MsgD
 	)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeDepositToLiquidityPoolToBatch,
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
+			types.EventTypeDepositWithinBatch,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
 			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueDepositCoins, batchMsg.Msg.DepositCoins.String()),
 		),
 	)
-	return &types.MsgDepositToLiquidityPoolResponse{}, nil
+	return &types.MsgDepositWithinBatchResponse{}, nil
 }
 
-// Message server, handler for MsgWithdrawFromLiquidityPool
-func (k msgServer) WithdrawFromLiquidityPool(goCtx context.Context, msg *types.MsgWithdrawFromLiquidityPool) (*types.MsgWithdrawFromLiquidityPoolResponse, error) {
+// Message server, handler for MsgWithdrawWithinBatch
+func (k msgServer) WithdrawWithinBatch(goCtx context.Context, msg *types.MsgWithdrawWithinBatch) (*types.MsgWithdrawWithinBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	// TODO: remove redundant GetPoolBatch
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
@@ -105,19 +102,19 @@ func (k msgServer) WithdrawFromLiquidityPool(goCtx context.Context, msg *types.M
 	)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeWithdrawFromLiquidityPoolToBatch,
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
+			types.EventTypeWithdrawWithinBatch,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
 			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, batchMsg.Msg.PoolCoin.Denom),
 			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, batchMsg.Msg.PoolCoin.Amount.String()),
 		),
 	)
-	return &types.MsgWithdrawFromLiquidityPoolResponse{}, nil
+	return &types.MsgWithdrawWithinBatchResponse{}, nil
 }
 
-// Message server, handler for MsgSwap
-func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSwapResponse, error) {
+// Message server, handler for MsgSwapWithinBatch
+func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*types.MsgSwapWithinBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.GetParams(ctx)
 	if msg.OfferCoinFee.IsZero() {
@@ -130,7 +127,7 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSw
 	}
 	batchMsg, err := k.Keeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
 	if err != nil {
-		return &types.MsgSwapResponse{}, err
+		return &types.MsgSwapWithinBatchResponse{}, err
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -140,8 +137,8 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSw
 	)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeSwapToBatch,
-			sdk.NewAttribute(types.AttributeValueLiquidityPoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
+			types.EventTypeSwapWithinBatch,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
 			sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.Index, 10)),
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(batchMsg.Msg.SwapTypeId), 10)),
@@ -152,5 +149,5 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwap) (*types.MsgSw
 			sdk.NewAttribute(types.AttributeValueOrderPrice, batchMsg.Msg.OrderPrice.String()),
 		),
 	)
-	return &types.MsgSwapResponse{}, nil
+	return &types.MsgSwapWithinBatchResponse{}, nil
 }

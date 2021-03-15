@@ -15,20 +15,20 @@ option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 service Msg {
 
   // Submit create liquidity pool message.
-  rpc CreateLiquidityPool(MsgCreateLiquidityPool) returns (MsgCreateLiquidityPoolResponse);
+  rpc CreatePool(MsgCreatePool) returns (MsgCreatePoolResponse);
 
   // Submit deposit to the liquidity pool batch.
-  rpc DepositToLiquidityPool(MsgDepositToLiquidityPool) returns (MsgDepositToLiquidityPoolResponse);
+  rpc DepositWithinBatch(MsgDepositWithinBatch) returns (MsgDepositWithinBatchResponse);
 
   // Submit withdraw from to the liquidity pool batch.
-  rpc WithdrawFromLiquidityPool(MsgWithdrawFromLiquidityPool) returns (MsgWithdrawFromLiquidityPoolResponse);
+  rpc WithdrawWithinBatch(MsgWithdrawWithinBatch) returns (MsgWithdrawWithinBatchResponse);
 
   // Submit swap to the liquidity pool batch.
-  rpc Swap(MsgSwap) returns (MsgSwapResponse);
+  rpc Swap(MsgSwapWithinBatch) returns (MsgSwapWithinBatchResponse);
 }
 
-// MsgCreateLiquidityPool defines an sdk.Msg type that supports submitting create liquidity pool
-message MsgCreateLiquidityPool {
+// MsgCreatePool defines an sdk.Msg type that supports submitting create liquidity pool
+message MsgCreatePool {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -62,26 +62,26 @@ message MsgCreateLiquidityPool {
     }];
 }
 
-// MsgCreateLiquidityPoolRequest is the request type for the Msg/MsgCreateLiquidityPoolRequest RPC method.
-message MsgCreateLiquidityPoolRequest {
+// MsgCreatePoolRequest is the request type for the Msg/MsgCreatePoolRequest RPC method.
+message MsgCreatePoolRequest {
   BaseReq base_req = 1;
 
-  // MsgCreateLiquidityPool
-  MsgCreateLiquidityPool msg = 2;
+  // MsgCreatePool
+  MsgCreatePool msg = 2;
 }
 
-// MsgCreateLiquidityPoolResponse defines the Msg/CreateLiquidityPool response type.
-message MsgCreateLiquidityPoolResponse {
+// MsgCreatePoolResponse defines the Msg/CreatePool response type.
+message MsgCreatePoolResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 
-// `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
+// `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
 // Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, deposit coins for reserve
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests.
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-message MsgDepositToLiquidityPool {
+message MsgDepositWithinBatch {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -115,8 +115,8 @@ message MsgDepositToLiquidityPool {
 
 }
 
-// MsgDepositToLiquidityPoolRequest is the request type for the Msg/DepositToLiquidityPool RPC method.
-message MsgDepositToLiquidityPoolRequest {
+// MsgDepositWithinBatchRequest is the request type for the Msg/DepositWithinBatch RPC method.
+message MsgDepositWithinBatchRequest {
   BaseReq base_req = 1;
   // id of the target pool
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
@@ -125,22 +125,22 @@ message MsgDepositToLiquidityPoolRequest {
       format: "uint64"
     }];
 
-  // MsgDepositToLiquidityPool
-  MsgDepositToLiquidityPool msg = 3;
+  // MsgDepositWithinBatch
+  MsgDepositWithinBatch msg = 3;
 }
 
-// MsgDepositToLiquidityPoolResponse defines the Msg/DepositToLiquidityPool response type.
-message MsgDepositToLiquidityPoolResponse {
+// MsgDepositWithinBatchResponse defines the Msg/DepositWithinBatch response type.
+message MsgDepositWithinBatchResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 
-// `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
+// `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
 // Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests.
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-message MsgWithdrawFromLiquidityPool {
+message MsgWithdrawWithinBatch {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -165,8 +165,8 @@ message MsgWithdrawFromLiquidityPool {
     }];
 }
 
-// MsgWithdrawFromLiquidityPoolRequest is the request type for the Query/WithdrawFromLiquidityPool RPC method.
-message MsgWithdrawFromLiquidityPoolRequest {
+// MsgWithdrawWithinBatchRequest is the request type for the Query/WithdrawWithinBatch RPC method.
+message MsgWithdrawWithinBatchRequest {
   BaseReq base_req = 1;
   // id of the target pool
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
@@ -175,16 +175,16 @@ message MsgWithdrawFromLiquidityPoolRequest {
       format: "uint64"
     }];
 
-  // MsgWithdrawFromLiquidityPool
-  MsgWithdrawFromLiquidityPool msg = 3;
+  // MsgWithdrawWithinBatch
+  MsgWithdrawWithinBatch msg = 3;
 }
 
-// MsgWithdrawFromLiquidityPoolResponse defines the Msg/WithdrawFromLiquidityPool response type.
-message MsgWithdrawFromLiquidityPoolResponse {
+// MsgWithdrawWithinBatchResponse defines the Msg/WithdrawWithinBatch response type.
+message MsgWithdrawWithinBatchResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 
-// `MsgSwap` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
+// `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
 // Swap offer to the Liquidity pool with the specified `pool_id`, `pool_type_id`, `swap_type`,
 // `demand_coin_denom` with the coin and the price you're offering
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
@@ -195,7 +195,7 @@ message MsgWithdrawFromLiquidityPoolResponse {
 //
 // See: https://github.com/tendermint/liquidity/tree/develop/doc
 // https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-message MsgSwap {
+message MsgSwapWithinBatch {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
   // address of swap requester
@@ -255,8 +255,8 @@ message MsgSwap {
     }];
 }
 
-// MsgSwapRequest is the request type for the Query/Swap RPC method.
-message MsgSwapRequest {
+// MsgSwapWithinBatchRequest is the request type for the Query/Swap RPC method.
+message MsgSwapWithinBatchRequest {
   BaseReq base_req = 1;
   // id of the target pool
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
@@ -265,12 +265,12 @@ message MsgSwapRequest {
       format: "uint64"
     }];
 
-  // MsgSwap
-  MsgSwap msg = 3;
+  // MsgSwapWithinBatch
+  MsgSwapWithinBatch msg = 3;
 }
 
-// MsgSwapResponse defines the Msg/Swap response type.
-message MsgSwapResponse {
+// MsgSwapWithinBatchResponse defines the Msg/Swap response type.
+message MsgSwapWithinBatchResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 

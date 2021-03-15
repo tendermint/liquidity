@@ -75,7 +75,7 @@ example tx command with result
   "body": {
     "messages": [
       {
-        "@type": "/tendermint.liquidity.MsgCreateLiquidityPool",
+        "@type": "/tendermint.liquidity.MsgCreatePool",
         "pool_creator_address": "cosmos1ta4236u33x0rswerr9rhu2h4ervd67y0dgy098",
         "pool_type_id": 1,
         "deposit_coins": [
@@ -124,14 +124,14 @@ result
       "log": "",
       "events": [
         {
-          "type": "create_liquidity_pool",
+          "type": "create_pool",
           "attributes": [
             {
-              "key": "liquidity_pool_id",
+              "key": "pool_id",
               "value": "1"
             },
             {
-              "key": "liquidity_pool_type_id",
+              "key": "pool_type_id",
               "value": "1"
             },
             {
@@ -157,7 +157,7 @@ result
           "attributes": [
             {
               "key": "action",
-              "value": "create_liquidity_pool"
+              "value": "create_pool"
             },
             {
               "key": "sender",
@@ -267,7 +267,7 @@ example tx command with result
   "body": {
     "messages": [
       {
-        "@type": "/tendermint.liquidity.MsgDepositToLiquidityPool",
+        "@type": "/tendermint.liquidity.MsgDepositWithinBatch",
         "depositor_address": "cosmos1ta4236u33x0rswerr9rhu2h4ervd67y0dgy098",
         "pool_id": "1",
         "deposit_coins": [
@@ -316,10 +316,10 @@ result
       "log": "",
       "events": [
         {
-          "type": "deposit_to_liquidity_pool_to_batch",
+          "type": "deposit_within_batch",
           "attributes": [
             {
-              "key": "liquidity_pool_id",
+              "key": "pool_id",
               "value": "1"
             },
             {
@@ -341,7 +341,7 @@ result
           "attributes": [
             {
               "key": "action",
-              "value": "deposit_to_liquidity_pool"
+              "value": "deposit_to_pool"
             },
             {
               "key": "sender",
@@ -418,7 +418,7 @@ example tx command with result
   "body": {
     "messages": [
       {
-        "@type": "/tendermint.liquidity.MsgSwap",
+        "@type": "/tendermint.liquidity.MsgSwapWithinBatch",
         "swap_requester_address": "cosmos1ta4236u33x0rswerr9rhu2h4ervd67y0dgy098",
         "pool_id": "1",
         "swap_type": 1,
@@ -489,10 +489,10 @@ result
           ]
         },
         {
-          "type": "swap_to_batch",
+          "type": "swap_within_batch",
           "attributes": [
             {
-              "key": "liquidity_pool_id",
+              "key": "pool_id",
               "value": "1"
             },
             {
@@ -611,7 +611,7 @@ example tx command with result
   "body": {
     "messages": [
       {
-        "@type": "/tendermint.liquidity.MsgWithdrawFromLiquidityPool",
+        "@type": "/tendermint.liquidity.MsgWithdrawWithinBatch",
         "withdrawer_address": "cosmos1ta4236u33x0rswerr9rhu2h4ervd67y0dgy098",
         "pool_id": "1",
         "pool_coin": {
@@ -658,7 +658,7 @@ result
           "attributes": [
             {
               "key": "action",
-              "value": "withdraw_from_liquidity_pool"
+              "value": "withdraw_from_pool"
             },
             {
               "key": "sender",
@@ -688,10 +688,10 @@ result
           ]
         },
         {
-          "type": "withdraw_from_liquidity_pool_to_batch",
+          "type": "withdraw_within_batch",
           "attributes": [
             {
-              "key": "liquidity_pool_id",
+              "key": "pool_id",
               "value": "1"
             },
             {

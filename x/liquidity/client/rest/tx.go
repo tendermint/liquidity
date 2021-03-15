@@ -24,7 +24,7 @@ func registerTxRoutes(clientCtx client.Context, r *mux.Router) {
 
 func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.MsgCreateLiquidityPoolRequest
+		var req types.MsgCreatePoolRequest
 		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
 			return
 		}
@@ -46,7 +46,7 @@ func newLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc {
 		//	return
 		//}
 		//
-		//msg := types.NewMsgCreateLiquidityPool()
+		//msg := types.NewMsgCreatePool()
 		//if err := msg.ValidateBasic(); err != nil {
 		//	rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		//	return
@@ -72,7 +72,7 @@ func newDepositLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFunc
 		//	return
 		//}
 		//
-		//msg := types.NewMsgDepositToLiquidityPool()
+		//msg := types.NewMsgDepositWithinBatch()
 		//if err := msg.ValidateBasic(); err != nil {
 		//	rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		//	return
@@ -104,7 +104,7 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 		//}
 		//poolId, err := strconv.ParseUint(req.Id, 10, 64)
 		//sdk.NewCoin
-		//msg := types.NewMsgWithdrawFromLiquidityPool(withdrawer, poolId, req.PoolCoin)
+		//msg := types.NewMsgWithdrawWithinBatch(withdrawer, poolId, req.PoolCoin)
 		//if err := msg.ValidateBasic(); err != nil {
 		//	rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		//	return
@@ -115,7 +115,7 @@ func newWithdrawLiquidityPoolHandlerFn(clientCtx client.Context) http.HandlerFun
 }
 
 //// WithdrawLiquidityPoolReq defines the properties of a Deposit from liquidity Pool request's body
-//type CreateLiquidityPoolReq struct {
+//type CreatePoolReq struct {
 //	BaseReq           rest.BaseReq `json:"base_req" yaml:"base_req"`
 //	PoolCreator       string       `json:"pool_creator" yaml:"pool_creator"`
 //	Id     string       `json:"pool_type_id" yaml:"pool_type_id"`
