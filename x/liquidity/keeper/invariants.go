@@ -62,11 +62,17 @@ var (
 )
 
 // MintingPoolCoinsInvariant checks the correct minting amount of pool coins. The difference can be smaller than 1.
-func MintingPoolCoinsInvariant(k Keeper) sdk.Invariant {
-	return func(ctx sdk.Context) (string, bool) {
-		// NewPoolTokenAmount / LastPoolTokenSupply = DepositTokenA / LastReserveTokenA
-		// NewPoolTokenAmount / LastPoolTokenSupply = DepositTokenB / LastReserveTokenB
-		return sdk.FormatInvariant(types.ModuleName, "", ""), false
+func MintingPoolCoinsInvariant(mintPoolCoin, poolCoinTotalSupply, depositCoinA, depositCoinB sdk.Int, lastReserveCoinA, lastReserveCoinB sdk.Dec) {
+	poolCoinRatio := mintPoolCoin.ToDec().Quo(poolCoinTotalSupply.ToDec())
+	depositCoinARatio := depositCoinA.ToDec().Quo(lastReserveCoinA)
+	depositCoinBRatio := depositCoinB.ToDec().Quo(lastReserveCoinB)
+
+	if poolCoinRatio != depositCoinARatio {
+		panic("ratio cannot be different")
+	}
+
+	if poolCoinRatio != depositCoinBRatio {
+		panic("ratio cannot be different")
 	}
 }
 

@@ -213,7 +213,8 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	}
 
 	// calculate pool token mint amount
-	poolCoinAmt := k.GetPoolCoinTotalSupply(ctx, pool).Mul(depositCoinAmountA).Quo(reserveCoins[0].Amount) // TODO: coinA after executed ?
+	poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
+	poolCoinAmt := poolCoinTotalSupply.Mul(depositCoinAmountA).Quo(reserveCoins[0].Amount) // TODO: coinA after executed ?
 	mintPoolCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
 	mintPoolCoins := sdk.NewCoins(mintPoolCoin)
 
@@ -233,6 +234,10 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	msg.Succeeded = true
 	msg.ToBeDeleted = true
 	k.SetPoolBatchDepositMsgState(ctx, msg.Msg.PoolId, msg)
+
+	if invariantCheckFlag {
+		MintingPoolCoinsInvariant(mintPoolCoin.Amount, poolCoinTotalSupply, depositCoinA.Amount, depositCoinB.Amount, lastReserveCoinA, lastReserveCoinB)
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
