@@ -540,9 +540,6 @@ func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executab
 						TransactedCoinAmt: offerAmt.Mul(fractionalMatchRatio).Ceil(),
 						BatchMsg:          matchOrder,
 					}
-					if matchOrder != matchResult.BatchMsg {
-						panic("not matched msg pointer")
-					}
 					// Fee, Exchanged amount are values that should not be overmeasured, so it is lowered conservatively considering the decimal error.
 					if direction == DirectionXtoY {
 						matchResult.OfferCoinFeeAmt = matchResult.BatchMsg.ReservedOfferCoinFee.Amount.ToDec().Mul(fractionalMatchRatio)
