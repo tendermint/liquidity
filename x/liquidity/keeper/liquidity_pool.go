@@ -383,11 +383,15 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	msg.ToBeDeleted = true
 	k.SetPoolBatchWithdrawMsgState(ctx, msg.Msg.PoolId, msg)
 
+	afterReserveCoinA := sdk.ZeroDec()
+	afterReserveCoinB := sdk.ZeroDec()
 	if invariantCheckFlag {
 		afterPoolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
 		afterReserveCoins := k.GetReserveCoins(ctx, pool)
-		afterReserveCoinA := afterReserveCoins[0].Amount.ToDec()
-		afterReserveCoinB := afterReserveCoins[1].Amount.ToDec()
+		if afterReserveCoins != nil {
+			afterReserveCoinA = afterReserveCoins[0].Amount.ToDec()
+			afterReserveCoinB = afterReserveCoins[1].Amount.ToDec()
+		}
 		burnedPoolCoin := poolCoins[0].Amount.ToDec()
 		withdrawCoinA := withdrawCoins[0].Amount.ToDec()
 		withdrawCoinB := withdrawCoins[1].Amount.ToDec()
