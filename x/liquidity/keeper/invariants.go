@@ -67,12 +67,10 @@ func MintingPoolCoinsInvariant(mintPoolCoin, poolCoinTotalSupply, depositCoinA, 
 	depositCoinARatio := depositCoinA.ToDec().Quo(lastReserveCoinA)
 	depositCoinBRatio := depositCoinB.ToDec().Quo(lastReserveCoinB)
 
-	if poolCoinRatio != depositCoinARatio {
-		panic("ratio cannot be different")
-	}
+	// TODO: handle case when someone sends coins to escrow module account
 
-	if poolCoinRatio != depositCoinBRatio {
-		panic("ratio cannot be different")
+	if !poolCoinRatio.Equal(depositCoinARatio) || !poolCoinRatio.Equal(depositCoinBRatio) {
+		panic("ratio of minting pool coin cannot be different from the ratio of depositing coin A or B")
 	}
 }
 
@@ -198,10 +196,6 @@ func OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResul
 					panic("msg not matched")
 				} else {
 					break
-				}
-				// TODO: check for half-half-fee
-				if !msgAfter.OfferCoinFeeAmt.IsPositive() {
-					panic(msgAfter.OfferCoinFeeAmt)
 				}
 			} else {
 				panic("fail msg pointer consistency")
