@@ -256,9 +256,9 @@ paths:
                     type: array
                     format: sdk.Coins
                     example:
-                      - denom: denomA
+                      - denom: denomX
                         amount: '1000000'
-                      - denom: denomB
+                      - denom: denomY
                         amount: '2000000'
                     items:
                       type: object
@@ -321,19 +321,20 @@ paths:
                     reserve_coin_denoms:
                       type: array
                       example:
-                        - denomA
-                        - denomB
+                        - denomX
+                        - denomY
                       items:
                         type: string
                       title: denoms of reserve coin pair of the pool
                     reserve_account_address:
                       type: string
                       format: sdk.AccAddress
-                      example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                       title: reserve account address of the pool
                     pool_coin_denom:
                       type: string
-                      example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      example: >-
+                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       title: denom of pool coin of the pool
                     metadata:
                       type: object
@@ -356,16 +357,16 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                            denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                             amount: '1000000'
                           title: pool coin issued at the pool
                         reserve_coins:
                           type: array
                           format: sdk.Coins
                           example:
-                            - denom: denomA
+                            - denom: denomX
                               amount: '1000000'
-                            - denom: denomB
+                            - denom: denomY
                               amount: '2000000'
                           items:
                             type: object
@@ -445,20 +446,16 @@ paths:
               the response type for the QueryLiquidityPoolsResponse RPC method.
               This includes list of all liquidity pools currently existed and
               paging results containing next_key and total count.
-        '400':
-          description: Bad Request
-          schema: {}
-          examples:
-            application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = There are no pools present.:
+                key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -796,9 +793,9 @@ paths:
                     type: array
                     format: sdk.Coins
                     example:
-                      - denom: denomA
+                      - denom: denomX
                         amount: '1000000'
-                      - denom: denomB
+                      - denom: denomY
                         amount: '2000000'
                     items:
                       type: object
@@ -822,7 +819,7 @@ paths:
                   liquidity pool
 
                   Deposit submit to the batch of the Liquidity pool with the
-                  specified `pool_id`, deposit coins for reserve
+                  specified `pool_id`, deposit_coins for reserve
 
                   this requests are stacked in the batch of the liquidity pool,
                   not immediately processed and
@@ -908,9 +905,9 @@ paths:
                           type: array
                           format: sdk.Coins
                           example:
-                            - denom: denomA
+                            - denom: denomX
                               amount: '1000000'
-                            - denom: denomB
+                            - denom: denomY
                               amount: '2000000'
                           items:
                             type: object
@@ -935,7 +932,7 @@ paths:
                         liquidity pool
 
                         Deposit submit to the batch of the Liquidity pool with
-                        the specified `pool_id`, deposit coins for reserve
+                        the specified `pool_id`, deposit_coins for reserve
 
                         this requests are stacked in the batch of the liquidity
                         pool, not immediately processed and
@@ -974,15 +971,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -1345,7 +1348,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '1000000'
                   demand_coin_denom:
                     type: string
@@ -1370,7 +1373,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '5000'
                     title: offer coin fee for pay fees in half offer coin
                   order_price:
@@ -1383,11 +1386,11 @@ paths:
                   submitting swap offer request to the batch of the liquidity
                   pool
 
-                  Swap offer to the Liquidity pool with the specified `pool_id`,
-                  `pool_type_id`, `swap_type`,
+                  Swap offer submit to the batch to the Liquidity pool with the
+                  specified the `pool_id`, `swap_type_id`,
 
                   `demand_coin_denom` with the coin and the price you're
-                  offering
+                  offering and current `params.swap_fee_rate`
 
                   this requests are stacked in the batch of the liquidity pool,
                   not immediately processed and
@@ -1396,8 +1399,8 @@ paths:
 
                   You should request the same each field as the pool
 
-                  Currently, only the default `swap_type`1 is available on this
-                  version
+                  Currently, only the default `swap_type_id`1 is available on
+                  this version
 
                   The detailed swap algorithm can be found here.
 
@@ -1487,7 +1490,7 @@ paths:
                         signatures required by gogoproto.
                       format: sdk.Coin
                       example:
-                        denom: denomA
+                        denom: denomX
                         amount: '600000'
                       title: offer coin exchanged until now
                     remaining_offer_coin:
@@ -1507,7 +1510,7 @@ paths:
                         signatures required by gogoproto.
                       format: sdk.Coin
                       example:
-                        denom: denomA
+                        denom: denomX
                         amount: '400000'
                       title: offer coin currently remaining to be exchanged
                     reserved_offer_coin_fee:
@@ -1527,7 +1530,7 @@ paths:
                         signatures required by gogoproto.
                       format: sdk.Coin
                       example:
-                        denom: denomA
+                        denom: denomX
                         amount: '5000'
                       title: reserve fee for pays fee in half offer coin
                     msg:
@@ -1570,7 +1573,7 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: denomA
+                            denom: denomX
                             amount: '1000000'
                         demand_coin_denom:
                           type: string
@@ -1596,7 +1599,7 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: denomA
+                            denom: denomX
                             amount: '5000'
                           title: offer coin fee for pay fees in half offer coin
                         order_price:
@@ -1609,11 +1612,11 @@ paths:
                         supports submitting swap offer request to the batch of
                         the liquidity pool
 
-                        Swap offer to the Liquidity pool with the specified
-                        `pool_id`, `pool_type_id`, `swap_type`,
+                        Swap offer submit to the batch to the Liquidity pool
+                        with the specified the `pool_id`, `swap_type_id`,
 
                         `demand_coin_denom` with the coin and the price you're
-                        offering
+                        offering and current `params.swap_fee_rate`
 
                         this requests are stacked in the batch of the liquidity
                         pool, not immediately processed and
@@ -1622,8 +1625,8 @@ paths:
 
                         You should request the same each field as the pool
 
-                        Currently, only the default `swap_type`1 is available on
-                        this version
+                        Currently, only the default `swap_type_id`1 is available
+                        on this version
 
                         The detailed swap algorithm can be found here.
 
@@ -1661,15 +1664,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -2026,7 +2035,8 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      denom: >-
+                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       amount: '1000'
                 description: >-
                   `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
@@ -2134,7 +2144,8 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                            denom: >-
+                              pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                             amount: '1000'
                       description: >-
                         `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
@@ -2181,15 +2192,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -2390,20 +2407,6 @@ paths:
             description: >-
               the response type for the QueryParamsResponse RPC method. This
               includes current parameter of the liquidity module.
-        '400':
-          description: Bad Request
-          schema: {}
-          examples:
-            application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
-        '500':
-          description: Internal Server Error
-          schema: {}
-          examples:
-            application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
         default:
           description: An unexpected error response.
           schema:
@@ -2509,20 +2512,16 @@ paths:
               method. This includes list of all batches that all currently
               existing pools and paging results containing next_key and total
               count.
-        '400':
-          description: Bad Request
-          schema: {}
-          examples:
-            application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = There are no batches present.:
+                key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -2624,19 +2623,20 @@ paths:
               reserve_coin_denoms:
                 type: array
                 example:
-                  - denomA
-                  - denomB
+                  - denomX
+                  - denomY
                 items:
                   type: string
                 title: denoms of reserve coin pair of the pool
               reserve_account_address:
                 type: string
                 format: sdk.AccAddress
-                example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                 title: reserve account address of the pool
               pool_coin_denom:
                 type: string
-                example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                example: >-
+                  pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                 title: denom of pool coin of the pool
               metadata:
                 type: object
@@ -2658,16 +2658,16 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                      denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                       amount: '1000000'
                     title: pool coin issued at the pool
                   reserve_coins:
                     type: array
                     format: sdk.Coins
                     example:
-                      - denom: denomA
+                      - denom: denomX
                         amount: '1000000'
-                      - denom: denomB
+                      - denom: denomY
                         amount: '2000000'
                     items:
                       type: object
@@ -2727,15 +2727,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -2828,15 +2834,21 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: pool_id, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 2
+              message: >-
+                rpc error: code = NotFound desc = liquidity pool 3 doesn't
+                exist: key not found
+              details: []
         default:
           description: An unexpected error response.
           schema:
@@ -2931,9 +2943,9 @@ paths:
                         type: array
                         format: sdk.Coins
                         example:
-                          - denom: denomA
+                          - denom: denomX
                             amount: '1000000'
-                          - denom: denomB
+                          - denom: denomY
                             amount: '2000000'
                         items:
                           type: object
@@ -2958,7 +2970,7 @@ paths:
                       liquidity pool
 
                       Deposit submit to the batch of the Liquidity pool with the
-                      specified `pool_id`, deposit coins for reserve
+                      specified `pool_id`, deposit_coins for reserve
 
                       this requests are stacked in the batch of the liquidity
                       pool, not immediately processed and
@@ -2976,8 +2988,11 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: msg_index, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
@@ -3095,7 +3110,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '600000'
                     title: offer coin exchanged until now
                   remaining_offer_coin:
@@ -3115,7 +3130,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '400000'
                     title: offer coin currently remaining to be exchanged
                   reserved_offer_coin_fee:
@@ -3135,7 +3150,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '5000'
                     title: reserve fee for pays fee in half offer coin
                   msg:
@@ -3178,7 +3193,7 @@ paths:
                           signatures required by gogoproto.
                         format: sdk.Coin
                         example:
-                          denom: denomA
+                          denom: denomX
                           amount: '1000000'
                       demand_coin_denom:
                         type: string
@@ -3204,7 +3219,7 @@ paths:
                           signatures required by gogoproto.
                         format: sdk.Coin
                         example:
-                          denom: denomA
+                          denom: denomX
                           amount: '5000'
                         title: offer coin fee for pay fees in half offer coin
                       order_price:
@@ -3217,11 +3232,11 @@ paths:
                       submitting swap offer request to the batch of the
                       liquidity pool
 
-                      Swap offer to the Liquidity pool with the specified
-                      `pool_id`, `pool_type_id`, `swap_type`,
+                      Swap offer submit to the batch to the Liquidity pool with
+                      the specified the `pool_id`, `swap_type_id`,
 
                       `demand_coin_denom` with the coin and the price you're
-                      offering
+                      offering and current `params.swap_fee_rate`
 
                       this requests are stacked in the batch of the liquidity
                       pool, not immediately processed and
@@ -3230,8 +3245,8 @@ paths:
 
                       You should request the same each field as the pool
 
-                      Currently, only the default `swap_type`1 is available on
-                      this version
+                      Currently, only the default `swap_type_id`1 is available
+                      on this version
 
                       The detailed swap algorithm can be found here.
 
@@ -3248,8 +3263,11 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: msg_index, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
@@ -3375,7 +3393,8 @@ paths:
                           signatures required by gogoproto.
                         format: sdk.Coin
                         example:
-                          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                          denom: >-
+                            pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                           amount: '1000'
                     description: >-
                       `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
@@ -3401,8 +3420,11 @@ paths:
           schema: {}
           examples:
             application/json:
-              code: 0
-              message: 'error description example, see details https://bit.ly/3moTlO9'
+              code: 3
+              message: >-
+                type mismatch, parameter: msg_index, error: strconv.ParseUint:
+                parsing *: invalid syntax
+              details: []
         '500':
           description: Internal Server Error
           schema: {}
@@ -3644,9 +3666,9 @@ definitions:
         type: array
         format: sdk.Coins
         example:
-          - denom: denomA
+          - denom: denomX
             amount: '1000000'
-          - denom: denomB
+          - denom: denomY
             amount: '2000000'
         items:
           type: object
@@ -3785,9 +3807,9 @@ definitions:
             type: array
             format: sdk.Coins
             example:
-              - denom: denomA
+              - denom: denomX
                 amount: '1000000'
-              - denom: denomB
+              - denom: denomY
                 amount: '2000000'
             items:
               type: object
@@ -3904,9 +3926,9 @@ definitions:
         type: array
         format: sdk.Coins
         example:
-          - denom: denomA
+          - denom: denomX
             amount: '1000000'
-          - denom: denomB
+          - denom: denomY
             amount: '2000000'
         items:
           type: object
@@ -3926,7 +3948,7 @@ definitions:
       deposit request to the batch of the liquidity pool
 
       Deposit submit to the batch of the Liquidity pool with the specified
-      `pool_id`, deposit coins for reserve
+      `pool_id`, deposit_coins for reserve
 
       this requests are stacked in the batch of the liquidity pool, not
       immediately processed and
@@ -4060,9 +4082,9 @@ definitions:
             type: array
             format: sdk.Coins
             example:
-              - denom: denomA
+              - denom: denomX
                 amount: '1000000'
-              - denom: denomB
+              - denom: denomY
                 amount: '2000000'
             items:
               type: object
@@ -4085,7 +4107,7 @@ definitions:
           submitting deposit request to the batch of the liquidity pool
 
           Deposit submit to the batch of the Liquidity pool with the specified
-          `pool_id`, deposit coins for reserve
+          `pool_id`, deposit_coins for reserve
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
@@ -4214,7 +4236,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '1000000'
       demand_coin_denom:
         type: string
@@ -4236,7 +4258,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '5000'
         title: offer coin fee for pay fees in half offer coin
       order_price:
@@ -4248,10 +4270,11 @@ definitions:
       `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap
       offer request to the batch of the liquidity pool
 
-      Swap offer to the Liquidity pool with the specified `pool_id`,
-      `pool_type_id`, `swap_type`,
+      Swap offer submit to the batch to the Liquidity pool with the specified
+      the `pool_id`, `swap_type_id`,
 
-      `demand_coin_denom` with the coin and the price you're offering
+      `demand_coin_denom` with the coin and the price you're offering and
+      current `params.swap_fee_rate`
 
       this requests are stacked in the batch of the liquidity pool, not
       immediately processed and
@@ -4260,7 +4283,7 @@ definitions:
 
       You should request the same each field as the pool
 
-      Currently, only the default `swap_type`1 is available on this version
+      Currently, only the default `swap_type_id`1 is available on this version
 
       The detailed swap algorithm can be found here.
 
@@ -4413,7 +4436,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '1000000'
           demand_coin_denom:
             type: string
@@ -4438,7 +4461,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '5000'
             title: offer coin fee for pay fees in half offer coin
           order_price:
@@ -4450,10 +4473,11 @@ definitions:
           `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting
           swap offer request to the batch of the liquidity pool
 
-          Swap offer to the Liquidity pool with the specified `pool_id`,
-          `pool_type_id`, `swap_type`,
+          Swap offer submit to the batch to the Liquidity pool with the
+          specified the `pool_id`, `swap_type_id`,
 
-          `demand_coin_denom` with the coin and the price you're offering
+          `demand_coin_denom` with the coin and the price you're offering and
+          current `params.swap_fee_rate`
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
@@ -4462,7 +4486,8 @@ definitions:
 
           You should request the same each field as the pool
 
-          Currently, only the default `swap_type`1 is available on this version
+          Currently, only the default `swap_type_id`1 is available on this
+          version
 
           The detailed swap algorithm can be found here.
 
@@ -4579,7 +4604,8 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+          denom: >-
+            pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
           amount: '1000'
     description: >-
       `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -4733,7 +4759,8 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              denom: >-
+                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               amount: '1000'
         description: >-
           `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -5065,9 +5092,9 @@ definitions:
             type: array
             format: sdk.Coins
             example:
-              - denom: denomA
+              - denom: denomX
                 amount: '1000000'
-              - denom: denomB
+              - denom: denomY
                 amount: '2000000'
             items:
               type: object
@@ -5090,7 +5117,7 @@ definitions:
           submitting deposit request to the batch of the liquidity pool
 
           Deposit submit to the batch of the Liquidity pool with the specified
-          `pool_id`, deposit coins for reserve
+          `pool_id`, deposit_coins for reserve
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
@@ -5279,16 +5306,16 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+          denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
           amount: '1000000'
         title: pool coin issued at the pool
       reserve_coins:
         type: array
         format: sdk.Coins
         example:
-          - denom: denomA
+          - denom: denomX
             amount: '1000000'
-          - denom: denomB
+          - denom: denomY
             amount: '2000000'
         items:
           type: object
@@ -5391,19 +5418,19 @@ definitions:
       reserve_coin_denoms:
         type: array
         example:
-          - denomA
-          - denomB
+          - denomX
+          - denomY
         items:
           type: string
         title: denoms of reserve coin pair of the pool
       reserve_account_address:
         type: string
         format: sdk.AccAddress
-        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+        example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
         title: reserve account address of the pool
       pool_coin_denom:
         type: string
-        example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+        example: pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
         title: denom of pool coin of the pool
       metadata:
         type: object
@@ -5425,16 +5452,16 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
               amount: '1000000'
             title: pool coin issued at the pool
           reserve_coins:
             type: array
             format: sdk.Coins
             example:
-              - denom: denomA
+              - denom: denomX
                 amount: '1000000'
-              - denom: denomB
+              - denom: denomY
                 amount: '2000000'
             items:
               type: object
@@ -5575,19 +5602,20 @@ definitions:
             reserve_coin_denoms:
               type: array
               example:
-                - denomA
-                - denomB
+                - denomX
+                - denomY
               items:
                 type: string
               title: denoms of reserve coin pair of the pool
             reserve_account_address:
               type: string
               format: sdk.AccAddress
-              example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
               title: reserve account address of the pool
             pool_coin_denom:
               type: string
-              example: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              example: >-
+                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               title: denom of pool coin of the pool
             metadata:
               type: object
@@ -5609,16 +5637,16 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                     amount: '1000000'
                   title: pool coin issued at the pool
                 reserve_coins:
                   type: array
                   format: sdk.Coins
                   example:
-                    - denom: denomA
+                    - denom: denomX
                       amount: '1000000'
-                    - denom: denomB
+                    - denom: denomY
                       amount: '2000000'
                   items:
                     type: object
@@ -5848,9 +5876,9 @@ definitions:
                 type: array
                 format: sdk.Coins
                 example:
-                  - denom: denomA
+                  - denom: denomX
                     amount: '1000000'
-                  - denom: denomB
+                  - denom: denomY
                     amount: '2000000'
                 items:
                   type: object
@@ -5873,7 +5901,7 @@ definitions:
               submitting deposit request to the batch of the liquidity pool
 
               Deposit submit to the batch of the Liquidity pool with the
-              specified `pool_id`, deposit coins for reserve
+              specified `pool_id`, deposit_coins for reserve
 
               this requests are stacked in the batch of the liquidity pool, not
               immediately processed and
@@ -5936,9 +5964,9 @@ definitions:
                   type: array
                   format: sdk.Coins
                   example:
-                    - denom: denomA
+                    - denom: denomX
                       amount: '1000000'
-                    - denom: denomB
+                    - denom: denomY
                       amount: '2000000'
                   items:
                     type: object
@@ -5961,7 +5989,7 @@ definitions:
                 submitting deposit request to the batch of the liquidity pool
 
                 Deposit submit to the batch of the Liquidity pool with the
-                specified `pool_id`, deposit coins for reserve
+                specified `pool_id`, deposit_coins for reserve
 
                 this requests are stacked in the batch of the liquidity pool,
                 not immediately processed and
@@ -6049,7 +6077,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '600000'
             title: offer coin exchanged until now
           remaining_offer_coin:
@@ -6069,7 +6097,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '400000'
             title: offer coin currently remaining to be exchanged
           reserved_offer_coin_fee:
@@ -6089,7 +6117,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '5000'
             title: reserve fee for pays fee in half offer coin
           msg:
@@ -6131,7 +6159,7 @@ definitions:
                   signatures required by gogoproto.
                 format: sdk.Coin
                 example:
-                  denom: denomA
+                  denom: denomX
                   amount: '1000000'
               demand_coin_denom:
                 type: string
@@ -6156,7 +6184,7 @@ definitions:
                   signatures required by gogoproto.
                 format: sdk.Coin
                 example:
-                  denom: denomA
+                  denom: denomX
                   amount: '5000'
                 title: offer coin fee for pay fees in half offer coin
               order_price:
@@ -6168,10 +6196,11 @@ definitions:
               `MsgSwapWithinBatch` defines an sdk.Msg type that supports
               submitting swap offer request to the batch of the liquidity pool
 
-              Swap offer to the Liquidity pool with the specified `pool_id`,
-              `pool_type_id`, `swap_type`,
+              Swap offer submit to the batch to the Liquidity pool with the
+              specified the `pool_id`, `swap_type_id`,
 
               `demand_coin_denom` with the coin and the price you're offering
+              and current `params.swap_fee_rate`
 
               this requests are stacked in the batch of the liquidity pool, not
               immediately processed and
@@ -6180,7 +6209,7 @@ definitions:
 
               You should request the same each field as the pool
 
-              Currently, only the default `swap_type`1 is available on this
+              Currently, only the default `swap_type_id`1 is available on this
               version
 
               The detailed swap algorithm can be found here.
@@ -6248,7 +6277,7 @@ definitions:
                 signatures required by gogoproto.
               format: sdk.Coin
               example:
-                denom: denomA
+                denom: denomX
                 amount: '600000'
               title: offer coin exchanged until now
             remaining_offer_coin:
@@ -6268,7 +6297,7 @@ definitions:
                 signatures required by gogoproto.
               format: sdk.Coin
               example:
-                denom: denomA
+                denom: denomX
                 amount: '400000'
               title: offer coin currently remaining to be exchanged
             reserved_offer_coin_fee:
@@ -6288,7 +6317,7 @@ definitions:
                 signatures required by gogoproto.
               format: sdk.Coin
               example:
-                denom: denomA
+                denom: denomX
                 amount: '5000'
               title: reserve fee for pays fee in half offer coin
             msg:
@@ -6330,7 +6359,7 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: denomA
+                    denom: denomX
                     amount: '1000000'
                 demand_coin_denom:
                   type: string
@@ -6355,7 +6384,7 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: denomA
+                    denom: denomX
                     amount: '5000'
                   title: offer coin fee for pay fees in half offer coin
                 order_price:
@@ -6367,10 +6396,11 @@ definitions:
                 `MsgSwapWithinBatch` defines an sdk.Msg type that supports
                 submitting swap offer request to the batch of the liquidity pool
 
-                Swap offer to the Liquidity pool with the specified `pool_id`,
-                `pool_type_id`, `swap_type`,
+                Swap offer submit to the batch to the Liquidity pool with the
+                specified the `pool_id`, `swap_type_id`,
 
                 `demand_coin_denom` with the coin and the price you're offering
+                and current `params.swap_fee_rate`
 
                 this requests are stacked in the batch of the liquidity pool,
                 not immediately processed and
@@ -6379,7 +6409,7 @@ definitions:
 
                 You should request the same each field as the pool
 
-                Currently, only the default `swap_type`1 is available on this
+                Currently, only the default `swap_type_id`1 is available on this
                 version
 
                 The detailed swap algorithm can be found here.
@@ -6473,7 +6503,8 @@ definitions:
                   signatures required by gogoproto.
                 format: sdk.Coin
                 example:
-                  denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                  denom: >-
+                    pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                   amount: '1000'
             description: >-
               `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -6556,7 +6587,8 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+                    denom: >-
+                      pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                     amount: '1000'
               description: >-
                 `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -6645,7 +6677,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '600000'
         title: offer coin exchanged until now
       remaining_offer_coin:
@@ -6662,7 +6694,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '400000'
         title: offer coin currently remaining to be exchanged
       reserved_offer_coin_fee:
@@ -6679,7 +6711,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '5000'
         title: reserve fee for pays fee in half offer coin
       msg:
@@ -6721,7 +6753,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '1000000'
           demand_coin_denom:
             type: string
@@ -6746,7 +6778,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '5000'
             title: offer coin fee for pay fees in half offer coin
           order_price:
@@ -6758,10 +6790,11 @@ definitions:
           `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting
           swap offer request to the batch of the liquidity pool
 
-          Swap offer to the Liquidity pool with the specified `pool_id`,
-          `pool_type_id`, `swap_type`,
+          Swap offer submit to the batch to the Liquidity pool with the
+          specified the `pool_id`, `swap_type_id`,
 
-          `demand_coin_denom` with the coin and the price you're offering
+          `demand_coin_denom` with the coin and the price you're offering and
+          current `params.swap_fee_rate`
 
           this requests are stacked in the batch of the liquidity pool, not
           immediately processed and
@@ -6770,7 +6803,8 @@ definitions:
 
           You should request the same each field as the pool
 
-          Currently, only the default `swap_type`1 is available on this version
+          Currently, only the default `swap_type_id`1 is available on this
+          version
 
           The detailed swap algorithm can be found here.
 
@@ -6836,7 +6870,8 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs
+              denom: >-
+                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               amount: '1000'
         description: >-
           `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports

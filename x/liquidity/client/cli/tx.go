@@ -31,7 +31,7 @@ func GetTxCmd() *cobra.Command {
 		NewCreatePoolCmd(),
 		NewDepositWithinBatchCmd(),
 		NewWithdrawWithinBatchCmd(),
-		NewSwapCmd(),
+		NewSwapWithinBatchCmd(),
 	)
 
 	return liquidityTxCmd
@@ -39,19 +39,19 @@ func GetTxCmd() *cobra.Command {
 
 func NewCreatePoolCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-pool [pool-type-index] [deposit-coins]",
+		Use:   "create-pool [pool-type-id] [deposit-coins]",
 		Args:  cobra.ExactArgs(2),
-		Short: "Create Liquidity pool with the specified pool-type, deposit coins",
+		Short: "Create Liquidity pool with the specified pool-type, deposit-coins",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Create Liquidity pool with the specified pool-type-index, deposit coins for reserve
+			fmt.Sprintf(`Create Liquidity pool with the specified pool-type-id, deposit-coins for reserve
 
 Example:
 $ %s tx liquidity create-pool 1 100000000stake,100000000token --from mykey
 
-Currently, only the default pool-type-index 1 is available on this version
-the number of deposit coins must be two in the pool-type-index 1
+Currently, only the default pool-type-id 1 is available on this version
+the number of deposit coins must be two in the pool-type-id 1
 
-{"pool_type_id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
+{"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
 `,
 				version.AppName,
 			),
@@ -66,7 +66,7 @@ the number of deposit coins must be two in the pool-type-index 1
 			// Get pool type index
 			poolTypeId, err := strconv.ParseUint(args[0], 10, 32)
 			if err != nil {
-				return fmt.Errorf("pool-type-index %s not a valid uint, please input a valid pool-type-index", args[0])
+				return fmt.Errorf("pool-type-id %s not a valid uint, please input a valid pool-type-id", args[0])
 			}
 
 			// Get deposit coins
@@ -85,7 +85,7 @@ the number of deposit coins must be two in the pool-type-index 1
 			}
 
 			if depositCoins.Len() != 2 {
-				return fmt.Errorf("the number of deposit coins must be two in the pool-type-index 1")
+				return fmt.Errorf("the number of deposit coins must be two in the pool-type-id 1")
 			}
 
 			msg := types.NewMsgCreatePool(poolCreator, uint32(poolTypeId), depositCoins)
@@ -101,14 +101,14 @@ the number of deposit coins must be two in the pool-type-index 1
 	return cmd
 }
 
-// Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins
+// Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins
 func NewDepositWithinBatchCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit [pool-id] [deposit-coins]",
 		Args:  cobra.ExactArgs(2),
-		Short: "Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins",
+		Short: "Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins for reserve
+			fmt.Sprintf(`Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins for reserve
 
 this requests are stacked in the batch of the liquidity pool, not immediately processed and 
 processed in the endblock at once with other requests.
@@ -146,7 +146,7 @@ You should deposit the same coin as the reserve coin.
 			}
 
 			if depositCoins.Len() != 2 {
-				return fmt.Errorf("the number of deposit coins must be two in the pool-type-index 1")
+				return fmt.Errorf("the number of deposit coins must be two in the pool-type-id 1")
 			}
 
 			msg := types.NewMsgDepositWithinBatch(depositor, poolId, depositCoins)
@@ -219,15 +219,15 @@ You should request the matched pool-coin as the pool.
 	return cmd
 }
 
-// Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
-func NewSwapCmd() *cobra.Command {
+// Swap offer submit to the batch to the Liquidity pool with the specified pool-id with offer-coin, order-price, etc
+func NewSwapWithinBatchCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "swap [pool-id] [swap-type-index] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]",
+		Use:   "swap [pool-id] [swap-type-id] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]",
 		Args:  cobra.ExactArgs(6),
-		Short: "Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price, swap-fee-rate",
+		Short: "Swap offer submit to the batch to the Liquidity pool with the specified pool-id with offer-coin, order-price, etc",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Swap offer to the Liquidity pool with the specified pool-id, swap-type-index demand-coin-denom 
-with the coin and the price you're offering
+			fmt.Sprintf(`Swap offer to the Liquidity pool with the specified pool-id, swap-type-id demand-coin-denom 
+with the coin and the price you're offering and current swap-fee-rate
 
 this requests are stacked in the batch of the liquidity pool, not immediately processed and 
 processed in the endblock at once with other requests.
@@ -241,7 +241,7 @@ Must have sufficient balance half the of the swapFee Rate of the offer coin to r
 
 For explicit calculations, you must enter the params.swap_fee_rate value of the current parameter state.
 
-Currently, only the default pool-type, swap-type-index 1 is available on this version
+Currently, only the default pool-type-id, swap-type-id 1 is available on this version
 The detailed swap algorithm can be found here.
 https://github.com/tendermint/liquidity
 `,
@@ -264,7 +264,7 @@ https://github.com/tendermint/liquidity
 			// Get swap type
 			swapTypeId, err := strconv.ParseUint(args[1], 10, 32)
 			if err != nil {
-				return fmt.Errorf("swap-type-index %s not a valid uint, please input a valid swap-type-index", args[2])
+				return fmt.Errorf("swap-type-id %s not a valid uint, please input a valid swap-type-id", args[2])
 			}
 
 			if swapTypeId != 1 {
@@ -288,7 +288,7 @@ https://github.com/tendermint/liquidity
 			}
 
 			if err != nil {
-				return fmt.Errorf("pool-type-index %s not a valid uint, please input a valid pool-type-index", args[1])
+				return fmt.Errorf("pool-type-id %s not a valid uint, please input a valid pool-type-id", args[1])
 			}
 
 			orderPrice, err := sdk.NewDecFromStr(args[4])

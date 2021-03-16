@@ -164,20 +164,20 @@ message Pool {
     // denoms of reserve coin pair of the pool
     repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "[\"denomA\",\"denomB\"]"
+            example: "[\"denomX\",\"denomY\"]"
         }];
 
     // reserve account address of the pool
     string reserve_account_address = 4 [(gogoproto.moretags) = "yaml:\"reserve_account_address\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\"",
+            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
             format: "sdk.AccAddress"
         }];
 
     // denom of pool coin of the pool
     string pool_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\"",
+            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
         }];
 }
 
@@ -197,7 +197,7 @@ message PoolMetadata {
         (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
         (gogoproto.nullable)   = false,
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "{\"denom\": \"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\", \"amount\": \"1000000\"}",
+            example: "{\"denom\": \"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\", \"amount\": \"1000000\"}",
             format: "sdk.Coin"
         }];
 
@@ -207,7 +207,7 @@ message PoolMetadata {
         (gogoproto.nullable)   = false,
         (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "[{\"denom\": \"denomA\", \"amount\": \"1000000\"}, {\"denom\": \"denomB\", \"amount\": \"2000000\"}]",
+            example: "[{\"denom\": \"denomX\", \"amount\": \"1000000\"}, {\"denom\": \"denomY\", \"amount\": \"2000000\"}]",
             format: "sdk.Coins"
         }];
 }
@@ -221,7 +221,7 @@ message PoolMetadataResponse {
         (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
         (gogoproto.nullable)   = false,
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "{\"denom\": \"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\", \"amount\": \"1000000\"}",
+            example: "{\"denom\": \"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\", \"amount\": \"1000000\"}",
             format: "sdk.Coin"
         }];
 
@@ -231,7 +231,7 @@ message PoolMetadataResponse {
         (gogoproto.nullable)   = false,
         (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "[{\"denom\": \"denomA\", \"amount\": \"1000000\"}, {\"denom\": \"denomB\", \"amount\": \"2000000\"}]",
+            example: "[{\"denom\": \"denomX\", \"amount\": \"1000000\"}, {\"denom\": \"denomY\", \"amount\": \"2000000\"}]",
             format: "sdk.Coins"
         }];
 }
@@ -457,7 +457,7 @@ message SwapMsgState {
         (gogoproto.nullable)     = false,
         (gogoproto.moretags)     = "yaml:\"exchanged_offer_coin\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "{\"denom\": \"denomA\", \"amount\": \"600000\"}",
+            example: "{\"denom\": \"denomX\", \"amount\": \"600000\"}",
             format: "sdk.Coin"
         }];
 
@@ -466,7 +466,7 @@ message SwapMsgState {
         (gogoproto.nullable)     = false,
         (gogoproto.moretags)     = "yaml:\"remaining_offer_coin\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "{\"denom\": \"denomA\", \"amount\": \"400000\"}",
+            example: "{\"denom\": \"denomX\", \"amount\": \"400000\"}",
             format: "sdk.Coin"
         }];
 
@@ -475,7 +475,7 @@ message SwapMsgState {
         (gogoproto.nullable)     = false,
         (gogoproto.moretags)     = "yaml:\"reserved_offer_coin_fee\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "{\"denom\": \"denomA\", \"amount\": \"5000\"}",
+            example: "{\"denom\": \"denomX\", \"amount\": \"5000\"}",
             format: "sdk.Coin"
         }
     ];
