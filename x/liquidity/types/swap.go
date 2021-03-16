@@ -134,7 +134,6 @@ func NewBatchResult() BatchResult {
 
 // struct of swap matching result of each Batch swap message
 type MatchResult struct {
-	OrderHeight            int64
 	OrderExpiryHeight      int64
 	OrderMsgIndex          uint64
 	OrderPrice             sdk.Dec
@@ -533,7 +532,6 @@ func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executab
 				for _, matchOrder := range matchOrderList {
 					offerAmt := matchOrder.RemainingOfferCoin.Amount.ToDec()
 					matchResult := MatchResult{
-						OrderHeight:       height,
 						OrderExpiryHeight: height + CancelOrderLifeSpan,
 						OrderMsgIndex:     matchOrder.MsgIndex,
 						OrderPrice:        matchOrder.Msg.OrderPrice,
