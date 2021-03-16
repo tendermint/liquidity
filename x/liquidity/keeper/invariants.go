@@ -68,14 +68,14 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply sdk.Int, mintPoolCoin, deposi
 	depositCoinADec := depositCoinA.Amount.ToDec()
 	depositCoinBDec := depositCoinB.Amount.ToDec()
 
-	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinA / LastReserveCoinA
-	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinB / LastReserveCoinB
 	poolCoinRatio := mintPoolCoinDec.Quo(poolCoinTotalSupplyDec)
 	depositCoinARatio := depositCoinADec.Quo(lastReserveCoinA)
 	depositCoinBRatio := depositCoinBDec.Quo(lastReserveCoinB)
 
 	// TODO: handle case when someone sends coins to escrow module account
 
+	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinA / LastReserveCoinA
+	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinB / LastReserveCoinB
 	if !poolCoinRatio.Equal(depositCoinARatio) || !poolCoinRatio.Equal(depositCoinBRatio) {
 		panic("invariant check fails due to incorrect ratio of pool coins")
 	}
@@ -85,7 +85,6 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply sdk.Int, mintPoolCoin, deposi
 func DepositReserveCoinsInvariant(depositCoinA, depositCoinB sdk.Coin, lastReserveCoinA, lastReserveCoinB sdk.Dec, afterReserveCoins sdk.Coins) {
 	afterReserveCoinADec := afterReserveCoins[0].Amount.ToDec()
 	afterReserveCoinBDec := afterReserveCoins[1].Amount.ToDec()
-
 	depositCoinADec := depositCoinA.Amount.ToDec()
 	depositCoinBDec := depositCoinB.Amount.ToDec()
 
@@ -98,30 +97,42 @@ func DepositReserveCoinsInvariant(depositCoinA, depositCoinB sdk.Coin, lastReser
 }
 
 // DepositRatioInvariant checks the correct ratio of deposit coin amounts.
-func DepositRatioInvariant() {
+func DepositRatioInvariant(depositCoinA, depositCoinB sdk.Coin, lastReserveCoinRatio sdk.Dec) {
+	depositCoinADec := depositCoinA.Amount.ToDec()
+	depositCoinBDec := depositCoinB.Amount.ToDec()
+	depositCoinRatio := depositCoinADec.Quo(depositCoinBDec)
+
+	// DepositCoinA / DepositCoinB = LastReserveCoinA / LastReserveCoinB
+	if !depositCoinRatio.Equal(lastReserveCoinRatio) {
+		panic("invariant check fails due to incorrect deposit ratio")
+	}
 }
 
-// ImmutablePoolPriceAfterDepositInvariant checks immutable pool price after depositing coins
-func ImmutablePoolPriceAfterDepositInvariant() {
+// ImmutablePoolPriceAfterDepositInvariant checks immutable pool price after depositing coins.
+func ImmutablePoolPriceAfterDepositInvariant(lastReserveCoinRatio, afterReserveCoinRatio sdk.Dec) {
+	// LastReserveCoinA / LastReserveCoinB = AfterDepositReserveCoinA / AfterDepositReserveCoinB
+	if !lastReserveCoinRatio.Equal(afterReserveCoinRatio) {
+		panic("invariant check fails due to incorrect pool price ratio")
+	}
 }
 
-// BurningPoolCoinsInvariant checks the correct burning amount of pool coins
+// BurningPoolCoinsInvariant checks the correct burning amount of pool coins.
 func BurningPoolCoinsInvariant() {
 }
 
-// WithdrawReserveCoinsInvariant checks the after withdraw amounts
+// WithdrawReserveCoinsInvariant checks the after withdraw amounts.
 func WithdrawReserveCoinsInvariant() {
 }
 
-// WithdrawRatioInvariant checks the correct ratio of withdraw coin amounts
+// WithdrawRatioInvariant checks the correct ratio of withdraw coin amounts.
 func WithdrawRatioInvariant() {
 }
 
-// ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins
+// ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins.
 func ImmutablePoolPriceAfterWithdrawInvariant() {
 }
 
-// SwapPriceInvariants checks the calculated swap price is increased, decreased, or equal from the last pool price
+// SwapPriceInvariants checks the calculated swap price is increased, decreased, or equal from the last pool price.
 func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult,
 	fractionalCntX, fractionalCntY int, poolXdelta, poolYdelta, poolXdelta2, poolYdelta2, decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
 	beforeXtoYLen := len(XtoY)
@@ -174,7 +185,7 @@ func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matc
 	}
 }
 
-// OrdersWithNotExecutedStateInvariants checks all executed orders have order price which is not "executable" or not "unexecutable"
+// OrdersWithNotExecutedStateInvariants checks all executed orders have order price which is not "executable" or not "unexecutable".
 func OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, matchResultMap map[uint64]types.MatchResult,
 	swapMsgStates []*types.SwapMsgState, XtoY, YtoX []*types.SwapMsgState, result types.BatchResult, currentPoolPrice sdk.Dec, denomX string) {
 	if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
