@@ -518,7 +518,7 @@ func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executab
 		var fractionalMatchRatio sdk.Dec
 		if appendFlag {
 			if matchAmt.IsPositive() {
-				if accumMatchAmt.ToDec().Add(matchAmt.ToDec()).GTE(executableAmt) {
+				if accumMatchAmt.Add(matchAmt).ToDec().GTE(executableAmt) {
 					fractionalMatchRatio = executableAmt.Sub(accumMatchAmt.ToDec()).Quo(matchAmt.ToDec())
 					if fractionalMatchRatio.GT(sdk.NewDec(1)) {
 						panic("Invariant Check: fractionalMatchRatio between 0 and 1")
