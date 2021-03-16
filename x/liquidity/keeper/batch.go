@@ -173,7 +173,6 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 	poolBatch.DepositMsgIndex += 1
 	k.SetPoolBatch(ctx, poolBatch)
 	k.SetPoolBatchDepositMsgState(ctx, poolBatch.PoolId, msgState)
-	// TODO: msg event with msgServer after rebase stargate version sdk
 
 	return msgState, nil
 }
@@ -206,7 +205,6 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 	poolBatch.WithdrawMsgIndex += 1
 	k.SetPoolBatch(ctx, poolBatch)
 	k.SetPoolBatchWithdrawMsgState(ctx, poolBatch.PoolId, batchPoolMsg)
-	// TODO: msg event with msgServer after rebase stargate version sdk
 
 	return batchPoolMsg, nil
 }
@@ -238,7 +236,6 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWith
 		Msg:                  msg,
 	}
 
-	// TODO: add logic if OrderExpiryHeight==0, pass on batch logic
 	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + OrderExpirySpanHeight
 
 	if err := k.HoldEscrow(ctx, msg.GetSwapRequester(), sdk.NewCoins(msg.OfferCoin)); err != nil {
@@ -252,7 +249,6 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWith
 	poolBatch.SwapMsgIndex += 1
 	k.SetPoolBatch(ctx, poolBatch)
 	k.SetPoolBatchSwapMsgState(ctx, poolBatch.PoolId, batchPoolMsg)
-	// TODO: msg event with msgServer after rebase stargate version sdk
 
 	return &batchPoolMsg, nil
 }

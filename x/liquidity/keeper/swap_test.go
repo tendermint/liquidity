@@ -66,7 +66,6 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 }
 
 func TestSwapExecution(t *testing.T) {
-	// TODO: to with simulation, invariants, ransim
 	s := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(s)
 	simapp, ctx := createTestInput()
@@ -183,7 +182,6 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 
 	remainingSwapMsgs := simapp.LiquidityKeeper.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, batch)
 	if ctx.BlockHeight() == 0 || len(remainingSwapMsgs) == 0 {
-		// TODO: or not exist remaining swap orders
 		// make random orders, set buyer, seller accounts for the orders
 		XtoY, YtoX = app.GetRandomSizeOrders(denomX, denomY, X, Y, r, 100, 100)
 		buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))

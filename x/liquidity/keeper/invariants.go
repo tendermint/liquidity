@@ -193,7 +193,6 @@ func OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResul
 				} else {
 					break
 				}
-				// TODO: check for half-half-fee
 				if !msgAfter.OfferCoinFeeAmt.IsPositive() {
 					panic(msgAfter.OfferCoinFeeAmt)
 				}

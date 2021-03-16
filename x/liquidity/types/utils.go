@@ -76,19 +76,6 @@ func CoinSafeSubAmount(coinA sdk.Coin, coinBamt sdk.Int) sdk.Coin {
 	return resCoin
 }
 
-//func CoinSafeSub(coinA, coinB sdk.Coin) sdk.Coin {
-//	var resCoin sdk.Coin
-//	if coinA.Denom != coinB.Denom {
-//		return resCoin
-//	}
-//	if coinA.Equal(coinB) {
-//		resCoin = sdk.NewCoin(coinA.Denom, sdk.ZeroInt())
-//	} else {
-//		coinA = coinA.Sub(sdk.NewCoin(coinA.Denom, coinB.Amount))
-//	}
-//	return resCoin
-//}
-
 // Check the decimals equal approximately
 func CheckDecApproxEqual(a, b, threshold sdk.Dec) bool {
 	if a.IsZero() && b.IsZero() {
@@ -112,7 +99,6 @@ func GetCoinsTotalAmount(coins sdk.Coins) sdk.Int {
 }
 
 // Check Validity of the depositCoins exceed reserveCoinLimitAmount
-// TODO: Get balance of pool, check with
 func ValidateReserveCoinLimit(reserveCoinLimitAmount sdk.Int, depositCoins sdk.Coins) error {
 	totalAmount := GetCoinsTotalAmount(depositCoins)
 	if reserveCoinLimitAmount.IsZero() {

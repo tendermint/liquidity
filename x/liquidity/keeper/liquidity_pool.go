@@ -131,11 +131,10 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 
 	k.SetPoolBatch(ctx, batch)
 
-	// TODO: remove result state check, debugging
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	logger := k.Logger(ctx)
-	logger.Info("createPool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
+	logger.Debug("createPool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
 	return pool, nil
 }
 
@@ -192,14 +191,13 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		msg.ToBeDeleted = true
 		k.SetPoolBatchDepositMsgState(ctx, msg.Msg.PoolId, msg)
 
-		// TODO: remove result state check, debugging
 		reserveCoins := k.GetReserveCoins(ctx, pool)
 		lastReserveCoinA := sdk.NewDecFromInt(reserveCoins[0].Amount)
 		lastReserveCoinB := sdk.NewDecFromInt(reserveCoins[1].Amount)
 		lastReserveRatio := lastReserveCoinA.Quo(lastReserveCoinB)
 
 		logger := k.Logger(ctx)
-		logger.Info("ReinitializePool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
+		logger.Debug("ReinitializePool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
 
 		return nil
 	}
@@ -300,12 +298,11 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		),
 	)
 
-	// TODO: remove result state check, debugging
 	reserveCoins = k.GetReserveCoins(ctx, pool)
 	lastReserveRatio = sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 
 	logger := k.Logger(ctx)
-	logger.Info("deposit", msg, "pool", pool, "inputs", inputs, "outputs", outputs, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
+	logger.Debug("deposit", msg, "pool", pool, "inputs", inputs, "outputs", outputs, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
 
 	return nil
 }
@@ -378,7 +375,6 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 			sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
 		))
 
-	// TODO: remove result state check, debugging
 	reserveCoins = k.GetReserveCoins(ctx, pool)
 
 	var lastReserveRatio sdk.Dec
@@ -388,7 +384,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 		lastReserveRatio = sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	}
 	logger := k.Logger(ctx)
-	logger.Info("withdraw", msg, "pool", pool, "inputs", inputs, "outputs", outputs, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
+	logger.Debug("withdraw", msg, "pool", pool, "inputs", inputs, "outputs", outputs, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
 	return nil
 }
 
@@ -566,11 +562,9 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 				// not to delete, but expired case
 				if !batchMsg.ToBeDeleted && batchMsg.OrderExpiryHeight <= ctx.BlockHeight() {
 					panic("impossible case")
-					// TODO: set to Delete
 				} else if !batchMsg.ToBeDeleted && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
 					// fractional matched, to be remaining order, not refund, only transact fractional exchange amt
 					// Add transacted coins to multisend
-					// TODO: coverage
 					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
 						sdk.NewCoins(sdk.NewCoin(batchMsg.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
 					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
@@ -631,7 +625,6 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 					batchMsg.ToBeDeleted = true
 				} else {
 					panic("impossible case")
-					// TODO: set to Delete
 				}
 			} else if batchMsg.RemainingOfferCoin.IsZero() {
 				// full matched case, Add transacted coins to multisend
@@ -687,7 +680,6 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 			if !batchMsg.ToBeDeleted && batchMsg.OrderExpiryHeight > ctx.BlockHeight() {
 				// have fractional matching history, not matched and expired, remaining refund
 				// refund remaining coins
-				// TODO: coverage
 				if input, output, err := k.ReleaseEscrowForMultiSend(batchMsg.Msg.GetSwapRequester(),
 					sdk.NewCoins(batchMsg.RemainingOfferCoin.Add(batchMsg.ReservedOfferCoinFee))); err != nil {
 					panic(err)
