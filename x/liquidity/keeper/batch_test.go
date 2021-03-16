@@ -572,7 +572,7 @@ func TestLiquidityScenario4(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 }
 
-// refund Withdraw scenario, TODO: fix
+// refund Withdraw scenario
 func TestLiquidityScenario5(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())

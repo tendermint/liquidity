@@ -18,7 +18,6 @@ func ValidateGenesis(data GenesisState) error {
 	if err := data.Params.Validate(); err != nil {
 		return err
 	}
-	// TODO: add validate only type level without keeper
 	for _, record := range data.PoolRecords {
 		if err := record.Validate(); err != nil {
 			return err

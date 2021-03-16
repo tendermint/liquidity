@@ -392,7 +392,7 @@ func MakeOrderMap(swapMsgs []*SwapMsgState, denomX, denomY string, onlyNotMatche
 			XtoY = append(XtoY, m)
 			if o, ok := orderMap[orderPriceString]; ok {
 				order = o
-				order.BuyOfferAmt = o.BuyOfferAmt.Add(m.RemainingOfferCoin.Amount) // TODO: feeX half
+				order.BuyOfferAmt = o.BuyOfferAmt.Add(m.RemainingOfferCoin.Amount)
 			} else {
 				order.BuyOfferAmt = m.RemainingOfferCoin.Amount
 			}
