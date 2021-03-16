@@ -58,24 +58,43 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 // We should approach adding these invariant checks in deposit / withdraw / swap batch execution.
 
 var (
-	invariantCheckFlag = true // temporary flag for test
+	invariantCheckFlag = true // TODO: better way to handle below invariant checks?
 )
 
-// MintingPoolCoinsInvariant checks the correct minting amount of pool coins. The difference can be smaller than 1.
-func MintingPoolCoinsInvariant(mintPoolCoin, poolCoinTotalSupply, depositCoinA, depositCoinB sdk.Int, lastReserveCoinA, lastReserveCoinB sdk.Dec) {
-	poolCoinRatio := mintPoolCoin.ToDec().Quo(poolCoinTotalSupply.ToDec())
-	depositCoinARatio := depositCoinA.ToDec().Quo(lastReserveCoinA)
-	depositCoinBRatio := depositCoinB.ToDec().Quo(lastReserveCoinB)
+// MintingPoolCoinsInvariant checks the correct ratio of minting amount of pool coins.
+func MintingPoolCoinsInvariant(poolCoinTotalSupply sdk.Int, mintPoolCoin, depositCoinA, depositCoinB sdk.Coin, lastReserveCoinA, lastReserveCoinB sdk.Dec) {
+	poolCoinTotalSupplyDec := poolCoinTotalSupply.ToDec()
+	mintPoolCoinDec := mintPoolCoin.Amount.ToDec()
+	depositCoinADec := depositCoinA.Amount.ToDec()
+	depositCoinBDec := depositCoinB.Amount.ToDec()
+
+	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinA / LastReserveCoinA
+	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinB / LastReserveCoinB
+	poolCoinRatio := mintPoolCoinDec.Quo(poolCoinTotalSupplyDec)
+	depositCoinARatio := depositCoinADec.Quo(lastReserveCoinA)
+	depositCoinBRatio := depositCoinBDec.Quo(lastReserveCoinB)
 
 	// TODO: handle case when someone sends coins to escrow module account
 
 	if !poolCoinRatio.Equal(depositCoinARatio) || !poolCoinRatio.Equal(depositCoinBRatio) {
-		panic("ratio of minting pool coin cannot be different from the ratio of depositing coin A or B")
+		panic("invariant check fails due to incorrect ratio of pool coins")
 	}
 }
 
 // DepositReserveCoinsInvariant checks the after deposit amounts.
-func DepositReserveCoinsInvariant() {
+func DepositReserveCoinsInvariant(depositCoinA, depositCoinB sdk.Coin, lastReserveCoinA, lastReserveCoinB sdk.Dec, afterReserveCoins sdk.Coins) {
+	afterReserveCoinADec := afterReserveCoins[0].Amount.ToDec()
+	afterReserveCoinBDec := afterReserveCoins[1].Amount.ToDec()
+
+	depositCoinADec := depositCoinA.Amount.ToDec()
+	depositCoinBDec := depositCoinB.Amount.ToDec()
+
+	// AfterDepositReserveCoinA = LastReserveCoinA + DepositCoinA
+	// AfterDepositReserveCoinB = LastReserveCoinB + DepositCoinB
+	if !afterReserveCoinADec.Equal(lastReserveCoinA.Add(depositCoinADec)) ||
+		!afterReserveCoinBDec.Equal(lastReserveCoinB.Add(depositCoinBDec)) {
+		panic("invariant check fails due to incorrect deposit amounts")
+	}
 }
 
 // DepositRatioInvariant checks the correct ratio of deposit coin amounts.

@@ -287,7 +287,10 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	k.SetPoolBatchDepositMsgState(ctx, msg.Msg.PoolId, msg)
 
 	if invariantCheckFlag {
-		MintingPoolCoinsInvariant(mintPoolCoin.Amount, poolCoinTotalSupply, depositCoinA.Amount, depositCoinB.Amount, lastReserveCoinA, lastReserveCoinB)
+		afterReserveCoins := k.GetReserveCoins(ctx, pool)
+
+		MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB)
+		DepositReserveCoinsInvariant(depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB, afterReserveCoins)
 	}
 
 	ctx.EventManager().EmitEvent(
