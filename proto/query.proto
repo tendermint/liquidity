@@ -26,17 +26,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
-                    }
-                }
-            }
-            responses: {
-                key: "400"
-                value: {
-                    description: "Bad Request"
-                    examples: {
-                        key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = There are no pools present.: key not found","details":[]}'
                     }
                 }
             }
@@ -58,17 +48,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
-                    }
-                }
-            }
-            responses: {
-                key: "400"
-                value: {
-                    description: "Bad Request"
-                    examples: {
-                        key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = There are no batches present.: key not found","details":[]}'
                     }
                 }
             }
@@ -90,7 +70,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -100,7 +80,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -122,7 +102,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -132,7 +112,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -154,7 +134,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -164,7 +144,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -196,7 +176,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: msg_index, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -218,7 +198,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -228,10 +208,11 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
+
         };
     }
 
@@ -260,7 +241,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: msg_index, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -282,7 +263,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -292,10 +273,11 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
+
         };
     }
 
@@ -324,7 +306,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: msg_index, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -339,26 +321,6 @@ service Query {
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md";
                 description: "Find out more about the params";
-            }
-            responses: {
-                key: "500"
-                value: {
-                    description: "Internal Server Error"
-                    examples: {
-                        key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
-                    }
-                }
-            }
-            responses: {
-                key: "400"
-                value: {
-                    description: "Bad Request"
-                    examples: {
-                        key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
-                    }
-                }
             }
         };
     }
@@ -388,20 +350,20 @@ message QueryLiquidityPoolResponse {
     // denoms of reserve coin pair of the pool
     repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "[\"denomA\",\"denomB\"]"
+            example: "[\"denomX\",\"denomY\"]"
         }];
 
     // reserve account address of the pool
     string reserve_account_address = 4 [(gogoproto.moretags) = "yaml:\"reserve_account_address\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\"",
+            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
             format: "sdk.AccAddress"
         }];
 
     // denom of pool coin of the pool
     string pool_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\"",
+            example: "\"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\"",
         }];
 
     PoolMetadataResponse metadata = 6 [(gogoproto.nullable) = false];

@@ -66,7 +66,7 @@ $ make install
 ### Tx
 
 
-`$ ./liquidityd tx liquidity --help`     
+`$ liquidityd tx liquidity --help`     
 
 ```bash
 Liquidity transaction subcommands
@@ -76,9 +76,9 @@ Usage:
   liquidityd tx liquidity [command]
 
 Available Commands:
-  create-pool Create Liquidity pool with the specified pool-type, deposit coins
-  deposit     Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins
-  swap        Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
+  create-pool Create Liquidity pool with the specified pool-type, deposit-coins
+  deposit     Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins
+  swap        Swap offer submit to the batch to the Liquidity pool with the specified pool-id with offer-coin, order-price, etc
   withdraw    Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
 ```
 
@@ -269,10 +269,10 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
           "batch_pool_swap_msgs": [],
           "batch_pool_withdraw_msgs": [],
           "liquidity_pool": {
-            "pool_coin_denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
+            "pool_coin_denom": "pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4",
             "pool_id": "1",
             "pool_type_id": 1,
-            "reserve_account_address": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
+            "reserve_account_address": "cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3",
             "reserve_coin_denoms": [
               "reservecoin1",
               "reservecoin2"
@@ -290,7 +290,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
           "liquidity_pool_meta_data": {
             "pool_coin_total_supply": {
               "amount": "1000000",
-              "denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs"
+              "denom": "pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"
             },
             "pool_id": "1",
             "reserve_coins": [

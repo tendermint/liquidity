@@ -86,6 +86,10 @@ func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPool
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
+	if len(pools) == 0 {
+		return nil, status.Error(codes.NotFound, "There are no pools present.")
+	}
+
 	response, err := k.MakeQueryLiquidityPoolsResponse(ctx, pools)
 
 	return &types.QueryLiquidityPoolsResponse{
@@ -118,6 +122,10 @@ func (k Querier) LiquidityPoolsBatches(c context.Context, req *types.QueryLiquid
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if len(batches) == 0 {
+		return nil, status.Error(codes.NotFound, "There are no batches present.")
 	}
 
 	return &types.QueryLiquidityPoolsBatchesResponse{
@@ -153,6 +161,11 @@ func (k Querier) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchS
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
+
+	_, found := k.GetPool(ctx, req.PoolId)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "liquidity pool %d doesn't exist", req.PoolId)
+	}
 
 	store := ctx.KVStore(k.storeKey)
 	msgStore := prefix.NewStore(store, types.GetPoolBatchSwapMsgStatesPrefix(req.PoolId))
@@ -208,6 +221,11 @@ func (k Querier) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBat
 
 	ctx := sdk.UnwrapSDKContext(c)
 
+	_, found := k.GetPool(ctx, req.PoolId)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "liquidity pool %d doesn't exist", req.PoolId)
+	}
+
 	store := ctx.KVStore(k.storeKey)
 	msgStore := prefix.NewStore(store, types.GetPoolBatchDepositMsgStatesPrefix(req.PoolId))
 	var msgs []types.DepositMsgState
@@ -260,6 +278,11 @@ func (k Querier) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBa
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
+
+	_, found := k.GetPool(ctx, req.PoolId)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "liquidity pool %d doesn't exist", req.PoolId)
+	}
 
 	store := ctx.KVStore(k.storeKey)
 	msgStore := prefix.NewStore(store, types.GetPoolBatchWithdrawMsgsPrefix(req.PoolId))
