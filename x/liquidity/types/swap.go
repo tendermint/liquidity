@@ -463,10 +463,10 @@ func CheckSwapPrice(matchResultXtoY, matchResultYtoX []MatchResult, swapPrice sd
 
 // Find matched orders and set status for msgs
 func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executableAmt, swapPrice sdk.Dec, height int64) (
-	matchResultList []MatchResult, swapListExecuted []*SwapMsgState, poolXdelta, poolYdelta sdk.Dec) {
+	matchResultList []MatchResult, swapListExecuted []*SwapMsgState, poolXDelta, poolYDelta sdk.Dec) {
 
-	poolXdelta = sdk.ZeroDec()
-	poolYdelta = sdk.ZeroDec()
+	poolXDelta = sdk.ZeroDec()
+	poolYDelta = sdk.ZeroDec()
 
 	if direction == DirectionXtoY {
 		sort.SliceStable(swapList, func(i, j int) bool {
@@ -563,11 +563,11 @@ func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executab
 					matchResultList = append(matchResultList, matchResult)
 					swapListExecuted = append(swapListExecuted, matchOrder)
 					if direction == DirectionXtoY {
-						poolXdelta = poolXdelta.Add(matchResult.TransactedCoinAmt)
-						poolYdelta = poolYdelta.Sub(matchResult.ExchangedDemandCoinAmt)
+						poolXDelta = poolXDelta.Add(matchResult.TransactedCoinAmt)
+						poolYDelta = poolYDelta.Sub(matchResult.ExchangedDemandCoinAmt)
 					} else if direction == DirectionYtoX {
-						poolXdelta = poolXdelta.Sub(matchResult.ExchangedDemandCoinAmt)
-						poolYdelta = poolYdelta.Add(matchResult.TransactedCoinAmt)
+						poolXDelta = poolXDelta.Sub(matchResult.ExchangedDemandCoinAmt)
+						poolYDelta = poolYDelta.Add(matchResult.TransactedCoinAmt)
 					}
 				}
 			}
