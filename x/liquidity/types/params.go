@@ -56,7 +56,7 @@ var (
 	DecimalErrThreshold10 = sdk.NewDecWithPrec(1, 10)
 
 	DefaultPoolType = PoolType{
-		PoolTypeId:        1,
+		Id:                1,
 		Name:              "DefaultPoolType",
 		MinReserveCoinNum: MinReserveCoinNum,
 		MaxReserveCoinNum: MaxReserveCoinNum,
@@ -175,7 +175,7 @@ func validatePoolTypes(i interface{}) error {
 		return fmt.Errorf("empty parameter: PoolTypes")
 	}
 	for i, p := range v {
-		if i+1 != int(p.PoolTypeId) {
+		if i+1 != int(p.Id) {
 			return fmt.Errorf("PoolTypes index must be sorted")
 		}
 	}

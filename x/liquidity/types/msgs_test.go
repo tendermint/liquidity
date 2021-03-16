@@ -19,13 +19,13 @@ const (
 	DenomPoolCoin     = "denomPoolCoin"
 )
 
-func TestMsgCreateLiquidityPool(t *testing.T) {
+func TestMsgCreatePool(t *testing.T) {
 	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
 	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg := types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeId, coins)
-	require.IsType(t, &types.MsgCreateLiquidityPool{}, msg)
+	msg := types.NewMsgCreatePool(addr, DefaultPoolTypeId, coins)
+	require.IsType(t, &types.MsgCreatePool{}, msg)
 	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
+	require.Equal(t, types.TypeMsgCreatePool, msg.Type())
 
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
@@ -35,30 +35,30 @@ func TestMsgCreateLiquidityPool(t *testing.T) {
 	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 
 	// Fail cases
-	msg = types.NewMsgCreateLiquidityPool(sdk.AccAddress{}, DefaultPoolTypeId, coins)
+	msg = types.NewMsgCreatePool(sdk.AccAddress{}, DefaultPoolTypeId, coins)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail := sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeId, coinsFail)
+	msg = types.NewMsgCreatePool(addr, DefaultPoolTypeId, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("Denomfail", sdk.NewInt(1000)))
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeId, coinsFail)
+	msg = types.NewMsgCreatePool(addr, DefaultPoolTypeId, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(0)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreateLiquidityPool(addr, DefaultPoolTypeId, coinsFail)
+	msg = types.NewMsgCreatePool(addr, DefaultPoolTypeId, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
 
-func TestMsgDepositToLiquidityPool(t *testing.T) {
+func TestMsgDepositWithinBatch(t *testing.T) {
 	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
 	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg := types.NewMsgDepositToLiquidityPool(addr, DefaultPoolId, coins)
-	require.IsType(t, &types.MsgDepositToLiquidityPool{}, msg)
+	msg := types.NewMsgDepositWithinBatch(addr, DefaultPoolId, coins)
+	require.IsType(t, &types.MsgDepositWithinBatch{}, msg)
 	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgDepositToLiquidityPool, msg.Type())
+	require.Equal(t, types.TypeMsgDepositWithinBatch, msg.Type())
 
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
@@ -69,24 +69,24 @@ func TestMsgDepositToLiquidityPool(t *testing.T) {
 
 	// Fail case
 	coinsFail := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("Denomfail", sdk.NewInt(1000)))
-	msg = types.NewMsgDepositToLiquidityPool(addr, DefaultPoolId, coinsFail)
+	msg = types.NewMsgDepositWithinBatch(addr, DefaultPoolId, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(0)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgDepositToLiquidityPool(addr, DefaultPoolId, coinsFail)
+	msg = types.NewMsgDepositWithinBatch(addr, DefaultPoolId, coinsFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
-	msg = types.NewMsgDepositToLiquidityPool(sdk.AccAddress{}, DefaultPoolId, coins)
+	msg = types.NewMsgDepositWithinBatch(sdk.AccAddress{}, DefaultPoolId, coins)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
-func TestMsgWithdrawFromLiquidityPool(t *testing.T) {
+func TestMsgWithdrawWithinBatch(t *testing.T) {
 	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
 	coin := sdk.NewCoin(DenomPoolCoin, sdk.NewInt(1000))
-	msg := types.NewMsgWithdrawFromLiquidityPool(addr, DefaultPoolId, coin)
-	require.IsType(t, &types.MsgWithdrawFromLiquidityPool{}, msg)
+	msg := types.NewMsgWithdrawWithinBatch(addr, DefaultPoolId, coin)
+	require.IsType(t, &types.MsgWithdrawWithinBatch{}, msg)
 	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgWithdrawFromLiquidityPool, msg.Type())
+	require.Equal(t, types.TypeMsgWithdrawWithinBatch, msg.Type())
 
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
@@ -97,23 +97,23 @@ func TestMsgWithdrawFromLiquidityPool(t *testing.T) {
 
 	// Fail case
 	coinFail := sdk.NewCoin("testPoolCoin", sdk.NewInt(0))
-	msg = types.NewMsgWithdrawFromLiquidityPool(addr, DefaultPoolId, coinFail)
+	msg = types.NewMsgWithdrawWithinBatch(addr, DefaultPoolId, coinFail)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
-	msg = types.NewMsgWithdrawFromLiquidityPool(sdk.AccAddress{}, DefaultPoolId, coin)
+	msg = types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, DefaultPoolId, coin)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
 
-func TestMsgSwap(t *testing.T) {
+func TestMsgSwapWithinBatch(t *testing.T) {
 	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
 	coin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
 	orderPrice, err := sdk.NewDecFromStr("0.1")
 	require.NoError(t, err)
-	msg := types.NewMsgSwap(addr, DefaultPoolId, DefaultSwapTypeId, coin, DenomY, orderPrice, types.DefaultSwapFeeRate)
-	require.IsType(t, &types.MsgSwap{}, msg)
+	msg := types.NewMsgSwapWithinBatch(addr, DefaultPoolId, DefaultSwapTypeId, coin, DenomY, orderPrice, types.DefaultSwapFeeRate)
+	require.IsType(t, &types.MsgSwapWithinBatch{}, msg)
 	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgSwap, msg.Type())
+	require.Equal(t, types.TypeMsgSwapWithinBatch, msg.Type())
 
 	err = msg.ValidateBasic()
 	require.NoError(t, err)
@@ -124,10 +124,10 @@ func TestMsgSwap(t *testing.T) {
 }
 
 func TestMsgPanics(t *testing.T) {
-	emptyMsgCreatePool := types.MsgCreateLiquidityPool{}
-	emptyMsgDeposit := types.MsgDepositToLiquidityPool{}
-	emptyMsgWithdraw := types.MsgWithdrawFromLiquidityPool{}
-	emptyMsgSwap := types.MsgSwap{}
+	emptyMsgCreatePool := types.MsgCreatePool{}
+	emptyMsgDeposit := types.MsgDepositWithinBatch{}
+	emptyMsgWithdraw := types.MsgWithdrawWithinBatch{}
+	emptyMsgSwap := types.MsgSwapWithinBatch{}
 	for _, msg := range []sdk.Msg{&emptyMsgCreatePool, &emptyMsgDeposit, &emptyMsgWithdraw, &emptyMsgSwap} {
 		require.PanicsWithError(t, "empty address string is not allowed", func() { msg.GetSigners() })
 	}
@@ -159,25 +159,25 @@ func TestMsgValidateBasic(t *testing.T) {
 	negativeAmountErrMsg := "negative coin amount: -1"
 	zeroCoinErrMsg := "coin 0denomX amount is not positive"
 
-	t.Run("MsgCreateLiquidityPool", func(t *testing.T) {
+	t.Run("MsgCreatePool", func(t *testing.T) {
 		for _, tc := range []struct {
-			msg    types.MsgCreateLiquidityPool
+			msg    types.MsgCreatePool
 			errMsg string
 		}{
 			{
-				types.MsgCreateLiquidityPool{},
+				types.MsgCreatePool{},
 				types.ErrBadPoolTypeId.Error(),
 			},
 			{
-				types.MsgCreateLiquidityPool{PoolTypeId: validPoolTypeId},
+				types.MsgCreatePool{PoolTypeId: validPoolTypeId},
 				types.ErrEmptyPoolCreatorAddr.Error(),
 			},
 			{
-				types.MsgCreateLiquidityPool{PoolCreatorAddress: validAddr, PoolTypeId: validPoolTypeId},
+				types.MsgCreatePool{PoolCreatorAddress: validAddr, PoolTypeId: validPoolTypeId},
 				types.ErrNumOfReserveCoin.Error(),
 			},
 			{
-				types.MsgCreateLiquidityPool{
+				types.MsgCreatePool{
 					PoolCreatorAddress: validAddr,
 					PoolTypeId:         validPoolTypeId,
 					DepositCoins:       coinsWithInvalidDenom,
@@ -185,7 +185,7 @@ func TestMsgValidateBasic(t *testing.T) {
 				invalidDenomErrMsg,
 			},
 			{
-				types.MsgCreateLiquidityPool{
+				types.MsgCreatePool{
 					PoolCreatorAddress: validAddr,
 					PoolTypeId:         validPoolTypeId,
 					DepositCoins:       coinsWithNegative,
@@ -193,7 +193,7 @@ func TestMsgValidateBasic(t *testing.T) {
 				negativeCoinErrMsg,
 			},
 			{
-				types.MsgCreateLiquidityPool{
+				types.MsgCreatePool{
 					PoolCreatorAddress: validAddr,
 					PoolTypeId:         validPoolTypeId,
 					DepositCoins:       coinsWithZero,
@@ -201,7 +201,7 @@ func TestMsgValidateBasic(t *testing.T) {
 				zeroCoinErrMsg,
 			},
 			{
-				types.MsgCreateLiquidityPool{
+				types.MsgCreatePool{
 					PoolCreatorAddress: validAddr,
 					PoolTypeId:         validPoolTypeId,
 					DepositCoins:       sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MinReserveCoinNum)-1))),
@@ -209,7 +209,7 @@ func TestMsgValidateBasic(t *testing.T) {
 				types.ErrNumOfReserveCoin.Error(),
 			},
 			{
-				types.MsgCreateLiquidityPool{
+				types.MsgCreatePool{
 					PoolCreatorAddress: validAddr,
 					PoolTypeId:         validPoolTypeId,
 					DepositCoins:       sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MaxReserveCoinNum)+1))),
@@ -221,40 +221,40 @@ func TestMsgValidateBasic(t *testing.T) {
 			require.EqualError(t, err, tc.errMsg)
 		}
 	})
-	t.Run("MsgDepositToLiquidityPool", func(t *testing.T) {
+	t.Run("MsgDepositWithinBatch", func(t *testing.T) {
 		for _, tc := range []struct {
-			msg    types.MsgDepositToLiquidityPool
+			msg    types.MsgDepositWithinBatch
 			errMsg string
 		}{
 			{
-				types.MsgDepositToLiquidityPool{},
+				types.MsgDepositWithinBatch{},
 				types.ErrEmptyDepositorAddr.Error(),
 			},
 			{
-				types.MsgDepositToLiquidityPool{DepositorAddress: validAddr},
+				types.MsgDepositWithinBatch{DepositorAddress: validAddr},
 				types.ErrBadDepositCoinsAmount.Error(),
 			},
 			{
-				types.MsgDepositToLiquidityPool{DepositorAddress: validAddr, DepositCoins: coinsWithInvalidDenom},
+				types.MsgDepositWithinBatch{DepositorAddress: validAddr, DepositCoins: coinsWithInvalidDenom},
 				invalidDenomErrMsg,
 			},
 			{
-				types.MsgDepositToLiquidityPool{DepositorAddress: validAddr, DepositCoins: coinsWithNegative},
+				types.MsgDepositWithinBatch{DepositorAddress: validAddr, DepositCoins: coinsWithNegative},
 				negativeCoinErrMsg,
 			},
 			{
-				types.MsgDepositToLiquidityPool{DepositorAddress: validAddr, DepositCoins: coinsWithZero},
+				types.MsgDepositWithinBatch{DepositorAddress: validAddr, DepositCoins: coinsWithZero},
 				zeroCoinErrMsg,
 			},
 			{
-				types.MsgDepositToLiquidityPool{
+				types.MsgDepositWithinBatch{
 					DepositorAddress: validAddr,
 					DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MinReserveCoinNum)-1))),
 				},
 				types.ErrNumOfReserveCoin.Error(),
 			},
 			{
-				types.MsgDepositToLiquidityPool{
+				types.MsgDepositWithinBatch{
 					DepositorAddress: validAddr,
 					DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MaxReserveCoinNum)+1))),
 				},
@@ -265,25 +265,25 @@ func TestMsgValidateBasic(t *testing.T) {
 			require.EqualError(t, err, tc.errMsg)
 		}
 	})
-	t.Run("MsgWithdrawFromLiquidityPool", func(t *testing.T) {
+	t.Run("MsgWithdrawWithinBatch", func(t *testing.T) {
 		for _, tc := range []struct {
-			msg    types.MsgWithdrawFromLiquidityPool
+			msg    types.MsgWithdrawWithinBatch
 			errMsg string
 		}{
 			{
-				types.MsgWithdrawFromLiquidityPool{},
+				types.MsgWithdrawWithinBatch{},
 				types.ErrEmptyWithdrawerAddr.Error(),
 			},
 			{
-				types.MsgWithdrawFromLiquidityPool{WithdrawerAddress: validAddr, PoolCoin: invalidDenomCoin},
+				types.MsgWithdrawWithinBatch{WithdrawerAddress: validAddr, PoolCoin: invalidDenomCoin},
 				invalidDenomErrMsg,
 			},
 			{
-				types.MsgWithdrawFromLiquidityPool{WithdrawerAddress: validAddr, PoolCoin: negativeCoin},
+				types.MsgWithdrawWithinBatch{WithdrawerAddress: validAddr, PoolCoin: negativeCoin},
 				negativeAmountErrMsg,
 			},
 			{
-				types.MsgWithdrawFromLiquidityPool{WithdrawerAddress: validAddr, PoolCoin: zeroCoin},
+				types.MsgWithdrawWithinBatch{WithdrawerAddress: validAddr, PoolCoin: zeroCoin},
 				types.ErrBadPoolCoinAmount.Error(),
 			},
 		} {
@@ -296,31 +296,31 @@ func TestMsgValidateBasic(t *testing.T) {
 		orderPrice := sdk.MustNewDecFromStr("1.0")
 
 		for _, tc := range []struct {
-			msg    types.MsgSwap
+			msg    types.MsgSwapWithinBatch
 			errMsg string
 		}{
 			{
-				types.MsgSwap{},
+				types.MsgSwapWithinBatch{},
 				types.ErrEmptySwapRequesterAddr.Error(),
 			},
 			{
-				types.MsgSwap{SwapRequesterAddress: validAddr, OfferCoin: invalidDenomCoin, OrderPrice: orderPrice},
+				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: invalidDenomCoin, OrderPrice: orderPrice},
 				invalidDenomErrMsg,
 			},
 			{
-				types.MsgSwap{SwapRequesterAddress: validAddr, OfferCoin: zeroCoin},
+				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: zeroCoin},
 				types.ErrBadOfferCoinAmount.Error(),
 			},
 			{
-				types.MsgSwap{SwapRequesterAddress: validAddr, OfferCoin: negativeCoin},
+				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: negativeCoin},
 				negativeAmountErrMsg,
 			},
 			{
-				types.MsgSwap{SwapRequesterAddress: validAddr, OfferCoin: offerCoin, OrderPrice: sdk.ZeroDec()},
+				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: offerCoin, OrderPrice: sdk.ZeroDec()},
 				types.ErrBadOrderPrice.Error(),
 			},
 			{
-				types.MsgSwap{SwapRequesterAddress: validAddr, OfferCoin: sdk.NewCoin(DenomX, sdk.OneInt()), OrderPrice: orderPrice},
+				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: sdk.NewCoin(DenomX, sdk.OneInt()), OrderPrice: orderPrice},
 				types.ErrLessThanMinOfferAmount.Error(),
 			},
 		} {

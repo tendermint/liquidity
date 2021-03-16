@@ -13,7 +13,7 @@ message PoolType {
     option (gogoproto.equal) = true;
 
     // id of target pool type, only 1 is allowed on this version.
-    uint32 pool_type_id = 1 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
+    uint32 id = 1 [(gogoproto.moretags) = "yaml:\"id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
@@ -148,14 +148,14 @@ message Pool {
     option (gogoproto.goproto_stringer) = true;
 
     // id of the pool
-    uint64 pool_id = 1 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    uint64 id = 1 [(gogoproto.moretags) = "yaml:\"id\"", (gogoproto.jsontag) = "id",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"
         }];
 
     // id of the pool type
-    uint32 pool_type_id = 2 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
+    uint32 type_id = 2 [(gogoproto.moretags) = "yaml:\"type_id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
@@ -212,6 +212,30 @@ message PoolMetadata {
         }];
 }
 
+message PoolMetadataResponse {
+    option (gogoproto.equal) = true;
+    option (gogoproto.goproto_stringer) = true;
+
+    // pool coin issued at the pool
+    cosmos.base.v1beta1.Coin pool_coin_total_supply = 1 [
+        (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
+        (gogoproto.nullable)   = false,
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "{\"denom\": \"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\", \"amount\": \"1000000\"}",
+            format: "sdk.Coin"
+        }];
+
+    // reserve coins deposited in the pool
+    repeated cosmos.base.v1beta1.Coin reserve_coins = 2 [
+        (gogoproto.moretags)   = "yaml:\"reserve_coins\"",
+        (gogoproto.nullable)   = false,
+        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "[{\"denom\": \"denomA\", \"amount\": \"1000000\"}, {\"denom\": \"denomB\", \"amount\": \"2000000\"}]",
+            format: "sdk.Coins"
+        }];
+}
+
 message PoolBatch {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
@@ -224,7 +248,7 @@ message PoolBatch {
         }];
 
     // index of this batch
-    uint64 batch_index = 2 [(gogoproto.moretags) = "yaml:\"batch_index\"",
+    uint64 index = 2 [(gogoproto.moretags) = "yaml:\"index\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"
@@ -265,6 +289,52 @@ message PoolBatch {
         }];
 }
 
+message PoolBatchResponse {
+    option (gogoproto.equal) = true;
+    option (gogoproto.goproto_stringer) = true;
+
+    // index of this batch
+    uint64 index = 1 [(gogoproto.moretags) = "yaml:\"index\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"1\"",
+            format: "uint64"
+        }];
+
+    // height where this batch is begun
+    int64 begin_height = 2 [(gogoproto.moretags) = "yaml:\"begin_height\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"1000\"",
+            format: "int64"
+        }];
+
+    // last index of DepositMsgStates
+    uint64 deposit_msg_index = 3 [(gogoproto.moretags) = "yaml:\"deposit_msg_index\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"1\"",
+            format: "uint64"
+        }];
+
+    // last index of WithdrawMsgStates
+    uint64 withdraw_msg_index = 4 [(gogoproto.moretags) = "yaml:\"withdraw_msg_index\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"1\"",
+            format: "uint64"
+        }];
+
+    // last index of SwapMsgStates
+    uint64 swap_msg_index = 5 [(gogoproto.moretags) = "yaml:\"swap_msg_index\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"1\"",
+            format: "uint64"
+        }];
+
+    // true if executed, false if not executed yet
+    bool executed = 6 [(gogoproto.moretags) = "yaml:\"executed\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "true",
+        }];
+}
+
 message DepositMsgState {
 
     // height where this message is appended to the batch
@@ -299,8 +369,8 @@ message DepositMsgState {
             example: "true",
         }];
 
-    // MsgDepositToLiquidityPool
-    MsgDepositToLiquidityPool msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
+    // MsgDepositWithinBatch
+    MsgDepositWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message WithdrawMsgState {
@@ -337,8 +407,8 @@ message WithdrawMsgState {
             example: "true",
         }];
 
-    // MsgWithdrawFromLiquidityPool
-    MsgWithdrawFromLiquidityPool msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
+    // MsgWithdrawWithinBatch
+    MsgWithdrawWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
 message SwapMsgState {
@@ -410,6 +480,6 @@ message SwapMsgState {
         }
     ];
 
-    // MsgSwap
-    MsgSwap msg = 10 [(gogoproto.moretags) = "yaml:\"msg\""];
+    // MsgSwapWithinBatch
+    MsgSwapWithinBatch msg = 10 [(gogoproto.moretags) = "yaml:\"msg\""];
 }

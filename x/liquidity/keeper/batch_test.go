@@ -53,7 +53,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// Success case, create Liquidity pool
 	poolTypeId := types.DefaultPoolTypeId
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalance)
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
@@ -68,13 +68,13 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// reset deposit balance without LiquidityPoolCreationFee of pool creator
 	// Fail case, insufficient balances for pool creation fee case
-	msgAB := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalanceAB)
+	msgAB := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msgAB)
 	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
 
 	// Success case, create another pool
-	msgAB = types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalanceAB)
+	msgAB = types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB.Add(params.LiquidityPoolCreationFee...))
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msgAB)
 	require.NoError(t, err)
@@ -85,7 +85,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// verify created liquidity pool
 	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
-	poolId := lpList[0].PoolId
+	poolId := lpList[0].Id
 	require.Equal(t, 2, len(lpList))
 	//require.Equal(t, uint64(1), poolId)
 	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
@@ -106,7 +106,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	depositBalance = sdk.NewCoins(depositX, depositY)
 	require.Equal(t, deposit, depositBalance)
 
-	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[1], poolId, depositBalance)
+	depositMsg := types.NewMsgDepositWithinBatch(addrs[1], poolId, depositBalance)
 	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.NoError(t, err)
 
@@ -142,7 +142,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	require.True(t, msgs[0].Executed)
 	require.True(t, msgs[0].Succeeded)
 	require.True(t, msgs[0].ToBeDeleted)
-	require.Equal(t, uint64(1), batch.BatchIndex)
+	require.Equal(t, uint64(1), batch.Index)
 
 	// error balance after endblock
 	depositorBalanceX = simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].ReserveCoinDenoms[0])
@@ -169,7 +169,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(1), batch.BatchIndex)
+	require.Equal(t, uint64(1), batch.Index)
 
 	// withdraw
 	withdrawerBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].ReserveCoinDenoms[0])
@@ -177,7 +177,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	withdrawerBalancePoolCoinBefore := simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].PoolCoinDenom)
 	moduleAccEscrowAmtPool := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, lpList[0].PoolCoinDenom)
 	require.Equal(t, sdk.ZeroInt(), moduleAccEscrowAmtPool.Amount)
-	withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[1], poolId, withdrawerBalancePoolCoinBefore)
+	withdrawMsg := types.NewMsgWithdrawWithinBatch(addrs[1], poolId, withdrawerBalancePoolCoinBefore)
 	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
 	require.NoError(t, err)
 
@@ -214,7 +214,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	require.True(t, withdrawMsgs[0].Executed)
 	require.True(t, withdrawMsgs[0].Succeeded)
 	require.True(t, withdrawMsgs[0].ToBeDeleted)
-	require.Equal(t, uint64(1), batch.BatchIndex)
+	require.Equal(t, uint64(1), batch.Index)
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -228,7 +228,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(2), batch.BatchIndex)
+	require.Equal(t, uint64(2), batch.Index)
 	require.False(t, batch.Executed)
 }
 
@@ -255,13 +255,13 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 
 	// create Liquidity pool
 	poolTypeId := types.DefaultPoolTypeId
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeId, depositBalance)
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
 	// verify created liquidity pool
 	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
-	poolId := lpList[0].PoolId
+	poolId := lpList[0].Id
 	require.Equal(t, 1, len(lpList))
 	require.Equal(t, uint64(1), poolId)
 	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
@@ -282,7 +282,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 	depositBalance = sdk.NewCoins(depositX, depositY)
 	require.Equal(t, deposit2, depositBalance)
 
-	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[1], poolId, depositBalance)
+	depositMsg := types.NewMsgDepositWithinBatch(addrs[1], poolId, depositBalance)
 	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.NoError(t, err)
 
@@ -318,7 +318,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 	require.True(t, msgs[0].Executed)
 	require.True(t, msgs[0].Succeeded)
 	require.True(t, msgs[0].ToBeDeleted)
-	require.Equal(t, uint64(1), batch.BatchIndex)
+	require.Equal(t, uint64(1), batch.Index)
 
 	// error balance after endblock
 	depositorBalanceX = simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].ReserveCoinDenoms[0])
@@ -346,7 +346,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(1), batch.BatchIndex)
+	require.Equal(t, uint64(1), batch.Index)
 
 	// withdraw
 	withdrawerBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].ReserveCoinDenoms[0])
@@ -354,7 +354,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 	withdrawerBalancePoolCoinBefore := simapp.BankKeeper.GetBalance(ctx, addrs[1], lpList[0].PoolCoinDenom)
 	moduleAccEscrowAmtPool := simapp.BankKeeper.GetBalance(ctx, moduleAccAddress, lpList[0].PoolCoinDenom)
 	require.Equal(t, sdk.ZeroInt(), moduleAccEscrowAmtPool.Amount)
-	withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[1], poolId, withdrawerBalancePoolCoinBefore)
+	withdrawMsg := types.NewMsgWithdrawWithinBatch(addrs[1], poolId, withdrawerBalancePoolCoinBefore)
 	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
 	require.NoError(t, err)
 
@@ -391,7 +391,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 	require.True(t, withdrawMsgs[0].Executed)
 	require.True(t, withdrawMsgs[0].Succeeded)
 	require.True(t, withdrawMsgs[0].ToBeDeleted)
-	require.Equal(t, uint64(1), batch.BatchIndex)
+	require.Equal(t, uint64(1), batch.Index)
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -405,7 +405,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(2), batch.BatchIndex)
+	require.Equal(t, uint64(2), batch.Index)
 	require.False(t, batch.Executed)
 }
 
@@ -461,7 +461,7 @@ func TestLiquidityScenario(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(2), batch.BatchIndex)
+	require.Equal(t, uint64(2), batch.Index)
 	require.False(t, batch.Executed)
 }
 
@@ -746,7 +746,7 @@ func TestLiquidityUnitBatchSize(t *testing.T) {
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
 	// batch not executed, 1 >= 2(UnitBatchSize)
-	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.PoolId)
+	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
 	require.True(t, found)
 	require.False(t, batch.Executed)
 	batchWithdrawMsgs := simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, batch)
@@ -765,7 +765,7 @@ func TestLiquidityUnitBatchSize(t *testing.T) {
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
 	// batch executed, 2 >= 2(UnitBatchSize)
-	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.PoolId)
+	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
 	require.True(t, found)
 	require.True(t, batch.Executed)
 	batchWithdrawMsgs = simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, batch)
@@ -788,18 +788,18 @@ func TestLiquidityUnitBatchSize(t *testing.T) {
 func TestInitNextBatch(t *testing.T) {
 	simapp, ctx := createTestInput()
 	pool := types.Pool{
-		PoolId:                1,
-		PoolTypeId:            1,
+		Id:                    1,
+		TypeId:                1,
 		ReserveCoinDenoms:     nil,
 		ReserveAccountAddress: "",
 		PoolCoinDenom:         "",
 	}
 	simapp.LiquidityKeeper.SetPool(ctx, pool)
 
-	batch := types.NewPoolBatch(pool.PoolId, 1)
+	batch := types.NewPoolBatch(pool.Id, 1)
 
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
-	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.BatchIndex)
+	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.Index)
 	err := simapp.LiquidityKeeper.InitNextBatch(ctx, batch)
 	require.Error(t, err)
 
@@ -812,7 +812,7 @@ func TestInitNextBatch(t *testing.T) {
 	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
 	require.False(t, batch.Executed)
-	require.Equal(t, uint64(2), batch.BatchIndex)
+	require.Equal(t, uint64(2), batch.Index)
 
 }
 

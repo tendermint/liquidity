@@ -372,14 +372,14 @@ message QueryLiquidityPoolRequest {
 // the response type for the QueryLiquidityPoolResponse RPC method. It returns the liquidity pool with batch and metadata containing total pool coin supply and reserved coins corresponding to the requested pool_id.
 message QueryLiquidityPoolResponse {
     // id of the pool
-    uint64 pool_id = 1 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    uint64 id = 1 [(gogoproto.moretags) = "yaml:\"id\"", (gogoproto.jsontag) = "id",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint64"
         }];
 
     // id of the pool type
-    uint32 pool_type_id = 2 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
+    uint32 type_id = 2 [(gogoproto.moretags) = "yaml:\"type_id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
@@ -404,9 +404,9 @@ message QueryLiquidityPoolResponse {
             example: "\"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\"",
         }];
 
-    PoolMetadata metadata = 6 [(gogoproto.nullable) = false];
+    PoolMetadataResponse metadata = 6 [(gogoproto.nullable) = false];
 
-    PoolBatch batch = 7 [(gogoproto.nullable) = false];
+    PoolBatchResponse batch = 7 [(gogoproto.nullable) = false];
 }
 
 // the request type for the QueryLiquidityPoolBatch RPC method. requestable including specified pool_id.

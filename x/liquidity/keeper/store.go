@@ -26,13 +26,13 @@ func (k Keeper) GetPool(ctx sdk.Context, poolId uint64) (pool types.Pool, found 
 func (k Keeper) SetPool(ctx sdk.Context, pool types.Pool) {
 	store := ctx.KVStore(k.storeKey)
 	b := types.MustMarshalPool(k.cdc, pool)
-	store.Set(types.GetPoolKey(pool.PoolId), b)
+	store.Set(types.GetPoolKey(pool.Id), b)
 }
 
 // delete from kvstore a specific liquidityPool
 func (k Keeper) DeletePool(ctx sdk.Context, pool types.Pool) {
 	store := ctx.KVStore(k.storeKey)
-	Key := types.GetPoolKey(pool.PoolId)
+	Key := types.GetPoolKey(pool.Id)
 	store.Delete(Key)
 }
 
@@ -117,7 +117,7 @@ func (k Keeper) SetPoolByReserveAccIndex(ctx sdk.Context, pool types.Pool) {
 
 // SetPoolAtomic sets pool with set global pool id index +1 and index by reserveAcc
 func (k Keeper) SetPoolAtomic(ctx sdk.Context, pool types.Pool) types.Pool {
-	pool.PoolId = k.GetNextPoolIdWithUpdate(ctx)
+	pool.Id = k.GetNextPoolIdWithUpdate(ctx)
 	k.SetPool(ctx, pool)
 	k.SetPoolByReserveAccIndex(ctx, pool)
 	return pool

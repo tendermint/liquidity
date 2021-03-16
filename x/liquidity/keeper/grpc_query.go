@@ -298,19 +298,19 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 
 // MakeQueryLiquidityPoolResponse wraps MakeQueryLiquidityPoolResponse.
 func (k Querier) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Pool) (*types.QueryLiquidityPoolResponse, error) {
-	batch, found := k.GetPoolBatch(ctx, pool.PoolId)
+	batch, found := k.GetPoolBatch(ctx, pool.Id)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
 
 	return &types.QueryLiquidityPoolResponse{
-		PoolId:                pool.PoolId,
-		PoolTypeId:            pool.PoolTypeId,
+		Id:                    pool.Id,
+		TypeId:                pool.TypeId,
 		ReserveCoinDenoms:     pool.ReserveCoinDenoms,
 		ReserveAccountAddress: pool.ReserveAccountAddress,
 		PoolCoinDenom:         pool.PoolCoinDenom,
-		Metadata:              k.GetPoolMetaData(ctx, pool),
-		Batch:                 batch,
+		Metadata:              k.GetPoolMetaDataResponse(ctx, pool),
+		Batch:                 types.GetPoolBatchResponse(batch),
 	}, nil
 }
 
@@ -318,21 +318,21 @@ func (k Querier) MakeQueryLiquidityPoolResponse(ctx sdk.Context, pool types.Pool
 func (k Querier) MakeQueryLiquidityPoolsResponse(ctx sdk.Context, pools types.Pools) (*[]types.QueryLiquidityPoolResponse, error) {
 	resp := make([]types.QueryLiquidityPoolResponse, len(pools))
 	for i, pool := range pools {
-		batch, found := k.GetPoolBatch(ctx, pool.PoolId)
+		batch, found := k.GetPoolBatch(ctx, pool.Id)
 		if !found {
 			return nil, types.ErrPoolBatchNotExists
 		}
 
-		meta := k.GetPoolMetaData(ctx, pool)
+		meta := k.GetPoolMetaDataResponse(ctx, pool)
 
 		res := types.QueryLiquidityPoolResponse{
-			PoolId:                pool.PoolId,
-			PoolTypeId:            pool.PoolTypeId,
+			Id:                    pool.Id,
+			TypeId:                pool.TypeId,
 			ReserveCoinDenoms:     pool.ReserveCoinDenoms,
 			ReserveAccountAddress: pool.ReserveAccountAddress,
 			PoolCoinDenom:         pool.PoolCoinDenom,
 			Metadata:              meta,
-			Batch:                 batch,
+			Batch:                 types.GetPoolBatchResponse(batch),
 		}
 
 		resp[i] = res

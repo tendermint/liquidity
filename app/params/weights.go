@@ -2,8 +2,8 @@ package params
 
 const (
 	// liquidity module simulation operation weights for messages
-	DefaultWeightMsgCreateLiquidityPool       int = 5
-	DefaultWeightMsgDepositToLiquidityPool    int = 10
-	DefaultWeightMsgWithdrawFromLiquidityPool int = 50
-	DefaultWeightMsgSwap                      int = 85
+	DefaultWeightMsgCreatePool          int = 5
+	DefaultWeightMsgDepositWithinBatch  int = 10
+	DefaultWeightMsgWithdrawWithinBatch int = 50
+	DefaultWeightMsgSwapWithinBatch     int = 85
 )

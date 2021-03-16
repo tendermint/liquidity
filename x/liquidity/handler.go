@@ -18,16 +18,16 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 		switch msg := msg.(type) {
-		case *types.MsgCreateLiquidityPool:
-			res, err := msgServer.CreateLiquidityPool(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgCreatePool:
+			res, err := msgServer.CreatePool(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgDepositToLiquidityPool:
-			res, err := msgServer.DepositToLiquidityPool(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgDepositWithinBatch:
+			res, err := msgServer.DepositWithinBatch(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgWithdrawFromLiquidityPool:
-			res, err := msgServer.WithdrawFromLiquidityPool(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgWithdrawWithinBatch:
+			res, err := msgServer.WithdrawWithinBatch(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgSwap:
+		case *types.MsgSwapWithinBatch:
 			res, err := msgServer.Swap(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
