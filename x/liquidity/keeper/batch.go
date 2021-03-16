@@ -170,7 +170,7 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 		return types.DepositMsgState{}, err
 	}
 
-	poolBatch.DepositMsgIndex += 1
+	poolBatch.DepositMsgIndex++
 	k.SetPoolBatch(ctx, poolBatch)
 	k.SetPoolBatchDepositMsgState(ctx, poolBatch.PoolId, msgState)
 
@@ -202,7 +202,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 		return types.WithdrawMsgState{}, err
 	}
 
-	poolBatch.WithdrawMsgIndex += 1
+	poolBatch.WithdrawMsgIndex++
 	k.SetPoolBatch(ctx, poolBatch)
 	k.SetPoolBatchWithdrawMsgState(ctx, poolBatch.PoolId, batchPoolMsg)
 
@@ -246,7 +246,7 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWith
 		return nil, err
 	}
 
-	poolBatch.SwapMsgIndex += 1
+	poolBatch.SwapMsgIndex++
 	k.SetPoolBatch(ctx, poolBatch)
 	k.SetPoolBatchSwapMsgState(ctx, poolBatch.PoolId, batchPoolMsg)
 
