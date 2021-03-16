@@ -6,6 +6,7 @@ info:
 paths:
   /liquidity/pools:
     post:
+      deprecated: true
       summary: Submit create liquidity pool message.
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -255,9 +256,9 @@ paths:
                     type: array
                     format: sdk.Coins
                     example:
-                      - denom: denomA
+                      - denom: denomX
                         amount: '1000000'
-                      - denom: denomB
+                      - denom: denomY
                         amount: '2000000'
                     items:
                       type: object
@@ -320,8 +321,8 @@ paths:
                     reserve_coin_denoms:
                       type: array
                       example:
-                        - denomA
-                        - denomB
+                        - denomX
+                        - denomY
                       items:
                         type: string
                       title: denoms of reserve coin pair of the pool
@@ -363,9 +364,9 @@ paths:
                           type: array
                           format: sdk.Coins
                           example:
-                            - denom: denomA
+                            - denom: denomX
                               amount: '1000000'
-                            - denom: denomB
+                            - denom: denomY
                               amount: '2000000'
                           items:
                             type: object
@@ -531,6 +532,7 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
+      deprecated: true
       summary: Submit deposit to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -791,9 +793,9 @@ paths:
                     type: array
                     format: sdk.Coins
                     example:
-                      - denom: denomA
+                      - denom: denomX
                         amount: '1000000'
-                      - denom: denomB
+                      - denom: denomY
                         amount: '2000000'
                     items:
                       type: object
@@ -903,9 +905,9 @@ paths:
                           type: array
                           format: sdk.Coins
                           example:
-                            - denom: denomA
+                            - denom: denomX
                               amount: '1000000'
-                            - denom: denomB
+                            - denom: denomY
                               amount: '2000000'
                           items:
                             type: object
@@ -1066,6 +1068,7 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
+      deprecated: true
       summary: Submit swap to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1345,7 +1348,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '1000000'
                   demand_coin_denom:
                     type: string
@@ -1370,7 +1373,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '5000'
                     title: offer coin fee for pay fees in half offer coin
                   order_price:
@@ -1487,7 +1490,7 @@ paths:
                         signatures required by gogoproto.
                       format: sdk.Coin
                       example:
-                        denom: denomA
+                        denom: denomX
                         amount: '600000'
                       title: offer coin exchanged until now
                     remaining_offer_coin:
@@ -1507,7 +1510,7 @@ paths:
                         signatures required by gogoproto.
                       format: sdk.Coin
                       example:
-                        denom: denomA
+                        denom: denomX
                         amount: '400000'
                       title: offer coin currently remaining to be exchanged
                     reserved_offer_coin_fee:
@@ -1527,7 +1530,7 @@ paths:
                         signatures required by gogoproto.
                       format: sdk.Coin
                       example:
-                        denom: denomA
+                        denom: denomX
                         amount: '5000'
                       title: reserve fee for pays fee in half offer coin
                     msg:
@@ -1570,7 +1573,7 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: denomA
+                            denom: denomX
                             amount: '1000000'
                         demand_coin_denom:
                           type: string
@@ -1596,7 +1599,7 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: denomA
+                            denom: denomX
                             amount: '5000'
                           title: offer coin fee for pay fees in half offer coin
                         order_price:
@@ -1758,6 +1761,7 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
+      deprecated: true
       summary: Submit withdraw from to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -2619,8 +2623,8 @@ paths:
               reserve_coin_denoms:
                 type: array
                 example:
-                  - denomA
-                  - denomB
+                  - denomX
+                  - denomY
                 items:
                   type: string
                 title: denoms of reserve coin pair of the pool
@@ -2661,9 +2665,9 @@ paths:
                     type: array
                     format: sdk.Coins
                     example:
-                      - denom: denomA
+                      - denom: denomX
                         amount: '1000000'
-                      - denom: denomB
+                      - denom: denomY
                         amount: '2000000'
                     items:
                       type: object
@@ -2939,9 +2943,9 @@ paths:
                         type: array
                         format: sdk.Coins
                         example:
-                          - denom: denomA
+                          - denom: denomX
                             amount: '1000000'
-                          - denom: denomB
+                          - denom: denomY
                             amount: '2000000'
                         items:
                           type: object
@@ -3106,7 +3110,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '600000'
                     title: offer coin exchanged until now
                   remaining_offer_coin:
@@ -3126,7 +3130,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '400000'
                     title: offer coin currently remaining to be exchanged
                   reserved_offer_coin_fee:
@@ -3146,7 +3150,7 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: denomA
+                      denom: denomX
                       amount: '5000'
                     title: reserve fee for pays fee in half offer coin
                   msg:
@@ -3189,7 +3193,7 @@ paths:
                           signatures required by gogoproto.
                         format: sdk.Coin
                         example:
-                          denom: denomA
+                          denom: denomX
                           amount: '1000000'
                       demand_coin_denom:
                         type: string
@@ -3215,7 +3219,7 @@ paths:
                           signatures required by gogoproto.
                         format: sdk.Coin
                         example:
-                          denom: denomA
+                          denom: denomX
                           amount: '5000'
                         title: offer coin fee for pay fees in half offer coin
                       order_price:
@@ -3662,9 +3666,9 @@ definitions:
         type: array
         format: sdk.Coins
         example:
-          - denom: denomA
+          - denom: denomX
             amount: '1000000'
-          - denom: denomB
+          - denom: denomY
             amount: '2000000'
         items:
           type: object
@@ -3803,9 +3807,9 @@ definitions:
             type: array
             format: sdk.Coins
             example:
-              - denom: denomA
+              - denom: denomX
                 amount: '1000000'
-              - denom: denomB
+              - denom: denomY
                 amount: '2000000'
             items:
               type: object
@@ -3922,9 +3926,9 @@ definitions:
         type: array
         format: sdk.Coins
         example:
-          - denom: denomA
+          - denom: denomX
             amount: '1000000'
-          - denom: denomB
+          - denom: denomY
             amount: '2000000'
         items:
           type: object
@@ -4078,9 +4082,9 @@ definitions:
             type: array
             format: sdk.Coins
             example:
-              - denom: denomA
+              - denom: denomX
                 amount: '1000000'
-              - denom: denomB
+              - denom: denomY
                 amount: '2000000'
             items:
               type: object
@@ -4232,7 +4236,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '1000000'
       demand_coin_denom:
         type: string
@@ -4254,7 +4258,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '5000'
         title: offer coin fee for pay fees in half offer coin
       order_price:
@@ -4431,7 +4435,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '1000000'
           demand_coin_denom:
             type: string
@@ -4456,7 +4460,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '5000'
             title: offer coin fee for pay fees in half offer coin
           order_price:
@@ -5085,9 +5089,9 @@ definitions:
             type: array
             format: sdk.Coins
             example:
-              - denom: denomA
+              - denom: denomX
                 amount: '1000000'
-              - denom: denomB
+              - denom: denomY
                 amount: '2000000'
             items:
               type: object
@@ -5306,9 +5310,9 @@ definitions:
         type: array
         format: sdk.Coins
         example:
-          - denom: denomA
+          - denom: denomX
             amount: '1000000'
-          - denom: denomB
+          - denom: denomY
             amount: '2000000'
         items:
           type: object
@@ -5411,8 +5415,8 @@ definitions:
       reserve_coin_denoms:
         type: array
         example:
-          - denomA
-          - denomB
+          - denomX
+          - denomY
         items:
           type: string
         title: denoms of reserve coin pair of the pool
@@ -5452,9 +5456,9 @@ definitions:
             type: array
             format: sdk.Coins
             example:
-              - denom: denomA
+              - denom: denomX
                 amount: '1000000'
-              - denom: denomB
+              - denom: denomY
                 amount: '2000000'
             items:
               type: object
@@ -5595,8 +5599,8 @@ definitions:
             reserve_coin_denoms:
               type: array
               example:
-                - denomA
-                - denomB
+                - denomX
+                - denomY
               items:
                 type: string
               title: denoms of reserve coin pair of the pool
@@ -5637,9 +5641,9 @@ definitions:
                   type: array
                   format: sdk.Coins
                   example:
-                    - denom: denomA
+                    - denom: denomX
                       amount: '1000000'
-                    - denom: denomB
+                    - denom: denomY
                       amount: '2000000'
                   items:
                     type: object
@@ -5869,9 +5873,9 @@ definitions:
                 type: array
                 format: sdk.Coins
                 example:
-                  - denom: denomA
+                  - denom: denomX
                     amount: '1000000'
-                  - denom: denomB
+                  - denom: denomY
                     amount: '2000000'
                 items:
                   type: object
@@ -5957,9 +5961,9 @@ definitions:
                   type: array
                   format: sdk.Coins
                   example:
-                    - denom: denomA
+                    - denom: denomX
                       amount: '1000000'
-                    - denom: denomB
+                    - denom: denomY
                       amount: '2000000'
                   items:
                     type: object
@@ -6070,7 +6074,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '600000'
             title: offer coin exchanged until now
           remaining_offer_coin:
@@ -6090,7 +6094,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '400000'
             title: offer coin currently remaining to be exchanged
           reserved_offer_coin_fee:
@@ -6110,7 +6114,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '5000'
             title: reserve fee for pays fee in half offer coin
           msg:
@@ -6152,7 +6156,7 @@ definitions:
                   signatures required by gogoproto.
                 format: sdk.Coin
                 example:
-                  denom: denomA
+                  denom: denomX
                   amount: '1000000'
               demand_coin_denom:
                 type: string
@@ -6177,7 +6181,7 @@ definitions:
                   signatures required by gogoproto.
                 format: sdk.Coin
                 example:
-                  denom: denomA
+                  denom: denomX
                   amount: '5000'
                 title: offer coin fee for pay fees in half offer coin
               order_price:
@@ -6269,7 +6273,7 @@ definitions:
                 signatures required by gogoproto.
               format: sdk.Coin
               example:
-                denom: denomA
+                denom: denomX
                 amount: '600000'
               title: offer coin exchanged until now
             remaining_offer_coin:
@@ -6289,7 +6293,7 @@ definitions:
                 signatures required by gogoproto.
               format: sdk.Coin
               example:
-                denom: denomA
+                denom: denomX
                 amount: '400000'
               title: offer coin currently remaining to be exchanged
             reserved_offer_coin_fee:
@@ -6309,7 +6313,7 @@ definitions:
                 signatures required by gogoproto.
               format: sdk.Coin
               example:
-                denom: denomA
+                denom: denomX
                 amount: '5000'
               title: reserve fee for pays fee in half offer coin
             msg:
@@ -6351,7 +6355,7 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: denomA
+                    denom: denomX
                     amount: '1000000'
                 demand_coin_denom:
                   type: string
@@ -6376,7 +6380,7 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: denomA
+                    denom: denomX
                     amount: '5000'
                   title: offer coin fee for pay fees in half offer coin
                 order_price:
@@ -6668,7 +6672,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '600000'
         title: offer coin exchanged until now
       remaining_offer_coin:
@@ -6685,7 +6689,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '400000'
         title: offer coin currently remaining to be exchanged
       reserved_offer_coin_fee:
@@ -6702,7 +6706,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: denomA
+          denom: denomX
           amount: '5000'
         title: reserve fee for pays fee in half offer coin
       msg:
@@ -6744,7 +6748,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '1000000'
           demand_coin_denom:
             type: string
@@ -6769,7 +6773,7 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: denomA
+              denom: denomX
               amount: '5000'
             title: offer coin fee for pay fees in half offer coin
           order_price:

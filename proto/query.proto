@@ -350,7 +350,7 @@ message QueryLiquidityPoolResponse {
     // denoms of reserve coin pair of the pool
     repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "[\"denomA\",\"denomB\"]"
+            example: "[\"denomX\",\"denomY\"]"
         }];
 
     // reserve account address of the pool
