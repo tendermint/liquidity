@@ -70,7 +70,7 @@ message MsgCreatePoolResponse {
 }
 
 // `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
-// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, deposit coins for reserve
+// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, deposit_coins for reserve
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests.
 //
@@ -179,12 +179,12 @@ message MsgWithdrawWithinBatchResponse {
 }
 
 // `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
-// Swap offer to the Liquidity pool with the specified `pool_id`, `pool_type_id`, `swap_type`,
-// `demand_coin_denom` with the coin and the price you're offering
+// Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
+// `demand_coin_denom` with the coin and the price you're offering and current `params.swap_fee_rate`
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests
 // You should request the same each field as the pool
-// Currently, only the default `swap_type`1 is available on this version
+// Currently, only the default `swap_type_id`1 is available on this version
 // The detailed swap algorithm can be found here.
 //
 // See: https://github.com/tendermint/liquidity/tree/develop/doc

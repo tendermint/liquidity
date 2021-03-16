@@ -66,7 +66,7 @@ $ make install
 ### Tx
 
 
-`$ ./liquidityd tx liquidity --help`     
+`$ liquidityd tx liquidity --help`     
 
 ```bash
 Liquidity transaction subcommands
@@ -76,9 +76,9 @@ Usage:
   liquidityd tx liquidity [command]
 
 Available Commands:
-  create-pool Create Liquidity pool with the specified pool-type, deposit coins
-  deposit     Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins
-  swap        Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
+  create-pool Create Liquidity pool with the specified pool-type, deposit-coins
+  deposit     Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins
+  swap        Swap offer submit to the batch to the Liquidity pool with the specified pool-id with offer-coin, order-price, etc
   withdraw    Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
 ```
 
