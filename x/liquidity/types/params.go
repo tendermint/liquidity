@@ -160,8 +160,6 @@ func (p Params) Validate() error {
 	if err := validateUnitBatchSize(p.UnitBatchSize); err != nil {
 		return err
 	}
-	// TODO: add detail validate logic
-
 	return nil
 }
 

@@ -14,7 +14,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	for _, record := range genState.PoolRecords {
 		k.SetPoolRecord(ctx, &record)
 	}
-	// TODO: reset heights variables when init or export
+	// TODO: reset heights variables when init or export if needed
 }
 
 // ValidateGenesis performs genesis state validation for the liquidity module.

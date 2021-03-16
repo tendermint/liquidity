@@ -207,7 +207,6 @@ func NewLiquidityApp(
 	homePath string, invCheckPeriod uint, encodingConfig liquidityparams.EncodingConfig, appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
 ) *LiquidityApp {
 
-	// TODO: Remove cdc in favor of appCodec once all modules are migrated.
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry

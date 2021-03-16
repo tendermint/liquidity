@@ -58,47 +58,121 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 // We should approach adding these invariant checks in deposit / withdraw / swap batch execution.
 
 var (
-	invariantCheckFlag = true // temporary flag for test
+	invariantCheckFlag = true // TODO: better way to handle below invariant checks?
 )
 
-// MintingPoolCoinsInvariant checks the correct minting amount of pool coins. The difference can be smaller than 1.
-func MintingPoolCoinsInvariant(k Keeper) sdk.Invariant {
-	return func(ctx sdk.Context) (string, bool) {
-		// NewPoolTokenAmount / LastPoolTokenSupply = DepositTokenA / LastReserveTokenA
-		// NewPoolTokenAmount / LastPoolTokenSupply = DepositTokenB / LastReserveTokenB
-		return sdk.FormatInvariant(types.ModuleName, "", ""), false
+// MintingPoolCoinsInvariant checks the correct ratio of minting amount of pool coins.
+func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB sdk.Dec) {
+	poolCoinRatio := mintPoolCoin.Quo(poolCoinTotalSupply)
+	depositCoinARatio := depositCoinA.Quo(lastReserveCoinA)
+	depositCoinBRatio := depositCoinB.Quo(lastReserveCoinB)
+
+	// TODO: handle case when someone sends coins to escrow module account
+
+	// TODO: double check if this is intended result
+	// there may be decimal error differences which should be smaller than 1
+	poolCoinRatio = poolCoinRatio.Add(sdk.NewDec(1.0))
+
+	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinA / LastReserveCoinA
+	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinB / LastReserveCoinB
+	if !poolCoinRatio.GTE(depositCoinARatio) || !poolCoinRatio.GTE(depositCoinBRatio) {
+		panic("invariant check fails due to incorrect ratio of pool coins")
 	}
 }
 
 // DepositReserveCoinsInvariant checks the after deposit amounts.
-func DepositReserveCoinsInvariant() {
+func DepositReserveCoinsInvariant(depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB, afterReserveCoinA, afterReserveCoinB sdk.Dec) {
+	// Debugging... TestLiquidityScenario2
+	// fmt.Println("afterReserveCoinA: ", afterReserveCoinA)
+	// fmt.Println("afterReserveCoinB: ", afterReserveCoinB)
+	// fmt.Println("lastReserveCoinA.Add(depositCoinADec): ", lastReserveCoinA.Add(depositCoinA))
+	// fmt.Println("lastReserveCoinB.Add(depositCoinBDec): ", lastReserveCoinB.Add(depositCoinB))
+
+	// AfterDepositReserveCoinA = LastReserveCoinA + DepositCoinA
+	// AfterDepositReserveCoinB = LastReserveCoinB + DepositCoinB
+	// if !afterReserveCoinA.Equal(lastReserveCoinA.Add(depositCoinA)) ||
+	// 	!afterReserveCoinB.Equal(lastReserveCoinB.Add(depositCoinB)) {
+	// 	panic("invariant check fails due to incorrect deposit amounts")
+	// }
 }
 
 // DepositRatioInvariant checks the correct ratio of deposit coin amounts.
-func DepositRatioInvariant() {
+func DepositRatioInvariant(depositCoinA, depositCoinB, lastReserveCoinRatio sdk.Dec) {
+	// depositCoinRatio := depositCoinA.Quo(depositCoinB)
+
+	// // DepositCoinA / DepositCoinB = LastReserveCoinA / LastReserveCoinB
+	// if !depositCoinRatio.Equal(lastReserveCoinRatio) {
+	// 	panic("invariant check fails due to incorrect deposit ratio")
+	// }
 }
 
-// ImmutablePoolPriceAfterDepositInvariant checks immutable pool price after depositing coins
-func ImmutablePoolPriceAfterDepositInvariant() {
+// ImmutablePoolPriceAfterDepositInvariant checks immutable pool price after depositing coins.
+func ImmutablePoolPriceAfterDepositInvariant(lastReserveCoinRatio, afterReserveCoinRatio sdk.Dec) {
+	// LastReserveCoinA / LastReserveCoinB = AfterDepositReserveCoinA / AfterDepositReserveCoinB
+	// if !lastReserveCoinRatio.Equal(afterReserveCoinRatio) {
+	// 	panic("invariant check fails due to incorrect pool price ratio")
+	// }
 }
 
-// BurningPoolCoinsInvariant checks the correct burning amount of pool coins
-func BurningPoolCoinsInvariant() {
+// BurningPoolCoinsInvariant checks the correct burning amount of pool coins.
+func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, lastPoolCoinSupply, withdrawProportion sdk.Dec) {
+	burningPoolCoinRatio := burnedPoolCoin.Quo(lastPoolCoinSupply)
+	withdrawCoinARatio := withdrawCoinA.Add(withdrawProportion).Quo(reserveCoinA)
+	withdrawCoinBRatio := withdrawCoinB.Add(withdrawProportion).Quo(reserveCoinB)
+
+	// TODO: double check if this is intended result
+	// there may be decimal error differences which should be smaller than 1
+	burningPoolCoinRatio = burningPoolCoinRatio.Add(sdk.NewDec(1))
+
+	// BurnedPoolCoinAmount / LastPoolCoinSupply = (WithdrawCoinA+WithdrawFeeCoinA) / LastReserveCoinA
+	// BurnedPoolCoinAmount / LastPoolCoinSupply = (WithdrawCoinB+WithdrawFeeCoinB) / LastReserveCoinB
+	if !burningPoolCoinRatio.GTE(withdrawCoinARatio) || !burningPoolCoinRatio.GTE(withdrawCoinBRatio) {
+		panic("invariant check fails due to incorrect ratio of burning pool coins")
+	}
 }
 
-// WithdrawReserveCoinsInvariant checks the after withdraw amounts
-func WithdrawReserveCoinsInvariant() {
+// WithdrawReserveCoinsInvariant checks the after withdraw amounts.
+func WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
+	afterReserveCoinA, afterReserveCoinB, afterPoolCoinTotalSupply, lastPoolCoinSupply, burnedPoolCoin sdk.Dec) {
+	// AfterWithdrawReserveCoinA = LastReserveCoinA - WithdrawCoinA
+	if !afterReserveCoinA.Equal(reserveCoinA.Sub(withdrawCoinA)) {
+		panic("invariant check fails due to incorrect withdraw coin A amount")
+	}
+
+	// AfterWithdrawReserveCoinB = LastReserveCoinB - WithdrawCoinB
+	if !afterReserveCoinB.Equal(reserveCoinB.Sub(withdrawCoinB)) {
+		panic("invariant check fails due to incorrect withdraw coin B amount")
+	}
+
+	// AfterWithdrawPoolCoinSupply = LastPoolCoinSupply - BurnedPoolCoinAmount
+	if !afterPoolCoinTotalSupply.Equal(lastPoolCoinSupply.Sub(burnedPoolCoin)) {
+		panic("invariant check fails due to incorrect total supply")
+	}
 }
 
-// WithdrawRatioInvariant checks the correct ratio of withdraw coin amounts
-func WithdrawRatioInvariant() {
+// WithdrawRatioInvariant checks the correct ratio of withdraw coin amounts.
+func WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB sdk.Dec) {
+	// withdrawCoinRatio := withdrawCoinA.Quo(withdrawCoinB)
+	// reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
+
+	// WithdrawCoinA / WithdrawCoinB = LastReserveCoinA / LastReserveCoinB
+	// if !withdrawCoinRatio.Equal(reserveCoinRatio) {
+	// 	panic("invariant check fails due to incorrect ratio of withdraw coin amounts")
+	// }
 }
 
-// ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins
-func ImmutablePoolPriceAfterWithdrawInvariant() {
+// ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins.
+func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, afterReserveCoinA, afterReserveCoinB sdk.Dec) {
+	// reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
+	// afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
+
+	// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
+	// if !reserveCoinRatio.Equal(afterReserveCoinRatio) {
+	// panic("invariant check fails due to incorrect pool price ratio")
+	// }
 }
 
-// SwapPriceInvariants checks the calculated swap price is increased, decreased, or equal from the last pool price
+// SwapPriceInvariants checks the calculated swap price is increased, decreased, or equal from the last pool price.
 func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult,
 	fractionalCntX, fractionalCntY int, poolXdelta, poolYdelta, poolXdelta2, poolYdelta2, decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
 	beforeXtoYLen := len(XtoY)
@@ -151,7 +225,7 @@ func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matc
 	}
 }
 
-// OrdersWithNotExecutedStateInvariants checks all executed orders have order price which is not "executable" or not "unexecutable"
+// OrdersWithNotExecutedStateInvariants checks all executed orders have order price which is not "executable" or not "unexecutable".
 func OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, matchResultMap map[uint64]types.MatchResult,
 	swapMsgStates []*types.SwapMsgState, XtoY, YtoX []*types.SwapMsgState, result types.BatchResult, currentPoolPrice sdk.Dec, denomX string) {
 	if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
@@ -192,10 +266,6 @@ func OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResul
 					panic("msg not matched")
 				} else {
 					break
-				}
-				// TODO: check for half-half-fee
-				if !msgAfter.OfferCoinFeeAmt.IsPositive() {
-					panic(msgAfter.OfferCoinFeeAmt)
 				}
 			} else {
 				panic("fail msg pointer consistency")

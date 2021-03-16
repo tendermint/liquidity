@@ -168,7 +168,6 @@ func testSwapEdgeCases(t *testing.T, r *rand.Rand, simapp *app.LiquidityApp, ctx
 
 	remainingSwapMsgs := simapp.LiquidityKeeper.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, batch)
 	if ctx.BlockHeight() == 0 || len(remainingSwapMsgs) == 0 {
-		// TODO: or not exist remaining swap orders
 		// make random orders, set buyer, seller accounts for the orders
 		XtoY, YtoX = app.GetRandomSizeOrders(denomX, denomY, X, Y, r, 100, 100)
 		buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
