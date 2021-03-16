@@ -33,15 +33,15 @@ const (
 )
 
 // Type of order map to index at price, having the pointer list of the swap batch message.
-type OrderByPrice struct {
+type Order struct {
 	Price         sdk.Dec
 	BuyOfferAmt   sdk.Int
 	SellOfferAmt  sdk.Int
 	SwapMsgStates []*SwapMsgState
 }
 
-// list of orderByPrice
-type OrderBook []OrderByPrice
+// OrderBook is a list of orders
+type OrderBook []Order
 
 // Len implements sort.Interface for OrderBook
 func (orderBook OrderBook) Len() int { return len(orderBook) }
@@ -93,7 +93,7 @@ func CountFractionalMatchedMsgs(swapMsgStates []*SwapMsgState) int {
 }
 
 // Order map type indexed by order price at price
-type OrderMap map[string]OrderByPrice
+type OrderMap map[string]Order
 
 // Make orderbook by sort orderMap.
 func (orderMap OrderMap) SortOrderBook() (orderBook OrderBook) {
@@ -380,7 +380,7 @@ func MakeOrderMap(swapMsgs []*SwapMsgState, denomX, denomY string, onlyNotMatche
 		if onlyNotMatched && (m.ToBeDeleted || m.RemainingOfferCoin.IsZero()) {
 			continue
 		}
-		order := OrderByPrice{
+		order := Order{
 			Price:        m.Msg.OrderPrice,
 			BuyOfferAmt:  sdk.ZeroInt(),
 			SellOfferAmt: sdk.ZeroInt(),

@@ -270,17 +270,17 @@ func TestOrderBookSort(t *testing.T) {
 	a, _ := sdk.NewDecFromStr("0.1")
 	b, _ := sdk.NewDecFromStr("0.2")
 	c, _ := sdk.NewDecFromStr("0.3")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.ZeroInt(),
@@ -319,17 +319,17 @@ func TestExecutableAmt(t *testing.T) {
 	a, _ := sdk.NewDecFromStr("0.1")
 	b, _ := sdk.NewDecFromStr("0.2")
 	c, _ := sdk.NewDecFromStr("0.3")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(30000000),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.NewInt(90000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.ZeroInt(),
@@ -348,17 +348,17 @@ func TestPriceDirection(t *testing.T) {
 	a, _ := sdk.NewDecFromStr("1")
 	b, _ := sdk.NewDecFromStr("1.1")
 	c, _ := sdk.NewDecFromStr("1.2")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(20000000),
@@ -374,17 +374,17 @@ func TestPriceDirection(t *testing.T) {
 	a, _ = sdk.NewDecFromStr("0.7")
 	b, _ = sdk.NewDecFromStr("0.9")
 	c, _ = sdk.NewDecFromStr("0.8")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(20000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(40000000),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.NewInt(10000000),
 		SellOfferAmt: sdk.ZeroInt(),
@@ -399,7 +399,7 @@ func TestPriceDirection(t *testing.T) {
 	orderMap = make(types.OrderMap)
 	a, _ = sdk.NewDecFromStr("1.0")
 
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.NewInt(50000000),
@@ -416,17 +416,17 @@ func TestComputePriceDirection(t *testing.T) {
 	a, _ := sdk.NewDecFromStr("1")
 	b, _ := sdk.NewDecFromStr("1.1")
 	c, _ := sdk.NewDecFromStr("1.2")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(20000000),
@@ -447,17 +447,17 @@ func TestComputePriceDirection(t *testing.T) {
 	a, _ = sdk.NewDecFromStr("0.7")
 	b, _ = sdk.NewDecFromStr("0.9")
 	c, _ = sdk.NewDecFromStr("0.8")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(20000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(40000000),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.NewInt(10000000),
 		SellOfferAmt: sdk.ZeroInt(),
@@ -477,7 +477,7 @@ func TestComputePriceDirection(t *testing.T) {
 	orderMap = make(types.OrderMap)
 	a, _ = sdk.NewDecFromStr("1.0")
 
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.NewInt(50000000),
