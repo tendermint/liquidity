@@ -313,7 +313,7 @@ service Query {
         };
     }
 
-    // Parameters queries the liquidity parameters.
+    // Get a list of the liquidity parameters.
     rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
         option (google.api.http).get = "/liquidity/params";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
