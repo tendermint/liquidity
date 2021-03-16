@@ -23,6 +23,7 @@ func (k Keeper) ValidateGenesis(ctx sdk.Context, genState types.GenesisState) er
 		return err
 	}
 	cc, _ := ctx.CacheContext()
+	k.SetParams(cc, genState.Params)
 	for _, record := range genState.PoolRecords {
 		k.SetPoolRecord(cc, &record)
 		if err := k.ValidatePoolRecord(cc, &record); err != nil {
