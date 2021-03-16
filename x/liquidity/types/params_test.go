@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -20,7 +21,7 @@ func TestParams(t *testing.T) {
 	currentParams := simapp.LiquidityKeeper.GetParams(ctx)
 	require.Equal(t, params, currentParams)
 
-	paramsNew := types.NewParams(params.LiquidityPoolTypes, params.MinInitDepositToPool, params.InitPoolCoinMintAmount,
+	paramsNew := types.NewParams(params.PoolTypes, params.MinInitDepositToPool, params.InitPoolCoinMintAmount,
 		params.ReserveCoinLimitAmount, params.LiquidityPoolCreationFee, params.SwapFeeRate, params.WithdrawFeeRate,
 		params.MaxOrderAmountRatio, params.UnitBatchSize)
 	require.NotNil(t, paramsNew)
@@ -32,8 +33,8 @@ func TestParams(t *testing.T) {
 	resPair := params.ParamSetPairs()
 	require.IsType(t, paramtypes.ParamSetPairs{}, resPair)
 
-	genesisStr := `liquidity_pool_types:
-- pool_type_index: 1
+	genesisStr := `pool_types:
+- id: 1
   name: DefaultPoolType
   min_reserve_coin_num: 2
   max_reserve_coin_num: 2
@@ -49,12 +50,12 @@ withdraw_fee_rate: "0.003000000000000000"
 max_order_amount_ratio: "0.100000000000000000"
 unit_batch_size: 1
 `
-
+	fmt.Println(params.String())
 	require.Equal(t, genesisStr, params.String())
 	require.NoError(t, params.Validate())
 
 	params = types.DefaultParams()
-	params.LiquidityPoolTypes = nil
+	params.PoolTypes = nil
 	require.Error(t, params.Validate())
 
 	params = types.DefaultParams()

@@ -10,19 +10,19 @@ import (
 
 // RegisterLegacyAminoCodec registers concrete types on the codec.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgCreateLiquidityPool{}, "liquidity/MsgCreateLiquidityPool", nil)
-	cdc.RegisterConcrete(&MsgDepositToLiquidityPool{}, "liquidity/MsgDepositToLiquidityPool", nil)
-	cdc.RegisterConcrete(&MsgWithdrawFromLiquidityPool{}, "liquidity/MsgWithdrawFromLiquidityPool", nil)
-	cdc.RegisterConcrete(&MsgSwap{}, "liquidity/MsgSwap", nil)
+	cdc.RegisterConcrete(&MsgCreatePool{}, "liquidity/MsgCreatePool", nil)
+	cdc.RegisterConcrete(&MsgDepositWithinBatch{}, "liquidity/MsgDepositWithinBatch", nil)
+	cdc.RegisterConcrete(&MsgWithdrawWithinBatch{}, "liquidity/MsgWithdrawWithinBatch", nil)
+	cdc.RegisterConcrete(&MsgSwapWithinBatch{}, "liquidity/MsgSwapWithinBatch", nil)
 }
 
 // RegisterInterfaces registers the sdk.Tx interface.
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgCreateLiquidityPool{},
-		&MsgDepositToLiquidityPool{},
-		&MsgWithdrawFromLiquidityPool{},
-		&MsgSwap{},
+		&MsgCreatePool{},
+		&MsgDepositWithinBatch{},
+		&MsgWithdrawWithinBatch{},
+		&MsgSwapWithinBatch{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

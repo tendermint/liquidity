@@ -130,8 +130,8 @@ func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, pow
 }
 
 func createLiquidity(t *testing.T, ctx sdk.Context, simapp *lapp.LiquidityApp) (
-	[]sdk.AccAddress, []types.LiquidityPool, []types.LiquidityPoolBatch,
-	[]types.BatchPoolDepositMsg, []types.BatchPoolWithdrawMsg) {
+	[]sdk.AccAddress, []types.Pool, []types.PoolBatch,
+	[]types.DepositMsgState, []types.WithdrawMsgState) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
 	// define test denom X, Y for Liquidity Pool
@@ -183,9 +183,9 @@ func createLiquidity(t *testing.T, ctx sdk.Context, simapp *lapp.LiquidityApp) (
 	lapp.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
 	lapp.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
 
-	pools := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
-	batches := simapp.LiquidityKeeper.GetAllLiquidityPoolBatches(ctx)
-	depositMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, batches[0])
-	withdrawMsgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, batches[0])
+	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
+	batches := simapp.LiquidityKeeper.GetAllPoolBatches(ctx)
+	depositMsgs := simapp.LiquidityKeeper.GetAllPoolBatchDepositMsgs(ctx, batches[0])
+	withdrawMsgs := simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, batches[0])
 	return addrs, pools, batches, depositMsgs, withdrawMsgs
 }

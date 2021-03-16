@@ -13,25 +13,25 @@ import (
 const (
 	CancelOrderLifeSpan int64 = 0
 
-	// min number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
+	// min number of reserveCoins for PoolType only 2 is allowed on this spec
 	MinReserveCoinNum uint32 = 2
 
-	// max number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
+	// max number of reserveCoins for PoolType only 2 is allowed on this spec
 	MaxReserveCoinNum uint32 = 2
 
 	// Number of blocks in one batch
 	DefaultUnitBatchSize uint32 = 1
 
 	// index of target pool type, only 1 is allowed on this version.
-	DefaultPoolTypeIndex uint32 = 1
+	DefaultPoolTypeId uint32 = 1
 
-	// swap type of available swap request, only 1 is allowed on this version.
-	DefaultSwapType uint32 = 1
+	// swap type index of available swap request, only 1 (InstantSwap) is allowed on this version.
+	DefaultSwapTypeId uint32 = 1
 )
 
 // Parameter store keys
 var (
-	KeyLiquidityPoolTypes       = []byte("LiquidityPoolTypes")
+	KeyPoolTypes                = []byte("PoolTypes")
 	KeyMinInitDepositToPool     = []byte("MinInitDepositToPool")
 	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
 	KeyReserveCoinLimitAmount   = []byte("ReserveCoinLimitAmount")
@@ -55,8 +55,8 @@ var (
 	DecimalErrThreshold3  = sdk.NewDecWithPrec(1, 3)
 	DecimalErrThreshold10 = sdk.NewDecWithPrec(1, 10)
 
-	DefaultLiquidityPoolType = LiquidityPoolType{
-		PoolTypeIndex:     1,
+	DefaultPoolType = PoolType{
+		Id:                1,
 		Name:              "DefaultPoolType",
 		MinReserveCoinNum: MinReserveCoinNum,
 		MaxReserveCoinNum: MaxReserveCoinNum,
@@ -64,10 +64,10 @@ var (
 )
 
 // NewParams liquidity paramtypes constructor
-func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
+func NewParams(poolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
 	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
 	return Params{
-		LiquidityPoolTypes:       liquidityPoolTypes,
+		PoolTypes:                poolTypes,
 		MinInitDepositToPool:     minInitDeposit,
 		InitPoolCoinMintAmount:   initPoolCoinMint,
 		ReserveCoinLimitAmount:   reserveCoinLimit,
@@ -88,7 +88,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyLiquidityPoolTypes, &p.LiquidityPoolTypes, validateLiquidityPoolTypes),
+		paramtypes.NewParamSetPair(KeyPoolTypes, &p.PoolTypes, validatePoolTypes),
 		paramtypes.NewParamSetPair(KeyMinInitDepositToPool, &p.MinInitDepositToPool, validateMinInitDepositToPool),
 		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
 		paramtypes.NewParamSetPair(KeyReserveCoinLimitAmount, &p.ReserveCoinLimitAmount, validateReserveCoinLimitAmount),
@@ -102,11 +102,11 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 
 // DefaultParams returns the default liquidity module parameters
 func DefaultParams() Params {
-	var defaultLiquidityPoolTypes []LiquidityPoolType
-	defaultLiquidityPoolTypes = append(defaultLiquidityPoolTypes, DefaultLiquidityPoolType)
+	var defaultPoolTypes []PoolType
+	defaultPoolTypes = append(defaultPoolTypes, DefaultPoolType)
 
 	return NewParams(
-		defaultLiquidityPoolTypes,
+		defaultPoolTypes,
 		DefaultMinInitDepositToPool,
 		DefaultInitPoolCoinMintAmount,
 		DefaultReserveCoinLimitAmount,
@@ -125,7 +125,7 @@ func (p Params) String() string {
 
 // Validate returns err if Params is invalid
 func (p Params) Validate() error {
-	if err := validateLiquidityPoolTypes(p.LiquidityPoolTypes); err != nil {
+	if err := validatePoolTypes(p.PoolTypes); err != nil {
 		return err
 	}
 
@@ -160,23 +160,21 @@ func (p Params) Validate() error {
 	if err := validateUnitBatchSize(p.UnitBatchSize); err != nil {
 		return err
 	}
-	// TODO: add detail validate logic
-
 	return nil
 }
 
 // check validity of the list of liquidity pool type
-func validateLiquidityPoolTypes(i interface{}) error {
-	v, ok := i.([]LiquidityPoolType)
+func validatePoolTypes(i interface{}) error {
+	v, ok := i.([]PoolType)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if v == nil {
-		return fmt.Errorf("empty parameter: LiquidityPoolTypes")
+		return fmt.Errorf("empty parameter: PoolTypes")
 	}
 	for i, p := range v {
-		if i+1 != int(p.PoolTypeIndex) {
-			return fmt.Errorf("LiquidityPoolTypes index must be sorted")
+		if i+1 != int(p.Id) {
+			return fmt.Errorf("PoolTypes index must be sorted")
 		}
 	}
 	if len(v) > 1 {
@@ -185,7 +183,7 @@ func validateLiquidityPoolTypes(i interface{}) error {
 	if len(v) < 1 {
 		return fmt.Errorf("need to default pool type")
 	}
-	if !v[0].Equal(DefaultLiquidityPoolType) {
+	if !v[0].Equal(DefaultPoolType) {
 		return fmt.Errorf("only default pool type allowed")
 	}
 	return nil

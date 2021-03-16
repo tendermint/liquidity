@@ -12,14 +12,12 @@ import (
 // Although written in msg_server_test.go, it is approached at the keeper level rather than at the msgServer level
 // so is not included in the coverage.
 
-// TODO: Plans to increase completeness on Milestone 2
-
-func TestMsgCreateLiquidityPool(t *testing.T) {
+func TestMsgCreatePool(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeIndex := types.DefaultPoolTypeIndex
+	poolTypeId := types.DefaultPoolTypeId
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
@@ -35,15 +33,15 @@ func TestMsgCreateLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
 
-	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
-	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
+	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
 	require.Equal(t, 1, len(lpList))
-	require.Equal(t, uint64(1), lpList[0].PoolId)
-	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextLiquidityPoolId(ctx)-1)
+	require.Equal(t, uint64(1), lpList[0].Id)
+	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextPoolId(ctx)-1)
 	require.Equal(t, denomA, lpList[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomB, lpList[0].ReserveCoinDenoms[1])
 
@@ -51,7 +49,7 @@ func TestMsgCreateLiquidityPool(t *testing.T) {
 	creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lpList[0].PoolCoinDenom)
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
-	_, err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.Error(t, err, types.ErrPoolAlreadyExists)
 }
 
@@ -60,7 +58,7 @@ func TestMsgDepositLiquidityPool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeIndex := types.DefaultPoolTypeIndex
+	poolTypeId := types.DefaultPoolTypeId
 	addrs := app.AddTestAddrs(simapp, ctx, 4, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
@@ -83,23 +81,23 @@ func TestMsgDepositLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	createMsg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
+	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
 
-	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, createMsg)
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createMsg)
 	require.NoError(t, err)
 
-	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
+	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
 	lp := lpList[0]
 
 	poolCoinBefore := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lp)
 
-	depositMsg := types.NewMsgDepositToLiquidityPool(addrs[1], lp.PoolId, deposit)
+	depositMsg := types.NewMsgDepositWithinBatch(addrs[1], lp.Id, deposit)
 	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.NoError(t, err)
 
-	poolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, depositMsg.PoolId)
+	poolBatch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, depositMsg.PoolId)
 	require.True(t, found)
-	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchDepositMsgs(ctx, poolBatch)
+	msgs := simapp.LiquidityKeeper.GetAllPoolBatchDepositMsgs(ctx, poolBatch)
 	require.Equal(t, 1, len(msgs))
 
 	err = simapp.LiquidityKeeper.DepositLiquidityPool(ctx, msgs[0], poolBatch)
@@ -115,7 +113,7 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeIndex := types.DefaultPoolTypeIndex
+	poolTypeId := types.DefaultPoolTypeId
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
@@ -131,12 +129,12 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	createMsg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
+	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
 
-	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, createMsg)
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createMsg)
 	require.NoError(t, err)
 
-	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
+	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
 	lp := lpList[0]
 
 	poolCoinBefore := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lp)
@@ -144,14 +142,14 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 
 	fmt.Println(poolCoinBefore, withdrawerPoolCoinBefore.Amount)
 	require.Equal(t, poolCoinBefore, withdrawerPoolCoinBefore.Amount)
-	withdrawMsg := types.NewMsgWithdrawFromLiquidityPool(addrs[0], lp.PoolId, sdk.NewCoin(lp.PoolCoinDenom, poolCoinBefore))
+	withdrawMsg := types.NewMsgWithdrawWithinBatch(addrs[0], lp.Id, sdk.NewCoin(lp.PoolCoinDenom, poolCoinBefore))
 
 	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
 	require.NoError(t, err)
 
-	poolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, withdrawMsg.PoolId)
+	poolBatch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, withdrawMsg.PoolId)
 	require.True(t, found)
-	msgs := simapp.LiquidityKeeper.GetAllLiquidityPoolBatchWithdrawMsgs(ctx, poolBatch)
+	msgs := simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, poolBatch)
 	require.Equal(t, 1, len(msgs))
 
 	err = simapp.LiquidityKeeper.WithdrawLiquidityPool(ctx, msgs[0], poolBatch)
@@ -173,7 +171,7 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeIndex := types.DefaultPoolTypeIndex
+	poolTypeId := types.DefaultPoolTypeId
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
@@ -189,15 +187,15 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
 
-	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
-	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
+	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
 	require.Equal(t, 1, len(lpList))
-	require.Equal(t, uint64(1), lpList[0].PoolId)
-	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextLiquidityPoolId(ctx)-1)
+	require.Equal(t, uint64(1), lpList[0].Id)
+	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextPoolId(ctx)-1)
 	require.Equal(t, denomA, lpList[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomB, lpList[0].ReserveCoinDenoms[1])
 
@@ -205,11 +203,11 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 	creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lpList[0].PoolCoinDenom)
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
-	_, err = simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
+	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.Error(t, err, types.ErrPoolAlreadyExists)
 
 	metaData := simapp.LiquidityKeeper.GetPoolMetaData(ctx, lpList[0])
-	require.Equal(t, lpList[0].PoolId, metaData.PoolId)
+	require.Equal(t, lpList[0].Id, metaData.PoolId)
 
 	reserveCoin := simapp.LiquidityKeeper.GetReserveCoins(ctx, lpList[0])
 	require.Equal(t, reserveCoin, metaData.ReserveCoins)

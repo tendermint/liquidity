@@ -4,30 +4,30 @@ order: 4
 
 # Messages
 
-## MsgCreateLiquidityPool
+## MsgCreatePool
 
 ```go
-type MsgCreateLiquidityPool struct {
+type MsgCreatePool struct {
 	PoolCreatorAddress  string         // account address of the origin of this message
-	PoolTypeIndex       uint32         // index of the liquidity pool type of this new liquidity pool
+	PoolTypeId          uint32         // id of the liquidity pool type of this new liquidity pool
 	DepositCoins 	    sdk.Coins      // deposit coins for initial pool deposit into this new liquidity pool
 }
 ```
 
 **Validity check**
 
-- `MsgCreateLiquidityPool` fails if
+- `MsgCreatePool` fails if
   - `PoolCreator` address does not exist
-  - `PoolTypeIndex` does not exist in parameters
-  - there exists duplicated `LiquidityPool` with same `PoolTypeIndex` and Reserve Coin Denoms
+  - `PoolTypeId` does not exist in parameters
+  - there exists duplicated `LiquidityPool` with same `PoolTypeId` and Reserve Coin Denoms
   - if one or more coins in ReserveCoinDenoms do not exist in `bank` module
   - if the balance of `PoolCreator` does not have enough amount of coins for `DepositCoins`
   - if the balance of `PoolCreator` does not have enough amount of coins for paying `LiquidityPoolCreationFee`
 
-## MsgDepositToLiquidityPool
+## MsgDepositWithinBatch
 
 ```go
-type MsgDepositToLiquidityPool struct {
+type MsgDepositWithinBatch struct {
 	DepositorAddress    string         // account address of the origin of this message
 	PoolId              uint64         // id of the liquidity pool where this message is belong to
 	DepositCoins 	    sdk.Coins      // deposit coins of this pool deposit message
@@ -36,16 +36,16 @@ type MsgDepositToLiquidityPool struct {
 
 **Validity check**
 
-- `MsgDepositToLiquidityPool` failes if
+- `MsgDepositWithinBatch` failes if
   - `Depositor` address does not exist
   - `PoolId` does not exist
   - if the denoms of `DepositCoins` are not composed of `ReserveCoinDenoms` of the `LiquidityPool` with given `PoolId`
   - if the balance of `Depositor` does not have enough amount of coins for `DepositCoins`
 
-## MsgWithdrawFromLiquidityPool
+## MsgWithdrawWithinBatch
 
 ```go
-type MsgWithdrawFromLiquidityPool struct {
+type MsgWithdrawWithinBatch struct {
 	WithdrawerAddress string         // account address of the origin of this message
 	PoolId            uint64         // id of the liquidity pool where this message is belong to
 	PoolCoin          sdk.Coin       // pool coin sent for reserve coin withdraw
@@ -54,19 +54,19 @@ type MsgWithdrawFromLiquidityPool struct {
 
 **Validity check**
 
-- `MsgWithdrawFromLiquidityPool` failes if
+- `MsgWithdrawWithinBatch` failes if
   - `Withdrawer` address does not exist
   - `PoolId` does not exist
   - if the denom of `PoolCoin` are not equal to the `PoolCoinDenom` of the `LiquidityPool` with given `PoolId`
   - if the balance of `Depositor` does not have enough amount of coins for `PoolCoin`
 
-## MsgSwap
+## MsgSwapWithinBatch
 
 ```go
-type MsgSwap struct {
+type MsgSwapWithinBatch struct {
 	SwapRequesterAddress string     // account address of the origin of this message
 	PoolId               uint64     // id of the liquidity pool where this message is belong to
-	SwapType             uint32     // swap type of this swap message, default 1: InstantSwap, requesting instant swap
+	SwapTypeId           uint32     // swap type id of this swap message, default 1: InstantSwap, requesting instant swap
 	OfferCoin            sdk.Coin   // offer coin of this swap message
 	DemandCoinDenom      string     // denom of demand coin of this swap message
 	OfferCoinFee         sdk.Coin   // offer coin fee for pay fees in half offer coin
@@ -76,10 +76,10 @@ type MsgSwap struct {
 
 **Validity check**
 
-- `MsgSwap` failes if
+- `MsgSwapWithinBatch` failes if
   - `SwapRequester` address does not exist
   - `PoolId` does not exist
-  - `SwapType` does not exist
+  - `SwapTypeId` does not exist
   - denoms of `OfferCoin` or `DemandCoin` do not exist in `bank` module
   - if the balance of `SwapRequester` does not have enough amount of coins for `OfferCoin`
   - if `OrderPrice` <= zero

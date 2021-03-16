@@ -66,7 +66,7 @@ $ make install
 ### Tx
 
 
-`$ ./liquidityd tx liquidity --help`     
+`$ liquidityd tx liquidity --help`     
 
 ```bash
 Liquidity transaction subcommands
@@ -76,9 +76,9 @@ Usage:
   liquidityd tx liquidity [command]
 
 Available Commands:
-  create-pool Create Liquidity pool with the specified pool-type, deposit coins
-  deposit     Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit coins
-  swap        Swap offer to the Liquidity pool with the specified the pool info with offer-coin, order-price
+  create-pool Create Liquidity pool with the specified pool-type, deposit-coins
+  deposit     Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins
+  swap        Swap offer submit to the batch to the Liquidity pool with the specified pool-id with offer-coin, order-price, etc
   withdraw    Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
 ```
 
@@ -202,135 +202,152 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 `liquidityd export  --home ./mytestnet/node0/liquidityd/`
 
 ```json
-...
-"liquidity": {
-      "liquidity_pool_records": [],
-      "params": {
-          "liquidity_pool_types": [
-            {
-              "pool_type_index": 1,
-              "name": "DefaultPoolType",
-              "min_reserve_coin_num": 2,
-              "max_reserve_coin_num": 2,
-              "description": ""
-            }
-          ],
-          "min_init_deposit_to_pool": "1000000",
-          "init_pool_coin_mint_amount": "1000000",
-          "liquidity_pool_creation_fee": [
-            {
-              "denom": "stake",
-              "amount": "100000000"
-            }
-          ],
-          "swap_fee_rate": "0.003000000000000000",
-          "withdraw_fee_rate": "0.003000000000000000",
-          "max_order_amount_ratio": "0.100000000000000000",
-          "unit_batch_size": 1
-        },
-    },
-    "mint": {
-      "minter": {
-        "annual_provisions": "130000037.646079971921585420",
-        "inflation": "0.130000035046079271"
-      },
-      "params": {
-        "blocks_per_year": "6311520",
-        "goal_bonded": "0.670000000000000000",
-        "inflation_max": "0.200000000000000000",
-        "inflation_min": "0.070000000000000000",
-        "inflation_rate_change": "0.130000000000000000",
-        "mint_denom": "stake"
-      }
-    },
-
-...
-```
-
-### pool created state export case
-
-`liquidityd testnet --v 1`
-
-`liquidityd start --home ./mytestnet/node0/liquidityd/`
-
-`cat mytestnet/node0/liquidityd/config/genesis.json | grep chain_id`
-
-`liquidityd tx liquidity create-pool 1 100000000reservecoin1,100000000reservecoin2 --from node0  --home ./mytestnet/node0/liquidityd/ --fees 2stake --chain-id <CHAIN-ID>`
-
-`liquidityd export --home ./mytestnet/node0/liquidityd/`
-
-```json
-...
-"liquidity": {
-      "liquidity_pool_records": [
+{
+  "liquidity": {
+    "params": {
+      "init_pool_coin_mint_amount": "1000000",
+      "liquidity_pool_creation_fee": [
         {
-          "batch_pool_deposit_msgs": [],
-          "batch_pool_swap_msg_records": [],
-          "batch_pool_swap_msgs": [],
-          "batch_pool_withdraw_msgs": [],
-          "liquidity_pool": {
-            "pool_coin_denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
-            "pool_id": "1",
-            "pool_type_index": 1,
-            "reserve_account_address": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs",
-            "reserve_coin_denoms": [
-              "reservecoin1",
-              "reservecoin2"
-            ]
-          },
-          "liquidity_pool_batch": {
-            "batch_index": "4",
-            "begin_height": "12",
-            "deposit_msg_index": "1",
-            "executed": true,
-            "pool_id": "1",
-            "swap_msg_index": "1",
-            "withdraw_msg_index": "1"
-          },
-          "liquidity_pool_meta_data": {
-            "pool_coin_total_supply": {
-              "amount": "1000000",
-              "denom": "cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs"
-            },
-            "pool_id": "1",
-            "reserve_coins": [
-              {
-                "amount": "100000000",
-                "denom": "reservecoin1"
-              },
-              {
-                "amount": "100000000",
-                "denom": "reservecoin2"
-              }
-            ]
-          }
+          "amount": "100000000",
+          "denom": "stake"
         }
       ],
-      "params": {
-          "liquidity_pool_types": [
-            {
-              "pool_type_index": 1,
-              "name": "DefaultPoolType",
-              "min_reserve_coin_num": 2,
-              "max_reserve_coin_num": 2,
-              "description": ""
-            }
-          ],
-          "min_init_deposit_to_pool": "1000000",
-          "init_pool_coin_mint_amount": "1000000",
-          "liquidity_pool_creation_fee": [
-            {
-              "denom": "stake",
-              "amount": "100000000"
-            }
-          ],
-          "swap_fee_rate": "0.003000000000000000",
-          "withdraw_fee_rate": "0.003000000000000000",
-          "max_order_amount_ratio": "0.100000000000000000",
-          "unit_batch_size": 1
-        },
+      "max_order_amount_ratio": "0.100000000000000000",
+      "min_init_deposit_to_pool": "1000000",
+      "pool_types": [
+        {
+          "description": "",
+          "id": 1,
+          "max_reserve_coin_num": 2,
+          "min_reserve_coin_num": 2,
+          "name": "DefaultPoolType"
+        }
+      ],
+      "reserve_coin_limit_amount": "0",
+      "swap_fee_rate": "0.003000000000000000",
+      "unit_batch_size": 1,
+      "withdraw_fee_rate": "0.003000000000000000"
     },
-...
+    "pool_records": []
+  }
+}
+```
+
+### export case states exists
+
+```json
+{
+  "liquidity": {
+    "params": {
+      "init_pool_coin_mint_amount": "1000000",
+      "liquidity_pool_creation_fee": [
+        {
+          "amount": "100000000",
+          "denom": "stake"
+        }
+      ],
+      "max_order_amount_ratio": "0.100000000000000000",
+      "min_init_deposit_to_pool": "1000000",
+      "pool_types": [
+        {
+          "description": "",
+          "id": 1,
+          "max_reserve_coin_num": 2,
+          "min_reserve_coin_num": 2,
+          "name": "DefaultPoolType"
+        }
+      ],
+      "reserve_coin_limit_amount": "0",
+      "swap_fee_rate": "0.003000000000000000",
+      "unit_batch_size": 1,
+      "withdraw_fee_rate": "0.003000000000000000"
+    },
+    "pool_records": [
+      {
+        "deposit_msg_states": [],
+        "pool": {
+          "id": "1",
+          "pool_coin_denom": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
+          "reserve_account_address": "cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u",
+          "reserve_coin_denoms": [
+            "stake",
+            "token"
+          ],
+          "type_id": 1
+        },
+        "pool_batch": {
+          "begin_height": "6849",
+          "deposit_msg_index": "5",
+          "executed": false,
+          "index": "6",
+          "pool_id": "1",
+          "swap_msg_index": "1",
+          "withdraw_msg_index": "3"
+        },
+        "pool_metadata": {
+          "pool_coin_total_supply": {
+            "amount": "1999625",
+            "denom": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
+          },
+          "pool_id": "1",
+          "reserve_coins": [
+            {
+              "amount": "200262607",
+              "denom": "stake"
+            },
+            {
+              "amount": "200262607",
+              "denom": "token"
+            }
+          ]
+        },
+        "swap_msg_states": [],
+        "withdraw_msg_states": []
+      },
+      {
+        "deposit_msg_states": [],
+        "pool": {
+          "id": "2",
+          "pool_coin_denom": "pool/4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC",
+          "reserve_account_address": "cosmos1guvgyffq53h87etuq5d85x9fazzh6ta5tq2rjn",
+          "reserve_coin_denoms": [
+            "atom",
+            "stake"
+          ],
+          "type_id": 1
+        },
+        "pool_batch": {
+          "begin_height": "6830",
+          "deposit_msg_index": "1",
+          "executed": false,
+          "index": "1",
+          "pool_id": "2",
+          "swap_msg_index": "2",
+          "withdraw_msg_index": "1"
+        },
+        "pool_metadata": {
+          "pool_coin_total_supply": {
+            "amount": "1000000",
+            "denom": "pool/4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC"
+          },
+          "pool_id": "2",
+          "reserve_coins": [
+            {
+              "amount": "100000000",
+              "denom": "atom"
+            },
+            {
+              "amount": "100000000",
+              "denom": "stake"
+            }
+          ]
+        },
+        "swap_msg_states": [],
+        "withdraw_msg_states": []
+      }
+    ]
+  }
+}
 ```
 
 ### Protobuf, Swagger
@@ -351,12 +368,12 @@ $ make proto-swagger-gen
 ```
  
 ## Resources
- - [Spec](x/liquidity/spec)
+ - [Liquidity Module Spec](x/liquidity/spec)
  - [Liquidity Module Lite Paper (English)](doc/LiquidityModuleLightPaper_EN.pdf)
  - [Liquidity Module Lite Paper (Korean)](doc/LiquidityModuleLightPaper_KO.pdf)
  - [Liquidity Module Lite Paper (Chinese)](doc/LiquidityModuleLightPaper_ZH.pdf)
  - [Proposal and milestone](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
- - [swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
+ - [Swagger HTTP API doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
  - [godoc](https://pkg.go.dev/github.com/tendermint/liquidity)
- - [liquidityd client doc](doc/client.md)
+ - [Client doc](doc/client.md)
  

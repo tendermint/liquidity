@@ -1,10 +1,11 @@
 package types
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"strconv"
 	"strings"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Calculate unique Pool key of the liquidity pool
@@ -12,16 +13,16 @@ import (
 // Denominations can be 3 ~ 128 characters long and support letters, followed by either
 // a letter, a number or a separator ('/').
 // reDnmString = `[a-zA-Z][a-zA-Z0-9/]{2,127}`.
-func (lp LiquidityPool) GetPoolKey() string {
-	return GetPoolKey(lp.ReserveCoinDenoms, lp.PoolTypeIndex)
+func (lp Pool) Name() string {
+	return PoolName(lp.ReserveCoinDenoms, lp.TypeId)
 }
 
 // Validate each constraint of the liquidity pool
-func (lp LiquidityPool) Validate() error {
-	if lp.PoolId == 0 {
+func (lp Pool) Validate() error {
+	if lp.Id == 0 {
 		return ErrPoolNotExists
 	}
-	if lp.PoolTypeIndex == 0 {
+	if lp.TypeId == 0 {
 		return ErrPoolTypeNotExists
 	}
 	if lp.ReserveCoinDenoms == nil || len(lp.ReserveCoinDenoms) == 0 {
@@ -41,27 +42,28 @@ func (lp LiquidityPool) Validate() error {
 	//if err != nil || lp.GetReserveAccount().Equals(addr) {
 	//	return ErrBadReserveAccountAddress
 	//}
-	if lp.ReserveAccountAddress != GetPoolReserveAcc(lp.GetPoolKey()).String() {
+	if lp.ReserveAccountAddress != GetPoolReserveAcc(lp.Name()).String() {
 		return ErrBadReserveAccountAddress
 	}
 	if lp.PoolCoinDenom == "" {
 		return ErrEmptyPoolCoinDenom
 	}
-	if lp.PoolCoinDenom != lp.GetPoolKey() {
+	if lp.PoolCoinDenom != lp.Name() {
 		return ErrBadPoolCoinDenom
 	}
 	return nil
 }
 
 // Calculate unique Pool key of the liquidity pool
-func GetPoolKey(reserveCoinDenoms []string, poolTypeIndex uint32) string {
-	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeIndex), 10)), "/")
+func PoolName(reserveCoinDenoms []string, poolTypeId uint32) string {
+	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeId), 10)), "/")
 }
 
-func NewLiquidityPoolBatch(poolId, batchIndex uint64) LiquidityPoolBatch {
-	return LiquidityPoolBatch{
+// NewPoolBatch creates a new PoolBatch object.
+func NewPoolBatch(poolId, batchIndex uint64) PoolBatch {
+	return PoolBatch{
 		PoolId:           poolId,
-		BatchIndex:       batchIndex,
+		Index:            batchIndex,
 		BeginHeight:      0,
 		DepositMsgIndex:  1,
 		WithdrawMsgIndex: 1,
@@ -70,15 +72,27 @@ func NewLiquidityPoolBatch(poolId, batchIndex uint64) LiquidityPoolBatch {
 	}
 }
 
-// MustMarshalLiquidityPool returns the liquidityPool bytes. Panics if fails
-func MustMarshalLiquidityPool(cdc codec.BinaryMarshaler, liquidityPool LiquidityPool) []byte {
+// GetPoolBatchResponse returns a PoolBatchResponse object skipped pool_id, It used for result of queries
+func GetPoolBatchResponse(poolBatch PoolBatch) PoolBatchResponse {
+	return PoolBatchResponse{
+		Index:            poolBatch.Index,
+		BeginHeight:      poolBatch.BeginHeight,
+		DepositMsgIndex:  poolBatch.DepositMsgIndex,
+		WithdrawMsgIndex: poolBatch.WithdrawMsgIndex,
+		SwapMsgIndex:     poolBatch.SwapMsgIndex,
+		Executed:         poolBatch.Executed,
+	}
+}
+
+// MustMarshalPool returns the liquidityPool bytes. Panics if fails
+func MustMarshalPool(cdc codec.BinaryMarshaler, liquidityPool Pool) []byte {
 	return cdc.MustMarshalBinaryBare(&liquidityPool)
 }
 
-// MustUnmarshalLiquidityPool return the unmarshalled liquidityPool from bytes.
+// MustUnmarshalPool return the unmarshalled liquidityPool from bytes.
 // Panics if fails.
-func MustUnmarshalLiquidityPool(cdc codec.BinaryMarshaler, value []byte) LiquidityPool {
-	liquidityPool, err := UnmarshalLiquidityPool(cdc, value)
+func MustUnmarshalPool(cdc codec.BinaryMarshaler, value []byte) Pool {
+	liquidityPool, err := UnmarshalPool(cdc, value)
 	if err != nil {
 		panic(err)
 	}
@@ -87,13 +101,13 @@ func MustUnmarshalLiquidityPool(cdc codec.BinaryMarshaler, value []byte) Liquidi
 }
 
 // return the liquidityPool
-func UnmarshalLiquidityPool(cdc codec.BinaryMarshaler, value []byte) (liquidityPool LiquidityPool, err error) {
+func UnmarshalPool(cdc codec.BinaryMarshaler, value []byte) (liquidityPool Pool, err error) {
 	err = cdc.UnmarshalBinaryBare(value, &liquidityPool)
 	return liquidityPool, err
 }
 
 // return sdk.AccAddress object of the address saved as string because of protobuf
-func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
+func (lp Pool) GetReserveAccount() sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(lp.ReserveAccountAddress)
 	if err != nil {
 		panic(err)
@@ -102,104 +116,101 @@ func (lp LiquidityPool) GetReserveAccount() sdk.AccAddress {
 }
 
 // return pool coin denom of the liquidity pool
-func (lp LiquidityPool) GetPoolCoinDenom() string { return lp.PoolCoinDenom }
+func (lp Pool) GetPoolCoinDenom() string { return lp.PoolCoinDenom }
 
 // return pool id of the liquidity pool
-func (lp LiquidityPool) GetPoolId() uint64 { return lp.PoolId }
+func (lp Pool) GetPoolId() uint64 { return lp.Id }
 
-// LiquidityPools is a collection of liquidityPools
-type LiquidityPools []LiquidityPool
-
-// LiquidityPoolsBatch is a collection of liquidityPoolBatch
-type LiquidityPoolsBatch []LiquidityPoolBatch
+// Pools is a collection of liquidityPools
+type Pools []Pool
 
 // get string of list of liquidity pool
-func (lps LiquidityPools) String() (out string) {
+func (lps Pools) String() (out string) {
 	for _, del := range lps {
 		out += del.String() + "\n"
 	}
 	return strings.TrimSpace(out)
 }
 
-// MustMarshalLiquidityPoolBatch returns the LiquidityPoolBatch bytes. Panics if fails
-func MustMarshalLiquidityPoolBatch(cdc codec.BinaryMarshaler, liquidityPoolBatch LiquidityPoolBatch) []byte {
-	return cdc.MustMarshalBinaryBare(&liquidityPoolBatch)
+// MustMarshalPoolBatch returns the PoolBatch bytes. Panics if fails
+func MustMarshalPoolBatch(cdc codec.BinaryMarshaler, poolBatch PoolBatch) []byte {
+	return cdc.MustMarshalBinaryBare(&poolBatch)
 }
 
-// return the liquidityPoolBatch
-func UnmarshalLiquidityPoolBatch(cdc codec.BinaryMarshaler, value []byte) (liquidityPoolBatch LiquidityPoolBatch, err error) {
-	err = cdc.UnmarshalBinaryBare(value, &liquidityPoolBatch)
-	return liquidityPoolBatch, err
+// return the poolBatch
+func UnmarshalPoolBatch(cdc codec.BinaryMarshaler, value []byte) (poolBatch PoolBatch, err error) {
+	err = cdc.UnmarshalBinaryBare(value, &poolBatch)
+	return poolBatch, err
 }
 
-// MustUnmarshalLiquidityPool return the unmarshalled LiquidityPoolBatch from bytes.
+// MustUnmarshalPool return the unmarshalled PoolBatch from bytes.
 // Panics if fails.
-func MustUnmarshalLiquidityPoolBatch(cdc codec.BinaryMarshaler, value []byte) LiquidityPoolBatch {
-	liquidityPoolBatch, err := UnmarshalLiquidityPoolBatch(cdc, value)
+func MustUnmarshalPoolBatch(cdc codec.BinaryMarshaler, value []byte) PoolBatch {
+	poolBatch, err := UnmarshalPoolBatch(cdc, value)
 	if err != nil {
 		panic(err)
 	}
 
-	return liquidityPoolBatch
+	return poolBatch
 }
 
-// MustMarshalBatchPoolDepositMsg returns the BatchPoolDepositMsg bytes. Panics if fails
-func MustMarshalBatchPoolDepositMsg(cdc codec.BinaryMarshaler, msg BatchPoolDepositMsg) []byte {
+// MustMarshalDepositMsgState returns the DepositMsgState bytes. Panics if fails
+func MustMarshalDepositMsgState(cdc codec.BinaryMarshaler, msg DepositMsgState) []byte {
 	return cdc.MustMarshalBinaryBare(&msg)
 }
 
-// return the BatchPoolDepositMsg
-func UnmarshalBatchPoolDepositMsg(cdc codec.BinaryMarshaler, value []byte) (msg BatchPoolDepositMsg, err error) {
+// return the DepositMsgState
+func UnmarshalDepositMsgState(cdc codec.BinaryMarshaler, value []byte) (msg DepositMsgState, err error) {
 	err = cdc.UnmarshalBinaryBare(value, &msg)
 	return msg, err
 }
 
-// MustUnmarshalBatchPoolDepositMsg return the unmarshalled BatchPoolDepositMsg from bytes.
+// MustUnmarshalDepositMsgState return the unmarshalled DepositMsgState from bytes.
 // Panics if fails.
-func MustUnmarshalBatchPoolDepositMsg(cdc codec.BinaryMarshaler, value []byte) BatchPoolDepositMsg {
-	msg, err := UnmarshalBatchPoolDepositMsg(cdc, value)
-	if err != nil {
-		panic(err)
-	}
-	return msg
-}
-
-// MustMarshalBatchPoolWithdrawMsg returns the BatchPoolWithdrawMsg bytes. Panics if fails
-func MustMarshalBatchPoolWithdrawMsg(cdc codec.BinaryMarshaler, msg BatchPoolWithdrawMsg) []byte {
-	return cdc.MustMarshalBinaryBare(&msg)
-}
-
-// return the BatchPoolWithdrawMsg
-func UnmarshalBatchPoolWithdrawMsg(cdc codec.BinaryMarshaler, value []byte) (msg BatchPoolWithdrawMsg, err error) {
-	err = cdc.UnmarshalBinaryBare(value, &msg)
-	return msg, err
-}
-
-// MustUnmarshalBatchPoolWithdrawMsg return the unmarshalled BatchPoolWithdrawMsg from bytes.
-// Panics if fails.
-func MustUnmarshalBatchPoolWithdrawMsg(cdc codec.BinaryMarshaler, value []byte) BatchPoolWithdrawMsg {
-	msg, err := UnmarshalBatchPoolWithdrawMsg(cdc, value)
+func MustUnmarshalDepositMsgState(cdc codec.BinaryMarshaler, value []byte) DepositMsgState {
+	msg, err := UnmarshalDepositMsgState(cdc, value)
 	if err != nil {
 		panic(err)
 	}
 	return msg
 }
 
-// MustMarshalBatchPoolSwapMsg returns the BatchPoolSwapMsg bytes. Panics if fails
-func MustMarshalBatchPoolSwapMsg(cdc codec.BinaryMarshaler, msg BatchPoolSwapMsg) []byte {
+// MustMarshalWithdrawMsgState returns the WithdrawMsgState bytes. Panics if fails
+func MustMarshalWithdrawMsgState(cdc codec.BinaryMarshaler, msg WithdrawMsgState) []byte {
 	return cdc.MustMarshalBinaryBare(&msg)
 }
 
-// return the UnmarshalBatchPoolSwapMsg
-func UnmarshalBatchPoolSwapMsg(cdc codec.BinaryMarshaler, value []byte) (msg BatchPoolSwapMsg, err error) {
+// return the WithdrawMsgState
+func UnmarshalWithdrawMsgState(cdc codec.BinaryMarshaler, value []byte) (msg WithdrawMsgState, err error) {
 	err = cdc.UnmarshalBinaryBare(value, &msg)
 	return msg, err
 }
 
-// MustUnmarshalBatchPoolSwapMsg return the unmarshalled BatchPoolSwapMsg from bytes.
+// MustUnmarshalWithdrawMsgState return the unmarshalled WithdrawMsgState from bytes.
 // Panics if fails.
-func MustUnmarshalBatchPoolSwapMsg(cdc codec.BinaryMarshaler, value []byte) BatchPoolSwapMsg {
-	msg, err := UnmarshalBatchPoolSwapMsg(cdc, value)
+func MustUnmarshalWithdrawMsgState(cdc codec.BinaryMarshaler, value []byte) WithdrawMsgState {
+	msg, err := UnmarshalWithdrawMsgState(cdc, value)
+	if err != nil {
+		panic(err)
+	}
+	return msg
+}
+
+// MustMarshalSwapMsgState returns the SwapMsgState bytes. Panics if fails
+func MustMarshalSwapMsgState(cdc codec.BinaryMarshaler, msg SwapMsgState) []byte {
+	return cdc.MustMarshalBinaryBare(&msg)
+}
+
+// return the UnmarshalSwapMsgState
+func UnmarshalSwapMsgState(cdc codec.BinaryMarshaler, value []byte) (msg SwapMsgState, err error) {
+	err = cdc.UnmarshalBinaryBare(value, &msg)
+	return msg, err
+}
+
+// MustUnmarshalSwapMsgState return the unmarshalled SwapMsgState from bytes.
+// Panics if fails.
+func MustUnmarshalSwapMsgState(cdc codec.BinaryMarshaler, value []byte) SwapMsgState {
+	msg, err := UnmarshalSwapMsgState(cdc, value)
 	if err != nil {
 		panic(err)
 	}

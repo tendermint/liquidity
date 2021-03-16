@@ -26,26 +26,16 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
-                    }
-                }
-            }
-            responses: {
-                key: "400"
-                value: {
-                    description: "Bad Request"
-                    examples: {
-                        key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = There are no pools present.: key not found","details":[]}'
                     }
                 }
             }
         };
     }
 
-    // Get all liquidity pools batch
-    rpc LiquidityPoolsBatch (QueryLiquidityPoolsBatchRequest) returns (QueryLiquidityPoolsBatchResponse) {
-        option (google.api.http).get = "/liquidity/pools/batch";
+    // Get all liquidity pools batches
+    rpc LiquidityPoolsBatches (QueryLiquidityPoolsBatchesRequest) returns (QueryLiquidityPoolsBatchesResponse) {
+        option (google.api.http).get = "/liquidity/pools/batches";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns list of all batch that all currently existing pools and paging results containing next_key and total count.";
             external_docs: {
@@ -58,17 +48,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
-                    }
-                }
-            }
-            responses: {
-                key: "400"
-                value: {
-                    description: "Bad Request"
-                    examples: {
-                        key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = There are no batches present.: key not found","details":[]}'
                     }
                 }
             }
@@ -90,7 +70,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -100,7 +80,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -122,7 +102,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -132,7 +112,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -154,7 +134,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -164,7 +144,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -196,7 +176,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: msg_index, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -218,7 +198,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -228,10 +208,11 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
+
         };
     }
 
@@ -260,7 +241,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: msg_index, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -282,7 +263,7 @@ service Query {
                     description: "Internal Server Error"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -292,10 +273,11 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
+
         };
     }
 
@@ -324,7 +306,7 @@ service Query {
                     description: "Bad Request"
                     examples: {
                         key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
+                        value: '{"code":3,"message":"type mismatch, parameter: msg_index, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
                     }
                 }
             }
@@ -340,26 +322,6 @@ service Query {
                 url: "https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md";
                 description: "Find out more about the params";
             }
-            responses: {
-                key: "500"
-                value: {
-                    description: "Internal Server Error"
-                    examples: {
-                        key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
-                    }
-                }
-            }
-            responses: {
-                key: "400"
-                value: {
-                    description: "Bad Request"
-                    examples: {
-                        key: "application/json"
-                        value: '{ "code": 0, "message": "error description example, see details https://bit.ly/3moTlO9"}'
-                    }
-                }
-            }
         };
     }
 }
@@ -371,9 +333,42 @@ message QueryLiquidityPoolRequest {
 
 // the response type for the QueryLiquidityPoolResponse RPC method. It returns the liquidity pool with batch and metadata containing total pool coin supply and reserved coins corresponding to the requested pool_id.
 message QueryLiquidityPoolResponse {
-    LiquidityPool liquidity_pool = 1 [(gogoproto.nullable) = false];
-    LiquidityPoolMetadata liquidity_pool_metadata = 2 [(gogoproto.nullable) = false];
-    LiquidityPoolBatch liquidity_pool_batch = 3 [(gogoproto.nullable) = false];
+    // id of the pool
+    uint64 id = 1 [(gogoproto.moretags) = "yaml:\"id\"", (gogoproto.jsontag) = "id",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"1\"",
+            format: "uint64"
+        }];
+
+    // id of the pool type
+    uint32 type_id = 2 [(gogoproto.moretags) = "yaml:\"type_id\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"1\"",
+            format: "uint32"
+        }];
+
+    // denoms of reserve coin pair of the pool
+    repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "[\"denomX\",\"denomY\"]"
+        }];
+
+    // reserve account address of the pool
+    string reserve_account_address = 4 [(gogoproto.moretags) = "yaml:\"reserve_account_address\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
+            format: "sdk.AccAddress"
+        }];
+
+    // denom of pool coin of the pool
+    string pool_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\"",
+        }];
+
+    PoolMetadataResponse metadata = 6 [(gogoproto.nullable) = false];
+
+    PoolBatchResponse batch = 7 [(gogoproto.nullable) = false];
 }
 
 // the request type for the QueryLiquidityPoolBatch RPC method. requestable including specified pool_id.
@@ -384,7 +379,7 @@ message QueryLiquidityPoolBatchRequest {
 
 // the response type for the QueryLiquidityPoolBatchResponse RPC method. It returns the liquidity pool batch corresponding to the requested pool_id.
 message QueryLiquidityPoolBatchResponse {
-    LiquidityPoolBatch batch = 1 [(gogoproto.nullable) = false];
+    PoolBatch batch = 1 [(gogoproto.nullable) = false];
 }
 
 // the request type for the QueryLiquidityPools RPC method. requestable including pagination offset, limit, key.
@@ -401,14 +396,14 @@ message QueryLiquidityPoolsResponse {
 }
 
 // the request type for the QueryLiquidityPoolsBatch RPC method, requestable including pagination offset, limit, key.
-message QueryLiquidityPoolsBatchRequest {
+message QueryLiquidityPoolsBatchesRequest {
     // pagination defines an optional pagination for the request.
     cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// the response type for the QueryLiquidityPoolsBatchResponse RPC method. This includes list of all batches that all currently existing pools and paging results containing next_key and total count.
-message QueryLiquidityPoolsBatchResponse {
-    repeated QueryLiquidityPoolBatchResponse pools_batch = 1 [(gogoproto.nullable) = false];
+// the response type for the QueryLiquidityPoolsBatchesResponse RPC method. This includes list of all batches that all currently existing pools and paging results containing next_key and total count.
+message QueryLiquidityPoolsBatchesResponse {
+    repeated PoolBatch batches = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
     cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -440,14 +435,14 @@ message QueryPoolBatchSwapMsgRequest {
 
 // the response type for the QueryPoolBatchSwapMsgs RPC method. This includes list of all currently existing swap messages of the batch and paging results containing next_key and total count.
 message QueryPoolBatchSwapMsgsResponse {
-    repeated BatchPoolSwapMsg swaps = 1 [(gogoproto.nullable) = false];
+    repeated SwapMsgState swaps = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
     cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // the response type for the QueryPoolBatchSwapMsg RPC method. This includes a batch swap message of the batch
 message QueryPoolBatchSwapMsgResponse {
-    BatchPoolSwapMsg swaps = 1 [(gogoproto.nullable) = false];
+    SwapMsgState swaps = 1 [(gogoproto.nullable) = false];
 }
 
 // the request type for the QueryPoolBatchDeposit RPC method. requestable including specified pool_id and pagination offset, limit, key.
@@ -468,14 +463,14 @@ message QueryPoolBatchDepositMsgRequest {
 
 // the response type for the QueryPoolBatchDeposit RPC method. This includes a list of all currently existing deposit messages of the batch and paging results containing next_key and total count.
 message QueryPoolBatchDepositMsgsResponse {
-    repeated BatchPoolDepositMsg deposits = 1 [(gogoproto.nullable) = false];
+    repeated DepositMsgState deposits = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
     cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // the response type for the QueryPoolBatchDepositMsg RPC method. This includes a batch swap message of the batch
 message QueryPoolBatchDepositMsgResponse {
-    BatchPoolDepositMsg deposits = 1 [(gogoproto.nullable) = false];
+    DepositMsgState deposits = 1 [(gogoproto.nullable) = false];
 }
 
 
@@ -497,12 +492,12 @@ message QueryPoolBatchWithdrawMsgRequest {
 
 // the response type for the QueryPoolBatchWithdraw RPC method. This includes a list of all currently existing withdraw messages of the batch and paging results containing next_key and total count.
 message QueryPoolBatchWithdrawMsgsResponse {
-    repeated BatchPoolWithdrawMsg withdraws = 1 [(gogoproto.nullable) = false];
+    repeated WithdrawMsgState withdraws = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
     cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // the response type for the QueryPoolBatchWithdrawMsg RPC method. This includes a batch swap message of the batch
 message QueryPoolBatchWithdrawMsgResponse {
-    BatchPoolWithdrawMsg withdraws = 1 [(gogoproto.nullable) = false];
+    WithdrawMsgState withdraws = 1 [(gogoproto.nullable) = false];
 }

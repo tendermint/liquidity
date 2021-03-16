@@ -39,10 +39,10 @@ func TestWeightedOperations(t *testing.T) {
 		opMsgRoute string
 		opMsgName  string
 	}{
-		{simappparams.DefaultWeightMsgCreateLiquidityPool, types.ModuleName, types.TypeMsgCreateLiquidityPool},
-		{simappparams.DefaultWeightMsgDepositToLiquidityPool, types.ModuleName, types.TypeMsgDepositToLiquidityPool},
-		{simappparams.DefaultWeightMsgWithdrawFromLiquidityPool, types.ModuleName, types.TypeMsgWithdrawFromLiquidityPool},
-		{simappparams.DefaultWeightMsgSwap, types.ModuleName, types.TypeMsgSwap},
+		{simappparams.DefaultWeightMsgCreatePool, types.ModuleName, types.TypeMsgCreatePool},
+		{simappparams.DefaultWeightMsgDepositWithinBatch, types.ModuleName, types.TypeMsgDepositWithinBatch},
+		{simappparams.DefaultWeightMsgWithdrawWithinBatch, types.ModuleName, types.TypeMsgWithdrawWithinBatch},
+		{simappparams.DefaultWeightMsgSwapWithinBatch, types.ModuleName, types.TypeMsgSwapWithinBatch},
 	}
 
 	for i, w := range weightesOps {
@@ -56,9 +56,9 @@ func TestWeightedOperations(t *testing.T) {
 	}
 }
 
-// TestSimulateMsgCreateLiquidityPool tests the normal scenario of a valid message of type TypeMsgCreateLiquidityPool.
+// TestSimulateMsgCreatePool tests the normal scenario of a valid message of type TypeMsgCreatePool.
 // Abonormal scenarios, where the message are created by an errors are not tested here.
-func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
+func TestSimulateMsgCreatePool(t *testing.T) {
 	app, ctx := createTestApp(false)
 
 	// setup a single account
@@ -76,24 +76,24 @@ func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
 
 	// execute operation
-	op := simulation.SimulateMsgCreateLiquidityPool(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	op := simulation.SimulateMsgCreatePool(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
 	require.NoError(t, err)
 
-	var msg types.MsgCreateLiquidityPool
+	var msg types.MsgCreatePool
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetPoolCreator().String())
-	require.Equal(t, types.DefaultPoolTypeIndex, msg.PoolTypeIndex)
+	require.Equal(t, types.DefaultPoolTypeId, msg.PoolTypeId)
 	require.Equal(t, "171625357wLfFy,279341739zDmT", msg.DepositCoins.String())
-	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
+	require.Equal(t, types.TypeMsgCreatePool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
 
-// TestSimulateMsgDepositToLiquidityPool tests the normal scenario of a valid message of type TypeMsgDepositToLiquidityPool.
+// TestSimulateMsgDepositWithinBatch tests the normal scenario of a valid message of type TypeMsgDepositWithinBatch.
 // Abonormal scenarios, where the message are created by an errors are not tested here.
-func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
+func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	app, ctx := createTestApp(false)
 
 	// setup accounts
@@ -108,23 +108,23 @@ func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
 
 	// execute operation
-	op := simulation.SimulateMsgDepositToLiquidityPool(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	op := simulation.SimulateMsgDepositWithinBatch(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
 	require.NoError(t, err)
 
-	var msg types.MsgDepositToLiquidityPool
+	var msg types.MsgDepositWithinBatch
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetDepositor().String())
 	require.Equal(t, "160538706Qfyze,478362889VIkPZ", msg.DepositCoins.String())
-	require.Equal(t, types.TypeMsgDepositToLiquidityPool, msg.Type())
+	require.Equal(t, types.TypeMsgDepositWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
 
-// TestSimulateMsgWithdrawFromLiquidityPool tests the normal scenario of a valid message of type TypeMsgWithdrawFromLiquidityPool.
+// TestSimulateMsgWithdrawWithinBatch tests the normal scenario of a valid message of type TypeMsgWithdrawWithinBatch.
 // Abonormal scenarios, where the message are created by an errors are not tested here.
-func TestSimulateMsgWithdrawFromLiquidityPool(t *testing.T) {
+func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 	app, ctx := createTestApp(false)
 
 	// setup accounts
@@ -139,23 +139,23 @@ func TestSimulateMsgWithdrawFromLiquidityPool(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
 
 	// execute operation
-	op := simulation.SimulateMsgWithdrawFromLiquidityPool(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	op := simulation.SimulateMsgWithdrawWithinBatch(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
 	require.NoError(t, err)
 
-	var msg types.MsgWithdrawFromLiquidityPool
+	var msg types.MsgWithdrawWithinBatch
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetWithdrawer().String())
 	require.Equal(t, "70867pool/2D59CF15954FA399BBEA5EE6A2E73D09BC39FC8720F2E922AC17C9AC06758EA8", msg.PoolCoin.String())
-	require.Equal(t, types.TypeMsgWithdrawFromLiquidityPool, msg.Type())
+	require.Equal(t, types.TypeMsgWithdrawWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
 
-// TestSimulateMsgSwap tests the normal scenario of a valid message of type TypeMsgSwap.
+// TestSimulateMsgSwapWithinBatch tests the normal scenario of a valid message of type TypeMsgSwapWithinBatch.
 // Abonormal scenarios, where the message are created by an errors are not tested here.
-func TestSimulateMsgSwap(t *testing.T) {
+func TestSimulateMsgSwapWithinBatch(t *testing.T) {
 	app, ctx := createTestApp(false)
 
 	// setup a single account
@@ -170,18 +170,18 @@ func TestSimulateMsgSwap(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
 
 	// execute operation
-	op := simulation.SimulateMsgSwap(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	op := simulation.SimulateMsgSwapWithinBatch(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
 	require.NoError(t, err)
 
-	var msg types.MsgSwap
+	var msg types.MsgSwapWithinBatch
 	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetSwapRequester().String())
 	require.Equal(t, "960168fGaE", msg.OfferCoin.String())
 	require.Equal(t, "jXUlr", msg.DemandCoinDenom)
-	require.Equal(t, types.TypeMsgSwap, msg.Type())
+	require.Equal(t, types.TypeMsgSwapWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
 
@@ -245,9 +245,9 @@ func setupLiquidityPools(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx 
 		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8))))
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
-		createPoolMsg := types.NewMsgCreateLiquidityPool(account.GetAddress(), types.DefaultPoolTypeIndex, depositCoins)
+		createPoolMsg := types.NewMsgCreatePool(account.GetAddress(), types.DefaultPoolTypeId, depositCoins)
 
-		_, err = app.LiquidityKeeper.CreateLiquidityPool(ctx, createPoolMsg)
+		_, err = app.LiquidityKeeper.CreatePool(ctx, createPoolMsg)
 		require.NoError(t, err)
 	}
 }

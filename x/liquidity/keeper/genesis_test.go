@@ -26,7 +26,7 @@ func TestGenesisState(t *testing.T) {
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
 	params.SwapFeeRate = sdk.NewDec(-1)
-	genesisState := types.NewGenesisState(params, genesis.LiquidityPoolRecords)
+	genesisState := types.NewGenesisState(params, genesis.PoolRecords)
 	err = types.ValidateGenesis(*genesisState)
 	require.Error(t, err)
 
@@ -39,7 +39,7 @@ func TestGenesisState(t *testing.T) {
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
 	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
-	pool, found := simapp.LiquidityKeeper.GetLiquidityPool(ctx, poolId)
+	pool, found := simapp.LiquidityKeeper.GetPool(ctx, poolId)
 	require.True(t, found)
 	poolCoins := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
 	app.TestDepositPool(t, simapp, ctx, sdk.NewInt(30000000), sdk.NewInt(20000000), addrs[1:2], poolId, false)
@@ -62,17 +62,17 @@ func TestGenesisState(t *testing.T) {
 	// validate pool records
 
 	newGenesis := simapp.LiquidityKeeper.ExportGenesis(ctx)
-	genesisState = types.NewGenesisState(paramsDefault, newGenesis.LiquidityPoolRecords)
+	genesisState = types.NewGenesisState(paramsDefault, newGenesis.PoolRecords)
 	err = types.ValidateGenesis(*genesisState)
 	require.NoError(t, err)
 
-	pool.PoolTypeIndex = 5
-	simapp.LiquidityKeeper.SetLiquidityPool(ctx, pool)
+	pool.TypeId = 5
+	simapp.LiquidityKeeper.SetPool(ctx, pool)
 	newGenesisBrokenPool := simapp.LiquidityKeeper.ExportGenesis(ctx)
 	err = types.ValidateGenesis(*newGenesisBrokenPool)
 	require.NoError(t, err)
-	require.Equal(t, 1, len(newGenesisBrokenPool.LiquidityPoolRecords))
-	err = simapp.LiquidityKeeper.ValidateLiquidityPoolRecord(ctx, &newGenesisBrokenPool.LiquidityPoolRecords[0])
+	require.Equal(t, 1, len(newGenesisBrokenPool.PoolRecords))
+	err = simapp.LiquidityKeeper.ValidatePoolRecord(ctx, &newGenesisBrokenPool.PoolRecords[0])
 	require.Error(t, err)
 
 	// not initialized genState of other module (auth, bank, ... ) only liquidity module

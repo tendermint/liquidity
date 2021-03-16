@@ -32,7 +32,7 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryLiquidityPool(),
 		GetCmdQueryLiquidityPools(),
 		GetCmdQueryLiquidityPoolBatch(),
-		GetCmdQueryLiquidityPoolsBatch(),
+		GetCmdQueryLiquidityPoolsBatches(),
 		GetCmdQueryPoolBatchDepositMsgs(),
 		GetCmdQueryPoolBatchDepositMsg(),
 		GetCmdQueryPoolBatchWithdrawMsgs(),
@@ -213,13 +213,13 @@ $ %s query liquidity batch 1
 	return cmd
 }
 
-func GetCmdQueryLiquidityPoolsBatch() *cobra.Command {
+func GetCmdQueryLiquidityPoolsBatches() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "batches",
 		Args:  cobra.NoArgs,
-		Short: "Query for all liquidity pools batch",
+		Short: "Query for all liquidity pools batches",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query details about all liquidity pools batch on a network.
+			fmt.Sprintf(`Query details about all liquidity pools batches on a network.
 Example:
 $ %s query liquidity batches
 `,
@@ -237,7 +237,7 @@ $ %s query liquidity batches
 			if err != nil {
 				return err
 			}
-			result, err := queryClient.LiquidityPoolsBatch(context.Background(), &types.QueryLiquidityPoolsBatchRequest{Pagination: pageReq})
+			result, err := queryClient.LiquidityPoolsBatches(context.Background(), &types.QueryLiquidityPoolsBatchesRequest{Pagination: pageReq})
 			if err != nil {
 				return err
 			}

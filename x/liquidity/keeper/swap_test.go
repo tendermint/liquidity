@@ -1,160 +1,145 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/rand"
 	"testing"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-func TestSimulationSwapExecution(t *testing.T) {
-	for i := 0; i < 50; i++ {
-		if i%10 == 0 {
-			fmt.Println("TestSimulationSwapExecution count", i)
-		}
-		TestSwapExecution(t)
-	}
-	for i := 0; i < 10; i++ {
-		if i%10 == 0 {
-			fmt.Println("TestSimulationSwapExecutionFindEdgeCase count", i)
-		}
-		TestSimulationSwapExecutionFindEdgeCase(t)
-	}
-}
-
 func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
-	simapp, ctx := createTestInput()
-	params := simapp.LiquidityKeeper.GetParams(ctx)
+	for seed := int64(0); seed < 20; seed++ {
+		r := rand.New(rand.NewSource(seed))
 
-	// define test denom X, Y for Liquidity Pool
-	denomX := "denomX"
-	denomY := "denomY"
-	denomX, denomY = types.AlphabeticalDenomPair(denomX, denomY)
+		simapp, ctx := createTestInput()
+		params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	s := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s)
+		// define test denom X, Y for Liquidity Pool
+		denomX := "denomX"
+		denomY := "denomY"
+		denomX, denomY = types.AlphabeticalDenomPair(denomX, denomY)
 
-	// get random X, Y amount for create pool
-	param := simapp.LiquidityKeeper.GetParams(ctx)
-	X, Y := app.GetRandPoolAmt(r, param.MinInitDepositToPool)
-	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
+		// get random X, Y amount for create pool
+		param := simapp.LiquidityKeeper.GetParams(ctx)
+		X, Y := app.GetRandPoolAmt(r, param.MinInitDepositToPool)
+		deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
-	// set pool creator account, balance for deposit
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
-	app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
-	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
-	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
-	depositBalance := sdk.NewCoins(depositA, depositB)
-	require.Equal(t, deposit, depositBalance)
+		// set pool creator account, balance for deposit
+		addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+		app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
+		depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
+		depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
+		depositBalance := sdk.NewCoins(depositA, depositB)
+		require.Equal(t, deposit, depositBalance)
 
-	// create Liquidity pool
-	poolTypeIndex := types.DefaultPoolTypeIndex
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
-	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
-	require.NoError(t, err)
+		// create Liquidity pool
+		poolTypeId := types.DefaultPoolTypeId
+		msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+		_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
+		require.NoError(t, err)
 
-	for i := 0; i < 20; i++ {
-		ctx = ctx.WithBlockHeight(int64(i))
-		testSwapEdgeCases(t, simapp, ctx, X, Y, depositBalance, addrs)
+		for i := 0; i < 20; i++ {
+			ctx = ctx.WithBlockHeight(int64(i))
+			testSwapEdgeCases(t, r, simapp, ctx, X, Y, depositBalance, addrs)
+		}
 	}
 }
 
 func TestSwapExecution(t *testing.T) {
 	// TODO: to with simulation, invariants, ransim
-	s := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s)
-	simapp, ctx := createTestInput()
-	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
-	params := simapp.LiquidityKeeper.GetParams(ctx)
+	for seed := int64(0); seed < 50; seed++ {
+		s := rand.NewSource(seed)
+		r := rand.New(s)
+		simapp, ctx := createTestInput()
+		simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+		params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	// define test denom X, Y for Liquidity Pool
-	denomX := "denomX"
-	denomY := "denomY"
-	denomX, denomY = types.AlphabeticalDenomPair(denomX, denomY)
+		// define test denom X, Y for Liquidity Pool
+		denomX := "denomX"
+		denomY := "denomY"
+		denomX, denomY = types.AlphabeticalDenomPair(denomX, denomY)
 
-	// get random X, Y amount for create pool
-	X, Y := app.GetRandPoolAmt(r, params.MinInitDepositToPool)
-	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
+		// get random X, Y amount for create pool
+		X, Y := app.GetRandPoolAmt(r, params.MinInitDepositToPool)
+		deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
-	// set pool creator account, balance for deposit
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
-	app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
-	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
-	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
-	depositBalance := sdk.NewCoins(depositA, depositB)
-	require.Equal(t, deposit, depositBalance)
+		// set pool creator account, balance for deposit
+		addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+		app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
+		depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
+		depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
+		depositBalance := sdk.NewCoins(depositA, depositB)
+		require.Equal(t, deposit, depositBalance)
 
-	// create Liquidity pool
-	poolTypeIndex := types.DefaultPoolTypeIndex
-	msg := types.NewMsgCreateLiquidityPool(addrs[0], poolTypeIndex, depositBalance)
-	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, msg)
-	require.NoError(t, err)
-
-	// verify created liquidity pool
-	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
-	poolId := lpList[0].PoolId
-	require.Equal(t, 1, len(lpList))
-	require.Equal(t, uint64(1), poolId)
-	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
-	require.Equal(t, denomY, lpList[0].ReserveCoinDenoms[1])
-
-	// verify minted pool coin
-	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lpList[0])
-	creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lpList[0].PoolCoinDenom)
-	require.Equal(t, poolCoin, creatorBalance.Amount)
-
-	var XtoY []*types.MsgSwap // buying Y from X
-	var YtoX []*types.MsgSwap // selling Y for X
-
-	// make random orders, set buyer, seller accounts for the orders
-	XtoY, YtoX = app.GetRandomSizeOrders(denomX, denomY, X, Y, r, 250, 250)
-	buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
-	sellerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(YtoX), sdk.NewInt(0))
-
-	for i, msg := range XtoY {
-		app.SaveAccountWithFee(simapp, ctx, buyerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
-		msg.SwapRequesterAddress = buyerAccs[i].String()
-		msg.PoolId = poolId
-		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
-	}
-	for i, msg := range YtoX {
-		app.SaveAccountWithFee(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
-		msg.SwapRequesterAddress = sellerAccs[i].String()
-		msg.PoolId = poolId
-		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
-	}
-
-	// begin block, delete and init pool batch
-	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-
-	// handle msgs, set order msgs to batch
-	for _, msg := range XtoY {
-		_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
+		// create Liquidity pool
+		poolTypeId := types.DefaultPoolTypeId
+		msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+		_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 		require.NoError(t, err)
-	}
-	for _, msg := range YtoX {
-		_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
-		require.NoError(t, err)
-	}
 
-	// verify pool batch
-	liquidityPoolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
-	require.True(t, found)
-	require.NotNil(t, liquidityPoolBatch)
+		// verify created liquidity pool
+		lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
+		poolId := lpList[0].Id
+		require.Equal(t, 1, len(lpList))
+		require.Equal(t, uint64(1), poolId)
+		require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
+		require.Equal(t, denomY, lpList[0].ReserveCoinDenoms[1])
 
-	// end block, swap execution
-	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+		// verify minted pool coin
+		poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lpList[0])
+		creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lpList[0].PoolCoinDenom)
+		require.Equal(t, poolCoin, creatorBalance.Amount)
+
+		var XtoY []*types.MsgSwapWithinBatch // buying Y from X
+		var YtoX []*types.MsgSwapWithinBatch // selling Y for X
+
+		// make random orders, set buyer, seller accounts for the orders
+		XtoY, YtoX = app.GetRandomSizeOrders(denomX, denomY, X, Y, r, 250, 250)
+		buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
+		sellerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(YtoX), sdk.NewInt(0))
+
+		for i, msg := range XtoY {
+			app.SaveAccountWithFee(simapp, ctx, buyerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
+			msg.SwapRequesterAddress = buyerAccs[i].String()
+			msg.PoolId = poolId
+			msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
+		}
+		for i, msg := range YtoX {
+			app.SaveAccountWithFee(simapp, ctx, sellerAccs[i], sdk.NewCoins(msg.OfferCoin), msg.OfferCoin)
+			msg.SwapRequesterAddress = sellerAccs[i].String()
+			msg.PoolId = poolId
+			msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
+		}
+
+		// begin block, delete and init pool batch
+		liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+		// handle msgs, set order msgs to batch
+		for _, msg := range XtoY {
+			_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
+			require.NoError(t, err)
+		}
+		for _, msg := range YtoX {
+			_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
+			require.NoError(t, err)
+		}
+
+		// verify pool batch
+		liquidityPoolBatch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, poolId)
+		require.True(t, found)
+		require.NotNil(t, liquidityPoolBatch)
+
+		// end block, swap execution
+		liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	}
 }
 
-func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, X, Y sdk.Int, depositBalance sdk.Coins, addrs []sdk.AccAddress) {
-	s := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s)
+func testSwapEdgeCases(t *testing.T, r *rand.Rand, simapp *app.LiquidityApp, ctx sdk.Context, X, Y sdk.Int, depositBalance sdk.Coins, addrs []sdk.AccAddress) {
 	//simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
@@ -163,8 +148,8 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 	denomY := depositBalance[1].Denom
 
 	// verify created liquidity pool
-	lpList := simapp.LiquidityKeeper.GetAllLiquidityPools(ctx)
-	poolId := lpList[0].PoolId
+	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
+	poolId := lpList[0].Id
 	require.Equal(t, 1, len(lpList))
 	require.Equal(t, uint64(1), poolId)
 	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
@@ -175,15 +160,14 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 	creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lpList[0].PoolCoinDenom)
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
-	var XtoY []*types.MsgSwap // buying Y from X
-	var YtoX []*types.MsgSwap // selling Y for X
+	var XtoY []*types.MsgSwapWithinBatch // buying Y from X
+	var YtoX []*types.MsgSwapWithinBatch // selling Y for X
 
-	batch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, poolId)
 	require.True(t, found)
 
-	remainingSwapMsgs := simapp.LiquidityKeeper.GetAllNotProcessedLiquidityPoolBatchSwapMsgs(ctx, batch)
+	remainingSwapMsgs := simapp.LiquidityKeeper.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, batch)
 	if ctx.BlockHeight() == 0 || len(remainingSwapMsgs) == 0 {
-		// TODO: or not exist remaining swap orders
 		// make random orders, set buyer, seller accounts for the orders
 		XtoY, YtoX = app.GetRandomSizeOrders(denomX, denomY, X, Y, r, 100, 100)
 		buyerAccs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
@@ -217,7 +201,7 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 	}
 
 	// verify pool batch
-	liquidityPoolBatch, found := simapp.LiquidityKeeper.GetLiquidityPoolBatch(ctx, poolId)
+	liquidityPoolBatch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, poolId)
 	require.True(t, found)
 	require.NotNil(t, liquidityPoolBatch)
 
@@ -226,104 +210,18 @@ func testSwapEdgeCases(t *testing.T, simapp *app.LiquidityApp, ctx sdk.Context, 
 }
 
 func TestGetRandomOrders(t *testing.T) {
-	s := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s)
-	// get random X, Y amount for create pool
-	X, Y := app.GetRandPoolAmt(r, types.DefaultMinInitDepositToPool)
-	XtoY, YtoX := app.GetRandomSizeOrders("denomX", "denomY", X, Y, r, 50, 50)
-	fmt.Println(XtoY, YtoX)
-	require.Equal(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2))
-	require.Equal(t, X.ToDec().MulInt64(2), X.MulRaw(2).ToDec())
-	require.NotEqual(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2).ToDec())
+	for seed := int64(0); seed < 100; seed++ {
+		r := rand.New(rand.NewSource(seed))
+
+		// get random X, Y amount for create pool
+		X, Y := app.GetRandPoolAmt(r, types.DefaultMinInitDepositToPool)
+		XtoY, YtoX := app.GetRandomSizeOrders("denomX", "denomY", X, Y, r, 50, 50)
+		_, _ = XtoY, YtoX // TODO: test against these
+		require.Equal(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2))
+		require.Equal(t, X.ToDec().MulInt64(2), X.MulRaw(2).ToDec())
+		require.NotEqual(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2).ToDec())
+	}
 }
-
-// TODO: update as half-half fee version
-// Reproduce XtoY edge case on UpdateState
-//func TestUpdateStateEdgeCaseXtoY(t *testing.T) {
-//	simapp, ctx := createTestInput()
-//	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
-//
-//	X, _ := sdk.NewDecFromStr("81019000000.000000000000000000")
-//	Y, _ := sdk.NewDecFromStr("565163000000.000000000000000000")
-//
-//	var XtoY []*types.BatchPoolSwapMsg
-//	XtoYJson := `[{"msg_index":10,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"729171000"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgf3v07n0","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"729171000"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}},{"msg_index":28,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf8u28d6r","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"2"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}},{"msg_index":35,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"785884300"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf58c6rp0","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"785884300"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}},{"msg_index":36,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf46wwkua","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}},{"msg_index":37,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"607642500"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfk5amqjz","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"607642500"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}},{"msg_index":32,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf34yvsn8","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.144215233481314241"}},{"msg_index":34,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"648152000"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfnxpdnq2","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"648152000"},"demand_coin_denom":"denomY","order_price":"0.144215233481314241"}},{"msg_index":8,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"518521600"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg8nhgh39","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"518521600"},"demand_coin_denom":"denomY","order_price":"0.144071878378450111"}},{"msg_index":18,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"712967200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cghxkq0yk","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"712967200"},"demand_coin_denom":"denomY","order_price":"0.144071878378450111"}},{"msg_index":20,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"478012100"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgeyd8xxu","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"478012100"},"demand_coin_denom":"denomY","order_price":"0.143785168172721852"}},{"msg_index":42,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5c2p3t40m7","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.143785168172721852"}},{"msg_index":13,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgj52kuk7","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1"},"demand_coin_denom":"denomY","order_price":"0.143641813069857723"}},{"msg_index":15,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg5g94e2f","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.143641813069857723"}},{"msg_index":21,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfqansamx","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.143641813069857723"}},{"msg_index":27,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"226853200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfxpunc83","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"226853200"},"demand_coin_denom":"denomY","order_price":"0.143641813069857723"}},{"msg_index":38,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfhft040s","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.143641813069857723"}},{"msg_index":1,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"429400700"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgqjwl8sq","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"429400700"},"demand_coin_denom":"denomY","order_price":"0.143498457966993593"}},{"msg_index":29,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfgr8539m","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.143498457966993593"}},{"msg_index":30,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cff73qycf","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1"},"demand_coin_denom":"denomY","order_price":"0.143498457966993593"}},{"msg_index":4,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgrua237l","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1"},"demand_coin_denom":"denomY","order_price":"0.143355102864129464"}},{"msg_index":6,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"356483600"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg9qjf5zg","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"356483600"},"demand_coin_denom":"denomY","order_price":"0.143355102864129464"}},{"msg_index":25,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfyjejm5u","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.143355102864129464"}},{"msg_index":24,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"737272900"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfrnq9t4e","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"737272900"},"demand_coin_denom":"denomY","order_price":"0.143211747761265335"}},{"msg_index":44,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5c2rzw5vgn","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.143211747761265335"}},{"msg_index":9,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cggv6mtwa","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.143068392658401205"}},{"msg_index":19,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"469910200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgcemnnmw","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"469910200"},"demand_coin_denom":"denomY","order_price":"0.143068392658401205"}},{"msg_index":3,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"793986200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgzpt7yrd","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"793986200"},"demand_coin_denom":"denomY","order_price":"0.142925037555537076"}},{"msg_index":43,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5c2zlcqe4p","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"2"},"demand_coin_denom":"denomY","order_price":"0.142925037555537076"}},{"msg_index":7,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"16203800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgxwpuzvh","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"16203800"},"demand_coin_denom":"denomY","order_price":"0.142781682452672946"}},{"msg_index":11,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"542827300"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgs80hl9n","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"542827300"},"demand_coin_denom":"denomY","order_price":"0.142781682452672946"}},{"msg_index":22,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfpq9ygx5","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"2"},"demand_coin_denom":"denomY","order_price":"0.142781682452672946"}},{"msg_index":39,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfckxufsg","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.142781682452672946"}},{"msg_index":40,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfetsgud6","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.142781682452672946"}},{"msg_index":41,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"777782400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5c2qvap6xv","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"777782400"},"demand_coin_denom":"denomY","order_price":"0.142781682452672946"}},{"msg_index":46,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5c297phf5y","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"2"},"demand_coin_denom":"denomY","order_price":"0.142781682452672946"}},{"msg_index":2,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgp0ctjdj","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.142638327349808817"}},{"msg_index":45,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5c2yrhrufk","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.142638327349808817"}},{"msg_index":12,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"802088100"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"802088100"},"demand_coin_denom":"denomY","order_price":"0.142494972246944687"}},{"msg_index":23,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"97222800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"97222800"},"demand_coin_denom":"denomY","order_price":"0.142494972246944687"}},{"msg_index":26,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf900xwfw","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"2"},"demand_coin_denom":"denomY","order_price":"0.142494972246944687"}},{"msg_index":14,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"380789300"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgnfuzftv","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"380789300"},"demand_coin_denom":"denomY","order_price":"0.142351617144080558"}},{"msg_index":17,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"162038000"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgkmq56ey","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"162038000"},"demand_coin_denom":"denomY","order_price":"0.142208262041216428"}},{"msg_index":5,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgyayapl6","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.142064906938352299"}},{"msg_index":16,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"89120900"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg44npvhm","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"89120900"},"demand_coin_denom":"denomY","order_price":"0.142064906938352299"}},{"msg_index":31,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"534725400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfsgjc9w4","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"534725400"},"demand_coin_denom":"denomY","order_price":"0.142064906938352299"}},{"msg_index":33,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"615744400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfjmhexac","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"615744400"},"demand_coin_denom":"denomY","order_price":"0.142064906938352299"}}]`
-//	json.Unmarshal([]byte(XtoYJson), &XtoY)
-//
-//	var YtoX []*types.BatchPoolSwapMsg
-//	YtoXJson := `[{"msg_index":47,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2769298700"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgqjwl8sq","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2769298700"},"demand_coin_denom":"denomX","order_price":"0.142638327349808817"}},{"msg_index":51,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgyayapl6","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2"},"demand_coin_denom":"denomX","order_price":"0.143355102864129464"}},{"msg_index":49,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgzpt7yrd","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3"},"demand_coin_denom":"denomX","order_price":"0.143498457966993593"}},{"msg_index":50,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3334461700"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgrua237l","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3334461700"},"demand_coin_denom":"denomX","order_price":"0.143928523275585982"}},{"msg_index":48,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgp0ctjdj","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4"},"demand_coin_denom":"denomX","order_price":"0.144215233481314241"}},{"msg_index":52,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg9qjf5zg","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3"},"demand_coin_denom":"denomX","order_price":"0.144215233481314241"}}]`
-//	json.Unmarshal([]byte(YtoXJson), &YtoX)
-//
-//	var matchResultXtoY []types.MatchResult
-//	matchResultXtoYJson := `[{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":10,"OrderPrice":"0.144501943687042500","OfferCoinAmt":"729171000","TransactedCoinAmt":"414302717","ExchangedDemandCoinAmt":"2858506940","FeeAmt":"1242908","BatchMsg":{"msg_index":10,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"729171000"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgf3v07n0","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"729171000"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":28,"OrderPrice":"0.144501943687042500","OfferCoinAmt":"2","TransactedCoinAmt":"2","ExchangedDemandCoinAmt":"13","FeeAmt":"0","BatchMsg":{"msg_index":28,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf8u28d6r","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"2"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":35,"OrderPrice":"0.144501943687042500","OfferCoinAmt":"785884300","TransactedCoinAmt":"446526262","ExchangedDemandCoinAmt":"3080835265","FeeAmt":"1339578","BatchMsg":{"msg_index":35,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"785884300"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf58c6rp0","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"785884300"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":36,"OrderPrice":"0.144501943687042500","OfferCoinAmt":"3","TransactedCoinAmt":"2","ExchangedDemandCoinAmt":"13","FeeAmt":"0","BatchMsg":{"msg_index":36,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf46wwkua","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":37,"OrderPrice":"0.144501943687042500","OfferCoinAmt":"607642500","TransactedCoinAmt":"345252264","ExchangedDemandCoinAmt":"2382089120","FeeAmt":"1035756","BatchMsg":{"msg_index":37,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"607642500"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfk5amqjz","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"607642500"},"demand_coin_denom":"denomY","order_price":"0.144501943687042500"}}}]`
-//	json.Unmarshal([]byte(matchResultXtoYJson), &matchResultXtoY)
-//
-//	var matchResultYtoX []types.MatchResult
-//	matchResultYtoXJson := `[{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":47,"OrderPrice":"0.142638327349808817","OfferCoinAmt":"2769298700","TransactedCoinAmt":"2769298700","ExchangedDemandCoinAmt":"398968537","FeeAmt":"8307896","BatchMsg":{"msg_index":47,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2769298700"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgqjwl8sq","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2769298700"},"demand_coin_denom":"denomX","order_price":"0.142638327349808817"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":51,"OrderPrice":"0.143355102864129464","OfferCoinAmt":"2","TransactedCoinAmt":"2","ExchangedDemandCoinAmt":"0","FeeAmt":"0","BatchMsg":{"msg_index":51,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgyayapl6","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2"},"demand_coin_denom":"denomX","order_price":"0.143355102864129464"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":49,"OrderPrice":"0.143498457966993593","OfferCoinAmt":"3","TransactedCoinAmt":"3","ExchangedDemandCoinAmt":"0","FeeAmt":"0","BatchMsg":{"msg_index":49,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgzpt7yrd","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3"},"demand_coin_denom":"denomX","order_price":"0.143498457966993593"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":50,"OrderPrice":"0.143928523275585982","OfferCoinAmt":"3334461700","TransactedCoinAmt":"3334461700","ExchangedDemandCoinAmt":"480390688","FeeAmt":"10003385","BatchMsg":{"msg_index":50,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3334461700"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgrua237l","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3334461700"},"demand_coin_denom":"denomX","order_price":"0.143928523275585982"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":48,"OrderPrice":"0.144215233481314241","OfferCoinAmt":"4","TransactedCoinAmt":"4","ExchangedDemandCoinAmt":"0","FeeAmt":"0","BatchMsg":{"msg_index":48,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgp0ctjdj","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4"},"demand_coin_denom":"denomX","order_price":"0.144215233481314241"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":52,"OrderPrice":"0.144215233481314241","OfferCoinAmt":"3","TransactedCoinAmt":"3","ExchangedDemandCoinAmt":"0","FeeAmt":"0","BatchMsg":{"msg_index":52,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg9qjf5zg","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3"},"demand_coin_denom":"denomX","order_price":"0.144215233481314241"}}}]`
-//	json.Unmarshal([]byte(matchResultYtoXJson), &matchResultYtoX)
-//
-//	XtoY, YtoX, X, Y, _, _, fractionalCntX, fractionalCntY, decimalErrorX, _ :=
-//		simapp.LiquidityKeeper.UpdateState(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
-//
-//	//fmt.Println(XtoY, YtoX, X, Y, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY)
-//	require.Equal(t, 5, len(matchResultXtoY))
-//	require.Equal(t, 6, len(matchResultYtoX))
-//	require.False(t, matchResultXtoY[0].BatchMsg.ToDelete)
-//	require.True(t, matchResultXtoY[1].BatchMsg.ToDelete)
-//	require.False(t, matchResultXtoY[2].BatchMsg.ToDelete)
-//	require.True(t, matchResultXtoY[3].BatchMsg.ToDelete)
-//	require.False(t, matchResultXtoY[4].BatchMsg.ToDelete)
-//	for _, i := range matchResultYtoX {
-//		require.True(t, i.BatchMsg.ToDelete)
-//	}
-//	require.Equal(t, sdk.NewInt(1), decimalErrorX)
-//	require.Equal(t, 3, fractionalCntX)
-//	require.Equal(t, 3, fractionalCntX)
-//	require.Equal(t, 0, fractionalCntY)
-//}
-
-// // TODO: update as half-half fee version
-// Reproduce YtoX edge case on UpdateState, WIP
-//func TestUpdateStateEdgeCaseYtoX(t *testing.T) {
-//	simapp, ctx := createTestInput()
-//	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
-//
-//	X, _ := sdk.NewDecFromStr("326477000000.000000000000000000")
-//	Y, _ := sdk.NewDecFromStr("809254000000.000000000000000000")
-//
-//	var XtoY []*types.BatchPoolSwapMsg
-//	XtoYJson := `[{"msg_index":8,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"2154748200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg8nhgh39","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"2154748200"},"demand_coin_denom":"denomY","order_price":"0.406657014979227783"}},{"msg_index":6,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1110021800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg9qjf5zg","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1110021800"},"demand_coin_denom":"denomY","order_price":"0.405043296665818149"}},{"msg_index":9,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1175317200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cggv6mtwa","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1175317200"},"demand_coin_denom":"denomY","order_price":"0.405043296665818149"}},{"msg_index":10,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgf3v07n0","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.405043296665818149"}},{"msg_index":11,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgs80hl9n","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.403833007930760924"}},{"msg_index":7,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"65295400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgxwpuzvh","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"65295400"},"demand_coin_denom":"denomY","order_price":"0.403429578352408515"}},{"msg_index":1,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgqjwl8sq","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.402622719195703698"}},{"msg_index":2,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3068883800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgp0ctjdj","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3068883800"},"demand_coin_denom":"denomY","order_price":"0.402622719195703698"}},{"msg_index":3,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgzpt7yrd","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1"},"demand_coin_denom":"denomY","order_price":"0.402219289617351289"}},{"msg_index":12,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1403851100"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1403851100"},"demand_coin_denom":"denomY","order_price":"0.401412430460646472"}},{"msg_index":13,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1207964900"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgj52kuk7","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1207964900"},"demand_coin_denom":"denomY","order_price":"0.401412430460646472"}},{"msg_index":5,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgyayapl6","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1"},"demand_coin_denom":"denomY","order_price":"0.401009000882294064"}},{"msg_index":14,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgnfuzftv","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.401009000882294064"}},{"msg_index":4,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgrua237l","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.400605571303941655"}}]`
-//	json.Unmarshal([]byte(XtoYJson), &XtoY)
-//
-//	var YtoX []*types.BatchPoolSwapMsg
-//	YtoXJson := `[{"msg_index":8,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"2154748200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg8nhgh39","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"2154748200"},"demand_coin_denom":"denomY","order_price":"0.406657014979227783"}},{"msg_index":6,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1110021800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg9qjf5zg","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1110021800"},"demand_coin_denom":"denomY","order_price":"0.405043296665818149"}},{"msg_index":9,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1175317200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cggv6mtwa","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1175317200"},"demand_coin_denom":"denomY","order_price":"0.405043296665818149"}},{"msg_index":10,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgf3v07n0","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.405043296665818149"}},{"msg_index":11,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgs80hl9n","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.403833007930760924"}},{"msg_index":7,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"65295400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgxwpuzvh","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"65295400"},"demand_coin_denom":"denomY","order_price":"0.403429578352408515"}},{"msg_index":1,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgqjwl8sq","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.402622719195703698"}},{"msg_index":2,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3068883800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgp0ctjdj","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3068883800"},"demand_coin_denom":"denomY","order_price":"0.402622719195703698"}},{"msg_index":3,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgzpt7yrd","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1"},"demand_coin_denom":"denomY","order_price":"0.402219289617351289"}},{"msg_index":12,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1403851100"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1403851100"},"demand_coin_denom":"denomY","order_price":"0.401412430460646472"}},{"msg_index":13,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1207964900"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgj52kuk7","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1207964900"},"demand_coin_denom":"denomY","order_price":"0.401412430460646472"}},{"msg_index":5,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgyayapl6","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1"},"demand_coin_denom":"denomY","order_price":"0.401009000882294064"}},{"msg_index":14,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgnfuzftv","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.401009000882294064"}},{"msg_index":4,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgrua237l","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.400605571303941655"}}]
-//[{"msg_index":28,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"971104800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgnfuzftv","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"971104800"},"demand_coin_denom":"denomX","order_price":"0.399798712147236838"}},{"msg_index":29,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"6959584400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg5g94e2f","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"6959584400"},"demand_coin_denom":"denomX","order_price":"0.399798712147236838"}},{"msg_index":27,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4774598600"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgj52kuk7","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4774598600"},"demand_coin_denom":"denomX","order_price":"0.400202141725589247"}},{"msg_index":43,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"7606987600"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfgr8539m","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"7606987600"},"demand_coin_denom":"denomX","order_price":"0.400202141725589247"}},{"msg_index":32,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3317941400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cghxkq0yk","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3317941400"},"demand_coin_denom":"denomX","order_price":"0.400605571303941655"}},{"msg_index":18,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgrua237l","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2"},"demand_coin_denom":"denomX","order_price":"0.401009000882294064"}},{"msg_index":20,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3803493800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg9qjf5zg","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3803493800"},"demand_coin_denom":"denomX","order_price":"0.401009000882294064"}},{"msg_index":21,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4936449400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgxwpuzvh","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4936449400"},"demand_coin_denom":"denomX","order_price":"0.401009000882294064"}},{"msg_index":22,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2913314400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg8nhgh39","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2913314400"},"demand_coin_denom":"denomX","order_price":"0.401009000882294064"}},{"msg_index":23,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cggv6mtwa","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2"},"demand_coin_denom":"denomX","order_price":"0.401412430460646472"}},{"msg_index":30,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"5826628800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg44npvhm","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"5826628800"},"demand_coin_denom":"denomX","order_price":"0.401412430460646472"}},{"msg_index":33,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgcemnnmw","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"1"},"demand_coin_denom":"denomX","order_price":"0.401412430460646472"}},{"msg_index":36,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4208120800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfpq9ygx5","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4208120800"},"demand_coin_denom":"denomX","order_price":"0.401815860038998881"}},{"msg_index":17,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgzpt7yrd","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4"},"demand_coin_denom":"denomX","order_price":"0.402219289617351289"}},{"msg_index":37,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3"},"demand_coin_denom":"denomX","order_price":"0.402219289617351289"}},{"msg_index":41,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfxpunc83","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"1"},"demand_coin_denom":"denomX","order_price":"0.402219289617351289"}},{"msg_index":35,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfqansamx","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"1"},"demand_coin_denom":"denomX","order_price":"0.402622719195703698"}},{"msg_index":16,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"1456657200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgp0ctjdj","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"1456657200"},"demand_coin_denom":"denomX","order_price":"0.403026148774056106"}},{"msg_index":39,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"1456657200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfyjejm5u","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"1456657200"},"demand_coin_denom":"denomX","order_price":"0.403026148774056106"}},{"msg_index":24,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgf3v07n0","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"1"},"demand_coin_denom":"denomX","order_price":"0.403429578352408515"}},{"msg_index":26,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"5583852600"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"5583852600"},"demand_coin_denom":"denomX","order_price":"0.403429578352408515"}},{"msg_index":34,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgeyd8xxu","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3"},"demand_coin_denom":"denomX","order_price":"0.403833007930760924"}},{"msg_index":15,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgqjwl8sq","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4"},"demand_coin_denom":"denomX","order_price":"0.404236437509113332"}},{"msg_index":31,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgkmq56ey","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"1"},"demand_coin_denom":"denomX","order_price":"0.404236437509113332"}},{"msg_index":19,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgyayapl6","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4"},"demand_coin_denom":"denomX","order_price":"0.405446726244170558"}},{"msg_index":38,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"6474032000"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfrnq9t4e","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"6474032000"},"demand_coin_denom":"denomX","order_price":"0.405446726244170558"}},{"msg_index":25,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgs80hl9n","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2"},"demand_coin_denom":"denomX","order_price":"0.406253585400875375"}},{"msg_index":40,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf900xwfw","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"1"},"demand_coin_denom":"denomX","order_price":"0.406253585400875375"}},{"msg_index":42,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cf8u28d6r","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4"},"demand_coin_denom":"denomX","order_price":"0.406657014979227783"}}]`
-//	json.Unmarshal([]byte(YtoXJson), &YtoX)
-//
-//	var matchResultXtoY []types.MatchResult
-//	matchResultXtoYJson := `[{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":8,"OrderPrice":"0.406657014979227783","OfferCoinAmt":"2154748200","TransactedCoinAmt":"2154748200","ExchangedDemandCoinAmt":"5357196350","FeeAmt":"6464244","BatchMsg":{"msg_index":8,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"2154748200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg8nhgh39","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"2154748200"},"demand_coin_denom":"denomY","order_price":"0.406657014979227783"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":6,"OrderPrice":"0.405043296665818149","OfferCoinAmt":"1110021800","TransactedCoinAmt":"1110021800","ExchangedDemandCoinAmt":"2759767817","FeeAmt":"3330065","BatchMsg":{"msg_index":6,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1110021800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg9qjf5zg","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1110021800"},"demand_coin_denom":"denomY","order_price":"0.405043296665818149"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":9,"OrderPrice":"0.405043296665818149","OfferCoinAmt":"1175317200","TransactedCoinAmt":"1175317200","ExchangedDemandCoinAmt":"2922107100","FeeAmt":"3525951","BatchMsg":{"msg_index":9,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1175317200"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cggv6mtwa","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1175317200"},"demand_coin_denom":"denomY","order_price":"0.405043296665818149"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":10,"OrderPrice":"0.405043296665818149","OfferCoinAmt":"4","TransactedCoinAmt":"4","ExchangedDemandCoinAmt":"9","FeeAmt":"0","BatchMsg":{"msg_index":10,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgf3v07n0","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.405043296665818149"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":11,"OrderPrice":"0.403833007930760924","OfferCoinAmt":"3","TransactedCoinAmt":"3","ExchangedDemandCoinAmt":"7","FeeAmt":"0","BatchMsg":{"msg_index":11,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgs80hl9n","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.403833007930760924"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":7,"OrderPrice":"0.403429578352408515","OfferCoinAmt":"65295400","TransactedCoinAmt":"65295400","ExchangedDemandCoinAmt":"162339283","FeeAmt":"195886","BatchMsg":{"msg_index":7,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"65295400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgxwpuzvh","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"65295400"},"demand_coin_denom":"denomY","order_price":"0.403429578352408515"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":1,"OrderPrice":"0.402622719195703698","OfferCoinAmt":"4","TransactedCoinAmt":"4","ExchangedDemandCoinAmt":"9","FeeAmt":"0","BatchMsg":{"msg_index":1,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"4"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgqjwl8sq","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"4"},"demand_coin_denom":"denomY","order_price":"0.402622719195703698"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":2,"OrderPrice":"0.402622719195703698","OfferCoinAmt":"3068883800","TransactedCoinAmt":"3068883800","ExchangedDemandCoinAmt":"7629946316","FeeAmt":"9206651","BatchMsg":{"msg_index":2,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3068883800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgp0ctjdj","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3068883800"},"demand_coin_denom":"denomY","order_price":"0.402622719195703698"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":3,"OrderPrice":"0.402219289617351289","OfferCoinAmt":"1","TransactedCoinAmt":"1","ExchangedDemandCoinAmt":"2","FeeAmt":"0","BatchMsg":{"msg_index":3,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgzpt7yrd","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1"},"demand_coin_denom":"denomY","order_price":"0.402219289617351289"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":12,"OrderPrice":"0.401412430460646472","OfferCoinAmt":"1403851100","TransactedCoinAmt":"1403851100","ExchangedDemandCoinAmt":"3490294591","FeeAmt":"4211553","BatchMsg":{"msg_index":12,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1403851100"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1403851100"},"demand_coin_denom":"denomY","order_price":"0.401412430460646472"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":13,"OrderPrice":"0.401412430460646472","OfferCoinAmt":"1207964900","TransactedCoinAmt":"1207964900","ExchangedDemandCoinAmt":"3003276742","FeeAmt":"3623894","BatchMsg":{"msg_index":13,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1207964900"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgj52kuk7","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1207964900"},"demand_coin_denom":"denomY","order_price":"0.401412430460646472"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":5,"OrderPrice":"0.401009000882294064","OfferCoinAmt":"1","TransactedCoinAmt":"1","ExchangedDemandCoinAmt":"2","FeeAmt":"0","BatchMsg":{"msg_index":5,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"1"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgyayapl6","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"1"},"demand_coin_denom":"denomY","order_price":"0.401009000882294064"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":14,"OrderPrice":"0.401009000882294064","OfferCoinAmt":"3","TransactedCoinAmt":"3","ExchangedDemandCoinAmt":"7","FeeAmt":"0","BatchMsg":{"msg_index":14,"executed":true,"exchanged_offer_coin":{"denom":"denomX","amount":"0"},"remaining_offer_coin":{"denom":"denomX","amount":"3"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgnfuzftv","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomX","amount":"3"},"demand_coin_denom":"denomY","order_price":"0.401009000882294064"}}}]`
-//	json.Unmarshal([]byte(matchResultXtoYJson), &matchResultXtoY)
-//
-//	var matchResultYtoX []types.MatchResult
-//	matchResultYtoXJson := `[{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":28,"OrderPrice":"0.399798712147236838","OfferCoinAmt":"971104800","TransactedCoinAmt":"971104800","ExchangedDemandCoinAmt":"388253500","FeeAmt":"2913314","BatchMsg":{"msg_index":28,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"971104800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgnfuzftv","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"971104800"},"demand_coin_denom":"denomX","order_price":"0.399798712147236838"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":29,"OrderPrice":"0.399798712147236838","OfferCoinAmt":"6959584400","TransactedCoinAmt":"6959584400","ExchangedDemandCoinAmt":"2782483418","FeeAmt":"20878753","BatchMsg":{"msg_index":29,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"6959584400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg5g94e2f","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"6959584400"},"demand_coin_denom":"denomX","order_price":"0.399798712147236838"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":27,"OrderPrice":"0.400202141725589247","OfferCoinAmt":"4774598600","TransactedCoinAmt":"4774598600","ExchangedDemandCoinAmt":"1908913043","FeeAmt":"14323795","BatchMsg":{"msg_index":27,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4774598600"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgj52kuk7","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4774598600"},"demand_coin_denom":"denomX","order_price":"0.400202141725589247"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":43,"OrderPrice":"0.400202141725589247","OfferCoinAmt":"7606987600","TransactedCoinAmt":"7606987600","ExchangedDemandCoinAmt":"3041319086","FeeAmt":"22820962","BatchMsg":{"msg_index":43,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"7606987600"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfgr8539m","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"7606987600"},"demand_coin_denom":"denomX","order_price":"0.400202141725589247"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":32,"OrderPrice":"0.400605571303941655","OfferCoinAmt":"3317941400","TransactedCoinAmt":"3317941400","ExchangedDemandCoinAmt":"1326532792","FeeAmt":"9953824","BatchMsg":{"msg_index":32,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3317941400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cghxkq0yk","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3317941400"},"demand_coin_denom":"denomX","order_price":"0.400605571303941655"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":18,"OrderPrice":"0.401009000882294064","OfferCoinAmt":"2","TransactedCoinAmt":"1","ExchangedDemandCoinAmt":"0","FeeAmt":"0","BatchMsg":{"msg_index":18,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgrua237l","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2"},"demand_coin_denom":"denomX","order_price":"0.401009000882294064"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":20,"OrderPrice":"0.401009000882294064","OfferCoinAmt":"3803493800","TransactedCoinAmt":"1375184530","ExchangedDemandCoinAmt":"549806990","FeeAmt":"4125553","BatchMsg":{"msg_index":20,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"3803493800"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg9qjf5zg","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"3803493800"},"demand_coin_denom":"denomX","order_price":"0.401009000882294064"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":21,"OrderPrice":"0.401009000882294064","OfferCoinAmt":"4936449400","TransactedCoinAmt":"1784813965","ExchangedDemandCoinAmt":"713579285","FeeAmt":"5354441","BatchMsg":{"msg_index":21,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"4936449400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cgxwpuzvh","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"4936449400"},"demand_coin_denom":"denomX","order_price":"0.401009000882294064"}}},{"OrderHeight":0,"OrderExpiryHeight":0,"OrderMsgIndex":22,"OrderPrice":"0.401009000882294064","OfferCoinAmt":"2913314400","TransactedCoinAmt":"1053332832","ExchangedDemandCoinAmt":"421128758","FeeAmt":"3159998","BatchMsg":{"msg_index":22,"executed":true,"exchanged_offer_coin":{"denom":"denomY","amount":"0"},"remaining_offer_coin":{"denom":"denomY","amount":"2913314400"},"msg":{"swap_requester_address":"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg8nhgh39","pool_id":1,"pool_type_index":1,"offer_coin":{"denom":"denomY","amount":"2913314400"},"demand_coin_denom":"denomX","order_price":"0.401009000882294064"}}}]`
-//	json.Unmarshal([]byte(matchResultYtoXJson), &matchResultYtoX)
-//
-//	XtoY, YtoX, X, Y, _, _, fractionalCntX, fractionalCntY, _, decimalErrorY :=
-//		simapp.LiquidityKeeper.UpdateState(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
-//
-//	//fmt.Println(XtoY, YtoX, X, Y, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY)
-//	require.Equal(t, 13, len(matchResultXtoY))
-//	require.Equal(t, 9, len(matchResultYtoX))
-//	for _, i := range matchResultYtoX[:6] {
-//		require.True(t, i.BatchMsg.ToDelete)
-//	}
-//	require.False(t, matchResultYtoX[6].BatchMsg.ToDelete)
-//	require.False(t, matchResultYtoX[7].BatchMsg.ToDelete)
-//	require.False(t, matchResultYtoX[8].BatchMsg.ToDelete)
-//	require.Equal(t, sdk.NewInt(1), decimalErrorY)
-//	require.Equal(t, 0, fractionalCntX)
-//	require.Equal(t, 3, fractionalCntY)
-//}
 
 func TestBadSwapExecution(t *testing.T) {
 	r := rand.New(rand.NewSource(0))
@@ -342,8 +240,8 @@ func TestBadSwapExecution(t *testing.T) {
 	require.Equal(t, deposit, creatorBalance)
 
 	// create pool
-	createPoolMsg := types.NewMsgCreateLiquidityPool(creatorAddr, types.DefaultPoolTypeIndex, creatorBalance)
-	_, err := simapp.LiquidityKeeper.CreateLiquidityPool(ctx, createPoolMsg)
+	createPoolMsg := types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, creatorBalance)
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createPoolMsg)
 	require.NoError(t, err)
 
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
@@ -353,7 +251,7 @@ func TestBadSwapExecution(t *testing.T) {
 	testAddr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(offerCoin.Add(offerCoinFee)))
 
 	currentPrice := X.ToDec().Quo(Y.ToDec())
-	swapMsg := types.NewMsgSwap(testAddr, 0, types.DefaultSwapType, offerCoin, denomY, currentPrice, params.SwapFeeRate)
+	swapMsg := types.NewMsgSwapWithinBatch(testAddr, 0, types.DefaultSwapTypeId, offerCoin, denomY, currentPrice, params.SwapFeeRate)
 	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg, 0)
 	require.ErrorIs(t, err, types.ErrPoolNotExists)
 

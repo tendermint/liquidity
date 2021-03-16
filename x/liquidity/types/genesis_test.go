@@ -25,31 +25,31 @@ func TestGenesisState(t *testing.T) {
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
 	params.SwapFeeRate = sdk.NewDec(-1)
-	genesisState := types.NewGenesisState(params, genesis.LiquidityPoolRecords)
+	genesisState := types.NewGenesisState(params, genesis.PoolRecords)
 	err = types.ValidateGenesis(*genesisState)
 	require.Error(t, err)
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
 	params.SwapFeeRate = sdk.NewDec(2)
-	genesisState = types.NewGenesisState(params, genesis.LiquidityPoolRecords)
+	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
 	err = types.ValidateGenesis(*genesisState)
 	require.Error(t, err)
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
 	params.InitPoolCoinMintAmount = sdk.NewInt(0)
-	genesisState = types.NewGenesisState(params, genesis.LiquidityPoolRecords)
+	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
 	err = types.ValidateGenesis(*genesisState)
 	require.Error(t, err)
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
 	params.InitPoolCoinMintAmount = sdk.NewInt(-1)
-	genesisState = types.NewGenesisState(params, genesis.LiquidityPoolRecords)
+	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
 	err = types.ValidateGenesis(*genesisState)
 	require.Error(t, err)
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
 	params.InitPoolCoinMintAmount = sdk.NewInt(10)
-	genesisState = types.NewGenesisState(params, genesis.LiquidityPoolRecords)
+	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
 	err = types.ValidateGenesis(*genesisState)
 	require.Error(t, err)
 
@@ -75,29 +75,29 @@ func TestGenesisState(t *testing.T) {
 	require.Error(t, err)
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.LiquidityPoolTypes = []types.LiquidityPoolType{types.DefaultLiquidityPoolType, types.DefaultLiquidityPoolType}
+	params.PoolTypes = []types.PoolType{types.DefaultPoolType, types.DefaultPoolType}
 	err = params.Validate()
 	require.Error(t, err)
 	err = types.ValidateGenesis(*genesisState)
 	require.Error(t, err)
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.LiquidityPoolTypes = []types.LiquidityPoolType{}
+	params.PoolTypes = []types.PoolType{}
 	err = params.Validate()
 	require.Error(t, err)
 	err = types.ValidateGenesis(*genesisState)
 	require.Error(t, err)
 
-	malformedPoolType := types.DefaultLiquidityPoolType
-	malformedPoolType.PoolTypeIndex = 0
-	params.LiquidityPoolTypes = []types.LiquidityPoolType{malformedPoolType, types.DefaultLiquidityPoolType}
+	malformedPoolType := types.DefaultPoolType
+	malformedPoolType.Id = 0
+	params.PoolTypes = []types.PoolType{malformedPoolType, types.DefaultPoolType}
 	err = params.Validate()
 	require.Error(t, err)
 	err = types.ValidateGenesis(*genesisState)
 	require.Error(t, err)
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
-	genesisState = types.NewGenesisState(params, genesis.LiquidityPoolRecords)
+	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
 	err = types.ValidateGenesis(*genesisState)
 	require.NoError(t, err)
 
