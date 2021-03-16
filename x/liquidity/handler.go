@@ -8,8 +8,6 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// TODO: planning to complete emit event codes on milestone 2.
-
 // NewHandler returns a handler for all "liquidity" type messages.
 func NewHandler(k keeper.Keeper) sdk.Handler {
 	msgServer := keeper.NewMsgServerImpl(k)

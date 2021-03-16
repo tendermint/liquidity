@@ -29,8 +29,6 @@ func ValidateGenesis(data GenesisState) error {
 
 // Validate Liquidity Pool Record after init or after export
 func (record PoolRecord) Validate() error {
-	// TODO: add validate only type level without keeper
-
 	if (len(record.DepositMsgStates) != 0 && record.PoolBatch.DepositMsgIndex !=
 		record.DepositMsgStates[len(record.DepositMsgStates)-1].MsgIndex+1) ||
 		record.PoolBatch.DepositMsgIndex == 0 {

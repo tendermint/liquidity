@@ -351,12 +351,12 @@ $ make proto-swagger-gen
 ```
  
 ## Resources
- - [Spec](x/liquidity/spec)
+ - [Liquidity Module Spec](x/liquidity/spec)
  - [Liquidity Module Lite Paper (English)](doc/LiquidityModuleLightPaper_EN.pdf)
  - [Liquidity Module Lite Paper (Korean)](doc/LiquidityModuleLightPaper_KO.pdf)
  - [Liquidity Module Lite Paper (Chinese)](doc/LiquidityModuleLightPaper_ZH.pdf)
  - [Proposal and milestone](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
- - [swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
+ - [Swagger HTTP API doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
  - [godoc](https://pkg.go.dev/github.com/tendermint/liquidity)
- - [liquidityd client doc](doc/client.md)
+ - [Client doc](doc/client.md)
  

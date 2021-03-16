@@ -15,8 +15,6 @@ const (
 	RestPoolId = "pool-id"
 )
 
-// TODO: Plans to increase completeness on Milestone 2
-
 // RegisterHandlers registers asset-related REST handlers to a router
 func RegisterHandlers(cliCtx client.Context, r *mux.Router) {
 	r = rest.WithHTTPDeprecationHeaders(r)

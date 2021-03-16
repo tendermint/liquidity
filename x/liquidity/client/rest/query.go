@@ -14,7 +14,6 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// TODO: Plans to increase completeness on Milestone 2
 // using grpc server
 func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// Get the liquidity pool
