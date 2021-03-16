@@ -502,12 +502,12 @@ func TestComputePriceDirection(t *testing.T) {
 func TestCalculateMatchStay(t *testing.T) {
 	currentPrice := sdk.MustNewDecFromStr("1.0")
 	orderBook := types.OrderBook{
-		{OrderPrice: sdk.MustNewDecFromStr("1.0"), BuyOfferAmt: sdk.NewInt(5), SellOfferAmt: sdk.NewInt(7)},
+		{Price: sdk.MustNewDecFromStr("1.0"), BuyOfferAmt: sdk.NewInt(5), SellOfferAmt: sdk.NewInt(7)},
 	}
 	require.Equal(t, types.Staying, orderBook.PriceDirection(currentPrice))
 	r := orderBook.CalculateMatchStay(currentPrice)
-	require.Equal(t, sdk.NewInt(5), r.EX)
-	require.Equal(t, sdk.NewInt(5), r.EY)
+	require.Equal(t, sdk.NewDec(5), r.EX)
+	require.Equal(t, sdk.NewDec(5), r.EY)
 }
 
 // Match Stay case with fractional match type
@@ -668,22 +668,22 @@ func TestOrderbookValidate(t *testing.T) {
 
 func TestCountNotMatchedMsgs(t *testing.T) {
 	for _, tc := range []struct {
-		msgs []*types.BatchPoolSwapMsg
+		msgs []*types.SwapMsgState
 		cnt  int
 	}{
 		{
-			[]*types.BatchPoolSwapMsg{},
+			[]*types.SwapMsgState{},
 			0,
 		},
 		{
-			[]*types.BatchPoolSwapMsg{
+			[]*types.SwapMsgState{
 				{Executed: true, Succeeded: false},
 				{Executed: true, Succeeded: false},
 			},
 			2,
 		},
 		{
-			[]*types.BatchPoolSwapMsg{
+			[]*types.SwapMsgState{
 				{},
 				{Executed: true, Succeeded: true, ToBeDeleted: false},
 				{Executed: true, Succeeded: true, ToBeDeleted: true},
@@ -697,22 +697,22 @@ func TestCountNotMatchedMsgs(t *testing.T) {
 
 func TestCountFractionalMatchedMsgs(t *testing.T) {
 	for _, tc := range []struct {
-		msgs []*types.BatchPoolSwapMsg
+		msgs []*types.SwapMsgState
 		cnt  int
 	}{
 		{
-			[]*types.BatchPoolSwapMsg{},
+			[]*types.SwapMsgState{},
 			0,
 		},
 		{
-			[]*types.BatchPoolSwapMsg{
+			[]*types.SwapMsgState{
 				{Executed: true, Succeeded: true, ToBeDeleted: false},
 				{Executed: true, Succeeded: true, ToBeDeleted: false},
 			},
 			2,
 		},
 		{
-			[]*types.BatchPoolSwapMsg{
+			[]*types.SwapMsgState{
 				{},
 				{Executed: true, Succeeded: false},
 				{Executed: true, Succeeded: true, ToBeDeleted: true},
