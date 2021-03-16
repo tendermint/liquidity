@@ -206,7 +206,7 @@ func (orderBook OrderBook) CalculateMatchStay(currentPrice sdk.Dec) (r BatchResu
 func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec) (maxScenario BatchResult) {
 	currentPrice := X.Quo(Y)
 	lastOrderPrice := currentPrice
-	var matchScenarioList []BatchResult
+	var matchScenarios []BatchResult
 	start, end, delta := 0, len(orderBook)-1, 1
 	if direction == Decreasing {
 		start, end, delta = end, start, -1
@@ -224,12 +224,12 @@ func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec
 				(direction == Decreasing && r.PoolX.Sub(r.EY.Mul(r.SwapPrice)).GTE(sdk.OneDec())) {
 				continue
 			}
-			matchScenarioList = append(matchScenarioList, r)
+			matchScenarios = append(matchScenarios, r)
 			lastOrderPrice = orderPrice
 		}
 	}
 	maxScenario = NewBatchResult()
-	for _, s := range matchScenarioList {
+	for _, s := range matchScenarios {
 		MEX, MEY := orderBook.MustExecutableAmt(s.SwapPrice)
 		if s.EX.GTE(MEX.ToDec()) && s.EY.GTE(MEY.ToDec()) {
 			if s.MatchType == ExactMatch && s.TransactAmt.IsPositive() {
@@ -461,50 +461,50 @@ func CheckSwapPrice(matchResultXtoY, matchResultYtoX []MatchResult, swapPrice sd
 }
 
 // Find matched orders and set status for msgs
-func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executableAmt, swapPrice sdk.Dec, height int64) (
-	matchResultList []MatchResult, swapListExecuted []*SwapMsgState, poolXDelta, poolYDelta sdk.Dec) {
+func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, executableAmt, swapPrice sdk.Dec, height int64) (
+	matchResults []MatchResult, executedSwapMsgStates []*SwapMsgState, poolXDelta, poolYDelta sdk.Dec) {
 
 	poolXDelta = sdk.ZeroDec()
 	poolYDelta = sdk.ZeroDec()
 
 	if direction == DirectionXtoY {
-		sort.SliceStable(swapList, func(i, j int) bool {
-			return swapList[i].Msg.OrderPrice.GT(swapList[j].Msg.OrderPrice)
+		sort.SliceStable(swapMsgStates, func(i, j int) bool {
+			return swapMsgStates[i].Msg.OrderPrice.GT(swapMsgStates[j].Msg.OrderPrice)
 		})
 	} else if direction == DirectionYtoX {
-		sort.SliceStable(swapList, func(i, j int) bool {
-			return swapList[i].Msg.OrderPrice.LT(swapList[j].Msg.OrderPrice)
+		sort.SliceStable(swapMsgStates, func(i, j int) bool {
+			return swapMsgStates[i].Msg.OrderPrice.LT(swapMsgStates[j].Msg.OrderPrice)
 		})
 	}
 
 	matchAmt := sdk.ZeroInt()
 	accumMatchAmt := sdk.ZeroInt()
-	var matchOrderList []*SwapMsgState
+	var matchedSwapMsgStates []*SwapMsgState
 
 	if executableAmt.IsZero() {
 		return
 	}
 
-	lenSwapList := len(swapList)
-	for i, order := range swapList {
+	l := len(swapMsgStates)
+	for i, order := range swapMsgStates {
 		var breakFlag, appendFlag bool
 
-		// include the matched order in matchAmt, matchOrderList
+		// include the matched order in matchAmt, matchedSwapMsgStates
 		if (direction == DirectionXtoY && order.Msg.OrderPrice.GTE(swapPrice)) ||
 			(direction == DirectionYtoX && order.Msg.OrderPrice.LTE(swapPrice)) {
 			matchAmt = matchAmt.Add(order.RemainingOfferCoin.Amount)
-			matchOrderList = append(matchOrderList, order)
+			matchedSwapMsgStates = append(matchedSwapMsgStates, order)
 		}
 
 		// case check
-		if lenSwapList > i+1 { // check next order exist
-			if swapList[i+1].Msg.OrderPrice.Equal(order.Msg.OrderPrice) { // check next orderPrice is same
+		if l > i+1 { // check next order exist
+			if swapMsgStates[i+1].Msg.OrderPrice.Equal(order.Msg.OrderPrice) { // check next orderPrice is same
 				breakFlag = false
 				appendFlag = false
 			} else { // next orderPrice is new
 				appendFlag = true
-				if (direction == DirectionXtoY && swapList[i+1].Msg.OrderPrice.GTE(swapPrice)) ||
-					(direction == DirectionYtoX && swapList[i+1].Msg.OrderPrice.LTE(swapPrice)) { // check next price is matchable
+				if (direction == DirectionXtoY && swapMsgStates[i+1].Msg.OrderPrice.GTE(swapPrice)) ||
+					(direction == DirectionYtoX && swapMsgStates[i+1].Msg.OrderPrice.LTE(swapPrice)) { // check next price is matchable
 					breakFlag = false
 				} else { // next orderPrice is unmatchable
 					breakFlag = true
@@ -529,7 +529,7 @@ func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executab
 				if !fractionalMatchRatio.IsPositive() {
 					fractionalMatchRatio = sdk.OneDec()
 				}
-				for _, matchOrder := range matchOrderList {
+				for _, matchOrder := range matchedSwapMsgStates {
 					offerAmt := matchOrder.RemainingOfferCoin.Amount.ToDec()
 					matchResult := MatchResult{
 						OrderExpiryHeight: height + CancelOrderLifeSpan,
@@ -555,8 +555,8 @@ func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executab
 						(matchResult.OfferCoinFeeAmt.GT(matchResult.OfferCoinAmt) && matchResult.OfferCoinFeeAmt.GT(sdk.OneDec())) {
 						panic(matchResult.TransactedCoinAmt)
 					}
-					matchResultList = append(matchResultList, matchResult)
-					swapListExecuted = append(swapListExecuted, matchOrder)
+					matchResults = append(matchResults, matchResult)
+					executedSwapMsgStates = append(executedSwapMsgStates, matchOrder)
 					if direction == DirectionXtoY {
 						poolXDelta = poolXDelta.Add(matchResult.TransactedCoinAmt)
 						poolYDelta = poolYDelta.Sub(matchResult.ExchangedDemandCoinAmt)
@@ -566,10 +566,10 @@ func FindOrderMatch(direction OrderDirection, swapList []*SwapMsgState, executab
 					}
 				}
 			}
-			// update accumMatchAmt and initiate matchAmt and matchOrderList
+			// update accumMatchAmt and initiate matchAmt and matchedSwapMsgStates
 			accumMatchAmt = accumMatchAmt.Add(matchAmt)
 			matchAmt = sdk.ZeroInt()
-			matchOrderList = matchOrderList[:0]
+			matchedSwapMsgStates = matchedSwapMsgStates[:0]
 		}
 
 		if breakFlag {

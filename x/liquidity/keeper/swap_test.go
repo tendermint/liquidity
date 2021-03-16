@@ -83,16 +83,16 @@ func TestSwapExecution(t *testing.T) {
 		require.NoError(t, err)
 
 		// verify created liquidity pool
-		lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
-		poolId := lpList[0].Id
-		require.Equal(t, 1, len(lpList))
+		pools := simapp.LiquidityKeeper.GetAllPools(ctx)
+		poolId := pools[0].Id
+		require.Equal(t, 1, len(pools))
 		require.Equal(t, uint64(1), poolId)
-		require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
-		require.Equal(t, denomY, lpList[0].ReserveCoinDenoms[1])
+		require.Equal(t, denomX, pools[0].ReserveCoinDenoms[0])
+		require.Equal(t, denomY, pools[0].ReserveCoinDenoms[1])
 
 		// verify minted pool coin
-		poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lpList[0])
-		creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lpList[0].PoolCoinDenom)
+		poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pools[0])
+		creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pools[0].PoolCoinDenom)
 		require.Equal(t, poolCoin, creatorBalance.Amount)
 
 		var XtoY []*types.MsgSwapWithinBatch // buying Y from X
@@ -148,16 +148,16 @@ func testSwapEdgeCases(t *testing.T, r *rand.Rand, simapp *app.LiquidityApp, ctx
 	denomY := depositBalance[1].Denom
 
 	// verify created liquidity pool
-	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
-	poolId := lpList[0].Id
-	require.Equal(t, 1, len(lpList))
+	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
+	poolId := pools[0].Id
+	require.Equal(t, 1, len(pools))
 	require.Equal(t, uint64(1), poolId)
-	require.Equal(t, denomX, lpList[0].ReserveCoinDenoms[0])
-	require.Equal(t, denomY, lpList[0].ReserveCoinDenoms[1])
+	require.Equal(t, denomX, pools[0].ReserveCoinDenoms[0])
+	require.Equal(t, denomY, pools[0].ReserveCoinDenoms[1])
 
 	// verify minted pool coin
-	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lpList[0])
-	creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lpList[0].PoolCoinDenom)
+	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pools[0])
+	creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pools[0].PoolCoinDenom)
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
 	var XtoY []*types.MsgSwapWithinBatch // buying Y from X

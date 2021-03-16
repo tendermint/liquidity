@@ -43,16 +43,16 @@ func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 
 	price, _ := sdk.NewDecFromStr("1.1")
 	priceY, _ := sdk.NewDecFromStr("1.2")
-	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
-	offerCoinListY := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
-	orderPriceList := []sdk.Dec{price}
-	orderPriceListY := []sdk.Dec{priceY}
-	orderAddrList := addrs[1:2]
-	orderAddrListY := addrs[2:3]
-	_, batch := app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
+	xOfferCoins := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
+	yOfferCoins := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
+	xOrderPrices := []sdk.Dec{price}
+	yOrderPrices := []sdk.Dec{priceY}
+	xOrderAddrs := addrs[1:2]
+	yOrderAddrs := addrs[2:3]
+	_, batch := app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
+	_, batch = app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
+	_, batch = app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
+	_, batch = app.TestSwapPool(t, simapp, ctx, yOfferCoins, yOrderPrices, yOrderAddrs, poolId, false)
 
 	msg, broken = invariant(ctx)
 	require.False(t, broken)
@@ -68,7 +68,7 @@ func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	batchEscrowAcc := simapp.AccountKeeper.GetModuleAddress(types.ModuleName)
 	escrowAmt := simapp.BankKeeper.GetAllBalances(ctx, batchEscrowAcc)
 	simapp.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addrs[0],
-		sdk.NewCoins(sdk.NewCoin(offerCoinList[0].Denom, offerCoinList[0].Amount.QuoRaw(2))))
+		sdk.NewCoins(sdk.NewCoin(xOfferCoins[0].Denom, xOfferCoins[0].Amount.QuoRaw(2))))
 	escrowAmt = simapp.BankKeeper.GetAllBalances(ctx, batchEscrowAcc)
 
 	msg, broken = invariant(ctx)

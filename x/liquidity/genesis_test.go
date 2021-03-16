@@ -43,13 +43,13 @@ func TestGenesisState(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
 	price, _ := sdk.NewDecFromStr("1.1")
-	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
-	orderPriceList := []sdk.Dec{price}
-	orderAddrList := addrs[1:2]
-	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, true)
+	offerCoins := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
+	orderPrices := []sdk.Dec{price}
+	orderAddrs := addrs[1:2]
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolId, false)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolId, false)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolId, false)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolId, true)
 
 	genesisExported := liquidity.ExportGenesis(ctx, simapp.LiquidityKeeper)
 	bankGenesisExported := simapp.BankKeeper.ExportGenesis(ctx)

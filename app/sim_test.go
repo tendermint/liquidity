@@ -274,6 +274,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	)
 	require.NoError(t, err)
 }
+
 func TestAppStateDeterminism(t *testing.T) {
 	if !simapp.FlagEnabledValue {
 		t.Skip("skipping application simulation")
