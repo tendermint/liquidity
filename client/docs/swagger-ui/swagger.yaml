@@ -290,9 +290,7 @@ paths:
         url: >-
           https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
-      summary: >-
-        Get all liquidity pools currently existed with each liquidity pool with
-        batch and metadata
+      summary: Get existing liquidity pools with batch and metadata for each pool
       description: >-
         It returns list of all liquidity pools currently existed with batch,
         metadata and paging results containing next_key and total count.
