@@ -291,10 +291,14 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		afterReserveCoinA := sdk.NewDecFromInt(afterReserveCoins[0].Amount)
 		afterReserveCoinB := sdk.NewDecFromInt(afterReserveCoins[1].Amount)
 		afterReserveRatio := afterReserveCoinA.Quo(afterReserveCoinB)
+		depositCoinADec := sdk.NewDecFromInt(depositCoinA.Amount)
+		depositCoinBDec := sdk.NewDecFromInt(depositCoinB.Amount)
+		poolCoinTotalSupplyDec := sdk.NewDecFromInt(poolCoinTotalSupply)
+		mintPoolCoinDec := sdk.NewDecFromInt(mintPoolCoin.Amount)
 
-		MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB)
-		DepositReserveCoinsInvariant(depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB, afterReserveCoins)
-		DepositRatioInvariant(depositCoinA, depositCoinB, lastReserveRatio)
+		MintingPoolCoinsInvariant(poolCoinTotalSupplyDec, mintPoolCoinDec, depositCoinADec, depositCoinBDec, lastReserveCoinA, lastReserveCoinB)
+		DepositReserveCoinsInvariant(depositCoinADec, depositCoinBDec, lastReserveCoinA, lastReserveCoinB, afterReserveCoinA, afterReserveCoinB)
+		DepositRatioInvariant(depositCoinADec, depositCoinBDec, lastReserveRatio)
 		ImmutablePoolPriceAfterDepositInvariant(lastReserveRatio, afterReserveRatio)
 	}
 
@@ -359,6 +363,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 		withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().Mul(withdrawProportion).TruncateInt().Quo(totalSupply)
 		withdrawCoins = withdrawCoins.Add(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))
 	}
+
 	if withdrawCoins.IsValid() {
 		inputs = append(inputs, banktypes.NewInput(reserveAcc, withdrawCoins))
 		outputs = append(outputs, banktypes.NewOutput(withdrawer, withdrawCoins))
@@ -378,6 +383,28 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	msg.ToBeDeleted = true
 	k.SetPoolBatchWithdrawMsgState(ctx, msg.Msg.PoolId, msg)
 
+	if invariantCheckFlag {
+		afterPoolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
+		afterReserveCoins := k.GetReserveCoins(ctx, pool)
+		afterReserveCoinA := afterReserveCoins[0].Amount.ToDec()
+		afterReserveCoinB := afterReserveCoins[1].Amount.ToDec()
+		burnedPoolCoin := poolCoins[0].Amount.ToDec()
+		withdrawCoinA := withdrawCoins[0].Amount.ToDec()
+		withdrawCoinB := withdrawCoins[1].Amount.ToDec()
+		reserveCoinA := reserveCoins[0].Amount.ToDec()
+		reserveCoinB := reserveCoins[1].Amount.ToDec()
+		lastPoolTotalSupply := totalSupply.ToDec()
+		afterPoolTotalSupply := afterPoolCoinTotalSupply.ToDec()
+		lastPoolCoinSupply := totalSupply.ToDec()
+
+		BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
+			lastPoolTotalSupply, withdrawProportion)
+		WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
+			afterReserveCoinA, afterReserveCoinB, afterPoolTotalSupply, lastPoolCoinSupply, burnedPoolCoin)
+		WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB)
+		ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, afterReserveCoinA, afterReserveCoinB)
+	}
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeWithdrawFromPool,
@@ -389,7 +416,8 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, msg.Msg.PoolCoin.Amount.String()),
 			sdk.NewAttribute(types.AttributeValueWithdrawCoins, withdrawCoins.String()),
 			sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
-		))
+		),
+	)
 
 	// TODO: remove result state check, debugging
 	reserveCoins = k.GetReserveCoins(ctx, pool)
@@ -400,8 +428,10 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	} else {
 		lastReserveRatio = sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	}
+
 	logger := k.Logger(ctx)
 	logger.Info("withdraw", msg, "pool", pool, "inputs", inputs, "outputs", outputs, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
+
 	return nil
 }
 
