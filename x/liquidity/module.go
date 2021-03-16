@@ -20,7 +20,6 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
 	"github.com/tendermint/liquidity/x/liquidity/client/cli"
-	"github.com/tendermint/liquidity/x/liquidity/client/rest"
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/simulation"
 	"github.com/tendermint/liquidity/x/liquidity/types"
@@ -68,7 +67,6 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxE
 
 // RegisterRESTRoutes registers the REST routes for the liquidity module.
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rest.RegisterHandlers(clientCtx, rtr)
 }
 
 // GetTxCmd returns the root tx command for the liquidity module.
