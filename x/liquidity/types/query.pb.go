@@ -1376,7 +1376,7 @@ type QueryClient interface {
 	PoolBatchWithdrawMsgs(ctx context.Context, in *QueryPoolBatchWithdrawMsgsRequest, opts ...grpc.CallOption) (*QueryPoolBatchWithdrawMsgsResponse, error)
 	// Get the pool batch withdraw message with msg_index of the liquidity pool
 	PoolBatchWithdrawMsg(ctx context.Context, in *QueryPoolBatchWithdrawMsgRequest, opts ...grpc.CallOption) (*QueryPoolBatchWithdrawMsgResponse, error)
-	// Parameters queries the liquidity parameters.
+	// Get a list of the liquidity parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
@@ -1509,7 +1509,7 @@ type QueryServer interface {
 	PoolBatchWithdrawMsgs(context.Context, *QueryPoolBatchWithdrawMsgsRequest) (*QueryPoolBatchWithdrawMsgsResponse, error)
 	// Get the pool batch withdraw message with msg_index of the liquidity pool
 	PoolBatchWithdrawMsg(context.Context, *QueryPoolBatchWithdrawMsgRequest) (*QueryPoolBatchWithdrawMsgResponse, error)
-	// Parameters queries the liquidity parameters.
+	// Get a list of the liquidity parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
 

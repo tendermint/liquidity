@@ -3,6 +3,7 @@ info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
   version: 2.1.1
+  version: 2.1.2
 paths:
   /liquidity/pools:
     post:
@@ -2287,7 +2288,7 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   /liquidity/params:
     get:
-      summary: Parameters queries the liquidity parameters.
+      summary: Get a list of the liquidity parameters.
       description: returns current parameter of the liquidity module.
       operationId: LiquidityQueries
       responses:
