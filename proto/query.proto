@@ -11,11 +11,11 @@ option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 
 // Query defines the gRPC querier service for liquidity module.
 service Query {
-    // Get existing liquidity pools with batch and metadata for each pool
+    // Get existing liquidity pools for each pool
     rpc LiquidityPools (QueryLiquidityPoolsRequest) returns (QueryLiquidityPoolsResponse) {
         option (google.api.http).get = "/liquidity/pools";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns list of all liquidity pools currently existed with batch, metadata and paging results containing next_key and total count.";
+            description: "It returns list of all liquidity pools currently existed paging results containing next_key and total count.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -33,33 +33,11 @@ service Query {
         };
     }
 
-    // Get all liquidity pools batches
-    rpc LiquidityPoolsBatches (QueryLiquidityPoolsBatchesRequest) returns (QueryLiquidityPoolsBatchesResponse) {
-        option (google.api.http).get = "/liquidity/pools/batches";
-        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns list of all batch that all currently existing pools and paging results containing next_key and total count.";
-            external_docs: {
-                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
-                description: "Find out more about the query and error codes";
-            }
-            responses: {
-                key: "500"
-                value: {
-                    description: "Internal Server Error"
-                    examples: {
-                        key: "application/json"
-                        value: '{"code":2,"message":"rpc error: code = NotFound desc = There are no batches present.: key not found","details":[]}'
-                    }
-                }
-            }
-        };
-    }
-
     // Get a liquidity pool with liquidity pool batch by pool_id
     rpc LiquidityPool (QueryLiquidityPoolRequest) returns (QueryLiquidityPoolResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns the liquidity pool with batch and metadata containing total pool coin supply and reserved coins corresponding to the requested pool_id.";
+            description: "It returns the liquidity pool corresponding to the requested pool_id.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -331,44 +309,41 @@ message QueryLiquidityPoolRequest {
     uint64 pool_id = 1;
 }
 
-// the response type for the QueryLiquidityPoolResponse RPC method. It returns the liquidity pool with batch and metadata containing total pool coin supply and reserved coins corresponding to the requested pool_id.
+// the response type for the QueryLiquidityPoolResponse RPC method. It returns the liquidity pool corresponding to the requested pool_id.
 message QueryLiquidityPoolResponse {
-    // id of the pool
-    uint64 id = 1 [(gogoproto.moretags) = "yaml:\"id\"", (gogoproto.jsontag) = "id",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"1\"",
-            format: "uint64"
-        }];
-
-    // id of the pool type
-    uint32 type_id = 2 [(gogoproto.moretags) = "yaml:\"type_id\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"1\"",
-            format: "uint32"
-        }];
-
-    // denoms of reserve coin pair of the pool
-    repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "[\"denomX\",\"denomY\"]"
-        }];
-
-    // reserve account address of the pool
-    string reserve_account_address = 4 [(gogoproto.moretags) = "yaml:\"reserve_account_address\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
-            format: "sdk.AccAddress"
-        }];
-
-    // denom of pool coin of the pool
-    string pool_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\"",
-        }];
-
-    PoolMetadataResponse metadata = 6 [(gogoproto.nullable) = false];
-
-    PoolBatchResponse batch = 7 [(gogoproto.nullable) = false];
+    Pool pool = 1 [(gogoproto.nullable) = false];
+//    // id of the pool
+//    uint64 id = 1 [(gogoproto.moretags) = "yaml:\"id\"", (gogoproto.jsontag) = "id",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "\"1\"",
+//            format: "uint64"
+//        }];
+//
+//    // id of the pool type
+//    uint32 type_id = 2 [(gogoproto.moretags) = "yaml:\"type_id\"",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "\"1\"",
+//            format: "uint32"
+//        }];
+//
+//    // denoms of reserve coin pair of the pool
+//    repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "[\"denomX\",\"denomY\"]"
+//        }];
+//
+//    // reserve account address of the pool
+//    string reserve_account_address = 4 [(gogoproto.moretags) = "yaml:\"reserve_account_address\"",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
+//            format: "sdk.AccAddress"
+//        }];
+//
+//    // denom of pool coin of the pool
+//    string pool_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\"",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "\"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\"",
+//        }];
 }
 
 // the request type for the QueryLiquidityPoolBatch RPC method. requestable including specified pool_id.
@@ -390,20 +365,7 @@ message QueryLiquidityPoolsRequest {
 
 // the response type for the QueryLiquidityPoolsResponse RPC method. This includes list of all liquidity pools currently existed and paging results containing next_key and total count.
 message QueryLiquidityPoolsResponse {
-    repeated QueryLiquidityPoolResponse pools = 1 [(gogoproto.nullable) = false];
-    // pagination defines the pagination in the response. not working on this version.
-    cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
-// the request type for the QueryLiquidityPoolsBatch RPC method, requestable including pagination offset, limit, key.
-message QueryLiquidityPoolsBatchesRequest {
-    // pagination defines an optional pagination for the request.
-    cosmos.base.query.v1beta1.PageRequest pagination = 1;
-}
-
-// the response type for the QueryLiquidityPoolsBatchesResponse RPC method. This includes list of all batches that all currently existing pools and paging results containing next_key and total count.
-message QueryLiquidityPoolsBatchesResponse {
-    repeated PoolBatch batches = 1 [(gogoproto.nullable) = false];
+    repeated Pool pools = 1 [(gogoproto.nullable) = false];
     // pagination defines the pagination in the response. not working on this version.
     cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -442,7 +404,7 @@ message QueryPoolBatchSwapMsgsResponse {
 
 // the response type for the QueryPoolBatchSwapMsg RPC method. This includes a batch swap message of the batch
 message QueryPoolBatchSwapMsgResponse {
-    SwapMsgState swaps = 1 [(gogoproto.nullable) = false];
+    SwapMsgState swap = 1 [(gogoproto.nullable) = false];
 }
 
 // the request type for the QueryPoolBatchDeposit RPC method. requestable including specified pool_id and pagination offset, limit, key.
@@ -470,7 +432,7 @@ message QueryPoolBatchDepositMsgsResponse {
 
 // the response type for the QueryPoolBatchDepositMsg RPC method. This includes a batch swap message of the batch
 message QueryPoolBatchDepositMsgResponse {
-    DepositMsgState deposits = 1 [(gogoproto.nullable) = false];
+    DepositMsgState deposit = 1 [(gogoproto.nullable) = false];
 }
 
 
@@ -499,5 +461,5 @@ message QueryPoolBatchWithdrawMsgsResponse {
 
 // the response type for the QueryPoolBatchWithdrawMsg RPC method. This includes a batch swap message of the batch
 message QueryPoolBatchWithdrawMsgResponse {
-    WithdrawMsgState withdraws = 1 [(gogoproto.nullable) = false];
+    WithdrawMsgState withdraw = 1 [(gogoproto.nullable) = false];
 }

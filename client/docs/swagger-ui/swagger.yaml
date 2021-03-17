@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.1.2
+  version: 2.2.0
 paths:
   /liquidity/pools:
     post:
@@ -290,10 +290,10 @@ paths:
         url: >-
           https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
-      summary: Get existing liquidity pools with batch and metadata for each pool
+      summary: Get existing liquidity pools for each pool
       description: >-
-        It returns list of all liquidity pools currently existed with batch,
-        metadata and paging results containing next_key and total count.
+        It returns list of all liquidity pools currently existed paging results
+        containing next_key and total count.
       operationId: LiquidityPools
       responses:
         '200':
@@ -331,96 +331,8 @@ paths:
                       title: reserve account address of the pool
                     pool_coin_denom:
                       type: string
-                      example: >-
-                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                      example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
                       title: denom of pool coin of the pool
-                    metadata:
-                      type: object
-                      properties:
-                        pool_coin_total_supply:
-                          type: object
-                          properties:
-                            denom:
-                              type: string
-                            amount:
-                              type: string
-                          description: >-
-                            Coin defines a token with a denomination and an
-                            amount.
-
-
-                            NOTE: The amount field is an Int which implements
-                            the custom method
-
-                            signatures required by gogoproto.
-                          format: sdk.Coin
-                          example:
-                            denom: >-
-                              pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
-                            amount: '1000000'
-                          title: pool coin issued at the pool
-                        reserve_coins:
-                          type: array
-                          format: sdk.Coins
-                          example:
-                            - denom: denomX
-                              amount: '1000000'
-                            - denom: denomY
-                              amount: '2000000'
-                          items:
-                            type: object
-                            properties:
-                              denom:
-                                type: string
-                              amount:
-                                type: string
-                            description: >-
-                              Coin defines a token with a denomination and an
-                              amount.
-
-
-                              NOTE: The amount field is an Int which implements
-                              the custom method
-
-                              signatures required by gogoproto.
-                          title: reserve coins deposited in the pool
-                    batch:
-                      type: object
-                      properties:
-                        index:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: index of this batch
-                        begin_height:
-                          type: string
-                          format: int64
-                          example: '1000'
-                          title: height where this batch is begun
-                        deposit_msg_index:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: last index of DepositMsgStates
-                        withdraw_msg_index:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: last index of WithdrawMsgStates
-                        swap_msg_index:
-                          type: string
-                          format: uint64
-                          example: '1'
-                          title: last index of SwapMsgStates
-                        executed:
-                          type: boolean
-                          example: true
-                          title: 'true if executed, false if not executed yet'
-                  description: >-
-                    the response type for the QueryLiquidityPoolResponse RPC
-                    method. It returns the liquidity pool with batch and
-                    metadata containing total pool coin supply and reserved
-                    coins corresponding to the requested pool_id.
               pagination:
                 description: >-
                   pagination defines the pagination in the response. not working
@@ -2434,174 +2346,10 @@ paths:
         description: Find out more about the params
         url: >-
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md
-  /liquidity/pools/batches:
-    get:
-      summary: Get all liquidity pools batches
-      description: >-
-        It returns list of all batch that all currently existing pools and
-        paging results containing next_key and total count.
-      operationId: LiquidityPoolsBatches
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              batches:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    pool_id:
-                      type: string
-                      format: uint64
-                      example: '1'
-                      title: id of the pool
-                    index:
-                      type: string
-                      format: uint64
-                      example: '1'
-                      title: index of this batch
-                    begin_height:
-                      type: string
-                      format: int64
-                      example: '1000'
-                      title: height where this batch is begun
-                    deposit_msg_index:
-                      type: string
-                      format: uint64
-                      example: '1'
-                      title: last index of DepositMsgStates
-                    withdraw_msg_index:
-                      type: string
-                      format: uint64
-                      example: '1'
-                      title: last index of WithdrawMsgStates
-                    swap_msg_index:
-                      type: string
-                      format: uint64
-                      example: '1'
-                      title: last index of SwapMsgStates
-                    executed:
-                      type: boolean
-                      example: true
-                      title: 'true if executed, false if not executed yet'
-              pagination:
-                description: >-
-                  pagination defines the pagination in the response. not working
-                  on this version.
-                type: object
-                properties:
-                  next_key:
-                    type: string
-                    format: byte
-                    title: |-
-                      next_key is the key to be passed to PageRequest.key to
-                      query the next page most efficiently
-                  total:
-                    type: string
-                    format: uint64
-                    title: >-
-                      total is total number of results available if
-                      PageRequest.count_total
-
-                      was set, its value is undefined otherwise
-            description: >-
-              the response type for the QueryLiquidityPoolsBatchesResponse RPC
-              method. This includes list of all batches that all currently
-              existing pools and paging results containing next_key and total
-              count.
-        '500':
-          description: Internal Server Error
-          schema: {}
-          examples:
-            application/json:
-              code: 2
-              message: >-
-                rpc error: code = NotFound desc = There are no batches present.:
-                key not found
-              details: []
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    type_url:
-                      type: string
-                    value:
-                      type: string
-                      format: byte
-      parameters:
-        - name: pagination.key
-          description: |-
-            key is a value returned in PageResponse.next_key to begin
-            querying the next page most efficiently. Only one of offset or key
-            should be set.
-          in: query
-          required: false
-          type: string
-          format: byte
-        - name: pagination.offset
-          description: >-
-            offset is a numeric offset that can be used when key is unavailable.
-
-            It is less efficient than using key. Only one of offset or key
-            should
-
-            be set.
-          in: query
-          required: false
-          type: string
-          format: uint64
-        - name: pagination.limit
-          description: >-
-            limit is the total number of results to be returned in the result
-            page.
-
-            If left empty it will default to a value to be set by each app.
-          in: query
-          required: false
-          type: string
-          format: uint64
-        - name: pagination.count_total
-          description: >-
-            count_total is set to true  to indicate that the result set should
-            include
-
-            a count of the total number of items available for pagination in
-            UIs.
-
-            count_total is only respected when offset is used. It is ignored
-            when key
-
-            is set.
-          in: query
-          required: false
-          type: boolean
-      tags:
-        - Query
-      externalDocs:
-        description: Find out more about the query and error codes
-        url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}':
     get:
       summary: Get a liquidity pool with liquidity pool batch by pool_id
-      description: >-
-        It returns the liquidity pool with batch and metadata containing total
-        pool coin supply and reserved coins corresponding to the requested
-        pool_id.
+      description: It returns the liquidity pool corresponding to the requested pool_id.
       operationId: LiquidityPool
       responses:
         '200':
@@ -2609,119 +2357,40 @@ paths:
           schema:
             type: object
             properties:
-              id:
-                type: string
-                format: uint64
-                example: '1'
-                title: id of the pool
-              type_id:
-                type: integer
-                format: uint32
-                example: '1'
-                title: id of the pool type
-              reserve_coin_denoms:
-                type: array
-                example:
-                  - denomX
-                  - denomY
-                items:
-                  type: string
-                title: denoms of reserve coin pair of the pool
-              reserve_account_address:
-                type: string
-                format: sdk.AccAddress
-                example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
-                title: reserve account address of the pool
-              pool_coin_denom:
-                type: string
-                example: >-
-                  pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
-                title: denom of pool coin of the pool
-              metadata:
+              pool:
                 type: object
                 properties:
-                  pool_coin_total_supply:
-                    type: object
-                    properties:
-                      denom:
-                        type: string
-                      amount:
-                        type: string
-                    description: >-
-                      Coin defines a token with a denomination and an amount.
-
-
-                      NOTE: The amount field is an Int which implements the
-                      custom method
-
-                      signatures required by gogoproto.
-                    format: sdk.Coin
-                    example:
-                      denom: >-
-                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
-                      amount: '1000000'
-                    title: pool coin issued at the pool
-                  reserve_coins:
+                  id:
+                    type: string
+                    format: uint64
+                    example: '1'
+                    title: id of the pool
+                  type_id:
+                    type: integer
+                    format: uint32
+                    example: '1'
+                    title: id of the pool type
+                  reserve_coin_denoms:
                     type: array
-                    format: sdk.Coins
                     example:
-                      - denom: denomX
-                        amount: '1000000'
-                      - denom: denomY
-                        amount: '2000000'
+                      - denomX
+                      - denomY
                     items:
-                      type: object
-                      properties:
-                        denom:
-                          type: string
-                        amount:
-                          type: string
-                      description: >-
-                        Coin defines a token with a denomination and an amount.
-
-
-                        NOTE: The amount field is an Int which implements the
-                        custom method
-
-                        signatures required by gogoproto.
-                    title: reserve coins deposited in the pool
-              batch:
-                type: object
-                properties:
-                  index:
+                      type: string
+                    title: denoms of reserve coin pair of the pool
+                  reserve_account_address:
                     type: string
-                    format: uint64
-                    example: '1'
-                    title: index of this batch
-                  begin_height:
+                    format: sdk.AccAddress
+                    example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                    title: reserve account address of the pool
+                  pool_coin_denom:
                     type: string
-                    format: int64
-                    example: '1000'
-                    title: height where this batch is begun
-                  deposit_msg_index:
-                    type: string
-                    format: uint64
-                    example: '1'
-                    title: last index of DepositMsgStates
-                  withdraw_msg_index:
-                    type: string
-                    format: uint64
-                    example: '1'
-                    title: last index of WithdrawMsgStates
-                  swap_msg_index:
-                    type: string
-                    format: uint64
-                    example: '1'
-                    title: last index of SwapMsgStates
-                  executed:
-                    type: boolean
-                    example: true
-                    title: 'true if executed, false if not executed yet'
+                    example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                    title: denom of pool coin of the pool
             description: >-
               the response type for the QueryLiquidityPoolResponse RPC method.
-              It returns the liquidity pool with batch and metadata containing
-              total pool coin supply and reserved coins corresponding to the
-              requested pool_id.
+              It returns the liquidity pool corresponding to the requested
+              pool_id.
         '400':
           description: Bad Request
           schema: {}
@@ -2896,7 +2565,7 @@ paths:
           schema:
             type: object
             properties:
-              deposits:
+              deposit:
                 type: object
                 properties:
                   msg_height:
@@ -3057,7 +2726,7 @@ paths:
           schema:
             type: object
             properties:
-              swaps:
+              swap:
                 type: object
                 properties:
                   msg_height:
@@ -3332,7 +3001,7 @@ paths:
           schema:
             type: object
             properties:
-              withdraws:
+              withdraw:
                 type: object
                 properties:
                   msg_height:
@@ -5220,6 +4889,36 @@ definitions:
         format: uint32
         example: '1'
         title: The smallest unit batch size for every liquidity pool
+  tendermint.liquidity.Pool:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uint64
+        example: '1'
+        title: id of the pool
+      type_id:
+        type: integer
+        format: uint32
+        example: '1'
+        title: id of the pool type
+      reserve_coin_denoms:
+        type: array
+        example:
+          - denomX
+          - denomY
+        items:
+          type: string
+        title: denoms of reserve coin pair of the pool
+      reserve_account_address:
+        type: string
+        format: sdk.AccAddress
+        example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+        title: reserve account address of the pool
+      pool_coin_denom:
+        type: string
+        example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+        title: denom of pool coin of the pool
   tendermint.liquidity.PoolBatch:
     type: object
     properties:
@@ -5257,80 +4956,6 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed, false if not executed yet'
-  tendermint.liquidity.PoolBatchResponse:
-    type: object
-    properties:
-      index:
-        type: string
-        format: uint64
-        example: '1'
-        title: index of this batch
-      begin_height:
-        type: string
-        format: int64
-        example: '1000'
-        title: height where this batch is begun
-      deposit_msg_index:
-        type: string
-        format: uint64
-        example: '1'
-        title: last index of DepositMsgStates
-      withdraw_msg_index:
-        type: string
-        format: uint64
-        example: '1'
-        title: last index of WithdrawMsgStates
-      swap_msg_index:
-        type: string
-        format: uint64
-        example: '1'
-        title: last index of SwapMsgStates
-      executed:
-        type: boolean
-        example: true
-        title: 'true if executed, false if not executed yet'
-  tendermint.liquidity.PoolMetadataResponse:
-    type: object
-    properties:
-      pool_coin_total_supply:
-        type: object
-        properties:
-          denom:
-            type: string
-          amount:
-            type: string
-        description: |-
-          Coin defines a token with a denomination and an amount.
-
-          NOTE: The amount field is an Int which implements the custom method
-          signatures required by gogoproto.
-        format: sdk.Coin
-        example:
-          denom: >-
-            pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
-          amount: '1000000'
-        title: pool coin issued at the pool
-      reserve_coins:
-        type: array
-        format: sdk.Coins
-        example:
-          - denom: denomX
-            amount: '1000000'
-          - denom: denomY
-            amount: '2000000'
-        items:
-          type: object
-          properties:
-            denom:
-              type: string
-            amount:
-              type: string
-          description: |-
-            Coin defines a token with a denomination and an amount.
-
-            NOTE: The amount field is an Int which implements the custom method
-            signatures required by gogoproto.
-        title: reserve coins deposited in the pool
   tendermint.liquidity.PoolType:
     type: object
     properties:
@@ -5406,183 +5031,39 @@ definitions:
   tendermint.liquidity.QueryLiquidityPoolResponse:
     type: object
     properties:
-      id:
-        type: string
-        format: uint64
-        example: '1'
-        title: id of the pool
-      type_id:
-        type: integer
-        format: uint32
-        example: '1'
-        title: id of the pool type
-      reserve_coin_denoms:
-        type: array
-        example:
-          - denomX
-          - denomY
-        items:
-          type: string
-        title: denoms of reserve coin pair of the pool
-      reserve_account_address:
-        type: string
-        format: sdk.AccAddress
-        example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
-        title: reserve account address of the pool
-      pool_coin_denom:
-        type: string
-        example: pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
-        title: denom of pool coin of the pool
-      metadata:
+      pool:
         type: object
         properties:
-          pool_coin_total_supply:
-            type: object
-            properties:
-              denom:
-                type: string
-              amount:
-                type: string
-            description: >-
-              Coin defines a token with a denomination and an amount.
-
-
-              NOTE: The amount field is an Int which implements the custom
-              method
-
-              signatures required by gogoproto.
-            format: sdk.Coin
-            example:
-              denom: >-
-                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
-              amount: '1000000'
-            title: pool coin issued at the pool
-          reserve_coins:
+          id:
+            type: string
+            format: uint64
+            example: '1'
+            title: id of the pool
+          type_id:
+            type: integer
+            format: uint32
+            example: '1'
+            title: id of the pool type
+          reserve_coin_denoms:
             type: array
-            format: sdk.Coins
             example:
-              - denom: denomX
-                amount: '1000000'
-              - denom: denomY
-                amount: '2000000'
+              - denomX
+              - denomY
             items:
-              type: object
-              properties:
-                denom:
-                  type: string
-                amount:
-                  type: string
-              description: >-
-                Coin defines a token with a denomination and an amount.
-
-
-                NOTE: The amount field is an Int which implements the custom
-                method
-
-                signatures required by gogoproto.
-            title: reserve coins deposited in the pool
-      batch:
-        type: object
-        properties:
-          index:
+              type: string
+            title: denoms of reserve coin pair of the pool
+          reserve_account_address:
             type: string
-            format: uint64
-            example: '1'
-            title: index of this batch
-          begin_height:
+            format: sdk.AccAddress
+            example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+            title: reserve account address of the pool
+          pool_coin_denom:
             type: string
-            format: int64
-            example: '1000'
-            title: height where this batch is begun
-          deposit_msg_index:
-            type: string
-            format: uint64
-            example: '1'
-            title: last index of DepositMsgStates
-          withdraw_msg_index:
-            type: string
-            format: uint64
-            example: '1'
-            title: last index of WithdrawMsgStates
-          swap_msg_index:
-            type: string
-            format: uint64
-            example: '1'
-            title: last index of SwapMsgStates
-          executed:
-            type: boolean
-            example: true
-            title: 'true if executed, false if not executed yet'
+            example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+            title: denom of pool coin of the pool
     description: >-
       the response type for the QueryLiquidityPoolResponse RPC method. It
-      returns the liquidity pool with batch and metadata containing total pool
-      coin supply and reserved coins corresponding to the requested pool_id.
-  tendermint.liquidity.QueryLiquidityPoolsBatchesResponse:
-    type: object
-    properties:
-      batches:
-        type: array
-        items:
-          type: object
-          properties:
-            pool_id:
-              type: string
-              format: uint64
-              example: '1'
-              title: id of the pool
-            index:
-              type: string
-              format: uint64
-              example: '1'
-              title: index of this batch
-            begin_height:
-              type: string
-              format: int64
-              example: '1000'
-              title: height where this batch is begun
-            deposit_msg_index:
-              type: string
-              format: uint64
-              example: '1'
-              title: last index of DepositMsgStates
-            withdraw_msg_index:
-              type: string
-              format: uint64
-              example: '1'
-              title: last index of WithdrawMsgStates
-            swap_msg_index:
-              type: string
-              format: uint64
-              example: '1'
-              title: last index of SwapMsgStates
-            executed:
-              type: boolean
-              example: true
-              title: 'true if executed, false if not executed yet'
-      pagination:
-        description: >-
-          pagination defines the pagination in the response. not working on this
-          version.
-        type: object
-        properties:
-          next_key:
-            type: string
-            format: byte
-            title: |-
-              next_key is the key to be passed to PageRequest.key to
-              query the next page most efficiently
-          total:
-            type: string
-            format: uint64
-            title: >-
-              total is total number of results available if
-              PageRequest.count_total
-
-              was set, its value is undefined otherwise
-    description: >-
-      the response type for the QueryLiquidityPoolsBatchesResponse RPC method.
-      This includes list of all batches that all currently existing pools and
-      paging results containing next_key and total count.
+      returns the liquidity pool corresponding to the requested pool_id.
   tendermint.liquidity.QueryLiquidityPoolsResponse:
     type: object
     properties:
@@ -5616,94 +5097,8 @@ definitions:
               title: reserve account address of the pool
             pool_coin_denom:
               type: string
-              example: >-
-                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+              example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
               title: denom of pool coin of the pool
-            metadata:
-              type: object
-              properties:
-                pool_coin_total_supply:
-                  type: object
-                  properties:
-                    denom:
-                      type: string
-                    amount:
-                      type: string
-                  description: >-
-                    Coin defines a token with a denomination and an amount.
-
-
-                    NOTE: The amount field is an Int which implements the custom
-                    method
-
-                    signatures required by gogoproto.
-                  format: sdk.Coin
-                  example:
-                    denom: >-
-                      pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
-                    amount: '1000000'
-                  title: pool coin issued at the pool
-                reserve_coins:
-                  type: array
-                  format: sdk.Coins
-                  example:
-                    - denom: denomX
-                      amount: '1000000'
-                    - denom: denomY
-                      amount: '2000000'
-                  items:
-                    type: object
-                    properties:
-                      denom:
-                        type: string
-                      amount:
-                        type: string
-                    description: >-
-                      Coin defines a token with a denomination and an amount.
-
-
-                      NOTE: The amount field is an Int which implements the
-                      custom method
-
-                      signatures required by gogoproto.
-                  title: reserve coins deposited in the pool
-            batch:
-              type: object
-              properties:
-                index:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: index of this batch
-                begin_height:
-                  type: string
-                  format: int64
-                  example: '1000'
-                  title: height where this batch is begun
-                deposit_msg_index:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: last index of DepositMsgStates
-                withdraw_msg_index:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: last index of WithdrawMsgStates
-                swap_msg_index:
-                  type: string
-                  format: uint64
-                  example: '1'
-                  title: last index of SwapMsgStates
-                executed:
-                  type: boolean
-                  example: true
-                  title: 'true if executed, false if not executed yet'
-          description: >-
-            the response type for the QueryLiquidityPoolResponse RPC method. It
-            returns the liquidity pool with batch and metadata containing total
-            pool coin supply and reserved coins corresponding to the requested
-            pool_id.
       pagination:
         description: >-
           pagination defines the pagination in the response. not working on this
@@ -5834,7 +5229,7 @@ definitions:
   tendermint.liquidity.QueryPoolBatchDepositMsgResponse:
     type: object
     properties:
-      deposits:
+      deposit:
         type: object
         properties:
           msg_height:
@@ -6029,7 +5424,7 @@ definitions:
   tendermint.liquidity.QueryPoolBatchSwapMsgResponse:
     type: object
     properties:
-      swaps:
+      swap:
         type: object
         properties:
           msg_height:
@@ -6448,7 +5843,7 @@ definitions:
   tendermint.liquidity.QueryPoolBatchWithdrawMsgResponse:
     type: object
     properties:
-      withdraws:
+      withdraw:
         type: object
         properties:
           msg_height:

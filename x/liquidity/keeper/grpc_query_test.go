@@ -41,7 +41,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 			res, err := queryClient.LiquidityPool(gocontext.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
-				suite.Equal(pool.Id, res.Id)
+				suite.Equal(pool.Id, res.Pool.Id)
 			} else {
 				suite.Error(err)
 				suite.Nil(res)
