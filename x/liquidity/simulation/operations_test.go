@@ -67,9 +67,9 @@ func TestSimulateMsgCreatePool(t *testing.T) {
 	accounts := getTestingAccounts(t, r, app, ctx, 1)
 
 	// setup randomly generated liquidity pool creation fees
-	feeCoins := simulation.GenLiquidityPoolCreationFee(r)
+	feeCoins := simulation.GenPoolCreationFee(r)
 	params := app.LiquidityKeeper.GetParams(ctx)
-	params.LiquidityPoolCreationFee = feeCoins
+	params.PoolCreationFee = feeCoins
 	app.LiquidityKeeper.SetParams(ctx, params)
 
 	// begin a new block

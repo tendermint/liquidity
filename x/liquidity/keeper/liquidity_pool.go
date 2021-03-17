@@ -87,7 +87,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 		}
 	}
 
-	if !poolCreatorBalances.IsAllGTE(params.LiquidityPoolCreationFee.Add(msg.DepositCoins...)) {
+	if !poolCreatorBalances.IsAllGTE(params.PoolCreationFee.Add(msg.DepositCoins...)) {
 		return types.Pool{}, types.ErrInsufficientPoolCreationFee
 	}
 
@@ -122,7 +122,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	}
 
 	// pool creation fees are collected in community pool
-	if err := k.distrKeeper.FundCommunityPool(ctx, params.LiquidityPoolCreationFee, poolCreator); err != nil {
+	if err := k.distrKeeper.FundCommunityPool(ctx, params.PoolCreationFee, poolCreator); err != nil {
 		return types.Pool{}, err
 	}
 

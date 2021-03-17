@@ -20,7 +20,7 @@ func TestGenesisState(t *testing.T) {
 	paramsDefault := simapp.LiquidityKeeper.GetParams(ctx)
 	genesis := types.DefaultGenesisState()
 
-	params.LiquidityPoolCreationFee = sdk.Coins{sdk.Coin{"invalid denom---", sdk.NewInt(0)}}
+	params.PoolCreationFee = sdk.Coins{sdk.Coin{"invalid denom---", sdk.NewInt(0)}}
 	err := params.Validate()
 	require.Error(t, err)
 

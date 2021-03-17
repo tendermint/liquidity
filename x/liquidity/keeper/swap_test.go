@@ -30,7 +30,7 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 		deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
 		// set pool creator account, balance for deposit
-		addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+		addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 		app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
 		depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 		depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
@@ -69,7 +69,7 @@ func TestSwapExecution(t *testing.T) {
 		deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
 		// set pool creator account, balance for deposit
-		addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+		addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 		app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
 		depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 		depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
@@ -233,7 +233,7 @@ func TestBadSwapExecution(t *testing.T) {
 	// add pool creator account
 	X, Y := app.GetRandPoolAmt(r, params.MinInitDepositAmount)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
-	creatorAddr := app.AddRandomTestAddr(simapp, ctx, deposit.Add(params.LiquidityPoolCreationFee...))
+	creatorAddr := app.AddRandomTestAddr(simapp, ctx, deposit.Add(params.PoolCreationFee...))
 	balanceX := simapp.BankKeeper.GetBalance(ctx, creatorAddr, denomX)
 	balanceY := simapp.BankKeeper.GetBalance(ctx, creatorAddr, denomY)
 	creatorBalance := sdk.NewCoins(balanceX, balanceY)

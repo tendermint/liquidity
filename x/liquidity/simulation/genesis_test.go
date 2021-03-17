@@ -53,7 +53,7 @@ func TestRandomizedGenState(t *testing.T) {
 	require.Equal(t, dec4, liquidityGenesis.Params.SwapFeeRate)
 	require.Equal(t, dec5, liquidityGenesis.Params.WithdrawFeeRate)
 	require.Equal(t, dec6, liquidityGenesis.Params.MaxOrderAmountRatio)
-	require.Equal(t, uint32(6), liquidityGenesis.Params.UnitBatchSize)
+	require.Equal(t, uint32(6), liquidityGenesis.Params.UnitBatchHeight)
 }
 
 // TestRandomizedGenState tests abnormal scenarios of applying RandomizedGenState.

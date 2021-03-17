@@ -30,7 +30,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 		deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
 		// set pool creator account, balance for deposit
-		addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+		addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 		app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
 		depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 		depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)

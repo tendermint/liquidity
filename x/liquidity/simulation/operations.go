@@ -96,7 +96,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 
 		// simAccount should have some fees to pay when creating liquidity pool
 		var feeDenoms []string
-		for _, fee := range params.LiquidityPoolCreationFee {
+		for _, fee := range params.PoolCreationFee {
 			feeDenoms = append(feeDenoms, fee.GetDenom())
 		}
 

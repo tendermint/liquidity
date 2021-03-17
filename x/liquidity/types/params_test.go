@@ -22,8 +22,8 @@ func TestParams(t *testing.T) {
 	require.Equal(t, params, currentParams)
 
 	paramsNew := types.NewParams(params.PoolTypes, params.MinInitDepositAmount, params.InitPoolCoinMintAmount,
-		params.MaxReserveCoinAmount, params.LiquidityPoolCreationFee, params.SwapFeeRate, params.WithdrawFeeRate,
-		params.MaxOrderAmountRatio, params.UnitBatchSize)
+		params.MaxReserveCoinAmount, params.PoolCreationFee, params.SwapFeeRate, params.WithdrawFeeRate,
+		params.MaxOrderAmountRatio, params.UnitBatchHeight)
 	require.NotNil(t, paramsNew)
 	require.Equal(t, params, paramsNew)
 
@@ -42,13 +42,13 @@ func TestParams(t *testing.T) {
 min_init_deposit_amount: "1000000"
 init_pool_coin_mint_amount: "1000000"
 max_reserve_coin_amount: "0"
-liquidity_pool_creation_fee:
+pool_creation_fee:
 - denom: stake
   amount: "100000000"
 swap_fee_rate: "0.003000000000000000"
 withdraw_fee_rate: "0.003000000000000000"
 max_order_amount_ratio: "0.100000000000000000"
-unit_batch_size: 1
+unit_batch_height: 1
 `
 	fmt.Println(params.String())
 	require.Equal(t, genesisStr, params.String())
@@ -67,7 +67,7 @@ unit_batch_size: 1
 	require.Error(t, params.Validate())
 
 	params = types.DefaultParams()
-	params.LiquidityPoolCreationFee = sdk.NewCoins()
+	params.PoolCreationFee = sdk.NewCoins()
 	require.Error(t, params.Validate())
 
 	params = types.DefaultParams()

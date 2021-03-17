@@ -25,7 +25,7 @@ func TestSwapScenario(t *testing.T) {
 	Y := params.MinInitDepositAmount
 
 	// init addresses for the test
-	addrs := app.AddTestAddrs(simapp, ctx, 20, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 20, params.PoolCreationFee)
 
 	// Create pool
 	// The create pool msg is not run in batch, but is processed immediately.
@@ -183,7 +183,7 @@ func TestMaxOrderRatio(t *testing.T) {
 	X := params.MinInitDepositAmount
 	Y := params.MinInitDepositAmount
 
-	addrs := app.AddTestAddrs(simapp, ctx, 20, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 20, params.PoolCreationFee)
 	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	// begin block, init

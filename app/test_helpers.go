@@ -522,7 +522,7 @@ func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sd
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	// set accounts for creator, depositor, withdrawer, balance for deposit
-	SaveAccount(simapp, ctx, addr, deposit.Add(params.LiquidityPoolCreationFee...)) // pool creator
+	SaveAccount(simapp, ctx, addr, deposit.Add(params.PoolCreationFee...)) // pool creator
 	depositX := simapp.BankKeeper.GetBalance(ctx, addr, denomX)
 	depositY := simapp.BankKeeper.GetBalance(ctx, addr, denomY)
 	depositBalance := sdk.NewCoins(depositX, depositY)

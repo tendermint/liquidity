@@ -46,9 +46,9 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 				return fmt.Sprintf("\"%s\"", GenMaxOrderAmountRatio(r))
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeyUnitBatchSize),
+		simulation.NewSimParamChange(types.ModuleName, string(types.KeyUnitBatchHeight),
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("%d", GenUnitBatchSize(r))
+				return fmt.Sprintf("%d", GenUnitBatchHeight(r))
 			},
 		),
 	}

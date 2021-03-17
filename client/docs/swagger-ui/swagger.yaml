@@ -6,7 +6,6 @@ info:
 paths:
   /liquidity/pools:
     post:
-      deprecated: true
       summary: Submit create liquidity pool message.
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -443,7 +442,6 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
-      deprecated: true
       summary: Submit deposit to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -979,7 +977,6 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
-      deprecated: true
       summary: Submit swap to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1672,7 +1669,6 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
-      deprecated: true
       summary: Submit withdraw from to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -2267,7 +2263,7 @@ paths:
                       Limit the size of each liquidity pool in the beginning
                       phase of Liquidity Module adoption to minimize risk, 0
                       means no limit
-                  liquidity_pool_creation_fee:
+                  pool_creation_fee:
                     type: array
                     format: sdk.Coins
                     example:
@@ -2289,7 +2285,7 @@ paths:
 
                         signatures required by gogoproto.
                     title: >-
-                      Fee paid for new LiquidityPool creation to prevent
+                      Fee paid for new Liquidity Pool creation to prevent
                       spamming
                   swap_fee_rate:
                     type: string
@@ -2310,11 +2306,11 @@ paths:
                     title: >-
                       Maximum ratio of reserve coins that can be ordered at a
                       swap order
-                  unit_batch_size:
+                  unit_batch_height:
                     type: integer
                     format: uint32
                     example: '1'
-                    title: The smallest unit batch size for every liquidity pool
+                    title: The smallest unit batch height for every liquidity pool
             description: >-
               the response type for the QueryParamsResponse RPC method. This
               includes current parameter of the liquidity module.
@@ -4850,7 +4846,7 @@ definitions:
         title: >-
           Limit the size of each liquidity pool in the beginning phase of
           Liquidity Module adoption to minimize risk, 0 means no limit
-      liquidity_pool_creation_fee:
+      pool_creation_fee:
         type: array
         format: sdk.Coins
         example:
@@ -4868,7 +4864,7 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
-        title: Fee paid for new LiquidityPool creation to prevent spamming
+        title: Fee paid for new Liquidity Pool creation to prevent spamming
       swap_fee_rate:
         type: string
         format: sdk.Dec
@@ -4884,11 +4880,11 @@ definitions:
         format: sdk.Dec
         example: '0.003'
         title: Maximum ratio of reserve coins that can be ordered at a swap order
-      unit_batch_size:
+      unit_batch_height:
         type: integer
         format: uint32
         example: '1'
-        title: The smallest unit batch size for every liquidity pool
+        title: The smallest unit batch height for every liquidity pool
   tendermint.liquidity.Pool:
     type: object
     properties:
@@ -5181,7 +5177,7 @@ definitions:
             title: >-
               Limit the size of each liquidity pool in the beginning phase of
               Liquidity Module adoption to minimize risk, 0 means no limit
-          liquidity_pool_creation_fee:
+          pool_creation_fee:
             type: array
             format: sdk.Coins
             example:
@@ -5202,7 +5198,7 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            title: Fee paid for new LiquidityPool creation to prevent spamming
+            title: Fee paid for new Liquidity Pool creation to prevent spamming
           swap_fee_rate:
             type: string
             format: sdk.Dec
@@ -5218,11 +5214,11 @@ definitions:
             format: sdk.Dec
             example: '0.003'
             title: Maximum ratio of reserve coins that can be ordered at a swap order
-          unit_batch_size:
+          unit_batch_height:
             type: integer
             format: uint32
             example: '1'
-            title: The smallest unit batch size for every liquidity pool
+            title: The smallest unit batch height for every liquidity pool
     description: >-
       the response type for the QueryParamsResponse RPC method. This includes
       current parameter of the liquidity module.

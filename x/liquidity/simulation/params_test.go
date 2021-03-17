@@ -25,7 +25,7 @@ func TestParamChanges(t *testing.T) {
 		{"liquidity/SwapFeeRate", "SwapFeeRate", "\"0.934590000000000000\"", "liquidity"},
 		{"liquidity/WithdrawFeeRate", "WithdrawFeeRate", "\"0.112010000000000000\"", "liquidity"},
 		{"liquidity/MaxOrderAmountRatio", "MaxOrderAmountRatio", "\"0.560680000000000000\"", "liquidity"},
-		{"liquidity/UnitBatchSize", "UnitBatchSize", "19", "liquidity"},
+		{"liquidity/UnitBatchHeight", "UnitBatchHeight", "19", "liquidity"},
 	}
 
 	paramChanges := simulation.ParamChanges(r)

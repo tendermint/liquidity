@@ -8,17 +8,17 @@ order: 8
 
 The liquidity module contains the following parameters:
 
-| Key                      | Type             | Example                                                                                                             |
-| ------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
-| PoolTypes                | []PoolType       | [{"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
-| MinInitDepositAmount     | string (sdk.Int) | "1000000"                                                                                                           |
-| InitPoolCoinMintAmount   | string (sdk.Int) | "1000000"                                                                                                           |
+| Key                    | Type             | Example                                                                                                             |
+| ---------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| PoolTypes              | []PoolType       | [{"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
+| MinInitDepositAmount   | string (sdk.Int) | "1000000"                                                                                                           |
+| InitPoolCoinMintAmount | string (sdk.Int) | "1000000"                                                                                                           |
 | MaxReserveCoinAmount   | string (sdk.Int) | "1000000000000"                                                                                                     |
-| LiquidityPoolCreationFee | sdk.Coins        | [{"denom":"stake","amount":"100000000"}]                                                                            |
-| SwapFeeRate              | string (sdk.Dec) | "0.003000000000000000"                                                                                              |
-| WithdrawFeeRate          | string (sdk.Dec) | "0.003000000000000000"                                                                                              |
-| MaxOrderAmountRatio      | string (sdk.Dec) | "0.100000000000000000"                                                                                              |
-| UnitBatchSize            | uint32           | 1                                                                                                                   |
+| PoolCreationFee        | sdk.Coins        | [{"denom":"stake","amount":"100000000"}]                                                                            |
+| SwapFeeRate            | string (sdk.Dec) | "0.003000000000000000"                                                                                              |
+| WithdrawFeeRate        | string (sdk.Dec) | "0.003000000000000000"                                                                                              |
+| MaxOrderAmountRatio    | string (sdk.Dec) | "0.100000000000000000"                                                                                              |
+| UnitBatchHeight        | uint32           | 1                                                                                                                   |
 
 ## PoolTypes
 
@@ -48,7 +48,7 @@ Limit the size of each liquidity pool in the beginning phase of Liquidity Module
 deposit transaction will fail if the total reserve coin amount after the deposit is larger than the parameter
 default value is zero, zero means no limit
 
-## LiquidityPoolCreationFee
+## PoolCreationFee
 
 Fee paid for new LiquidityPool creation to prevent spamming, It collected in community pool of distribution module
 
@@ -65,7 +65,7 @@ Reserve coin withdrawal with less proportion by `WithdrawFeeRate` to prevent att
 
 Maximum ratio of reserve coins that can be ordered at a swap order
 
-## UnitBatchSize
+## UnitBatchHeight
 
 The smallest unit batch size for every liquidity pool
 

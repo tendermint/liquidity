@@ -20,7 +20,7 @@ const (
 	MaxReserveCoinNum uint32 = 2
 
 	// Number of blocks in one batch
-	DefaultUnitBatchSize uint32 = 1
+	DefaultUnitBatchHeight uint32 = 1
 
 	// index of target pool type, only 1 is allowed on this version.
 	DefaultPoolTypeId uint32 = 1
@@ -36,8 +36,8 @@ var (
 	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
 	KeyMaxReserveCoinAmount   = []byte("MaxReserveCoinAmount")
 	KeySwapFeeRate              = []byte("SwapFeeRate")
-	KeyLiquidityPoolCreationFee = []byte("LiquidityPoolCreationFee")
-	KeyUnitBatchSize            = []byte("UnitBatchSize")
+	KeyPoolCreationFee = []byte("PoolCreationFee")
+	KeyUnitBatchHeight            = []byte("UnitBatchHeight")
 	KeyWithdrawFeeRate          = []byte("WithdrawFeeRate")
 	KeyMaxOrderAmountRatio      = []byte("MaxOrderAmountRatio")
 
@@ -47,7 +47,7 @@ var (
 	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultWithdrawFeeRate          = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultMaxOrderAmountRatio      = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
-	DefaultLiquidityPoolCreationFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
+	DefaultPoolCreationFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
 	MinOfferCoinAmount              = sdk.NewInt(100)
 
 	HalfRatio = sdk.MustNewDecFromStr("0.5")
@@ -65,17 +65,17 @@ var (
 
 // NewParams liquidity paramtypes constructor
 func NewParams(poolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
-	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
+	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchHeight uint32) Params {
 	return Params{
 		PoolTypes:                poolTypes,
 		MinInitDepositAmount:     minInitDeposit,
 		InitPoolCoinMintAmount:   initPoolCoinMint,
 		MaxReserveCoinAmount:   reserveCoinLimit,
-		LiquidityPoolCreationFee: creationFee,
+		PoolCreationFee: creationFee,
 		SwapFeeRate:              swapFeeRate,
 		WithdrawFeeRate:          withdrawFeeRate,
 		MaxOrderAmountRatio:      maxOrderAmtRatio,
-		UnitBatchSize:            unitBatchSize,
+		UnitBatchHeight:            unitBatchHeight,
 	}
 }
 
@@ -92,11 +92,11 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMinInitDepositAmount, &p.MinInitDepositAmount, validateMinInitDepositAmount),
 		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
 		paramtypes.NewParamSetPair(KeyMaxReserveCoinAmount, &p.MaxReserveCoinAmount, validateMaxReserveCoinAmount),
-		paramtypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
+		paramtypes.NewParamSetPair(KeyPoolCreationFee, &p.PoolCreationFee, validatePoolCreationFee),
 		paramtypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
 		paramtypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
 		paramtypes.NewParamSetPair(KeyMaxOrderAmountRatio, &p.MaxOrderAmountRatio, validateMaxOrderAmountRatio),
-		paramtypes.NewParamSetPair(KeyUnitBatchSize, &p.UnitBatchSize, validateUnitBatchSize),
+		paramtypes.NewParamSetPair(KeyUnitBatchHeight, &p.UnitBatchHeight, validateUnitBatchHeight),
 	}
 }
 
@@ -110,11 +110,11 @@ func DefaultParams() Params {
 		DefaultMinInitDepositAmount,
 		DefaultInitPoolCoinMintAmount,
 		DefaultMaxReserveCoinAmount,
-		DefaultLiquidityPoolCreationFee,
+		DefaultPoolCreationFee,
 		DefaultSwapFeeRate,
 		DefaultWithdrawFeeRate,
 		DefaultMaxOrderAmountRatio,
-		DefaultUnitBatchSize)
+		DefaultUnitBatchHeight)
 }
 
 // String returns a human readable string representation of the parameters.
@@ -141,7 +141,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateLiquidityPoolCreationFee(p.LiquidityPoolCreationFee); err != nil {
+	if err := validatePoolCreationFee(p.PoolCreationFee); err != nil {
 		return err
 	}
 
@@ -157,7 +157,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateUnitBatchSize(p.UnitBatchSize); err != nil {
+	if err := validateUnitBatchHeight(p.UnitBatchHeight); err != nil {
 		return err
 	}
 	return nil
@@ -275,7 +275,7 @@ func validateMaxOrderAmountRatio(i interface{}) error {
 }
 
 // Check if the pool creation fee is valid
-func validateLiquidityPoolCreationFee(i interface{}) error {
+func validatePoolCreationFee(i interface{}) error {
 	coins, ok := i.(sdk.Coins)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -284,19 +284,19 @@ func validateLiquidityPoolCreationFee(i interface{}) error {
 		return err
 	}
 	if coins.Empty() {
-		return fmt.Errorf("LiquidityPoolCreationFee cannot be Empty: %s", coins)
+		return fmt.Errorf("PoolCreationFee cannot be Empty: %s", coins)
 	}
 	return nil
 }
 
 // Check if the liquidity Msg fee is valid
-func validateUnitBatchSize(i interface{}) error {
+func validateUnitBatchHeight(i interface{}) error {
 	int, ok := i.(uint32)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if int == 0 {
-		return fmt.Errorf("UnitBatchSize cannot be zero")
+		return fmt.Errorf("UnitBatchHeight cannot be zero")
 	}
 	return nil
 }

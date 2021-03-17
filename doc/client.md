@@ -973,7 +973,7 @@ example query command with result
 
 ```bash
 init_pool_coin_mint_amount: "1000000"
-liquidity_pool_creation_fee:
+pool_creation_fee:
 - amount: "100000000"
   denom: stake
 max_order_amount_ratio: "0.100000000000000000"
@@ -986,7 +986,7 @@ pool_types:
   name: DefaultPoolType
 max_reserve_coin_amount: "0"
 swap_fee_rate: "0.003000000000000000"
-unit_batch_size: 1
+unit_batch_height: 1
 withdraw_fee_rate: "0.003000000000000000"
 ```
 

@@ -33,7 +33,7 @@ func TestCreatePool(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
@@ -71,13 +71,13 @@ func TestCreatePool(t *testing.T) {
 	require.Error(t, err, types.ErrPoolAlreadyExists)
 }
 
-func TestLiquidityPoolCreationFee(t *testing.T) {
+func TestPoolCreationFee(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
@@ -92,16 +92,16 @@ func TestLiquidityPoolCreationFee(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	// Set LiquidityPoolCreationFee for fail (insufficient balances for pool creation fee)
-	params.LiquidityPoolCreationFee = depositBalance
+	// Set PoolCreationFee for fail (insufficient balances for pool creation fee)
+	params.PoolCreationFee = depositBalance
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
 
-	// Set LiquidityPoolCreationFee for success
-	params.LiquidityPoolCreationFee = types.DefaultLiquidityPoolCreationFee
+	// Set PoolCreationFee for success
+	params.PoolCreationFee = types.DefaultPoolCreationFee
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 	feePoolAcc := simapp.AccountKeeper.GetModuleAddress(distrtypes.ModuleName)
 	feePoolBalance := simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
@@ -110,8 +110,8 @@ func TestLiquidityPoolCreationFee(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify PoolCreationFee pay successfully
-	feePoolBalance = feePoolBalance.Add(params.LiquidityPoolCreationFee...)
-	require.Equal(t, params.LiquidityPoolCreationFee, feePoolBalance)
+	feePoolBalance = feePoolBalance.Add(params.PoolCreationFee...)
+	require.Equal(t, params.PoolCreationFee, feePoolBalance)
 	require.Equal(t, feePoolBalance, simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc))
 }
 
@@ -121,7 +121,7 @@ func TestDepositLiquidityPool(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 4, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 4, params.PoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
@@ -177,7 +177,7 @@ func TestReserveCoinLimit(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
@@ -251,7 +251,7 @@ func TestWithdrawLiquidityPool(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
@@ -309,7 +309,7 @@ func TestReinitializePool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
@@ -389,7 +389,7 @@ func TestGetLiquidityPoolMetadata(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
