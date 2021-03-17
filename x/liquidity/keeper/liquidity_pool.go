@@ -940,11 +940,6 @@ func (k Keeper) ValidatePoolMetadata(ctx sdk.Context, pool *types.Pool, metaData
 
 // ValidatePoolRecord validates liquidity pool record after init or after export
 func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record *types.PoolRecord) error {
-	params := k.GetParams(ctx)
-	if err := params.Validate(); err != nil {
-		return err
-	}
-
 	// validate liquidity pool
 	if err := k.ValidatePool(ctx, &record.Pool); err != nil {
 		return err
@@ -956,7 +951,6 @@ func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record *types.PoolRecord) er
 	}
 
 	// validate each msgs with batch state
-
 	if len(record.DepositMsgStates) != 0 && record.PoolBatch.DepositMsgIndex != record.DepositMsgStates[len(record.DepositMsgStates)-1].MsgIndex+1 {
 		return types.ErrBadBatchMsgIndex
 	}
