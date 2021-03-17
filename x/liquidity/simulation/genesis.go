@@ -16,15 +16,15 @@ import (
 
 // Simulation parameter constants
 const (
-	LiquidityPoolTypes       = "liquidity_pool_types"
-	MinInitDepositAmount     = "min_init_deposit_amount"
-	InitPoolCoinMintAmount   = "init_pool_coin_mint_amount"
+	LiquidityPoolTypes     = "liquidity_pool_types"
+	MinInitDepositAmount   = "min_init_deposit_amount"
+	InitPoolCoinMintAmount = "init_pool_coin_mint_amount"
 	MaxReserveCoinAmount   = "max_reserve_coin_amount"
-	PoolCreationFee = "pool_creation_fee"
-	SwapFeeRate              = "swap_fee_rate"
-	WithdrawFeeRate          = "withdraw_fee_rate"
-	MaxOrderAmountRatio      = "max_order_amount_ratio"
-	UnitBatchHeight            = "unit_batch_height"
+	PoolCreationFee        = "pool_creation_fee"
+	SwapFeeRate            = "swap_fee_rate"
+	WithdrawFeeRate        = "withdraw_fee_rate"
+	MaxOrderAmountRatio    = "max_order_amount_ratio"
+	UnitBatchHeight        = "unit_batch_height"
 )
 
 // GenLiquidityPoolTypes return default PoolType temporarily, It will be randomized in the liquidity v2
@@ -148,15 +148,15 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	liquidityGenesis := types.GenesisState{
 		Params: types.Params{
-			PoolTypes:                liquidityPoolTypes,
-			MinInitDepositAmount:     minInitDepositAmount,
-			InitPoolCoinMintAmount:   initPoolCoinMintAmount,
+			PoolTypes:              liquidityPoolTypes,
+			MinInitDepositAmount:   minInitDepositAmount,
+			InitPoolCoinMintAmount: initPoolCoinMintAmount,
 			MaxReserveCoinAmount:   maxReserveCoinAmount,
-			PoolCreationFee: poolCreationFee,
-			SwapFeeRate:              swapFeeRate,
-			WithdrawFeeRate:          withdrawFeeRate,
-			MaxOrderAmountRatio:      maxOrderAmountRatio,
-			UnitBatchHeight:            unitBatchHeight,
+			PoolCreationFee:        poolCreationFee,
+			SwapFeeRate:            swapFeeRate,
+			WithdrawFeeRate:        withdrawFeeRate,
+			MaxOrderAmountRatio:    maxOrderAmountRatio,
+			UnitBatchHeight:        unitBatchHeight,
 		},
 		PoolRecords: []types.PoolRecord{},
 	}

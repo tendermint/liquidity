@@ -96,7 +96,6 @@ func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPool
 	}, nil
 }
 
-
 // PoolBatchSwapMsg queries the pool batch swap message with the message index of the liquidity pool.
 func (k Querier) PoolBatchSwapMsg(c context.Context, req *types.QueryPoolBatchSwapMsgRequest) (*types.QueryPoolBatchSwapMsgResponse, error) {
 	empty := &types.QueryPoolBatchSwapMsgRequest{}
@@ -285,7 +284,7 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 // MakeQueryLiquidityPoolResponse wraps MakeQueryLiquidityPoolResponse.
 func (k Querier) MakeQueryLiquidityPoolResponse(pool types.Pool) (*types.QueryLiquidityPoolResponse, error) {
 	return &types.QueryLiquidityPoolResponse{
-		Pool:pool,
+		Pool: pool,
 	}, nil
 }
 
@@ -294,7 +293,7 @@ func (k Querier) MakeQueryLiquidityPoolsResponse(pools types.Pools) (*[]types.Qu
 	resp := make([]types.QueryLiquidityPoolResponse, len(pools))
 	for i, pool := range pools {
 		res := types.QueryLiquidityPoolResponse{
-			Pool:pool,
+			Pool: pool,
 		}
 		resp[i] = res
 	}

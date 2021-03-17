@@ -31,24 +31,24 @@ const (
 
 // Parameter store keys
 var (
-	KeyPoolTypes                = []byte("PoolTypes")
-	KeyMinInitDepositAmount     = []byte("MinInitDepositAmount")
-	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
+	KeyPoolTypes              = []byte("PoolTypes")
+	KeyMinInitDepositAmount   = []byte("MinInitDepositAmount")
+	KeyInitPoolCoinMintAmount = []byte("InitPoolCoinMintAmount")
 	KeyMaxReserveCoinAmount   = []byte("MaxReserveCoinAmount")
-	KeySwapFeeRate              = []byte("SwapFeeRate")
-	KeyPoolCreationFee = []byte("PoolCreationFee")
-	KeyUnitBatchHeight            = []byte("UnitBatchHeight")
-	KeyWithdrawFeeRate          = []byte("WithdrawFeeRate")
-	KeyMaxOrderAmountRatio      = []byte("MaxOrderAmountRatio")
+	KeySwapFeeRate            = []byte("SwapFeeRate")
+	KeyPoolCreationFee        = []byte("PoolCreationFee")
+	KeyUnitBatchHeight        = []byte("UnitBatchHeight")
+	KeyWithdrawFeeRate        = []byte("WithdrawFeeRate")
+	KeyMaxOrderAmountRatio    = []byte("MaxOrderAmountRatio")
 
-	DefaultMinInitDepositAmount     = sdk.NewInt(1000000)
-	DefaultInitPoolCoinMintAmount   = sdk.NewInt(1000000)
+	DefaultMinInitDepositAmount   = sdk.NewInt(1000000)
+	DefaultInitPoolCoinMintAmount = sdk.NewInt(1000000)
 	DefaultMaxReserveCoinAmount   = sdk.ZeroInt()
-	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
-	DefaultWithdrawFeeRate          = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
-	DefaultMaxOrderAmountRatio      = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
-	DefaultPoolCreationFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
-	MinOfferCoinAmount              = sdk.NewInt(100)
+	DefaultSwapFeeRate            = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
+	DefaultWithdrawFeeRate        = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
+	DefaultMaxOrderAmountRatio    = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
+	DefaultPoolCreationFee        = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
+	MinOfferCoinAmount            = sdk.NewInt(100)
 
 	HalfRatio = sdk.MustNewDecFromStr("0.5")
 
@@ -67,15 +67,15 @@ var (
 func NewParams(poolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
 	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchHeight uint32) Params {
 	return Params{
-		PoolTypes:                poolTypes,
-		MinInitDepositAmount:     minInitDeposit,
-		InitPoolCoinMintAmount:   initPoolCoinMint,
+		PoolTypes:              poolTypes,
+		MinInitDepositAmount:   minInitDeposit,
+		InitPoolCoinMintAmount: initPoolCoinMint,
 		MaxReserveCoinAmount:   reserveCoinLimit,
-		PoolCreationFee: creationFee,
-		SwapFeeRate:              swapFeeRate,
-		WithdrawFeeRate:          withdrawFeeRate,
-		MaxOrderAmountRatio:      maxOrderAmtRatio,
-		UnitBatchHeight:            unitBatchHeight,
+		PoolCreationFee:        creationFee,
+		SwapFeeRate:            swapFeeRate,
+		WithdrawFeeRate:        withdrawFeeRate,
+		MaxOrderAmountRatio:    maxOrderAmtRatio,
+		UnitBatchHeight:        unitBatchHeight,
 	}
 }
 
