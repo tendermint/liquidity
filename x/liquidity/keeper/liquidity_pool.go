@@ -497,7 +497,7 @@ func (k Keeper) GetPoolRecord(ctx sdk.Context, pool types.Pool) (*types.PoolReco
 }
 
 // SetPoolRecord stores liquidity pool states
-func (k Keeper) SetPoolRecord(ctx sdk.Context, record *types.PoolRecord) {
+func (k Keeper) SetPoolRecord(ctx sdk.Context, record types.PoolRecord) types.PoolRecord {
 	k.SetPoolAtomic(ctx, record.Pool)
 	//k.SetPool(ctx, record.Pool)
 	//k.SetPoolByReserveAccIndex(ctx, record.Pool)
@@ -507,6 +507,7 @@ func (k Keeper) SetPoolRecord(ctx sdk.Context, record *types.PoolRecord) {
 	k.SetPoolBatchDepositMsgStates(ctx, record.Pool.Id, record.DepositMsgStates)
 	k.SetPoolBatchWithdrawMsgStates(ctx, record.Pool.Id, record.WithdrawMsgStates)
 	k.SetPoolBatchSwapMsgStates(ctx, record.Pool.Id, record.SwapMsgStates)
+	return record
 }
 
 // RefundDepositLiquidityPool refunds deposit amounts to the depositor

@@ -13,7 +13,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	}
 	k.SetParams(ctx, genState.Params)
 	for _, record := range genState.PoolRecords {
-		k.SetPoolRecord(ctx, &record)
+		k.SetPoolRecord(ctx, record)
 	}
 	// TODO: reset heights variables when init or export if needed
 }
@@ -26,8 +26,8 @@ func (k Keeper) ValidateGenesis(ctx sdk.Context, genState types.GenesisState) er
 	cc, _ := ctx.CacheContext()
 	k.SetParams(cc, genState.Params)
 	for _, record := range genState.PoolRecords {
-		k.SetPoolRecord(cc, &record)
-		if err := k.ValidatePoolRecord(cc, &record); err != nil {
+		record = k.SetPoolRecord(cc, record)
+		if err := k.ValidatePoolRecord(cc, record); err != nil {
 			return err
 		}
 	}

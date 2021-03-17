@@ -74,7 +74,7 @@ func TestGenesisState(t *testing.T) {
 	err = types.ValidateGenesis(*newGenesisBrokenPool)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(newGenesisBrokenPool.PoolRecords))
-	err = simapp.LiquidityKeeper.ValidatePoolRecord(ctx, &newGenesisBrokenPool.PoolRecords[0])
+	err = simapp.LiquidityKeeper.ValidatePoolRecord(ctx, newGenesisBrokenPool.PoolRecords[0])
 	require.Error(t, err)
 
 	// not initialized genState of other module (auth, bank, ... ) only liquidity module
