@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.1.1
+  version: 2.1.2
 paths:
   /liquidity/pools:
     post:
@@ -290,9 +290,7 @@ paths:
         url: >-
           https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
-      summary: >-
-        Get all liquidity pools currently existed with each liquidity pool with
-        batch and metadata
+      summary: Get existing liquidity pools with batch and metadata for each pool
       description: >-
         It returns list of all liquidity pools currently existed with batch,
         metadata and paging results containing next_key and total count.
@@ -357,7 +355,8 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                            denom: >-
+                              pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                             amount: '1000000'
                           title: pool coin issued at the pool
                         reserve_coins:
@@ -2289,7 +2288,7 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   /liquidity/params:
     get:
-      summary: Parameters queries the liquidity parameters.
+      summary: Get a list of the liquidity parameters.
       description: returns current parameter of the liquidity module.
       operationId: LiquidityQueries
       responses:
@@ -2658,7 +2657,8 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                      denom: >-
+                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       amount: '1000000'
                     title: pool coin issued at the pool
                   reserve_coins:
@@ -5306,7 +5306,8 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+          denom: >-
+            pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
           amount: '1000000'
         title: pool coin issued at the pool
       reserve_coins:
@@ -5452,7 +5453,8 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+              denom: >-
+                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               amount: '1000000'
             title: pool coin issued at the pool
           reserve_coins:
@@ -5637,7 +5639,8 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                    denom: >-
+                      pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                     amount: '1000000'
                   title: pool coin issued at the pool
                 reserve_coins:

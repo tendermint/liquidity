@@ -11,7 +11,7 @@ option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 
 // Query defines the gRPC querier service for liquidity module.
 service Query {
-    // Get all liquidity pools currently existed with each liquidity pool with batch and metadata
+    // Get existing liquidity pools with batch and metadata for each pool
     rpc LiquidityPools (QueryLiquidityPoolsRequest) returns (QueryLiquidityPoolsResponse) {
         option (google.api.http).get = "/liquidity/pools";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -313,7 +313,7 @@ service Query {
         };
     }
 
-    // Parameters queries the liquidity parameters.
+    // Get a list of the liquidity parameters.
     rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
         option (google.api.http).get = "/liquidity/params";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

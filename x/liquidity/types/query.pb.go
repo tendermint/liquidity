@@ -1356,7 +1356,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Get all liquidity pools currently existed with each liquidity pool with batch and metadata
+	// Get existing liquidity pools with batch and metadata for each pool
 	LiquidityPools(ctx context.Context, in *QueryLiquidityPoolsRequest, opts ...grpc.CallOption) (*QueryLiquidityPoolsResponse, error)
 	// Get all liquidity pools batches
 	LiquidityPoolsBatches(ctx context.Context, in *QueryLiquidityPoolsBatchesRequest, opts ...grpc.CallOption) (*QueryLiquidityPoolsBatchesResponse, error)
@@ -1376,7 +1376,7 @@ type QueryClient interface {
 	PoolBatchWithdrawMsgs(ctx context.Context, in *QueryPoolBatchWithdrawMsgsRequest, opts ...grpc.CallOption) (*QueryPoolBatchWithdrawMsgsResponse, error)
 	// Get the pool batch withdraw message with msg_index of the liquidity pool
 	PoolBatchWithdrawMsg(ctx context.Context, in *QueryPoolBatchWithdrawMsgRequest, opts ...grpc.CallOption) (*QueryPoolBatchWithdrawMsgResponse, error)
-	// Parameters queries the liquidity parameters.
+	// Get a list of the liquidity parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
@@ -1489,7 +1489,7 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Get all liquidity pools currently existed with each liquidity pool with batch and metadata
+	// Get existing liquidity pools with batch and metadata for each pool
 	LiquidityPools(context.Context, *QueryLiquidityPoolsRequest) (*QueryLiquidityPoolsResponse, error)
 	// Get all liquidity pools batches
 	LiquidityPoolsBatches(context.Context, *QueryLiquidityPoolsBatchesRequest) (*QueryLiquidityPoolsBatchesResponse, error)
@@ -1509,7 +1509,7 @@ type QueryServer interface {
 	PoolBatchWithdrawMsgs(context.Context, *QueryPoolBatchWithdrawMsgsRequest) (*QueryPoolBatchWithdrawMsgsResponse, error)
 	// Get the pool batch withdraw message with msg_index of the liquidity pool
 	PoolBatchWithdrawMsg(context.Context, *QueryPoolBatchWithdrawMsgRequest) (*QueryPoolBatchWithdrawMsgResponse, error)
-	// Parameters queries the liquidity parameters.
+	// Get a list of the liquidity parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 }
 
