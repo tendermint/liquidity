@@ -977,7 +977,7 @@ liquidity_pool_creation_fee:
 - amount: "100000000"
   denom: stake
 max_order_amount_ratio: "0.100000000000000000"
-min_init_deposit_to_pool: "1000000"
+min_init_deposit_amount: "1000000"
 pool_types:
 - description: ""
   id: 1

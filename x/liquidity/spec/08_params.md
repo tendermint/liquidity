@@ -11,7 +11,7 @@ The liquidity module contains the following parameters:
 | Key                      | Type             | Example                                                                                                             |
 | ------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
 | PoolTypes                | []PoolType       | [{"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}] |
-| MinInitDepositToPool     | string (sdk.Int) | "1000000"                                                                                                           |
+| MinInitDepositAmount     | string (sdk.Int) | "1000000"                                                                                                           |
 | InitPoolCoinMintAmount   | string (sdk.Int) | "1000000"                                                                                                           |
 | ReserveCoinLimitAmount   | string (sdk.Int) | "1000000000000"                                                                                                     |
 | LiquidityPoolCreationFee | sdk.Coins        | [{"denom":"stake","amount":"100000000"}]                                                                            |
@@ -34,7 +34,7 @@ type PoolType struct {
 }
 ```
 
-## MinInitDepositToPool
+## MinInitDepositAmount
 
 Minimum number of coins to be deposited to the liquidity pool upon pool creation
 

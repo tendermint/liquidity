@@ -82,7 +82,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 		return types.Pool{}, types.ErrInsufficientBalance
 	}
 	for _, coin := range msg.DepositCoins {
-		if coin.Amount.LT(params.MinInitDepositToPool) {
+		if coin.Amount.LT(params.MinInitDepositAmount) {
 			return types.Pool{}, types.ErrLessThanMinInitDeposit
 		}
 	}
@@ -165,7 +165,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	// reinitialize pool in case of reserve coins has run out
 	if reserveCoins.IsZero() {
 		for _, depositCoin := range msg.Msg.DepositCoins {
-			if depositCoin.Amount.LT(params.MinInitDepositToPool) {
+			if depositCoin.Amount.LT(params.MinInitDepositAmount) {
 				return types.ErrLessThanMinInitDeposit
 			}
 		}

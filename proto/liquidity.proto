@@ -54,8 +54,8 @@ message Params {
     ];
 
     // Minimum number of coins to be deposited to the liquidity pool upon pool creation
-    string min_init_deposit_to_pool = 2 [
-        (gogoproto.moretags)   = "yaml:\"min_init_deposit_to_pool\"",
+    string min_init_deposit_amount = 2 [
+        (gogoproto.moretags)   = "yaml:\"min_init_deposit_amount\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
         (gogoproto.nullable)   = false,
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {

@@ -32,7 +32,7 @@ const (
 // Parameter store keys
 var (
 	KeyPoolTypes                = []byte("PoolTypes")
-	KeyMinInitDepositToPool     = []byte("MinInitDepositToPool")
+	KeyMinInitDepositAmount     = []byte("MinInitDepositAmount")
 	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
 	KeyReserveCoinLimitAmount   = []byte("ReserveCoinLimitAmount")
 	KeySwapFeeRate              = []byte("SwapFeeRate")
@@ -41,7 +41,7 @@ var (
 	KeyWithdrawFeeRate          = []byte("WithdrawFeeRate")
 	KeyMaxOrderAmountRatio      = []byte("MaxOrderAmountRatio")
 
-	DefaultMinInitDepositToPool     = sdk.NewInt(1000000)
+	DefaultMinInitDepositAmount     = sdk.NewInt(1000000)
 	DefaultInitPoolCoinMintAmount   = sdk.NewInt(1000000)
 	DefaultReserveCoinLimitAmount   = sdk.ZeroInt()
 	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
@@ -68,7 +68,7 @@ func NewParams(poolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCo
 	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
 	return Params{
 		PoolTypes:                poolTypes,
-		MinInitDepositToPool:     minInitDeposit,
+		MinInitDepositAmount:     minInitDeposit,
 		InitPoolCoinMintAmount:   initPoolCoinMint,
 		ReserveCoinLimitAmount:   reserveCoinLimit,
 		LiquidityPoolCreationFee: creationFee,
@@ -89,7 +89,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyPoolTypes, &p.PoolTypes, validatePoolTypes),
-		paramtypes.NewParamSetPair(KeyMinInitDepositToPool, &p.MinInitDepositToPool, validateMinInitDepositToPool),
+		paramtypes.NewParamSetPair(KeyMinInitDepositAmount, &p.MinInitDepositAmount, validateMinInitDepositAmount),
 		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
 		paramtypes.NewParamSetPair(KeyReserveCoinLimitAmount, &p.ReserveCoinLimitAmount, validateReserveCoinLimitAmount),
 		paramtypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
@@ -107,7 +107,7 @@ func DefaultParams() Params {
 
 	return NewParams(
 		defaultPoolTypes,
-		DefaultMinInitDepositToPool,
+		DefaultMinInitDepositAmount,
 		DefaultInitPoolCoinMintAmount,
 		DefaultReserveCoinLimitAmount,
 		DefaultLiquidityPoolCreationFee,
@@ -129,7 +129,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateMinInitDepositToPool(p.MinInitDepositToPool); err != nil {
+	if err := validateMinInitDepositAmount(p.MinInitDepositAmount); err != nil {
 		return err
 	}
 
@@ -190,13 +190,13 @@ func validatePoolTypes(i interface{}) error {
 }
 
 // Validate that the minimum deposit.
-func validateMinInitDepositToPool(i interface{}) error {
+func validateMinInitDepositAmount(i interface{}) error {
 	v, ok := i.(sdk.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if !v.IsPositive() {
-		return fmt.Errorf("MinInitDepositToPool must be positive: %s", v)
+		return fmt.Errorf("MinInitDepositAmount must be positive: %s", v)
 	}
 
 	return nil

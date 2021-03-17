@@ -26,7 +26,7 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 
 		// get random X, Y amount for create pool
 		param := simapp.LiquidityKeeper.GetParams(ctx)
-		X, Y := app.GetRandPoolAmt(r, param.MinInitDepositToPool)
+		X, Y := app.GetRandPoolAmt(r, param.MinInitDepositAmount)
 		deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
 		// set pool creator account, balance for deposit
@@ -65,7 +65,7 @@ func TestSwapExecution(t *testing.T) {
 		denomX, denomY = types.AlphabeticalDenomPair(denomX, denomY)
 
 		// get random X, Y amount for create pool
-		X, Y := app.GetRandPoolAmt(r, params.MinInitDepositToPool)
+		X, Y := app.GetRandPoolAmt(r, params.MinInitDepositAmount)
 		deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
 		// set pool creator account, balance for deposit
@@ -214,7 +214,7 @@ func TestGetRandomOrders(t *testing.T) {
 		r := rand.New(rand.NewSource(seed))
 
 		// get random X, Y amount for create pool
-		X, Y := app.GetRandPoolAmt(r, types.DefaultMinInitDepositToPool)
+		X, Y := app.GetRandPoolAmt(r, types.DefaultMinInitDepositAmount)
 		XtoY, YtoX := app.GetRandomSizeOrders("denomX", "denomY", X, Y, r, 50, 50)
 		_, _ = XtoY, YtoX // TODO: test against these
 		require.Equal(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2))
@@ -231,7 +231,7 @@ func TestBadSwapExecution(t *testing.T) {
 	denomX, denomY := types.AlphabeticalDenomPair("denomX", "denomY")
 
 	// add pool creator account
-	X, Y := app.GetRandPoolAmt(r, params.MinInitDepositToPool)
+	X, Y := app.GetRandPoolAmt(r, params.MinInitDepositAmount)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 	creatorAddr := app.AddRandomTestAddr(simapp, ctx, deposit.Add(params.LiquidityPoolCreationFee...))
 	balanceX := simapp.BankKeeper.GetBalance(ctx, creatorAddr, denomX)

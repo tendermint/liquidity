@@ -241,8 +241,8 @@ func setupLiquidityPools(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx 
 
 		// create liquidity pool with random deposit amounts
 		account := app.AccountKeeper.GetAccount(ctx, account.Address)
-		depositCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8))))
-		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8))))
+		depositCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
+		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
 		createPoolMsg := types.NewMsgCreatePool(account.GetAddress(), types.DefaultPoolTypeId, depositCoins)

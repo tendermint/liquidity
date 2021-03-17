@@ -243,8 +243,8 @@ func TestMsgServerSwap(t *testing.T) {
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair("denomX", "denomY")
-	X := params.MinInitDepositToPool
-	Y := params.MinInitDepositToPool
+	X := params.MinInitDepositAmount
+	Y := params.MinInitDepositAmount
 
 	// init addresses for the test
 	addrs := app.AddTestAddrs(simapp, ctx, 20, params.LiquidityPoolCreationFee)

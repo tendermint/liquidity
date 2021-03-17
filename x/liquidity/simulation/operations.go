@@ -149,8 +149,8 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		}
 
 		poolCreator := account.GetAddress()
-		depositCoinA := randomDepositCoin(r, params.MinInitDepositToPool, denomA)
-		depositCoinB := randomDepositCoin(r, params.MinInitDepositToPool, denomB)
+		depositCoinA := randomDepositCoin(r, params.MinInitDepositAmount, denomA)
+		depositCoinB := randomDepositCoin(r, params.MinInitDepositAmount, denomB)
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
 		// it will fail if the total reserve coin amount after the deposit is larger than the parameter
@@ -227,8 +227,8 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 		k.SetParams(ctx, params)
 
 		depositor := account.GetAddress()
-		depositCoinA := randomDepositCoin(r, params.MinInitDepositToPool, pool.ReserveCoinDenoms[0])
-		depositCoinB := randomDepositCoin(r, params.MinInitDepositToPool, pool.ReserveCoinDenoms[1])
+		depositCoinA := randomDepositCoin(r, params.MinInitDepositAmount, pool.ReserveCoinDenoms[0])
+		depositCoinB := randomDepositCoin(r, params.MinInitDepositAmount, pool.ReserveCoinDenoms[1])
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
 		reserveCoins := k.GetReserveCoins(ctx, pool)
@@ -442,9 +442,9 @@ func randomDenoms(r *rand.Rand) (string, string) {
 	return denomA, denomB
 }
 
-// randomDepositCoin returns deposit amount between minInitDepositToPool+1 and 1e9
-func randomDepositCoin(r *rand.Rand, minInitDepositToPool sdk.Int, denom string) sdk.Coin {
-	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(minInitDepositToPool.Int64()+1), 1e9))))
+// randomDepositCoin returns deposit amount between minInitDepositAmount+1 and 1e9
+func randomDepositCoin(r *rand.Rand, minInitDepositAmount sdk.Int, denom string) sdk.Coin {
+	return sdk.NewCoin(denom, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(minInitDepositAmount.Int64()+1), 1e9))))
 }
 
 // randomLiquidity returns random liquidity pool with given access to the keeper and ctx

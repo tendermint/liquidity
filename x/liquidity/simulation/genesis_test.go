@@ -47,7 +47,7 @@ func TestRandomizedGenState(t *testing.T) {
 	dec5, _ := sdk.NewDecFromStr("0.732160000000000000")
 	dec6, _ := sdk.NewDecFromStr("0.237840000000000000")
 
-	require.Equal(t, dec1, liquidityGenesis.Params.MinInitDepositToPool)
+	require.Equal(t, dec1, liquidityGenesis.Params.MinInitDepositAmount)
 	require.Equal(t, dec2, liquidityGenesis.Params.InitPoolCoinMintAmount)
 	require.Equal(t, dec3, liquidityGenesis.Params.ReserveCoinLimitAmount)
 	require.Equal(t, dec4, liquidityGenesis.Params.SwapFeeRate)

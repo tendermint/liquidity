@@ -2247,7 +2247,7 @@ paths:
                           type: string
                           title: description of the pool type
                     title: list of available pool types
-                  min_init_deposit_to_pool:
+                  min_init_deposit_amount:
                     type: string
                     format: sdk.Int
                     example: '1000000'
@@ -4831,7 +4831,7 @@ definitions:
               type: string
               title: description of the pool type
         title: list of available pool types
-      min_init_deposit_to_pool:
+      min_init_deposit_amount:
         type: string
         format: sdk.Int
         example: '1000000'
@@ -5162,7 +5162,7 @@ definitions:
                   type: string
                   title: description of the pool type
             title: list of available pool types
-          min_init_deposit_to_pool:
+          min_init_deposit_amount:
             type: string
             format: sdk.Int
             example: '1000000'

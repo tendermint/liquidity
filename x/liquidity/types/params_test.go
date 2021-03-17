@@ -21,7 +21,7 @@ func TestParams(t *testing.T) {
 	currentParams := simapp.LiquidityKeeper.GetParams(ctx)
 	require.Equal(t, params, currentParams)
 
-	paramsNew := types.NewParams(params.PoolTypes, params.MinInitDepositToPool, params.InitPoolCoinMintAmount,
+	paramsNew := types.NewParams(params.PoolTypes, params.MinInitDepositAmount, params.InitPoolCoinMintAmount,
 		params.ReserveCoinLimitAmount, params.LiquidityPoolCreationFee, params.SwapFeeRate, params.WithdrawFeeRate,
 		params.MaxOrderAmountRatio, params.UnitBatchSize)
 	require.NotNil(t, paramsNew)
@@ -39,7 +39,7 @@ func TestParams(t *testing.T) {
   min_reserve_coin_num: 2
   max_reserve_coin_num: 2
   description: ""
-min_init_deposit_to_pool: "1000000"
+min_init_deposit_amount: "1000000"
 init_pool_coin_mint_amount: "1000000"
 reserve_coin_limit_amount: "0"
 liquidity_pool_creation_fee:
@@ -75,7 +75,7 @@ unit_batch_size: 1
 	require.Error(t, params.Validate())
 
 	params = types.DefaultParams()
-	params.MinInitDepositToPool = sdk.ZeroInt()
+	params.MinInitDepositAmount = sdk.ZeroInt()
 	require.Error(t, params.Validate())
 
 }

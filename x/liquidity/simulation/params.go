@@ -16,9 +16,9 @@ import (
 // on the simulation
 func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeyMinInitDepositToPool),
+		simulation.NewSimParamChange(types.ModuleName, string(types.KeyMinInitDepositAmount),
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("\"%d\"", GenMinInitDepositToPool(r).Int64())
+				return fmt.Sprintf("\"%d\"", GenMinInitDepositAmount(r).Int64())
 			},
 		),
 		simulation.NewSimParamChange(types.ModuleName, string(types.KeyInitPoolCoinMintAmount),

@@ -213,7 +213,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
         }
       ],
       "max_order_amount_ratio": "0.100000000000000000",
-      "min_init_deposit_to_pool": "1000000",
+      "min_init_deposit_amount": "1000000",
       "pool_types": [
         {
           "description": "",
@@ -247,7 +247,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
         }
       ],
       "max_order_amount_ratio": "0.100000000000000000",
-      "min_init_deposit_to_pool": "1000000",
+      "min_init_deposit_amount": "1000000",
       "pool_types": [
         {
           "description": "",

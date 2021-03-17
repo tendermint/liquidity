@@ -17,7 +17,7 @@ import (
 // Simulation parameter constants
 const (
 	LiquidityPoolTypes       = "liquidity_pool_types"
-	MinInitDepositToPool     = "min_init_deposit_to_pool"
+	MinInitDepositAmount     = "min_init_deposit_amount"
 	InitPoolCoinMintAmount   = "init_pool_coin_mint_amount"
 	ReserveCoinLimitAmount   = "reserve_coin_limit_amount"
 	LiquidityPoolCreationFee = "liquidity_pool_creation_fee"
@@ -33,9 +33,9 @@ func GenLiquidityPoolTypes(r *rand.Rand) (liquidityPoolTypes []types.PoolType) {
 	return liquidityPoolTypes
 }
 
-// GenMinInitDepositToPool randomized MinInitDepositToPool
-func GenMinInitDepositToPool(r *rand.Rand) sdk.Int {
-	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e7)))
+// GenMinInitDepositAmount randomized MinInitDepositAmount
+func GenMinInitDepositAmount(r *rand.Rand) sdk.Int {
+	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e7)))
 }
 
 // GenInitPoolCoinMintAmount randomized InitPoolCoinMintAmount
@@ -98,10 +98,10 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { liquidityPoolTypes = GenLiquidityPoolTypes(r) },
 	)
 
-	var minInitDepositToPool sdk.Int
+	var minInitDepositAmount sdk.Int
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, MinInitDepositToPool, &minInitDepositToPool, simState.Rand,
-		func(r *rand.Rand) { minInitDepositToPool = GenMinInitDepositToPool(r) },
+		simState.Cdc, MinInitDepositAmount, &minInitDepositAmount, simState.Rand,
+		func(r *rand.Rand) { minInitDepositAmount = GenMinInitDepositAmount(r) },
 	)
 
 	var initPoolCoinMintAmount sdk.Int
@@ -149,7 +149,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 	liquidityGenesis := types.GenesisState{
 		Params: types.Params{
 			PoolTypes:                liquidityPoolTypes,
-			MinInitDepositToPool:     minInitDepositToPool,
+			MinInitDepositAmount:     minInitDepositAmount,
 			InitPoolCoinMintAmount:   initPoolCoinMintAmount,
 			ReserveCoinLimitAmount:   reserveCoinLimitAmount,
 			LiquidityPoolCreationFee: liquidityPoolCreationFee,

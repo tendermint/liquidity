@@ -21,8 +21,8 @@ func TestSwapScenario(t *testing.T) {
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
-	X := params.MinInitDepositToPool
-	Y := params.MinInitDepositToPool
+	X := params.MinInitDepositAmount
+	Y := params.MinInitDepositAmount
 
 	// init addresses for the test
 	addrs := app.AddTestAddrs(simapp, ctx, 20, params.LiquidityPoolCreationFee)
@@ -180,8 +180,8 @@ func TestMaxOrderRatio(t *testing.T) {
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
 
-	X := params.MinInitDepositToPool
-	Y := params.MinInitDepositToPool
+	X := params.MinInitDepositAmount
+	Y := params.MinInitDepositAmount
 
 	addrs := app.AddTestAddrs(simapp, ctx, 20, params.LiquidityPoolCreationFee)
 	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
@@ -250,8 +250,8 @@ func TestMaxOrderRatio(t *testing.T) {
 	offerCoin = sdk.NewCoin(denomX, X.ToDec().Mul(maxOrderRatio).TruncateInt().AddRaw(1))
 	offerCoinY = sdk.NewCoin(denomY, Y.ToDec().Mul(maxOrderRatio).TruncateInt().AddRaw(1))
 
-	offerCoin = sdk.NewCoin(denomX, params.MinInitDepositToPool.Quo(sdk.NewInt(2)))
-	offerCoinY = sdk.NewCoin(denomY, params.MinInitDepositToPool.Quo(sdk.NewInt(10)))
+	offerCoin = sdk.NewCoin(denomX, params.MinInitDepositAmount.Quo(sdk.NewInt(2)))
+	offerCoinY = sdk.NewCoin(denomY, params.MinInitDepositAmount.Quo(sdk.NewInt(10)))
 	app.SaveAccountWithFee(simapp, ctx, addrs[1], sdk.NewCoins(offerCoin), offerCoin)
 	app.SaveAccountWithFee(simapp, ctx, addrs[2], sdk.NewCoins(offerCoinY), offerCoinY)
 
