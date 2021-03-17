@@ -13,42 +13,42 @@ import (
 // Denominations can be 3 ~ 128 characters long and support letters, followed by either
 // a letter, a number or a separator ('/').
 // reDnmString = `[a-zA-Z][a-zA-Z0-9/]{2,127}`.
-func (lp Pool) Name() string {
-	return PoolName(lp.ReserveCoinDenoms, lp.TypeId)
+func (pool Pool) Name() string {
+	return PoolName(pool.ReserveCoinDenoms, pool.TypeId)
 }
 
 // Validate each constraint of the liquidity pool
-func (lp Pool) Validate() error {
-	if lp.Id == 0 {
+func (pool Pool) Validate() error {
+	if pool.Id == 0 {
 		return ErrPoolNotExists
 	}
-	if lp.TypeId == 0 {
+	if pool.TypeId == 0 {
 		return ErrPoolTypeNotExists
 	}
-	if lp.ReserveCoinDenoms == nil || len(lp.ReserveCoinDenoms) == 0 {
+	if pool.ReserveCoinDenoms == nil || len(pool.ReserveCoinDenoms) == 0 {
 		return ErrNumOfReserveCoinDenoms
 	}
-	if uint32(len(lp.ReserveCoinDenoms)) > MaxReserveCoinNum || uint32(len(lp.ReserveCoinDenoms)) < MinReserveCoinNum {
+	if uint32(len(pool.ReserveCoinDenoms)) > MaxReserveCoinNum || uint32(len(pool.ReserveCoinDenoms)) < MinReserveCoinNum {
 		return ErrNumOfReserveCoinDenoms
 	}
-	sortedDenomA, sortedDenomB := AlphabeticalDenomPair(lp.ReserveCoinDenoms[0], lp.ReserveCoinDenoms[1])
-	if sortedDenomA != lp.ReserveCoinDenoms[0] || sortedDenomB != lp.ReserveCoinDenoms[1] {
+	sortedDenomA, sortedDenomB := AlphabeticalDenomPair(pool.ReserveCoinDenoms[0], pool.ReserveCoinDenoms[1])
+	if sortedDenomA != pool.ReserveCoinDenoms[0] || sortedDenomB != pool.ReserveCoinDenoms[1] {
 		return ErrBadOrderingReserveCoinDenoms
 	}
-	if lp.ReserveAccountAddress == "" {
+	if pool.ReserveAccountAddress == "" {
 		return ErrEmptyReserveAccountAddress
 	}
-	//addr, err := sdk.AccAddressFromBech32(lp.ReserveAccountAddress)
-	//if err != nil || lp.GetReserveAccount().Equals(addr) {
+	//addr, err := sdk.AccAddressFromBech32(pool.ReserveAccountAddress)
+	//if err != nil || pool.GetReserveAccount().Equals(addr) {
 	//	return ErrBadReserveAccountAddress
 	//}
-	if lp.ReserveAccountAddress != GetPoolReserveAcc(lp.Name()).String() {
+	if pool.ReserveAccountAddress != GetPoolReserveAcc(pool.Name()).String() {
 		return ErrBadReserveAccountAddress
 	}
-	if lp.PoolCoinDenom == "" {
+	if pool.PoolCoinDenom == "" {
 		return ErrEmptyPoolCoinDenom
 	}
-	if lp.PoolCoinDenom != lp.Name() {
+	if pool.PoolCoinDenom != pool.Name() {
 		return ErrBadPoolCoinDenom
 	}
 	return nil
@@ -107,8 +107,8 @@ func UnmarshalPool(cdc codec.BinaryMarshaler, value []byte) (liquidityPool Pool,
 }
 
 // return sdk.AccAddress object of the address saved as string because of protobuf
-func (lp Pool) GetReserveAccount() sdk.AccAddress {
-	addr, err := sdk.AccAddressFromBech32(lp.ReserveAccountAddress)
+func (pool Pool) GetReserveAccount() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(pool.ReserveAccountAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -116,17 +116,17 @@ func (lp Pool) GetReserveAccount() sdk.AccAddress {
 }
 
 // return pool coin denom of the liquidity pool
-func (lp Pool) GetPoolCoinDenom() string { return lp.PoolCoinDenom }
+func (pool Pool) GetPoolCoinDenom() string { return pool.PoolCoinDenom }
 
 // return pool id of the liquidity pool
-func (lp Pool) GetPoolId() uint64 { return lp.Id }
+func (pool Pool) GetPoolId() uint64 { return pool.Id }
 
 // Pools is a collection of liquidityPools
 type Pools []Pool
 
 // get string of list of liquidity pool
-func (lps Pools) String() (out string) {
-	for _, del := range lps {
+func (pools Pools) String() (out string) {
+	for _, del := range pools {
 		out += del.String() + "\n"
 	}
 	return strings.TrimSpace(out)

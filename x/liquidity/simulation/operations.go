@@ -11,7 +11,7 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	simappparams "github.com/tendermint/liquidity/app/params"
+	liquidityparams "github.com/tendermint/liquidity/app/params"
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -33,28 +33,28 @@ func WeightedOperations(
 	var weightMsgCreatePool int
 	appParams.GetOrGenerate(cdc, OpWeightMsgCreatePool, &weightMsgCreatePool, nil,
 		func(_ *rand.Rand) {
-			weightMsgCreatePool = simappparams.DefaultWeightMsgCreatePool
+			weightMsgCreatePool = liquidityparams.DefaultWeightMsgCreatePool
 		},
 	)
 
 	var weightMsgDepositWithinBatch int
 	appParams.GetOrGenerate(cdc, OpWeightMsgDepositWithinBatch, &weightMsgDepositWithinBatch, nil,
 		func(_ *rand.Rand) {
-			weightMsgDepositWithinBatch = simappparams.DefaultWeightMsgDepositWithinBatch
+			weightMsgDepositWithinBatch = liquidityparams.DefaultWeightMsgDepositWithinBatch
 		},
 	)
 
 	var weightMsgMsgWithdrawWithinBatch int
 	appParams.GetOrGenerate(cdc, OpWeightMsgWithdrawWithinBatch, &weightMsgMsgWithdrawWithinBatch, nil,
 		func(_ *rand.Rand) {
-			weightMsgMsgWithdrawWithinBatch = simappparams.DefaultWeightMsgWithdrawWithinBatch
+			weightMsgMsgWithdrawWithinBatch = liquidityparams.DefaultWeightMsgWithdrawWithinBatch
 		},
 	)
 
 	var weightMsgSwapWithinBatch int
 	appParams.GetOrGenerate(cdc, OpWeightMsgSwapWithinBatch, &weightMsgSwapWithinBatch, nil,
 		func(_ *rand.Rand) {
-			weightMsgSwapWithinBatch = simappparams.DefaultWeightMsgSwapWithinBatch
+			weightMsgSwapWithinBatch = liquidityparams.DefaultWeightMsgSwapWithinBatch
 		},
 	)
 
@@ -161,7 +161,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 
 		msg := types.NewMsgCreatePool(poolCreator, types.DefaultPoolTypeId, depositCoins)
 
-		txGen := simappparams.MakeTestEncodingConfig().TxConfig
+		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
 			txGen,
 			[]sdk.Msg{msg},
@@ -241,7 +241,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 
 		msg := types.NewMsgDepositWithinBatch(depositor, pool.Id, depositCoins)
 
-		txGen := simappparams.MakeTestEncodingConfig().TxConfig
+		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
 			txGen,
 			[]sdk.Msg{msg},
@@ -289,7 +289,7 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
-		// if simaccount.PrivKey == nil, delegation address does not exist in accs. Return error
+		// if simAccount.PrivKey == nil, delegation address does not exist in accs. Return error
 		if simAccount.PrivKey == nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "account private key is nil"), nil, nil
 		}
@@ -304,7 +304,7 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 
 		poolCoinDenom := pool.GetPoolCoinDenom()
 
-		// make sure simaccount have pool coin balance
+		// make sure simAccount have pool coin balance
 		balance := bk.GetBalance(ctx, simAccount.Address, poolCoinDenom)
 		if !balance.IsPositive() {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "account balance is negative"), nil, nil
@@ -315,7 +315,7 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 
 		msg := types.NewMsgWithdrawWithinBatch(withdrawer, pool.Id, withdrawCoin)
 
-		txGen := simappparams.MakeTestEncodingConfig().TxConfig
+		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
 			txGen,
 			[]sdk.Msg{msg},
@@ -389,7 +389,7 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 
 		msg := types.NewMsgSwapWithinBatch(swapRequester, pool.Id, types.DefaultSwapTypeId, offerCoin, demandCoinDenom, orderPrice, swapFeeRate)
 
-		txGen := simappparams.MakeTestEncodingConfig().TxConfig
+		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
 			txGen,
 			[]sdk.Msg{msg},

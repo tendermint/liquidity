@@ -66,12 +66,12 @@ func StringInSlice(a string, list []string) bool {
 }
 
 // Safe Sub function for Coin with subtracting amount
-func CoinSafeSubAmount(coinA sdk.Coin, coinBamt sdk.Int) sdk.Coin {
+func CoinSafeSubAmount(coinA sdk.Coin, coinBAmt sdk.Int) sdk.Coin {
 	var resCoin sdk.Coin
-	if coinA.Amount.Equal(coinBamt) {
+	if coinA.Amount.Equal(coinBAmt) {
 		resCoin = sdk.NewCoin(coinA.Denom, sdk.NewInt(0))
 	} else {
-		resCoin = coinA.Sub(sdk.NewCoin(coinA.Denom, coinBamt))
+		resCoin = coinA.Sub(sdk.NewCoin(coinA.Denom, coinBAmt))
 	}
 	return resCoin
 }

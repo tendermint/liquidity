@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	gocontext "context"
+	"context"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -27,7 +27,8 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 			},
 			false,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryLiquidityPoolRequest{PoolId: suite.pools[0].Id}
 			},
@@ -38,7 +39,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
-			res, err := queryClient.LiquidityPool(gocontext.Background(), req)
+			res, err := queryClient.LiquidityPool(context.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
 				suite.Equal(pool.Id, res.Id)
@@ -72,7 +73,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 			2,
 			false,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryLiquidityPoolsRequest{
 					Pagination: &query.PageRequest{Limit: 1, CountTotal: true}}
@@ -81,7 +83,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 			1,
 			true,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryLiquidityPoolsRequest{
 					Pagination: &query.PageRequest{Limit: 10, CountTotal: true}}
@@ -94,7 +97,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
-			resp, err := queryClient.LiquidityPools(gocontext.Background(), req)
+			resp, err := queryClient.LiquidityPools(context.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -131,7 +134,8 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPoolBatch() {
 			},
 			false,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryLiquidityPoolBatchRequest{PoolId: suite.pools[0].Id}
 			},
@@ -142,7 +146,7 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPoolBatch() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
-			res, err := queryClient.LiquidityPoolBatch(gocontext.Background(), req)
+			res, err := queryClient.LiquidityPoolBatch(context.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
 				suite.True(batch.Equal(&res.Batch))
@@ -175,7 +179,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 			0,
 			false,
 		},
-		{"returns all the pool batch deposit Msgs",
+		{
+			"returns all the pool batch deposit Msgs",
 			func() {
 				req = &types.QueryPoolBatchDepositMsgsRequest{
 					PoolId: suite.batches[0].PoolId,
@@ -185,7 +190,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 			len(msgs),
 			false,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryPoolBatchDepositMsgsRequest{
 					PoolId:     suite.batches[0].PoolId,
@@ -195,7 +201,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 			1,
 			true,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryPoolBatchDepositMsgsRequest{
 					PoolId:     suite.batches[0].PoolId,
@@ -209,7 +216,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchDepositMsgs() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
-			resp, err := queryClient.PoolBatchDepositMsgs(gocontext.Background(), req)
+			resp, err := queryClient.PoolBatchDepositMsgs(context.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -249,7 +256,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 			0,
 			false,
 		},
-		{"returns all the pool batch withdraw Msgs",
+		{
+			"returns all the pool batch withdraw Msgs",
 			func() {
 				req = &types.QueryPoolBatchWithdrawMsgsRequest{
 					PoolId: suite.batches[0].PoolId,
@@ -259,7 +267,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 			len(msgs),
 			false,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryPoolBatchWithdrawMsgsRequest{
 					PoolId:     suite.batches[0].PoolId,
@@ -269,7 +278,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 			1,
 			true,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryPoolBatchWithdrawMsgsRequest{
 					PoolId:     suite.batches[0].PoolId,
@@ -283,7 +293,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchWithdrawMsgs() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
-			resp, err := queryClient.PoolBatchWithdrawMsgs(gocontext.Background(), req)
+			resp, err := queryClient.PoolBatchWithdrawMsgs(context.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
 				suite.NotNil(resp)
@@ -323,7 +333,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
 			0,
 			false,
 		},
-		{"returns all the pool batch swap Msgs",
+		{
+			"returns all the pool batch swap Msgs",
 			func() {
 				req = &types.QueryPoolBatchSwapMsgsRequest{
 					PoolId: suite.batches[0].PoolId,
@@ -333,7 +344,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
 			len(msgs),
 			false,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryPoolBatchSwapMsgsRequest{
 					PoolId:     suite.batches[0].PoolId,
@@ -343,7 +355,8 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
 			1,
 			true,
 		},
-		{"valid request",
+		{
+			"valid request",
 			func() {
 				req = &types.QueryPoolBatchSwapMsgsRequest{
 					PoolId:     suite.batches[0].PoolId,
@@ -357,7 +370,7 @@ func (suite *KeeperTestSuite) TestGRPCQueryBatchSwapMsgs() {
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			tc.malleate()
-			resp, err := queryClient.PoolBatchSwapMsgs(gocontext.Background(), req)
+			resp, err := queryClient.PoolBatchSwapMsgs(context.Background(), req)
 			if tc.expPass {
 				suite.NoError(err)
 				suite.NotNil(resp)

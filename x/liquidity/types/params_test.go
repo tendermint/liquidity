@@ -6,7 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
@@ -30,10 +30,10 @@ func TestParams(t *testing.T) {
 	require.Equal(t, params, paramsNew)
 
 	res := types.ParamKeyTable()
-	require.IsType(t, paramtypes.KeyTable{}, res)
+	require.IsType(t, paramstypes.KeyTable{}, res)
 
 	resPair := params.ParamSetPairs()
-	require.IsType(t, paramtypes.ParamSetPairs{}, resPair)
+	require.IsType(t, paramstypes.ParamSetPairs{}, resPair)
 
 	genesisStr := `pool_types:
 - id: 1

@@ -90,6 +90,9 @@ func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPool
 	}
 
 	response, err := k.MakeQueryLiquidityPoolsResponse(ctx, pools)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
 
 	return &types.QueryLiquidityPoolsResponse{
 		Pools:      *response,

@@ -72,21 +72,21 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	batchSwapMsg := types.SwapMsgState{ExchangedOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)),
 		RemainingOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)), ReservedOfferCoinFee: types.GetOfferCoinFee(sdk.NewCoin("test", sdk.NewInt(2000)), params.SwapFeeRate)}
 
-	byte := types.MustMarshalDepositMsgState(cdc, batchDepositMsg)
-	require.Equal(t, batchDepositMsg, types.MustUnmarshalDepositMsgState(cdc, byte))
-	marshaled, err := types.UnmarshalDepositMsgState(cdc, byte)
+	b := types.MustMarshalDepositMsgState(cdc, batchDepositMsg)
+	require.Equal(t, batchDepositMsg, types.MustUnmarshalDepositMsgState(cdc, b))
+	marshaled, err := types.UnmarshalDepositMsgState(cdc, b)
 	require.NoError(t, err)
 	require.Equal(t, batchDepositMsg, marshaled)
 
-	byte = types.MustMarshalWithdrawMsgState(cdc, batchWithdrawMsg)
-	require.Equal(t, batchWithdrawMsg, types.MustUnmarshalWithdrawMsgState(cdc, byte))
-	withdrawMsgMarshaled, err := types.UnmarshalWithdrawMsgState(cdc, byte)
+	b = types.MustMarshalWithdrawMsgState(cdc, batchWithdrawMsg)
+	require.Equal(t, batchWithdrawMsg, types.MustUnmarshalWithdrawMsgState(cdc, b))
+	withdrawMsgMarshaled, err := types.UnmarshalWithdrawMsgState(cdc, b)
 	require.NoError(t, err)
 	require.Equal(t, batchWithdrawMsg, withdrawMsgMarshaled)
 
-	byte = types.MustMarshalSwapMsgState(cdc, batchSwapMsg)
-	require.Equal(t, batchSwapMsg, types.MustUnmarshalSwapMsgState(cdc, byte))
-	SwapMsgMarshaled, err := types.UnmarshalSwapMsgState(cdc, byte)
+	b = types.MustMarshalSwapMsgState(cdc, batchSwapMsg)
+	require.Equal(t, batchSwapMsg, types.MustUnmarshalSwapMsgState(cdc, b))
+	SwapMsgMarshaled, err := types.UnmarshalSwapMsgState(cdc, b)
 	require.NoError(t, err)
 	require.Equal(t, batchSwapMsg, SwapMsgMarshaled)
 }

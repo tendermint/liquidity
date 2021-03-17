@@ -7,11 +7,11 @@ import (
 	abcitypes "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/tendermint/liquidity/app"
+	lapp "github.com/tendermint/liquidity/app"
 )
 
 func TestItCreatesModuleAccountOnInitBlock(t *testing.T) {
-	app := app.Setup(false)
+	app := lapp.Setup(false)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	app.InitChain(

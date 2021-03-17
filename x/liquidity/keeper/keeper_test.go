@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/tendermint/liquidity/app"
+	lapp "github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -15,7 +15,7 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	app          *app.LiquidityApp
+	app          *lapp.LiquidityApp
 	ctx          sdk.Context
 	addrs        []sdk.AccAddress
 	pools        []types.Pool

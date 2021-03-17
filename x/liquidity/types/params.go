@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"gopkg.in/yaml.v2"
 )
 
@@ -62,7 +62,7 @@ var (
 	}
 )
 
-// NewParams liquidity paramtypes constructor
+// NewParams liquidity paramstypes constructor
 func NewParams(poolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
 	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
 	return Params{
@@ -79,23 +79,23 @@ func NewParams(poolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCo
 }
 
 // ParamTypeTable returns the TypeTable for liquidity module
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+func ParamKeyTable() paramstypes.KeyTable {
+	return paramstypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
-// KeyValuePairs implements paramtypes.KeyValuePairs
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+// KeyValuePairs implements paramstypes.KeyValuePairs
+func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyPoolTypes, &p.PoolTypes, validatePoolTypes),
-		paramtypes.NewParamSetPair(KeyMinInitDepositToPool, &p.MinInitDepositToPool, validateMinInitDepositToPool),
-		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
-		paramtypes.NewParamSetPair(KeyReserveCoinLimitAmount, &p.ReserveCoinLimitAmount, validateReserveCoinLimitAmount),
-		paramtypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
-		paramtypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
-		paramtypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
-		paramtypes.NewParamSetPair(KeyMaxOrderAmountRatio, &p.MaxOrderAmountRatio, validateMaxOrderAmountRatio),
-		paramtypes.NewParamSetPair(KeyUnitBatchSize, &p.UnitBatchSize, validateUnitBatchSize),
+	return paramstypes.ParamSetPairs{
+		paramstypes.NewParamSetPair(KeyPoolTypes, &p.PoolTypes, validatePoolTypes),
+		paramstypes.NewParamSetPair(KeyMinInitDepositToPool, &p.MinInitDepositToPool, validateMinInitDepositToPool),
+		paramstypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
+		paramstypes.NewParamSetPair(KeyReserveCoinLimitAmount, &p.ReserveCoinLimitAmount, validateReserveCoinLimitAmount),
+		paramstypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
+		paramstypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
+		paramstypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
+		paramstypes.NewParamSetPair(KeyMaxOrderAmountRatio, &p.MaxOrderAmountRatio, validateMaxOrderAmountRatio),
+		paramstypes.NewParamSetPair(KeyUnitBatchSize, &p.UnitBatchSize, validateUnitBatchSize),
 	}
 }
 

@@ -161,10 +161,10 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 	withdrawerPoolCoinAfter := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.PoolCoinDenom)
 	require.True(t, true, poolCoinAfter.IsZero())
 	require.True(t, true, withdrawerPoolCoinAfter.IsZero())
-	withdrawerDenomAbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[0])
-	withdrawerDenomBbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[1])
-	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[0]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomAbalance.Amount)
-	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[1]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomBbalance.Amount)
+	withdrawerDenomABalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[0])
+	withdrawerDenomBBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[1])
+	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[0]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomABalance.Amount)
+	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[1]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomBBalance.Amount)
 
 }
 

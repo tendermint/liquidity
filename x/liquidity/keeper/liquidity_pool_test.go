@@ -8,7 +8,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/liquidity/app"
+	lapp "github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
@@ -34,14 +34,14 @@ func TestCreatePool(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := lapp.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
@@ -78,14 +78,14 @@ func TestLiquidityPoolCreationFee(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := lapp.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
@@ -122,15 +122,15 @@ func TestDepositLiquidityPool(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 4, params.LiquidityPoolCreationFee)
+	addrs := lapp.AddTestAddrs(simapp, ctx, 4, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
-	app.SaveAccount(simapp, ctx, addrs[1], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[0], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[1], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
@@ -178,14 +178,14 @@ func TestReserveCoinLimit(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := lapp.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, params.ReserveCoinLimitAmount), sdk.NewCoin(denomB, sdk.NewInt(1000000)))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[0], deposit)
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
 	depositBalance := sdk.NewCoins(depositA, depositB)
@@ -207,7 +207,7 @@ func TestReserveCoinLimit(t *testing.T) {
 	pool := pools[0]
 
 	deposit = sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(1000000)), sdk.NewCoin(denomB, sdk.NewInt(1000000)))
-	app.SaveAccount(simapp, ctx, addrs[1], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[1], deposit)
 	depositMsg := types.NewMsgDepositWithinBatch(addrs[1], pool.Id, deposit)
 	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.Equal(t, types.ErrExceededReserveCoinLimit, err)
@@ -229,7 +229,7 @@ func TestReserveCoinLimit(t *testing.T) {
 
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
-	app.SaveAccount(simapp, ctx, addrs[1], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[1], deposit)
 	depositMsg = types.NewMsgDepositWithinBatch(addrs[1], pool.Id, deposit)
 	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.NoError(t, err)
@@ -252,14 +252,14 @@ func TestWithdrawLiquidityPool(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := lapp.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
@@ -296,10 +296,10 @@ func TestWithdrawLiquidityPool(t *testing.T) {
 	withdrawerPoolCoinAfter := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.PoolCoinDenom)
 	require.True(t, true, poolCoinAfter.IsZero())
 	require.True(t, true, withdrawerPoolCoinAfter.IsZero())
-	withdrawerDenomAbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[0])
-	withdrawerDenomBbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[1])
-	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[0]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomAbalance.Amount)
-	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[1]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomBbalance.Amount)
+	withdrawerDenomABalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[0])
+	withdrawerDenomBBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[1])
+	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[0]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomABalance.Amount)
+	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[1]).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomBBalance.Amount)
 }
 
 func TestReinitializePool(t *testing.T) {
@@ -310,14 +310,14 @@ func TestReinitializePool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := lapp.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(100*1000000)))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
@@ -358,10 +358,10 @@ func TestReinitializePool(t *testing.T) {
 	withdrawerPoolCoinAfter := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.PoolCoinDenom)
 	require.True(t, true, poolCoinAfter.IsZero())
 	require.True(t, true, withdrawerPoolCoinAfter.IsZero())
-	withdrawerDenomAbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[0])
-	withdrawerDenomBbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[1])
-	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[0]), withdrawerDenomAbalance.Amount)
-	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[1]), withdrawerDenomBbalance.Amount)
+	withdrawerDenomABalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[0])
+	withdrawerDenomBBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[1])
+	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[0]), withdrawerDenomABalance.Amount)
+	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[1]), withdrawerDenomBBalance.Amount)
 
 	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
 	require.True(t, reserveCoins.IsZero())
@@ -390,14 +390,14 @@ func TestGetLiquidityPoolMetadata(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	poolTypeId := types.DefaultPoolTypeId
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := lapp.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
 
 	denomA := "uETH"
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
 	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	lapp.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)

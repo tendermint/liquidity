@@ -80,10 +80,10 @@ func addTestAddrs(app *lapp.LiquidityApp, ctx sdk.Context, accNum int, accAmt sd
 
 // generateAddresses generates numAddrs of normal AccAddrs and ValAddrs
 func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int) ([]sdk.AccAddress, []sdk.ValAddress) {
-	addrDels := simapp.AddTestAddrsIncremental(app, ctx, numAddrs, sdk.NewInt(10000))
-	addrVals := simapp.ConvertAddrsToValAddrs(addrDels)
+	delAddrs := simapp.AddTestAddrsIncremental(app, ctx, numAddrs, sdk.NewInt(10000))
+	valAddrs := simapp.ConvertAddrsToValAddrs(delAddrs)
 
-	return addrDels, addrVals
+	return delAddrs, valAddrs
 }
 
 var (
@@ -110,7 +110,7 @@ func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, pow
 	val1, _ := stakingtypes.NewValidator(valAddrs[0], pks[0], stakingtypes.Description{})
 	val2, _ := stakingtypes.NewValidator(valAddrs[1], pks[1], stakingtypes.Description{})
 	val3, _ := stakingtypes.NewValidator(valAddrs[2], pks[2], stakingtypes.Description{})
-	vals := []stakingtypes.Validator{val1, val2, val3}
+	validators := []stakingtypes.Validator{val1, val2, val3}
 
 	app.StakingKeeper.SetValidator(ctx, val1)
 	app.StakingKeeper.SetValidator(ctx, val2)
@@ -128,7 +128,7 @@ func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, pow
 
 	_ = staking.EndBlocker(ctx, app.StakingKeeper)
 
-	return addrs, valAddrs, vals
+	return addrs, valAddrs, validators
 }
 
 func createLiquidity(t *testing.T, ctx sdk.Context, simapp *lapp.LiquidityApp) (
