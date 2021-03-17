@@ -22,7 +22,7 @@ func TestParams(t *testing.T) {
 	require.Equal(t, params, currentParams)
 
 	paramsNew := types.NewParams(params.PoolTypes, params.MinInitDepositAmount, params.InitPoolCoinMintAmount,
-		params.ReserveCoinLimitAmount, params.LiquidityPoolCreationFee, params.SwapFeeRate, params.WithdrawFeeRate,
+		params.MaxReserveCoinAmount, params.LiquidityPoolCreationFee, params.SwapFeeRate, params.WithdrawFeeRate,
 		params.MaxOrderAmountRatio, params.UnitBatchSize)
 	require.NotNil(t, paramsNew)
 	require.Equal(t, params, paramsNew)
@@ -41,7 +41,7 @@ func TestParams(t *testing.T) {
   description: ""
 min_init_deposit_amount: "1000000"
 init_pool_coin_mint_amount: "1000000"
-reserve_coin_limit_amount: "0"
+max_reserve_coin_amount: "0"
 liquidity_pool_creation_fee:
 - denom: stake
   amount: "100000000"

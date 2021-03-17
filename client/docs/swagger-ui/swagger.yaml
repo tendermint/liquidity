@@ -2259,7 +2259,7 @@ paths:
                     format: sdk.Int
                     example: '1000000'
                     title: Initial mint amount of pool coin upon pool creation
-                  reserve_coin_limit_amount:
+                  max_reserve_coin_amount:
                     type: string
                     format: sdk.Int
                     example: '1000000000000'
@@ -4843,7 +4843,7 @@ definitions:
         format: sdk.Int
         example: '1000000'
         title: Initial mint amount of pool coin upon pool creation
-      reserve_coin_limit_amount:
+      max_reserve_coin_amount:
         type: string
         format: sdk.Int
         example: '1000000000000'
@@ -5174,7 +5174,7 @@ definitions:
             format: sdk.Int
             example: '1000000'
             title: Initial mint amount of pool coin upon pool creation
-          reserve_coin_limit_amount:
+          max_reserve_coin_amount:
             type: string
             format: sdk.Int
             example: '1000000000000'

@@ -223,7 +223,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
           "name": "DefaultPoolType"
         }
       ],
-      "reserve_coin_limit_amount": "0",
+      "max_reserve_coin_amount": "0",
       "swap_fee_rate": "0.003000000000000000",
       "unit_batch_size": 1,
       "withdraw_fee_rate": "0.003000000000000000"
@@ -257,7 +257,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
           "name": "DefaultPoolType"
         }
       ],
-      "reserve_coin_limit_amount": "0",
+      "max_reserve_coin_amount": "0",
       "swap_fee_rate": "0.003000000000000000",
       "unit_batch_size": 1,
       "withdraw_fee_rate": "0.003000000000000000"

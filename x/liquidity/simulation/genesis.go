@@ -19,7 +19,7 @@ const (
 	LiquidityPoolTypes       = "liquidity_pool_types"
 	MinInitDepositAmount     = "min_init_deposit_amount"
 	InitPoolCoinMintAmount   = "init_pool_coin_mint_amount"
-	ReserveCoinLimitAmount   = "reserve_coin_limit_amount"
+	MaxReserveCoinAmount   = "max_reserve_coin_amount"
 	LiquidityPoolCreationFee = "liquidity_pool_creation_fee"
 	SwapFeeRate              = "swap_fee_rate"
 	WithdrawFeeRate          = "withdraw_fee_rate"
@@ -43,9 +43,9 @@ func GenInitPoolCoinMintAmount(r *rand.Rand) sdk.Int {
 	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultInitPoolCoinMintAmount.Int64()), 1e8)))
 }
 
-// GenReserveCoinLimitAmount randomized ReserveCoinLimitAmount
-func GenReserveCoinLimitAmount(r *rand.Rand) sdk.Int {
-	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultReserveCoinLimitAmount.Int64()), 1e13)))
+// GenMaxReserveCoinAmount randomized MaxReserveCoinAmount
+func GenMaxReserveCoinAmount(r *rand.Rand) sdk.Int {
+	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMaxReserveCoinAmount.Int64()), 1e13)))
 }
 
 // GenLiquidityPoolCreationFee randomized LiquidityPoolCreationFee
@@ -110,10 +110,10 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { initPoolCoinMintAmount = GenInitPoolCoinMintAmount(r) },
 	)
 
-	var reserveCoinLimitAmount sdk.Int
+	var maxReserveCoinAmount sdk.Int
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, ReserveCoinLimitAmount, &reserveCoinLimitAmount, simState.Rand,
-		func(r *rand.Rand) { reserveCoinLimitAmount = GenReserveCoinLimitAmount(r) },
+		simState.Cdc, MaxReserveCoinAmount, &maxReserveCoinAmount, simState.Rand,
+		func(r *rand.Rand) { maxReserveCoinAmount = GenMaxReserveCoinAmount(r) },
 	)
 
 	var liquidityPoolCreationFee sdk.Coins
@@ -151,7 +151,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 			PoolTypes:                liquidityPoolTypes,
 			MinInitDepositAmount:     minInitDepositAmount,
 			InitPoolCoinMintAmount:   initPoolCoinMintAmount,
-			ReserveCoinLimitAmount:   reserveCoinLimitAmount,
+			MaxReserveCoinAmount:   maxReserveCoinAmount,
 			LiquidityPoolCreationFee: liquidityPoolCreationFee,
 			SwapFeeRate:              swapFeeRate,
 			WithdrawFeeRate:          withdrawFeeRate,

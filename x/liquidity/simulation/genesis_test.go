@@ -49,7 +49,7 @@ func TestRandomizedGenState(t *testing.T) {
 
 	require.Equal(t, dec1, liquidityGenesis.Params.MinInitDepositAmount)
 	require.Equal(t, dec2, liquidityGenesis.Params.InitPoolCoinMintAmount)
-	require.Equal(t, dec3, liquidityGenesis.Params.ReserveCoinLimitAmount)
+	require.Equal(t, dec3, liquidityGenesis.Params.MaxReserveCoinAmount)
 	require.Equal(t, dec4, liquidityGenesis.Params.SwapFeeRate)
 	require.Equal(t, dec5, liquidityGenesis.Params.WithdrawFeeRate)
 	require.Equal(t, dec6, liquidityGenesis.Params.MaxOrderAmountRatio)

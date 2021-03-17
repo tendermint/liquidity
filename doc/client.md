@@ -984,7 +984,7 @@ pool_types:
   max_reserve_coin_num: 2
   min_reserve_coin_num: 2
   name: DefaultPoolType
-reserve_coin_limit_amount: "0"
+max_reserve_coin_amount: "0"
 swap_fee_rate: "0.003000000000000000"
 unit_batch_size: 1
 withdraw_fee_rate: "0.003000000000000000"

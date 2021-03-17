@@ -173,7 +173,7 @@ func TestDepositLiquidityPool(t *testing.T) {
 func TestReserveCoinLimit(t *testing.T) {
 	simapp, ctx := createTestInput()
 	params := types.DefaultParams()
-	params.ReserveCoinLimitAmount = sdk.NewInt(1000000000000)
+	params.MaxReserveCoinAmount = sdk.NewInt(1000000000000)
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	poolTypeId := types.DefaultPoolTypeId
@@ -183,7 +183,7 @@ func TestReserveCoinLimit(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	deposit := sdk.NewCoins(sdk.NewCoin(denomA, params.ReserveCoinLimitAmount), sdk.NewCoin(denomB, sdk.NewInt(1000000)))
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, params.MaxReserveCoinAmount), sdk.NewCoin(denomB, sdk.NewInt(1000000)))
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
@@ -194,12 +194,12 @@ func TestReserveCoinLimit(t *testing.T) {
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.Equal(t, types.ErrExceededReserveCoinLimit, err)
 
-	params.ReserveCoinLimitAmount = sdk.ZeroInt()
+	params.MaxReserveCoinAmount = sdk.ZeroInt()
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
-	params.ReserveCoinLimitAmount = sdk.NewInt(1000000000000)
+	params.MaxReserveCoinAmount = sdk.NewInt(1000000000000)
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	lpList := simapp.LiquidityKeeper.GetAllPools(ctx)
@@ -211,7 +211,7 @@ func TestReserveCoinLimit(t *testing.T) {
 	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.Equal(t, types.ErrExceededReserveCoinLimit, err)
 
-	params.ReserveCoinLimitAmount = sdk.ZeroInt()
+	params.MaxReserveCoinAmount = sdk.ZeroInt()
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	depositMsg = types.NewMsgDepositWithinBatch(addrs[1], lp.Id, deposit)
@@ -233,7 +233,7 @@ func TestReserveCoinLimit(t *testing.T) {
 	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.NoError(t, err)
 
-	params.ReserveCoinLimitAmount = sdk.NewInt(1000000000000)
+	params.MaxReserveCoinAmount = sdk.NewInt(1000000000000)
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	poolBatch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, depositMsg.PoolId)

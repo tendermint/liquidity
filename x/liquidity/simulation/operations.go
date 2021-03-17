@@ -91,7 +91,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 			3. Create new liquidity pool with random deposit amount of coins
 		*/
 		params := k.GetParams(ctx)
-		params.ReserveCoinLimitAmount = GenReserveCoinLimitAmount(r)
+		params.MaxReserveCoinAmount = GenMaxReserveCoinAmount(r)
 		k.SetParams(ctx, params)
 
 		// simAccount should have some fees to pay when creating liquidity pool
@@ -154,7 +154,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
 		// it will fail if the total reserve coin amount after the deposit is larger than the parameter
-		err = types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, depositCoins)
+		err = types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, depositCoins)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "can not exceed reserve coin limit amount"), nil, nil
 		}
@@ -223,7 +223,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 		}
 
 		params := k.GetParams(ctx)
-		params.ReserveCoinLimitAmount = GenReserveCoinLimitAmount(r)
+		params.MaxReserveCoinAmount = GenMaxReserveCoinAmount(r)
 		k.SetParams(ctx, params)
 
 		depositor := account.GetAddress()
@@ -234,7 +234,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 		reserveCoins := k.GetReserveCoins(ctx, pool)
 
 		// it will fail if the total reserve coin amount after the deposit is larger than the parameter
-		err = types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, reserveCoins.Add(depositCoinA, depositCoinB))
+		err = types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, reserveCoins.Add(depositCoinA, depositCoinB))
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "can not exceed reserve coin limit amount"), nil, nil
 		}

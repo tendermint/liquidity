@@ -74,8 +74,8 @@ message Params {
         }];
 
     // Limit the size of each liquidity pool in the beginning phase of Liquidity Module adoption to minimize risk, 0 means no limit
-    string reserve_coin_limit_amount = 4 [
-        (gogoproto.moretags)   = "yaml:\"reserve_coin_limit_amount\"",
+    string max_reserve_coin_amount = 4 [
+        (gogoproto.moretags)   = "yaml:\"max_reserve_coin_amount\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
         (gogoproto.nullable)   = false,
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {

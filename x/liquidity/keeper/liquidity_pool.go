@@ -49,7 +49,7 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 		return types.ErrEqualDenom
 	}
 
-	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, msg.DepositCoins); err != nil {
+	if err := types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, msg.DepositCoins); err != nil {
 		return err
 	}
 
@@ -803,7 +803,7 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 
 	params := k.GetParams(ctx)
 	reserveCoins := k.GetReserveCoins(ctx, pool)
-	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, reserveCoins.Add(msg.DepositCoins...)); err != nil {
+	if err := types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, reserveCoins.Add(msg.DepositCoins...)); err != nil {
 		return err
 	}
 	// TODO: validate msgIndex

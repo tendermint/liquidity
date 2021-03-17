@@ -34,7 +34,7 @@ var (
 	KeyPoolTypes                = []byte("PoolTypes")
 	KeyMinInitDepositAmount     = []byte("MinInitDepositAmount")
 	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
-	KeyReserveCoinLimitAmount   = []byte("ReserveCoinLimitAmount")
+	KeyMaxReserveCoinAmount   = []byte("MaxReserveCoinAmount")
 	KeySwapFeeRate              = []byte("SwapFeeRate")
 	KeyLiquidityPoolCreationFee = []byte("LiquidityPoolCreationFee")
 	KeyUnitBatchSize            = []byte("UnitBatchSize")
@@ -43,7 +43,7 @@ var (
 
 	DefaultMinInitDepositAmount     = sdk.NewInt(1000000)
 	DefaultInitPoolCoinMintAmount   = sdk.NewInt(1000000)
-	DefaultReserveCoinLimitAmount   = sdk.ZeroInt()
+	DefaultMaxReserveCoinAmount   = sdk.ZeroInt()
 	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultWithdrawFeeRate          = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
 	DefaultMaxOrderAmountRatio      = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
@@ -70,7 +70,7 @@ func NewParams(poolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCo
 		PoolTypes:                poolTypes,
 		MinInitDepositAmount:     minInitDeposit,
 		InitPoolCoinMintAmount:   initPoolCoinMint,
-		ReserveCoinLimitAmount:   reserveCoinLimit,
+		MaxReserveCoinAmount:   reserveCoinLimit,
 		LiquidityPoolCreationFee: creationFee,
 		SwapFeeRate:              swapFeeRate,
 		WithdrawFeeRate:          withdrawFeeRate,
@@ -91,7 +91,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyPoolTypes, &p.PoolTypes, validatePoolTypes),
 		paramtypes.NewParamSetPair(KeyMinInitDepositAmount, &p.MinInitDepositAmount, validateMinInitDepositAmount),
 		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
-		paramtypes.NewParamSetPair(KeyReserveCoinLimitAmount, &p.ReserveCoinLimitAmount, validateReserveCoinLimitAmount),
+		paramtypes.NewParamSetPair(KeyMaxReserveCoinAmount, &p.MaxReserveCoinAmount, validateMaxReserveCoinAmount),
 		paramtypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
 		paramtypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
 		paramtypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
@@ -109,7 +109,7 @@ func DefaultParams() Params {
 		defaultPoolTypes,
 		DefaultMinInitDepositAmount,
 		DefaultInitPoolCoinMintAmount,
-		DefaultReserveCoinLimitAmount,
+		DefaultMaxReserveCoinAmount,
 		DefaultLiquidityPoolCreationFee,
 		DefaultSwapFeeRate,
 		DefaultWithdrawFeeRate,
@@ -137,7 +137,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateReserveCoinLimitAmount(p.ReserveCoinLimitAmount); err != nil {
+	if err := validateMaxReserveCoinAmount(p.MaxReserveCoinAmount); err != nil {
 		return err
 	}
 
@@ -218,7 +218,7 @@ func validateInitPoolCoinMintAmount(i interface{}) error {
 }
 
 // Validate that the Limit the size of each liquidity pool.
-func validateReserveCoinLimitAmount(i interface{}) error {
+func validateMaxReserveCoinAmount(i interface{}) error {
 	v, ok := i.(sdk.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
