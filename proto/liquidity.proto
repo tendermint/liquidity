@@ -197,7 +197,7 @@ message PoolMetadata {
         (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
         (gogoproto.nullable)   = false,
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "{\"denom\": \"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\", \"amount\": \"1000000\"}",
+            example: "{\"denom\": \"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\", \"amount\": \"1000000\"}",
             format: "sdk.Coin"
         }];
 
@@ -221,7 +221,7 @@ message PoolMetadataResponse {
         (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
         (gogoproto.nullable)   = false,
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "{\"denom\": \"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\", \"amount\": \"1000000\"}",
+            example: "{\"denom\": \"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\", \"amount\": \"1000000\"}",
             format: "sdk.Coin"
         }];
 

@@ -356,7 +356,8 @@ paths:
                             signatures required by gogoproto.
                           format: sdk.Coin
                           example:
-                            denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                            denom: >-
+                              pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                             amount: '1000000'
                           title: pool coin issued at the pool
                         reserve_coins:
@@ -2657,7 +2658,8 @@ paths:
                       signatures required by gogoproto.
                     format: sdk.Coin
                     example:
-                      denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                      denom: >-
+                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       amount: '1000000'
                     title: pool coin issued at the pool
                   reserve_coins:
@@ -5305,7 +5307,8 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+          denom: >-
+            pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
           amount: '1000000'
         title: pool coin issued at the pool
       reserve_coins:
@@ -5451,7 +5454,8 @@ definitions:
               signatures required by gogoproto.
             format: sdk.Coin
             example:
-              denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+              denom: >-
+                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               amount: '1000000'
             title: pool coin issued at the pool
           reserve_coins:
@@ -5636,7 +5640,8 @@ definitions:
                     signatures required by gogoproto.
                   format: sdk.Coin
                   example:
-                    denom: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                    denom: >-
+                      pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                     amount: '1000000'
                   title: pool coin issued at the pool
                 reserve_coins:
