@@ -3,9 +3,9 @@ package types_test
 import (
 	"testing"
 
-	"github.com/tendermint/liquidity/x/liquidity/types"
-
 	"github.com/stretchr/testify/suite"
+
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 type keysTestSuite struct {

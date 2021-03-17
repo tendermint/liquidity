@@ -2,9 +2,6 @@ package cmd
 
 import (
 	"context"
-	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	"github.com/tendermint/liquidity/app/params"
 	"io"
 	"os"
 	"path/filepath"
@@ -24,7 +21,9 @@ import (
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -33,6 +32,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	liquidity "github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/app/params"
 )
 
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {

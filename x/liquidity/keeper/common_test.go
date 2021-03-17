@@ -9,11 +9,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/tendermint/tendermint/crypto/ed25519"
+
 	"github.com/tendermint/liquidity/app"
 	lapp "github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
-	"github.com/tendermint/tendermint/crypto/ed25519"
 )
 
 // createTestInput Returns a simapp with custom LiquidityKeeper

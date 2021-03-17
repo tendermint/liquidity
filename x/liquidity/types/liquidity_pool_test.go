@@ -1,12 +1,14 @@
 package types_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity/types"
 	"strings"
 	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
+
+	"github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 func TestLiquidityPoolBatch(t *testing.T) {

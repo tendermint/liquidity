@@ -12,8 +12,6 @@ Resources
  - Proposal and milestone https://github.com/b-harvest/Liquidity-Module-For-the-Hub
  - swagger api doc https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs/2.0.2
  - liquidityd client doc https://github.com/tendermint/liquidity/blob/develop/doc/client.md
-
-
 */
 
 package liquidity
