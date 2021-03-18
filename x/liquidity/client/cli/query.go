@@ -32,7 +32,6 @@ func GetQueryCmd() *cobra.Command {
 		GetCmdQueryLiquidityPool(),
 		GetCmdQueryLiquidityPools(),
 		GetCmdQueryLiquidityPoolBatch(),
-		GetCmdQueryLiquidityPoolsBatches(),
 		GetCmdQueryPoolBatchDepositMsgs(),
 		GetCmdQueryPoolBatchDepositMsg(),
 		GetCmdQueryPoolBatchWithdrawMsgs(),
@@ -210,42 +209,6 @@ $ %s query liquidity batch 1
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
-	return cmd
-}
-
-func GetCmdQueryLiquidityPoolsBatches() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "batches",
-		Args:  cobra.NoArgs,
-		Short: "Query for all liquidity pools batches",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query details about all liquidity pools batches on a network.
-Example:
-$ %s query liquidity batches
-`,
-				version.AppName,
-			),
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
-			if err != nil {
-				return err
-			}
-			result, err := queryClient.LiquidityPoolsBatches(context.Background(), &types.QueryLiquidityPoolsBatchesRequest{Pagination: pageReq})
-			if err != nil {
-				return err
-			}
-			return clientCtx.PrintProto(result)
-		},
-	}
-	flags.AddQueryFlagsToCmd(cmd)
-
 	return cmd
 }
 

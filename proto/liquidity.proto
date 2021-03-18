@@ -54,8 +54,8 @@ message Params {
     ];
 
     // Minimum number of coins to be deposited to the liquidity pool upon pool creation
-    string min_init_deposit_to_pool = 2 [
-        (gogoproto.moretags)   = "yaml:\"min_init_deposit_to_pool\"",
+    string min_init_deposit_amount = 2 [
+        (gogoproto.moretags)   = "yaml:\"min_init_deposit_amount\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
         (gogoproto.nullable)   = false,
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -74,8 +74,8 @@ message Params {
         }];
 
     // Limit the size of each liquidity pool in the beginning phase of Liquidity Module adoption to minimize risk, 0 means no limit
-    string reserve_coin_limit_amount = 4 [
-        (gogoproto.moretags)   = "yaml:\"reserve_coin_limit_amount\"",
+    string max_reserve_coin_amount = 4 [
+        (gogoproto.moretags)   = "yaml:\"max_reserve_coin_amount\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
         (gogoproto.nullable)   = false,
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -83,9 +83,9 @@ message Params {
             format: "sdk.Int"
         }];
 
-    // Fee paid for new LiquidityPool creation to prevent spamming
-    repeated cosmos.base.v1beta1.Coin liquidity_pool_creation_fee = 5 [
-        (gogoproto.moretags)   = "yaml:\"liquidity_pool_creation_fee\"",
+    // Fee paid for new Liquidity Pool creation to prevent spamming
+    repeated cosmos.base.v1beta1.Coin pool_creation_fee = 5 [
+        (gogoproto.moretags)   = "yaml:\"pool_creation_fee\"",
         (gogoproto.nullable)   = false,
         (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -124,15 +124,15 @@ message Params {
             format: "sdk.Dec"
         }];
 
-    // The smallest unit batch size for every liquidity pool
-    uint32 unit_batch_size = 9 [
-        (gogoproto.moretags) = "yaml:\"unit_batch_size\"",
+    // The smallest unit batch height for every liquidity pool
+    uint32 unit_batch_height = 9 [
+        (gogoproto.moretags) = "yaml:\"unit_batch_height\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
         }];
 
-    //    // fees paid for each batch messages
+    //    // fees paid for each batch messages, to be added v2
     //    repeated cosmos.base.v1beta1.Coin liquidity_msg_fee = 5 [
     //        (gogoproto.moretags)   = "yaml:\"liquidity_msg_fee\"",
     //        (gogoproto.nullable)   = false,
@@ -177,7 +177,7 @@ message Pool {
     // denom of pool coin of the pool
     string pool_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
+            example: "\"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\"",
         }];
 }
 

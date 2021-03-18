@@ -38,7 +38,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	depositAB := sdk.NewCoins(sdk.NewCoin(denomA, A), sdk.NewCoin(denomB, B))
 
 	// set accounts for creator, depositor, withdrawer, balance for deposit
-	addrs := app.AddTestAddrs(simapp, ctx, 4, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 4, params.PoolCreationFee)
 
 	app.SaveAccount(simapp, ctx, addrs[0], deposit.Add(depositAB...)) // pool creator
 	depositX := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
@@ -59,15 +59,15 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify PoolCreationFee pay successfully
-	feePoolBalance = feePoolBalance.Add(params.LiquidityPoolCreationFee...)
-	require.Equal(t, params.LiquidityPoolCreationFee, feePoolBalance)
+	feePoolBalance = feePoolBalance.Add(params.PoolCreationFee...)
+	require.Equal(t, params.PoolCreationFee, feePoolBalance)
 
 	// Fail case, reset deposit balance for pool already exists case
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.Equal(t, types.ErrPoolAlreadyExists, err)
 
-	// reset deposit balance without LiquidityPoolCreationFee of pool creator
+	// reset deposit balance without PoolCreationFee of pool creator
 	// Fail case, insufficient balances for pool creation fee case
 	msgAB := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB)
@@ -76,13 +76,13 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// Success case, create another pool
 	msgAB = types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
-	app.SaveAccount(simapp, ctx, addrs[0], depositAB.Add(params.LiquidityPoolCreationFee...))
+	app.SaveAccount(simapp, ctx, addrs[0], depositAB.Add(params.PoolCreationFee...))
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msgAB)
 	require.NoError(t, err)
 
 	// Verify PoolCreationFee pay successfully
 	feePoolBalance = simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
-	require.Equal(t, params.LiquidityPoolCreationFee.Add(params.LiquidityPoolCreationFee...), feePoolBalance)
+	require.Equal(t, params.PoolCreationFee.Add(params.PoolCreationFee...), feePoolBalance)
 
 	// verify created liquidity pool
 	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
@@ -247,7 +247,7 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 
 	// set accounts for creator, depositor, withdrawer, balance for deposit
 	params := simapp.LiquidityKeeper.GetParams(ctx)
-	addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 	app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
 	depositX := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 	depositY := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
@@ -721,11 +721,11 @@ func TestLiquidityScenario8(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 }
 
-// Test UnitBatchSize when over 1
-func TestLiquidityUnitBatchSize(t *testing.T) {
+// Test UnitBatchHeight when over 1
+func TestLiquidityUnitBatchHeight(t *testing.T) {
 	simapp, ctx := createTestInput()
 	params := simapp.LiquidityKeeper.GetParams(ctx)
-	params.UnitBatchSize = 2
+	params.UnitBatchHeight = 2
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
 	// define test denom X, Y for Liquidity Pool
@@ -746,7 +746,7 @@ func TestLiquidityUnitBatchSize(t *testing.T) {
 	app.TestWithdrawPool(t, simapp, ctx, poolCoins.QuoRaw(10), addrs[0:1], poolId, false)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
-	// batch not executed, 1 >= 2(UnitBatchSize)
+	// batch not executed, 1 >= 2(UnitBatchHeight)
 	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
 	require.True(t, found)
 	require.False(t, batch.Executed)
@@ -765,7 +765,7 @@ func TestLiquidityUnitBatchSize(t *testing.T) {
 	require.Equal(t, 1, len(batchWithdrawMsgs))
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
-	// batch executed, 2 >= 2(UnitBatchSize)
+	// batch executed, 2 >= 2(UnitBatchHeight)
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
 	require.True(t, found)
 	require.True(t, batch.Executed)

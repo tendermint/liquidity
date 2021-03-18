@@ -49,7 +49,7 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 		return types.ErrEqualDenom
 	}
 
-	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, msg.DepositCoins); err != nil {
+	if err := types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, msg.DepositCoins); err != nil {
 		return err
 	}
 
@@ -82,12 +82,12 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 		return types.Pool{}, types.ErrInsufficientBalance
 	}
 	for _, coin := range msg.DepositCoins {
-		if coin.Amount.LT(params.MinInitDepositToPool) {
+		if coin.Amount.LT(params.MinInitDepositAmount) {
 			return types.Pool{}, types.ErrLessThanMinInitDeposit
 		}
 	}
 
-	if !poolCreatorBalances.IsAllGTE(params.LiquidityPoolCreationFee.Add(msg.DepositCoins...)) {
+	if !poolCreatorBalances.IsAllGTE(params.PoolCreationFee.Add(msg.DepositCoins...)) {
 		return types.Pool{}, types.ErrInsufficientPoolCreationFee
 	}
 
@@ -122,7 +122,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	}
 
 	// pool creation fees are collected in community pool
-	if err := k.distrKeeper.FundCommunityPool(ctx, params.LiquidityPoolCreationFee, poolCreator); err != nil {
+	if err := k.distrKeeper.FundCommunityPool(ctx, params.PoolCreationFee, poolCreator); err != nil {
 		return types.Pool{}, err
 	}
 
@@ -165,7 +165,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	// reinitialize pool in case of reserve coins has run out
 	if reserveCoins.IsZero() {
 		for _, depositCoin := range msg.Msg.DepositCoins {
-			if depositCoin.Amount.LT(params.MinInitDepositToPool) {
+			if depositCoin.Amount.LT(params.MinInitDepositAmount) {
 				return types.ErrLessThanMinInitDeposit
 			}
 		}
@@ -798,7 +798,7 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 
 	params := k.GetParams(ctx)
 	reserveCoins := k.GetReserveCoins(ctx, pool)
-	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, reserveCoins.Add(msg.DepositCoins...)); err != nil {
+	if err := types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, reserveCoins.Add(msg.DepositCoins...)); err != nil {
 		return err
 	}
 	// TODO: validate msgIndex

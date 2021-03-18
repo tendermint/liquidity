@@ -26,11 +26,11 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 		denomX, denomY = types.AlphabeticalDenomPair(denomX, denomY)
 
 		// get random X, Y amount for create pool
-		X, Y := app.GetRandPoolAmt(r, params.MinInitDepositToPool)
+		X, Y := app.GetRandPoolAmt(r, params.MinInitDepositAmount)
 		deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 
 		// set pool creator account, balance for deposit
-		addrs := app.AddTestAddrs(simapp, ctx, 3, params.LiquidityPoolCreationFee)
+		addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 		app.SaveAccount(simapp, ctx, addrs[0], deposit) // pool creator
 		depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 		depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)

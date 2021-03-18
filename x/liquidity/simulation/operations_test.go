@@ -65,9 +65,9 @@ func TestSimulateMsgCreatePool(t *testing.T) {
 	accounts := getTestingAccounts(t, r, app, ctx, 1)
 
 	// setup randomly generated liquidity pool creation fees
-	feeCoins := simulation.GenLiquidityPoolCreationFee(r)
+	feeCoins := simulation.GenPoolCreationFee(r)
 	params := app.LiquidityKeeper.GetParams(ctx)
-	params.LiquidityPoolCreationFee = feeCoins
+	params.PoolCreationFee = feeCoins
 	app.LiquidityKeeper.SetParams(ctx, params)
 
 	// begin a new block
@@ -239,8 +239,8 @@ func setupLiquidityPools(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx
 
 		// create liquidity pool with random deposit amounts
 		account := app.AccountKeeper.GetAccount(ctx, account.Address)
-		depositCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8))))
-		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8))))
+		depositCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
+		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
 		createPoolMsg := types.NewMsgCreatePool(account.GetAddress(), types.DefaultPoolTypeId, depositCoins)

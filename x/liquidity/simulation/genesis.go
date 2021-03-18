@@ -16,15 +16,15 @@ import (
 
 // Simulation parameter constants
 const (
-	LiquidityPoolTypes       = "liquidity_pool_types"
-	MinInitDepositToPool     = "min_init_deposit_to_pool"
-	InitPoolCoinMintAmount   = "init_pool_coin_mint_amount"
-	ReserveCoinLimitAmount   = "reserve_coin_limit_amount"
-	LiquidityPoolCreationFee = "liquidity_pool_creation_fee"
-	SwapFeeRate              = "swap_fee_rate"
-	WithdrawFeeRate          = "withdraw_fee_rate"
-	MaxOrderAmountRatio      = "max_order_amount_ratio"
-	UnitBatchSize            = "unit_batch_size"
+	LiquidityPoolTypes     = "liquidity_pool_types"
+	MinInitDepositAmount   = "min_init_deposit_amount"
+	InitPoolCoinMintAmount = "init_pool_coin_mint_amount"
+	MaxReserveCoinAmount   = "max_reserve_coin_amount"
+	PoolCreationFee        = "pool_creation_fee"
+	SwapFeeRate            = "swap_fee_rate"
+	WithdrawFeeRate        = "withdraw_fee_rate"
+	MaxOrderAmountRatio    = "max_order_amount_ratio"
+	UnitBatchHeight        = "unit_batch_height"
 )
 
 // GenLiquidityPoolTypes return default PoolType temporarily, It will be randomized in the liquidity v2
@@ -33,9 +33,9 @@ func GenLiquidityPoolTypes(r *rand.Rand) (liquidityPoolTypes []types.PoolType) {
 	return liquidityPoolTypes
 }
 
-// GenMinInitDepositToPool randomized MinInitDepositToPool
-func GenMinInitDepositToPool(r *rand.Rand) sdk.Int {
-	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e7)))
+// GenMinInitDepositAmount randomized MinInitDepositAmount
+func GenMinInitDepositAmount(r *rand.Rand) sdk.Int {
+	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e7)))
 }
 
 // GenInitPoolCoinMintAmount randomized InitPoolCoinMintAmount
@@ -43,14 +43,14 @@ func GenInitPoolCoinMintAmount(r *rand.Rand) sdk.Int {
 	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultInitPoolCoinMintAmount.Int64()), 1e8)))
 }
 
-// GenReserveCoinLimitAmount randomized ReserveCoinLimitAmount
-func GenReserveCoinLimitAmount(r *rand.Rand) sdk.Int {
-	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultReserveCoinLimitAmount.Int64()), 1e13)))
+// GenMaxReserveCoinAmount randomized MaxReserveCoinAmount
+func GenMaxReserveCoinAmount(r *rand.Rand) sdk.Int {
+	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMaxReserveCoinAmount.Int64()), 1e13)))
 }
 
-// GenLiquidityPoolCreationFee randomized LiquidityPoolCreationFee
+// GenPoolCreationFee randomized PoolCreationFee
 // list of 1 to 4 coins with an amount greater than 1
-func GenLiquidityPoolCreationFee(r *rand.Rand) sdk.Coins {
+func GenPoolCreationFee(r *rand.Rand) sdk.Coins {
 	var coins sdk.Coins
 	var denoms []string
 
@@ -85,9 +85,9 @@ func GenMaxOrderAmountRatio(r *rand.Rand) sdk.Dec {
 	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
 
-// GenUnitBatchSize randomized UnitBatchSize ranging from 1 to 20
-func GenUnitBatchSize(r *rand.Rand) uint32 {
-	return uint32(simulation.RandIntBetween(r, int(types.DefaultUnitBatchSize), 20))
+// GenUnitBatchHeight randomized UnitBatchHeight ranging from 1 to 20
+func GenUnitBatchHeight(r *rand.Rand) uint32 {
+	return uint32(simulation.RandIntBetween(r, int(types.DefaultUnitBatchHeight), 20))
 }
 
 // RandomizedGenState generates a random GenesisState for liquidity
@@ -98,10 +98,10 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { liquidityPoolTypes = GenLiquidityPoolTypes(r) },
 	)
 
-	var minInitDepositToPool sdk.Int
+	var minInitDepositAmount sdk.Int
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, MinInitDepositToPool, &minInitDepositToPool, simState.Rand,
-		func(r *rand.Rand) { minInitDepositToPool = GenMinInitDepositToPool(r) },
+		simState.Cdc, MinInitDepositAmount, &minInitDepositAmount, simState.Rand,
+		func(r *rand.Rand) { minInitDepositAmount = GenMinInitDepositAmount(r) },
 	)
 
 	var initPoolCoinMintAmount sdk.Int
@@ -110,16 +110,16 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { initPoolCoinMintAmount = GenInitPoolCoinMintAmount(r) },
 	)
 
-	var reserveCoinLimitAmount sdk.Int
+	var maxReserveCoinAmount sdk.Int
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, ReserveCoinLimitAmount, &reserveCoinLimitAmount, simState.Rand,
-		func(r *rand.Rand) { reserveCoinLimitAmount = GenReserveCoinLimitAmount(r) },
+		simState.Cdc, MaxReserveCoinAmount, &maxReserveCoinAmount, simState.Rand,
+		func(r *rand.Rand) { maxReserveCoinAmount = GenMaxReserveCoinAmount(r) },
 	)
 
-	var liquidityPoolCreationFee sdk.Coins
+	var poolCreationFee sdk.Coins
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, LiquidityPoolCreationFee, &liquidityPoolCreationFee, simState.Rand,
-		func(r *rand.Rand) { liquidityPoolCreationFee = GenLiquidityPoolCreationFee(r) },
+		simState.Cdc, PoolCreationFee, &poolCreationFee, simState.Rand,
+		func(r *rand.Rand) { poolCreationFee = GenPoolCreationFee(r) },
 	)
 
 	var swapFeeRate sdk.Dec
@@ -140,23 +140,23 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { maxOrderAmountRatio = GenMaxOrderAmountRatio(r) },
 	)
 
-	var unitBatchSize uint32
+	var unitBatchHeight uint32
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, UnitBatchSize, &unitBatchSize, simState.Rand,
-		func(r *rand.Rand) { unitBatchSize = GenUnitBatchSize(r) },
+		simState.Cdc, UnitBatchHeight, &unitBatchHeight, simState.Rand,
+		func(r *rand.Rand) { unitBatchHeight = GenUnitBatchHeight(r) },
 	)
 
 	liquidityGenesis := types.GenesisState{
 		Params: types.Params{
-			PoolTypes:                liquidityPoolTypes,
-			MinInitDepositToPool:     minInitDepositToPool,
-			InitPoolCoinMintAmount:   initPoolCoinMintAmount,
-			ReserveCoinLimitAmount:   reserveCoinLimitAmount,
-			LiquidityPoolCreationFee: liquidityPoolCreationFee,
-			SwapFeeRate:              swapFeeRate,
-			WithdrawFeeRate:          withdrawFeeRate,
-			MaxOrderAmountRatio:      maxOrderAmountRatio,
-			UnitBatchSize:            unitBatchSize,
+			PoolTypes:              liquidityPoolTypes,
+			MinInitDepositAmount:   minInitDepositAmount,
+			InitPoolCoinMintAmount: initPoolCoinMintAmount,
+			MaxReserveCoinAmount:   maxReserveCoinAmount,
+			PoolCreationFee:        poolCreationFee,
+			SwapFeeRate:            swapFeeRate,
+			WithdrawFeeRate:        withdrawFeeRate,
+			MaxOrderAmountRatio:    maxOrderAmountRatio,
+			UnitBatchHeight:        unitBatchHeight,
 		},
 		PoolRecords: []types.PoolRecord{},
 	}

@@ -19,13 +19,13 @@ func TestParamChanges(t *testing.T) {
 		simValue    string
 		subspace    string
 	}{
-		{"liquidity/MinInitDepositToPool", "MinInitDepositToPool", "\"3498081\"", "liquidity"},
+		{"liquidity/MinInitDepositAmount", "MinInitDepositAmount", "\"3498081\"", "liquidity"},
 		{"liquidity/InitPoolCoinMintAmount", "InitPoolCoinMintAmount", "\"40727887\"", "liquidity"},
-		{"liquidity/ReserveCoinLimitAmount", "ReserveCoinLimitAmount", "\"4611666145821\"", "liquidity"},
+		{"liquidity/MaxReserveCoinAmount", "MaxReserveCoinAmount", "\"4611666145821\"", "liquidity"},
 		{"liquidity/SwapFeeRate", "SwapFeeRate", "\"0.934590000000000000\"", "liquidity"},
 		{"liquidity/WithdrawFeeRate", "WithdrawFeeRate", "\"0.112010000000000000\"", "liquidity"},
 		{"liquidity/MaxOrderAmountRatio", "MaxOrderAmountRatio", "\"0.560680000000000000\"", "liquidity"},
-		{"liquidity/UnitBatchSize", "UnitBatchSize", "19", "liquidity"},
+		{"liquidity/UnitBatchHeight", "UnitBatchHeight", "19", "liquidity"},
 	}
 
 	paramChanges := simulation.ParamChanges(r)
