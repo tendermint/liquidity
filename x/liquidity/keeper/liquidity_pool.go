@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -509,12 +510,11 @@ func (k Keeper) SetPoolRecord(ctx sdk.Context, record types.PoolRecord) types.Po
 func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.DepositMsgState, batch types.PoolBatch) error {
 	batchMsg, _ = k.GetPoolBatchDepositMsgState(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	if !batchMsg.Executed || batchMsg.Succeeded {
-		panic("can't refund not executed or already succeed msg")
+		return fmt.Errorf("cannot refund not executed or already succeeded msg")
 	}
 	pool, _ := k.GetPool(ctx, batchMsg.Msg.PoolId)
-	err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetDepositor(), batchMsg.Msg.DepositCoins)
-	if err != nil {
-		panic(err)
+	if err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetDepositor(), batchMsg.Msg.DepositCoins); err != nil {
+		return err
 	}
 	// not delete now, set ToBeDeleted true for delete on next block beginblock
 	batchMsg.ToBeDeleted = true
@@ -530,19 +530,18 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Depos
 			sdk.NewAttribute(types.AttributeValueRefundedCoins, batchMsg.Msg.DepositCoins.String()),
 			sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
 		))
-	return err
+	return nil
 }
 
 // RefundWithdrawLiquidityPool refunds pool coin of the liquidity pool to the withdrawer
 func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.WithdrawMsgState, batch types.PoolBatch) error {
 	batchMsg, _ = k.GetPoolBatchWithdrawMsgState(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	if !batchMsg.Executed || batchMsg.Succeeded {
-		panic("can't refund not executed or already succeed msg")
+		return fmt.Errorf("cannot refund not executed or already succeeded msg")
 	}
 	pool, _ := k.GetPool(ctx, batchMsg.Msg.PoolId)
-	err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetWithdrawer(), sdk.NewCoins(batchMsg.Msg.PoolCoin))
-	if err != nil {
-		panic(err)
+	if err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetWithdrawer(), sdk.NewCoins(batchMsg.Msg.PoolCoin)); err != nil {
+		return err
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -560,7 +559,7 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.With
 	// not delete now, set ToBeDeleted true for delete on next block beginblock
 	batchMsg.ToBeDeleted = true
 	k.SetPoolBatchWithdrawMsgState(ctx, batchMsg.Msg.PoolId, batchMsg)
-	return err
+	return nil
 }
 
 // TransactAndRefundSwapLiquidityPool transacts, refunds, expires, sends coins with escrow, update state by TransactAndRefundSwapLiquidityPool
