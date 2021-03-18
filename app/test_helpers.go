@@ -7,14 +7,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/tendermint/liquidity/x/liquidity"
 	"math"
 	"math/rand"
 	"strconv"
 	"testing"
 	"time"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	"github.com/tendermint/liquidity/x/liquidity"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/stretchr/testify/require"
@@ -617,7 +618,6 @@ func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolC
 	iterNum := len(addrs)
 	for i := 0; i < iterNum; i++ {
 		balancePoolCoin := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.PoolCoinDenom)
-		fmt.Println(balancePoolCoin, poolCoinAmt)
 		require.True(t, balancePoolCoin.Amount.GTE(poolCoinAmt))
 
 		withdrawCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)

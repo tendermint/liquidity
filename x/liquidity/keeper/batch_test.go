@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -622,6 +621,9 @@ func TestLiquidityScenario5(t *testing.T) {
 	poolCoinAfter := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.PoolCoinDenom)
 	require.Equal(t, sdk.ZeroInt(), poolCoinAfter.Amount)
 
+	// save pool coin denom before deleting the pool
+	poolCoinDenom := pool.PoolCoinDenom
+
 	// delete the pool
 	simapp.LiquidityKeeper.DeletePool(ctx, pool)
 
@@ -631,7 +633,7 @@ func TestLiquidityScenario5(t *testing.T) {
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
 	// pool coin should be refunded since the pool is deleted before executing pool batch
-	poolCoinRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.PoolCoinDenom)
+	poolCoinRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[0], poolCoinDenom)
 	require.Equal(t, poolCoin.Amount, poolCoinRefunded.Amount)
 
 	// next block
@@ -907,9 +909,6 @@ func TestDeleteAndInitPoolBatchDeposit(t *testing.T) {
 	simapp.LiquidityKeeper.DeleteAndInitPoolBatch(ctx)
 	depositsAfter := simapp.LiquidityKeeper.GetAllRemainingPoolBatchDepositMsgStates(ctx, batch)
 
-	fmt.Println(depositsAll)
-	fmt.Println(depositsRemaining)
-	fmt.Println(depositsAfter)
 	require.Equal(t, 1, len(depositsRemaining))
 	require.Equal(t, 0, len(depositsAfter))
 
