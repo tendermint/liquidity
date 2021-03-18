@@ -15,20 +15,20 @@ option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 service Msg {
 
   // Submit create liquidity pool message.
-  rpc CreateLiquidityPool(MsgCreateLiquidityPool) returns (MsgCreateLiquidityPoolResponse);
+  rpc CreatePool(MsgCreatePool) returns (MsgCreatePoolResponse);
 
   // Submit deposit to the liquidity pool batch.
-  rpc DepositToLiquidityPool(MsgDepositToLiquidityPool) returns (MsgDepositToLiquidityPoolResponse);
+  rpc DepositWithinBatch(MsgDepositWithinBatch) returns (MsgDepositWithinBatchResponse);
 
   // Submit withdraw from to the liquidity pool batch.
-  rpc WithdrawFromLiquidityPool(MsgWithdrawFromLiquidityPool) returns (MsgWithdrawFromLiquidityPoolResponse);
+  rpc WithdrawWithinBatch(MsgWithdrawWithinBatch) returns (MsgWithdrawWithinBatchResponse);
 
   // Submit swap to the liquidity pool batch.
-  rpc Swap(MsgSwap) returns (MsgSwapResponse);
+  rpc Swap(MsgSwapWithinBatch) returns (MsgSwapWithinBatchResponse);
 }
 
-// MsgCreateLiquidityPool defines an sdk.Msg type that supports submitting create liquidity pool
-message MsgCreateLiquidityPool {
+// MsgCreatePool defines an sdk.Msg type that supports submitting create liquidity pool
+message MsgCreatePool {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -39,49 +39,43 @@ message MsgCreateLiquidityPool {
       format: "sdk.AccAddress"
     }];
 
-  // index of target pool type, only 1 is allowed on this version, Must match the value in the pool.
-  uint32 pool_type_index = 2 [(gogoproto.moretags) = "yaml:\"pool_type_index\"",
+  // id of target pool type, only 1 is allowed on this version, Must match the value in the pool.
+  uint32 pool_type_id = 2 [(gogoproto.moretags) = "yaml:\"pool_type_id\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       example: "\"1\"",
       format: "uint32"
   }];
-
-//  // denoms of reserve coin pair of the pool
-//  repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
-//    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-//      example: "[\"denomA\",\"denomB\"]"
-//    }];
 
   // reserve coin pair of the pool to deposit
   repeated cosmos.base.v1beta1.Coin deposit_coins = 4 [(gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"deposit_coins\"",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "[{\"denom\": \"denomA\", \"amount\": \"1000000\"}, {\"denom\": \"denomB\", \"amount\": \"2000000\"}]",
+      example: "[{\"denom\": \"denomX\", \"amount\": \"1000000\"}, {\"denom\": \"denomY\", \"amount\": \"2000000\"}]",
       format: "sdk.Coins"
     }];
 }
 
-// MsgCreateLiquidityPoolRequest is the request type for the Msg/MsgCreateLiquidityPoolRequest RPC method.
-message MsgCreateLiquidityPoolRequest {
+// MsgCreatePoolRequest is the request type for the Msg/MsgCreatePoolRequest RPC method.
+message MsgCreatePoolRequest {
   BaseReq base_req = 1;
 
-  // MsgCreateLiquidityPool
-  MsgCreateLiquidityPool msg = 2;
+  // MsgCreatePool
+  MsgCreatePool msg = 2;
 }
 
-// MsgCreateLiquidityPoolResponse defines the Msg/CreateLiquidityPool response type.
-message MsgCreateLiquidityPoolResponse {
+// MsgCreatePoolResponse defines the Msg/CreatePool response type.
+message MsgCreatePoolResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 
-// `MsgDepositToLiquidityPool defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
-// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, deposit coins for reserve
+// `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
+// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, deposit_coins for reserve
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests.
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-message MsgDepositToLiquidityPool {
+message MsgDepositWithinBatch {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -109,14 +103,14 @@ message MsgDepositToLiquidityPool {
     (gogoproto.moretags) = "yaml:\"deposit_coins\"",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "[{\"denom\": \"denomA\", \"amount\": \"1000000\"}, {\"denom\": \"denomB\", \"amount\": \"2000000\"}]",
+      example: "[{\"denom\": \"denomX\", \"amount\": \"1000000\"}, {\"denom\": \"denomY\", \"amount\": \"2000000\"}]",
       format: "sdk.Coins"
     }];
 
 }
 
-// MsgDepositToLiquidityPoolRequest is the request type for the Msg/DepositToLiquidityPool RPC method.
-message MsgDepositToLiquidityPoolRequest {
+// MsgDepositWithinBatchRequest is the request type for the Msg/DepositWithinBatch RPC method.
+message MsgDepositWithinBatchRequest {
   BaseReq base_req = 1;
   // id of the target pool
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
@@ -125,22 +119,22 @@ message MsgDepositToLiquidityPoolRequest {
       format: "uint64"
     }];
 
-  // MsgDepositToLiquidityPool
-  MsgDepositToLiquidityPool msg = 3;
+  // MsgDepositWithinBatch
+  MsgDepositWithinBatch msg = 3;
 }
 
-// MsgDepositToLiquidityPoolResponse defines the Msg/DepositToLiquidityPool response type.
-message MsgDepositToLiquidityPoolResponse {
+// MsgDepositWithinBatchResponse defines the Msg/DepositWithinBatch response type.
+message MsgDepositWithinBatchResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 
-// `MsgWithdrawFromLiquidityPool` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
+// `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
 // Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests.
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-message MsgWithdrawFromLiquidityPool {
+message MsgWithdrawWithinBatch {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -160,13 +154,13 @@ message MsgWithdrawFromLiquidityPool {
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"pool_coin\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "{\"denom\": \"cosmos1qz38nymksetqd2d4qesrxpffzywuel82a4l0vs\", \"amount\": \"1000\"}",
+      example: "{\"denom\": \"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\", \"amount\": \"1000\"}",
       format: "sdk.Coin"
     }];
 }
 
-// MsgWithdrawFromLiquidityPoolRequest is the request type for the Query/WithdrawFromLiquidityPool RPC method.
-message MsgWithdrawFromLiquidityPoolRequest {
+// MsgWithdrawWithinBatchRequest is the request type for the Query/WithdrawWithinBatch RPC method.
+message MsgWithdrawWithinBatchRequest {
   BaseReq base_req = 1;
   // id of the target pool
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
@@ -175,27 +169,27 @@ message MsgWithdrawFromLiquidityPoolRequest {
       format: "uint64"
     }];
 
-  // MsgWithdrawFromLiquidityPool
-  MsgWithdrawFromLiquidityPool msg = 3;
+  // MsgWithdrawWithinBatch
+  MsgWithdrawWithinBatch msg = 3;
 }
 
-// MsgWithdrawFromLiquidityPoolResponse defines the Msg/WithdrawFromLiquidityPool response type.
-message MsgWithdrawFromLiquidityPoolResponse {
+// MsgWithdrawWithinBatchResponse defines the Msg/WithdrawWithinBatch response type.
+message MsgWithdrawWithinBatchResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 
-// `MsgSwap` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
-// Swap offer to the Liquidity pool with the specified `pool_id`, `pool_type_index`, `swap_type`,
-// `demand_coin_denom` with the coin and the price you're offering
+// `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
+// Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
+// `demand_coin_denom` with the coin and the price you're offering and current `params.swap_fee_rate`
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests
 // You should request the same each field as the pool
-// Currently, only the default `swap_type`1 is available on this version
+// Currently, only the default `swap_type_id`1 is available on this version
 // The detailed swap algorithm can be found here.
 //
 // See: https://github.com/tendermint/liquidity/tree/develop/doc
 // https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-message MsgSwap {
+message MsgSwapWithinBatch {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
   // address of swap requester
@@ -212,15 +206,8 @@ message MsgSwap {
       format: "uint64"
     }];
 
-//  // index of target pool type, only 1 is allowed on this version, Must match the value in the pool.
-//  uint32 pool_type_index = 3 [(gogoproto.moretags) = "yaml:\"pool_type_index\"",
-//    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-//      example: "\"1\"",
-//      format: "uint32"
-//    }];
-
-  // id of swap type type, only 1 is allowed on this version, Must match the value in the pool.
-  uint32 swap_type = 3 [(gogoproto.moretags) = "yaml:\"swap_type\"",
+  // id of swap type, only 1 is allowed on this version, Must match the value in the pool.
+  uint32 swap_type_id = 3 [(gogoproto.moretags) = "yaml:\"swap_type_id\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       example: "\"1\"",
       format: "uint32"
@@ -231,7 +218,7 @@ message MsgSwap {
     (gogoproto.nullable)     = false,
     (gogoproto.moretags)     = "yaml:\"offer_coin\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "{\"denom\": \"denomA\", \"amount\": \"1000000\"}",
+      example: "{\"denom\": \"denomX\", \"amount\": \"1000000\"}",
       format: "sdk.Coin"
     }];
 
@@ -246,7 +233,7 @@ message MsgSwap {
     (gogoproto.nullable)     = false,
     (gogoproto.moretags)     = "yaml:\"offer_coin_fee\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "{\"denom\": \"denomA\", \"amount\": \"5000\"}",
+      example: "{\"denom\": \"denomX\", \"amount\": \"5000\"}",
       format: "sdk.Coin"
       }
   ];
@@ -262,8 +249,8 @@ message MsgSwap {
     }];
 }
 
-// MsgSwapRequest is the request type for the Query/Swap RPC method.
-message MsgSwapRequest {
+// MsgSwapWithinBatchRequest is the request type for the Query/Swap RPC method.
+message MsgSwapWithinBatchRequest {
   BaseReq base_req = 1;
   // id of the target pool
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
@@ -272,12 +259,12 @@ message MsgSwapRequest {
       format: "uint64"
     }];
 
-  // MsgSwap
-  MsgSwap msg = 3;
+  // MsgSwapWithinBatch
+  MsgSwapWithinBatch msg = 3;
 }
 
-// MsgSwapResponse defines the Msg/Swap response type.
-message MsgSwapResponse {
+// MsgSwapWithinBatchResponse defines the Msg/Swap response type.
+message MsgSwapWithinBatchResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
 }
 

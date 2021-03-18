@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
@@ -11,10 +12,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 		panic(err)
 	}
 	k.SetParams(ctx, genState.Params)
-	for _, record := range genState.LiquidityPoolRecords {
-		k.SetLiquidityPoolRecord(ctx, &record)
+	for _, record := range genState.PoolRecords {
+		k.SetPoolRecord(ctx, record)
 	}
-	// TODO: reset heights variables when init or export
+	// TODO: reset heights variables when init or export if needed
 }
 
 // ValidateGenesis performs genesis state validation for the liquidity module.
@@ -23,9 +24,10 @@ func (k Keeper) ValidateGenesis(ctx sdk.Context, genState types.GenesisState) er
 		return err
 	}
 	cc, _ := ctx.CacheContext()
-	for _, record := range genState.LiquidityPoolRecords {
-		k.SetLiquidityPoolRecord(cc, &record)
-		if err := k.ValidateLiquidityPoolRecord(cc, &record); err != nil {
+	k.SetParams(cc, genState.Params)
+	for _, record := range genState.PoolRecords {
+		record = k.SetPoolRecord(cc, record)
+		if err := k.ValidatePoolRecord(cc, record); err != nil {
 			return err
 		}
 	}
@@ -35,17 +37,17 @@ func (k Keeper) ValidateGenesis(ctx sdk.Context, genState types.GenesisState) er
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	params := k.GetParams(ctx)
-	var poolRecords []types.LiquidityPoolRecord
+	var poolRecords []types.PoolRecord
 
-	pools := k.GetAllLiquidityPools(ctx)
+	pools := k.GetAllPools(ctx)
 	for _, pool := range pools {
-		record, found := k.GetLiquidityPoolRecord(ctx, pool)
+		record, found := k.GetPoolRecord(ctx, pool)
 		if found {
 			poolRecords = append(poolRecords, *record)
 		}
 	}
 	if len(poolRecords) == 0 {
-		poolRecords = []types.LiquidityPoolRecord{}
+		poolRecords = []types.PoolRecord{}
 	}
 	return types.NewGenesisState(params, poolRecords)
 }

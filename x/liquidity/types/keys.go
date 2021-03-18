@@ -4,21 +4,20 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Routes, Keys for liquidity module
 const (
-	// ModuleName is the name of the module.
+	// ModuleName is the name of the liquidity module
 	ModuleName = "liquidity"
 
-	// RouterKey is the message route for the liquidity module.
+	// RouterKey is the message router key for the liquidity module
 	RouterKey = ModuleName
 
-	// StoreKey is the default store key for the liquidity module.
+	// StoreKey is the default store key for the liquidity module
 	StoreKey = ModuleName
 
-	// QuerierRoute is the querier route for the liquidity module.
+	// QuerierRoute is the querier route for the liquidity module
 	QuerierRoute = ModuleName
 
-	// PoolCoinDenomPrefix is the prefix used for liquidity pool coin representation.
+	// PoolCoinDenomPrefix is the prefix used for liquidity pool coin representation
 	PoolCoinDenomPrefix = "pool"
 )
 
@@ -27,92 +26,92 @@ var (
 	// param key for global Liquidity Pool IDs
 	GlobalLiquidityPoolIdKey = []byte("globalLiquidityPoolId")
 
-	LiquidityPoolKeyPrefix               = []byte{0x11}
-	LiquidityPoolByReserveIndexKeyPrefix = []byte{0x12}
+	PoolKeyPrefix                  = []byte{0x11}
+	PoolByReserveAccIndexKeyPrefix = []byte{0x12}
 
-	LiquidityPoolBatchIndexKeyPrefix = []byte{0x21} // LastLiquidityPoolBatchIndex
-	LiquidityPoolBatchKeyPrefix      = []byte{0x22}
+	PoolBatchIndexKeyPrefix = []byte{0x21} // Last PoolBatchIndex
+	PoolBatchKeyPrefix      = []byte{0x22}
 
-	LiquidityPoolBatchDepositMsgIndexKeyPrefix  = []byte{0x31}
-	LiquidityPoolBatchWithdrawMsgIndexKeyPrefix = []byte{0x32}
-	LiquidityPoolBatchSwapMsgIndexKeyPrefix     = []byte{0x33}
+	PoolBatchDepositMsgStateIndexKeyPrefix  = []byte{0x31}
+	PoolBatchWithdrawMsgStateIndexKeyPrefix = []byte{0x32}
+	PoolBatchSwapMsgStateIndexKeyPrefix     = []byte{0x33}
 )
 
-// return kv indexing key of the pool
-func GetLiquidityPoolKey(poolId uint64) []byte {
+// GetPoolKey returns kv indexing key of the pool
+func GetPoolKey(poolId uint64) []byte {
 	key := make([]byte, 9)
-	key[0] = LiquidityPoolKeyPrefix[0]
+	key[0] = PoolKeyPrefix[0]
 	copy(key[1:], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-// return kv indexing key of the pool indexed by reserve account
-func GetLiquidityPoolByReserveAccIndexKey(reserveAcc sdk.AccAddress) []byte {
-	return append(LiquidityPoolByReserveIndexKeyPrefix, reserveAcc.Bytes()...)
+// GetPoolByReserveAccIndexKey returns kv indexing key of the pool indexed by reserve account
+func GetPoolByReserveAccIndexKey(reserveAcc sdk.AccAddress) []byte {
+	return append(PoolByReserveAccIndexKeyPrefix, reserveAcc.Bytes()...)
 }
 
-// return kv indexing key of the latest index value of the pool batch
-func GetLiquidityPoolBatchIndexKey(poolId uint64) []byte {
+// GetPoolBatchIndexKey returns kv indexing key of the latest index value of the pool batch
+func GetPoolBatchIndexKey(poolId uint64) []byte {
 	key := make([]byte, 9)
-	key[0] = LiquidityPoolBatchIndexKeyPrefix[0]
-	copy(key[1:], sdk.Uint64ToBigEndian(poolId))
-	return key
-}
-
-// return kv indexing key of the pool batch indexed by pool id
-func GetLiquidityPoolBatchKey(poolId uint64) []byte {
-	key := make([]byte, 9)
-	key[0] = LiquidityPoolBatchKeyPrefix[0]
+	key[0] = PoolBatchIndexKeyPrefix[0]
 	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-// Get prefix of the deposit batch messages that given pool for iteration
-func GetLiquidityPoolBatchDepositMsgsPrefix(poolId uint64) []byte {
+// GetPoolBatchKey returns kv indexing key of the pool batch indexed by pool id
+func GetPoolBatchKey(poolId uint64) []byte {
 	key := make([]byte, 9)
-	key[0] = LiquidityPoolBatchDepositMsgIndexKeyPrefix[0]
+	key[0] = PoolBatchKeyPrefix[0]
 	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-// Get prefix of the withdraw batch messages that given pool for iteration
-func GetLiquidityPoolBatchWithdrawMsgsPrefix(poolId uint64) []byte {
+// GetPoolBatchDepositMsgStatesPrefix returns prefix of deposit message states in the pool's latest batch for iteration
+func GetPoolBatchDepositMsgStatesPrefix(poolId uint64) []byte {
 	key := make([]byte, 9)
-	key[0] = LiquidityPoolBatchWithdrawMsgIndexKeyPrefix[0]
+	key[0] = PoolBatchDepositMsgStateIndexKeyPrefix[0]
 	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-// Get prefix of the swap batch messages that given pool for iteration
-func GetLiquidityPoolBatchSwapMsgsPrefix(poolId uint64) []byte {
+// GetPoolBatchWithdrawMsgsPrefix returns prefix of withdraw message states in the pool's latest batch for iteration
+func GetPoolBatchWithdrawMsgsPrefix(poolId uint64) []byte {
 	key := make([]byte, 9)
-	key[0] = LiquidityPoolBatchSwapMsgIndexKeyPrefix[0]
+	key[0] = PoolBatchWithdrawMsgStateIndexKeyPrefix[0]
 	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	return key
 }
 
-// return kv indexing key of the latest index value of the msg index
-func GetLiquidityPoolBatchDepositMsgIndexKey(poolId, msgIndex uint64) []byte {
+// GetPoolBatchSwapMsgStatesPrefix returns prefix of swap message states in the pool's latest batch for iteration
+func GetPoolBatchSwapMsgStatesPrefix(poolId uint64) []byte {
+	key := make([]byte, 9)
+	key[0] = PoolBatchSwapMsgStateIndexKeyPrefix[0]
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	return key
+}
+
+// GetPoolBatchDepositMsgStateIndexKey returns kv indexing key of the latest index value of the msg index
+func GetPoolBatchDepositMsgStateIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
-	key[0] = LiquidityPoolBatchDepositMsgIndexKeyPrefix[0]
+	key[0] = PoolBatchDepositMsgStateIndexKeyPrefix[0]
 	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }
 
-// return kv indexing key of the latest index value of the msg index
-func GetLiquidityPoolBatchWithdrawMsgIndexKey(poolId, msgIndex uint64) []byte {
+// GetPoolBatchWithdrawMsgStateIndexKey returns kv indexing key of the latest index value of the msg index
+func GetPoolBatchWithdrawMsgStateIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
-	key[0] = LiquidityPoolBatchWithdrawMsgIndexKeyPrefix[0]
+	key[0] = PoolBatchWithdrawMsgStateIndexKeyPrefix[0]
 	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }
 
-// return kv indexing key of the latest index value of the msg index
-func GetLiquidityPoolBatchSwapMsgIndexKey(poolId, msgIndex uint64) []byte {
+// GetPoolBatchSwapMsgStateIndexKey returns kv indexing key of the latest index value of the msg index
+func GetPoolBatchSwapMsgStateIndexKey(poolId, msgIndex uint64) []byte {
 	key := make([]byte, 17)
-	key[0] = LiquidityPoolBatchSwapMsgIndexKeyPrefix[0]
+	key[0] = PoolBatchSwapMsgStateIndexKeyPrefix[0]
 	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
 	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key

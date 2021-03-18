@@ -6,7 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
-	"github.com/tendermint/liquidity/app"
+
+	lapp "github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -14,14 +15,14 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	app          *app.LiquidityApp
+	app          *lapp.LiquidityApp
 	ctx          sdk.Context
 	addrs        []sdk.AccAddress
-	pools        []types.LiquidityPool
-	batches      []types.LiquidityPoolBatch
-	depositMsgs  []types.BatchPoolDepositMsg
-	withdrawMsgs []types.BatchPoolWithdrawMsg
-	swapMsgs     []types.BatchPoolSwapMsg
+	pools        []types.Pool
+	batches      []types.PoolBatch
+	depositMsgs  []types.DepositMsgState
+	withdrawMsgs []types.WithdrawMsgState
+	swapMsgs     []types.SwapMsgState
 	queryClient  types.QueryClient
 }
 

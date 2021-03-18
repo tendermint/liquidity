@@ -5,10 +5,9 @@ package keeper
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	abci "github.com/tendermint/tendermint/abci/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -35,7 +34,7 @@ func queryLiquidityPool(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacy
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
-	liquidityPool, found := k.GetLiquidityPool(ctx, params.PoolId)
+	liquidityPool, found := k.GetPool(ctx, params.PoolId)
 	if !found {
 		return nil, types.ErrPoolNotExists
 	}
@@ -55,7 +54,7 @@ func queryLiquidityPools(ctx sdk.Context, req abci.RequestQuery, k Keeper, legac
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
-	liquidityPools := k.GetAllLiquidityPools(ctx)
+	liquidityPools := k.GetAllPools(ctx)
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, liquidityPools)
 	if err != nil {

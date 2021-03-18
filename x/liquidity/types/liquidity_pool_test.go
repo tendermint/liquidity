@@ -1,22 +1,24 @@
 package types_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity/types"
 	"strings"
 	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
+
+	"github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 func TestLiquidityPoolBatch(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
 	params := simapp.LiquidityKeeper.GetParams(ctx)
-	pool := types.LiquidityPool{}
+	pool := types.Pool{}
 	require.Equal(t, types.ErrPoolNotExists, pool.Validate())
-	pool.PoolId = 1
+	pool.Id = 1
 	require.Equal(t, types.ErrPoolTypeNotExists, pool.Validate())
-	pool.PoolTypeIndex = 1
+	pool.TypeId = 1
 	require.Equal(t, types.ErrNumOfReserveCoinDenoms, pool.Validate())
 	pool.ReserveCoinDenoms = []string{DenomY, DenomX, DenomX}
 	require.Equal(t, types.ErrNumOfReserveCoinDenoms, pool.Validate())
@@ -26,25 +28,25 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	require.Equal(t, types.ErrEmptyReserveAccountAddress, pool.Validate())
 	pool.ReserveAccountAddress = "badaddress"
 	require.Equal(t, types.ErrBadReserveAccountAddress, pool.Validate())
-	pool.ReserveAccountAddress = types.GetPoolReserveAcc(pool.GetPoolKey()).String()
+	pool.ReserveAccountAddress = types.GetPoolReserveAcc(pool.Name()).String()
 	add2, err := sdk.AccAddressFromBech32(pool.ReserveAccountAddress)
 	require.Equal(t, add2, pool.GetReserveAccount())
 	require.Equal(t, types.ErrEmptyPoolCoinDenom, pool.Validate())
 	pool.PoolCoinDenom = "badPoolCoinDenom"
 	require.Equal(t, types.ErrBadPoolCoinDenom, pool.Validate())
-	pool.PoolCoinDenom = pool.GetPoolKey()
+	pool.PoolCoinDenom = pool.Name()
 
 	require.NoError(t, pool.Validate())
 
-	require.Equal(t, pool.GetPoolKey(), types.GetPoolKey(pool.ReserveCoinDenoms, pool.PoolTypeIndex))
-	require.Equal(t, pool.PoolId, pool.GetPoolId())
+	require.Equal(t, pool.Name(), types.PoolName(pool.ReserveCoinDenoms, pool.TypeId))
+	require.Equal(t, pool.Id, pool.GetPoolId())
 	require.Equal(t, pool.PoolCoinDenom, pool.GetPoolCoinDenom())
 
 	cdc := simapp.AppCodec()
-	poolByte := types.MustMarshalLiquidityPool(cdc, pool)
-	require.Equal(t, pool, types.MustUnmarshalLiquidityPool(cdc, poolByte))
-	poolByte = types.MustMarshalLiquidityPool(cdc, pool)
-	poolMarshaled, err := types.UnmarshalLiquidityPool(cdc, poolByte)
+	poolByte := types.MustMarshalPool(cdc, pool)
+	require.Equal(t, pool, types.MustUnmarshalPool(cdc, poolByte))
+	poolByte = types.MustMarshalPool(cdc, pool)
+	poolMarshaled, err := types.UnmarshalPool(cdc, poolByte)
 	require.NoError(t, err)
 	require.Equal(t, pool, poolMarshaled)
 
@@ -52,39 +54,39 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	require.NoError(t, err)
 	require.True(t, pool.GetReserveAccount().Equals(addr))
 
-	require.Equal(t, strings.TrimSpace(pool.String()+"\n"+pool.String()), types.LiquidityPools{pool, pool}.String())
+	require.Equal(t, strings.TrimSpace(pool.String()+"\n"+pool.String()), types.Pools{pool, pool}.String())
 
-	simapp.LiquidityKeeper.SetLiquidityPool(ctx, pool)
-	batch := types.NewLiquidityPoolBatch(pool.PoolId, 1)
-	simapp.LiquidityKeeper.SetLiquidityPoolBatch(ctx, batch)
-	simapp.LiquidityKeeper.SetLiquidityPoolBatchIndex(ctx, batch.PoolId, batch.BatchIndex)
+	simapp.LiquidityKeeper.SetPool(ctx, pool)
+	batch := types.NewPoolBatch(pool.Id, 1)
+	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
+	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.Index)
 
-	batchByte := types.MustMarshalLiquidityPoolBatch(cdc, batch)
-	require.Equal(t, batch, types.MustUnmarshalLiquidityPoolBatch(cdc, batchByte))
-	batchMarshaled, err := types.UnmarshalLiquidityPoolBatch(cdc, batchByte)
+	batchByte := types.MustMarshalPoolBatch(cdc, batch)
+	require.Equal(t, batch, types.MustUnmarshalPoolBatch(cdc, batchByte))
+	batchMarshaled, err := types.UnmarshalPoolBatch(cdc, batchByte)
 	require.NoError(t, err)
 	require.Equal(t, batch, batchMarshaled)
 
-	batchDepositMsg := types.BatchPoolDepositMsg{}
-	batchWithdrawMsg := types.BatchPoolWithdrawMsg{}
-	batchSwapMsg := types.BatchPoolSwapMsg{ExchangedOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)),
-		RemainingOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)), OfferCoinFeeReserve: types.GetOfferCoinFee(sdk.NewCoin("test", sdk.NewInt(2000)), params.SwapFeeRate)}
+	batchDepositMsg := types.DepositMsgState{}
+	batchWithdrawMsg := types.WithdrawMsgState{}
+	batchSwapMsg := types.SwapMsgState{ExchangedOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)),
+		RemainingOfferCoin: sdk.NewCoin("test", sdk.NewInt(1000)), ReservedOfferCoinFee: types.GetOfferCoinFee(sdk.NewCoin("test", sdk.NewInt(2000)), params.SwapFeeRate)}
 
-	byte := types.MustMarshalBatchPoolDepositMsg(cdc, batchDepositMsg)
-	require.Equal(t, batchDepositMsg, types.MustUnmarshalBatchPoolDepositMsg(cdc, byte))
-	marshaled, err := types.UnmarshalBatchPoolDepositMsg(cdc, byte)
+	b := types.MustMarshalDepositMsgState(cdc, batchDepositMsg)
+	require.Equal(t, batchDepositMsg, types.MustUnmarshalDepositMsgState(cdc, b))
+	marshaled, err := types.UnmarshalDepositMsgState(cdc, b)
 	require.NoError(t, err)
 	require.Equal(t, batchDepositMsg, marshaled)
 
-	byte = types.MustMarshalBatchPoolWithdrawMsg(cdc, batchWithdrawMsg)
-	require.Equal(t, batchWithdrawMsg, types.MustUnmarshalBatchPoolWithdrawMsg(cdc, byte))
-	withdrawMsgMarshaled, err := types.UnmarshalBatchPoolWithdrawMsg(cdc, byte)
+	b = types.MustMarshalWithdrawMsgState(cdc, batchWithdrawMsg)
+	require.Equal(t, batchWithdrawMsg, types.MustUnmarshalWithdrawMsgState(cdc, b))
+	withdrawMsgMarshaled, err := types.UnmarshalWithdrawMsgState(cdc, b)
 	require.NoError(t, err)
 	require.Equal(t, batchWithdrawMsg, withdrawMsgMarshaled)
 
-	byte = types.MustMarshalBatchPoolSwapMsg(cdc, batchSwapMsg)
-	require.Equal(t, batchSwapMsg, types.MustUnmarshalBatchPoolSwapMsg(cdc, byte))
-	SwapMsgMarshaled, err := types.UnmarshalBatchPoolSwapMsg(cdc, byte)
+	b = types.MustMarshalSwapMsgState(cdc, batchSwapMsg)
+	require.Equal(t, batchSwapMsg, types.MustUnmarshalSwapMsgState(cdc, b))
+	SwapMsgMarshaled, err := types.UnmarshalSwapMsgState(cdc, b)
 	require.NoError(t, err)
 	require.Equal(t, batchSwapMsg, SwapMsgMarshaled)
 }

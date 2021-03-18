@@ -2,9 +2,6 @@ package cmd
 
 import (
 	"context"
-	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/crisis"
-	"github.com/tendermint/liquidity/app/params"
 	"io"
 	"os"
 	"path/filepath"
@@ -24,7 +21,9 @@ import (
 	authclient "github.com/cosmos/cosmos-sdk/x/auth/client"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingcli "github.com/cosmos/cosmos-sdk/x/auth/vesting/client/cli"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
@@ -33,6 +32,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	liquidity "github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/app/params"
 )
 
 func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
@@ -68,7 +68,7 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 func Execute(rootCmd *cobra.Command) error {
 	// Create and set a client.Context on the command's Context. During the pre-run
 	// of the root command, a default initialized client.Context is provided to
-	// seed child command execution with values such as AccountRetriver, Keyring,
+	// seed child command execution with values such as AccountRetriever, Keyring,
 	// and a Tendermint RPC. This requires the use of a pointer reference when
 	// getting and setting the client.Context. Ideally, we utilize
 	// https://github.com/spf13/cobra/pull/1118.

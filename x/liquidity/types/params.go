@@ -3,118 +3,117 @@ package types
 import (
 	"fmt"
 
-	"gopkg.in/yaml.v2"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"gopkg.in/yaml.v2"
 )
 
 // Const value of liquidity module
 const (
 	CancelOrderLifeSpan int64 = 0
 
-	// min number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
+	// min number of reserveCoins for PoolType only 2 is allowed on this spec
 	MinReserveCoinNum uint32 = 2
 
-	// max number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
+	// max number of reserveCoins for PoolType only 2 is allowed on this spec
 	MaxReserveCoinNum uint32 = 2
 
 	// Number of blocks in one batch
-	DefaultUnitBatchSize uint32 = 1
+	DefaultUnitBatchHeight uint32 = 1
 
 	// index of target pool type, only 1 is allowed on this version.
-	DefaultPoolTypeIndex uint32 = 1
+	DefaultPoolTypeId uint32 = 1
 
-	// swap type of available swap request, only 1 is allowed on this version.
-	DefaultSwapType uint32 = 1
+	// swap type index of available swap request, only 1 (InstantSwap) is allowed on this version.
+	DefaultSwapTypeId uint32 = 1
 )
 
 // Parameter store keys
 var (
-	KeyLiquidityPoolTypes       = []byte("LiquidityPoolTypes")
-	KeyMinInitDepositToPool     = []byte("MinInitDepositToPool")
-	KeyInitPoolCoinMintAmount   = []byte("InitPoolCoinMintAmount")
-	KeyReserveCoinLimitAmount   = []byte("ReserveCoinLimitAmount")
-	KeySwapFeeRate              = []byte("SwapFeeRate")
-	KeyLiquidityPoolCreationFee = []byte("LiquidityPoolCreationFee")
-	KeyUnitBatchSize            = []byte("UnitBatchSize")
-	KeyWithdrawFeeRate          = []byte("WithdrawFeeRate")
-	KeyMaxOrderAmountRatio      = []byte("MaxOrderAmountRatio")
+	KeyPoolTypes              = []byte("PoolTypes")
+	KeyMinInitDepositAmount   = []byte("MinInitDepositAmount")
+	KeyInitPoolCoinMintAmount = []byte("InitPoolCoinMintAmount")
+	KeyMaxReserveCoinAmount   = []byte("MaxReserveCoinAmount")
+	KeySwapFeeRate            = []byte("SwapFeeRate")
+	KeyPoolCreationFee        = []byte("PoolCreationFee")
+	KeyUnitBatchHeight        = []byte("UnitBatchHeight")
+	KeyWithdrawFeeRate        = []byte("WithdrawFeeRate")
+	KeyMaxOrderAmountRatio    = []byte("MaxOrderAmountRatio")
 
-	DefaultMinInitDepositToPool     = sdk.NewInt(1000000)
-	DefaultInitPoolCoinMintAmount   = sdk.NewInt(1000000)
-	DefaultReserveCoinLimitAmount   = sdk.ZeroInt()
-	DefaultSwapFeeRate              = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
-	DefaultWithdrawFeeRate          = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
-	DefaultMaxOrderAmountRatio      = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
-	DefaultLiquidityPoolCreationFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
-	MinOfferCoinAmount              = sdk.NewInt(100)
+	DefaultMinInitDepositAmount   = sdk.NewInt(1000000)
+	DefaultInitPoolCoinMintAmount = sdk.NewInt(1000000)
+	DefaultMaxReserveCoinAmount   = sdk.ZeroInt()
+	DefaultSwapFeeRate            = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
+	DefaultWithdrawFeeRate        = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
+	DefaultMaxOrderAmountRatio    = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
+	DefaultPoolCreationFee        = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
+	MinOfferCoinAmount            = sdk.NewInt(100)
 
 	HalfRatio = sdk.MustNewDecFromStr("0.5")
 
 	DecimalErrThreshold3  = sdk.NewDecWithPrec(1, 3)
 	DecimalErrThreshold10 = sdk.NewDecWithPrec(1, 10)
 
-	DefaultLiquidityPoolType = LiquidityPoolType{
-		PoolTypeIndex:     1,
+	DefaultPoolType = PoolType{
+		Id:                1,
 		Name:              "DefaultPoolType",
 		MinReserveCoinNum: MinReserveCoinNum,
 		MaxReserveCoinNum: MaxReserveCoinNum,
 	}
 )
 
-// NewParams liquidity paramtypes constructor
-func NewParams(liquidityPoolTypes []LiquidityPoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
-	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchSize uint32) Params {
+// NewParams liquidity paramstypes constructor
+func NewParams(poolTypes []PoolType, minInitDeposit, initPoolCoinMint, reserveCoinLimit sdk.Int, creationFee sdk.Coins,
+	swapFeeRate, withdrawFeeRate, maxOrderAmtRatio sdk.Dec, unitBatchHeight uint32) Params {
 	return Params{
-		LiquidityPoolTypes:       liquidityPoolTypes,
-		MinInitDepositToPool:     minInitDeposit,
-		InitPoolCoinMintAmount:   initPoolCoinMint,
-		ReserveCoinLimitAmount:   reserveCoinLimit,
-		LiquidityPoolCreationFee: creationFee,
-		SwapFeeRate:              swapFeeRate,
-		WithdrawFeeRate:          withdrawFeeRate,
-		MaxOrderAmountRatio:      maxOrderAmtRatio,
-		UnitBatchSize:            unitBatchSize,
+		PoolTypes:              poolTypes,
+		MinInitDepositAmount:   minInitDeposit,
+		InitPoolCoinMintAmount: initPoolCoinMint,
+		MaxReserveCoinAmount:   reserveCoinLimit,
+		PoolCreationFee:        creationFee,
+		SwapFeeRate:            swapFeeRate,
+		WithdrawFeeRate:        withdrawFeeRate,
+		MaxOrderAmountRatio:    maxOrderAmtRatio,
+		UnitBatchHeight:        unitBatchHeight,
 	}
 }
 
 // ParamTypeTable returns the TypeTable for liquidity module
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+func ParamKeyTable() paramstypes.KeyTable {
+	return paramstypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
-// KeyValuePairs implements paramtypes.KeyValuePairs
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+// KeyValuePairs implements paramstypes.KeyValuePairs
+func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyLiquidityPoolTypes, &p.LiquidityPoolTypes, validateLiquidityPoolTypes),
-		paramtypes.NewParamSetPair(KeyMinInitDepositToPool, &p.MinInitDepositToPool, validateMinInitDepositToPool),
-		paramtypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
-		paramtypes.NewParamSetPair(KeyReserveCoinLimitAmount, &p.ReserveCoinLimitAmount, validateReserveCoinLimitAmount),
-		paramtypes.NewParamSetPair(KeyLiquidityPoolCreationFee, &p.LiquidityPoolCreationFee, validateLiquidityPoolCreationFee),
-		paramtypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
-		paramtypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
-		paramtypes.NewParamSetPair(KeyMaxOrderAmountRatio, &p.MaxOrderAmountRatio, validateMaxOrderAmountRatio),
-		paramtypes.NewParamSetPair(KeyUnitBatchSize, &p.UnitBatchSize, validateUnitBatchSize),
+	return paramstypes.ParamSetPairs{
+		paramstypes.NewParamSetPair(KeyPoolTypes, &p.PoolTypes, validatePoolTypes),
+		paramstypes.NewParamSetPair(KeyMinInitDepositAmount, &p.MinInitDepositAmount, validateMinInitDepositAmount),
+		paramstypes.NewParamSetPair(KeyInitPoolCoinMintAmount, &p.InitPoolCoinMintAmount, validateInitPoolCoinMintAmount),
+		paramstypes.NewParamSetPair(KeyMaxReserveCoinAmount, &p.MaxReserveCoinAmount, validateMaxReserveCoinAmount),
+		paramstypes.NewParamSetPair(KeyPoolCreationFee, &p.PoolCreationFee, validatePoolCreationFee),
+		paramstypes.NewParamSetPair(KeySwapFeeRate, &p.SwapFeeRate, validateSwapFeeRate),
+		paramstypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
+		paramstypes.NewParamSetPair(KeyMaxOrderAmountRatio, &p.MaxOrderAmountRatio, validateMaxOrderAmountRatio),
+		paramstypes.NewParamSetPair(KeyUnitBatchHeight, &p.UnitBatchHeight, validateUnitBatchHeight),
 	}
 }
 
 // DefaultParams returns the default liquidity module parameters
 func DefaultParams() Params {
-	var defaultLiquidityPoolTypes []LiquidityPoolType
-	defaultLiquidityPoolTypes = append(defaultLiquidityPoolTypes, DefaultLiquidityPoolType)
+	var defaultPoolTypes []PoolType
+	defaultPoolTypes = append(defaultPoolTypes, DefaultPoolType)
 
 	return NewParams(
-		defaultLiquidityPoolTypes,
-		DefaultMinInitDepositToPool,
+		defaultPoolTypes,
+		DefaultMinInitDepositAmount,
 		DefaultInitPoolCoinMintAmount,
-		DefaultReserveCoinLimitAmount,
-		DefaultLiquidityPoolCreationFee,
+		DefaultMaxReserveCoinAmount,
+		DefaultPoolCreationFee,
 		DefaultSwapFeeRate,
 		DefaultWithdrawFeeRate,
 		DefaultMaxOrderAmountRatio,
-		DefaultUnitBatchSize)
+		DefaultUnitBatchHeight)
 }
 
 // String returns a human readable string representation of the parameters.
@@ -125,11 +124,11 @@ func (p Params) String() string {
 
 // Validate returns err if Params is invalid
 func (p Params) Validate() error {
-	if err := validateLiquidityPoolTypes(p.LiquidityPoolTypes); err != nil {
+	if err := validatePoolTypes(p.PoolTypes); err != nil {
 		return err
 	}
 
-	if err := validateMinInitDepositToPool(p.MinInitDepositToPool); err != nil {
+	if err := validateMinInitDepositAmount(p.MinInitDepositAmount); err != nil {
 		return err
 	}
 
@@ -137,11 +136,11 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateReserveCoinLimitAmount(p.ReserveCoinLimitAmount); err != nil {
+	if err := validateMaxReserveCoinAmount(p.MaxReserveCoinAmount); err != nil {
 		return err
 	}
 
-	if err := validateLiquidityPoolCreationFee(p.LiquidityPoolCreationFee); err != nil {
+	if err := validatePoolCreationFee(p.PoolCreationFee); err != nil {
 		return err
 	}
 
@@ -157,26 +156,24 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateUnitBatchSize(p.UnitBatchSize); err != nil {
+	if err := validateUnitBatchHeight(p.UnitBatchHeight); err != nil {
 		return err
 	}
-	// TODO: add detail validate logic
-
 	return nil
 }
 
 // check validity of the list of liquidity pool type
-func validateLiquidityPoolTypes(i interface{}) error {
-	v, ok := i.([]LiquidityPoolType)
+func validatePoolTypes(i interface{}) error {
+	v, ok := i.([]PoolType)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if v == nil {
-		return fmt.Errorf("empty parameter: LiquidityPoolTypes")
+		return fmt.Errorf("empty parameter: PoolTypes")
 	}
 	for i, p := range v {
-		if i+1 != int(p.PoolTypeIndex) {
-			return fmt.Errorf("LiquidityPoolTypes index must be sorted")
+		if i+1 != int(p.Id) {
+			return fmt.Errorf("PoolTypes index must be sorted")
 		}
 	}
 	if len(v) > 1 {
@@ -185,20 +182,20 @@ func validateLiquidityPoolTypes(i interface{}) error {
 	if len(v) < 1 {
 		return fmt.Errorf("need to default pool type")
 	}
-	if !v[0].Equal(DefaultLiquidityPoolType) {
+	if !v[0].Equal(DefaultPoolType) {
 		return fmt.Errorf("only default pool type allowed")
 	}
 	return nil
 }
 
 // Validate that the minimum deposit.
-func validateMinInitDepositToPool(i interface{}) error {
+func validateMinInitDepositAmount(i interface{}) error {
 	v, ok := i.(sdk.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if !v.IsPositive() {
-		return fmt.Errorf("MinInitDepositToPool must be positive: %s", v)
+		return fmt.Errorf("MinInitDepositAmount must be positive: %s", v)
 	}
 
 	return nil
@@ -220,7 +217,7 @@ func validateInitPoolCoinMintAmount(i interface{}) error {
 }
 
 // Validate that the Limit the size of each liquidity pool.
-func validateReserveCoinLimitAmount(i interface{}) error {
+func validateMaxReserveCoinAmount(i interface{}) error {
 	v, ok := i.(sdk.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -277,7 +274,7 @@ func validateMaxOrderAmountRatio(i interface{}) error {
 }
 
 // Check if the pool creation fee is valid
-func validateLiquidityPoolCreationFee(i interface{}) error {
+func validatePoolCreationFee(i interface{}) error {
 	coins, ok := i.(sdk.Coins)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -286,19 +283,19 @@ func validateLiquidityPoolCreationFee(i interface{}) error {
 		return err
 	}
 	if coins.Empty() {
-		return fmt.Errorf("LiquidityPoolCreationFee cannot be Empty: %s", coins)
+		return fmt.Errorf("PoolCreationFee cannot be Empty: %s", coins)
 	}
 	return nil
 }
 
 // Check if the liquidity Msg fee is valid
-func validateUnitBatchSize(i interface{}) error {
+func validateUnitBatchHeight(i interface{}) error {
 	int, ok := i.(uint32)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if int == 0 {
-		return fmt.Errorf("UnitBatchSize cannot be zero")
+		return fmt.Errorf("UnitBatchHeight cannot be zero")
 	}
 	return nil
 }

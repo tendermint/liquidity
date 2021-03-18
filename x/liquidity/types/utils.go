@@ -66,28 +66,15 @@ func StringInSlice(a string, list []string) bool {
 }
 
 // Safe Sub function for Coin with subtracting amount
-func CoinSafeSubAmount(coinA sdk.Coin, coinBamt sdk.Int) sdk.Coin {
+func CoinSafeSubAmount(coinA sdk.Coin, coinBAmt sdk.Int) sdk.Coin {
 	var resCoin sdk.Coin
-	if coinA.Amount.Equal(coinBamt) {
+	if coinA.Amount.Equal(coinBAmt) {
 		resCoin = sdk.NewCoin(coinA.Denom, sdk.NewInt(0))
 	} else {
-		resCoin = coinA.Sub(sdk.NewCoin(coinA.Denom, coinBamt))
+		resCoin = coinA.Sub(sdk.NewCoin(coinA.Denom, coinBAmt))
 	}
 	return resCoin
 }
-
-//func CoinSafeSub(coinA, coinB sdk.Coin) sdk.Coin {
-//	var resCoin sdk.Coin
-//	if coinA.Denom != coinB.Denom {
-//		return resCoin
-//	}
-//	if coinA.Equal(coinB) {
-//		resCoin = sdk.NewCoin(coinA.Denom, sdk.ZeroInt())
-//	} else {
-//		coinA = coinA.Sub(sdk.NewCoin(coinA.Denom, coinB.Amount))
-//	}
-//	return resCoin
-//}
 
 // Check the decimals equal approximately
 func CheckDecApproxEqual(a, b, threshold sdk.Dec) bool {
@@ -111,13 +98,12 @@ func GetCoinsTotalAmount(coins sdk.Coins) sdk.Int {
 	return totalAmount
 }
 
-// Check Validity of the depositCoins exceed reserveCoinLimitAmount
-// TODO: Get balance of pool, check with
-func ValidateReserveCoinLimit(reserveCoinLimitAmount sdk.Int, depositCoins sdk.Coins) error {
+// Check Validity of the depositCoins exceed maxReserveCoinAmount
+func ValidateReserveCoinLimit(maxReserveCoinAmount sdk.Int, depositCoins sdk.Coins) error {
 	totalAmount := GetCoinsTotalAmount(depositCoins)
-	if reserveCoinLimitAmount.IsZero() {
+	if maxReserveCoinAmount.IsZero() {
 		return nil
-	} else if totalAmount.GT(reserveCoinLimitAmount) {
+	} else if totalAmount.GT(maxReserveCoinAmount) {
 		return ErrExceededReserveCoinLimit
 	} else {
 		return nil

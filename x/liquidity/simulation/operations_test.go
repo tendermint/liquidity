@@ -4,19 +4,17 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-
-	"github.com/tendermint/liquidity/app"
-	simappparams "github.com/tendermint/liquidity/app/params"
-	"github.com/tendermint/liquidity/x/liquidity/simulation"
-	"github.com/tendermint/liquidity/x/liquidity/types"
-
+	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+
+	lapp "github.com/tendermint/liquidity/app"
+	liquidityparams "github.com/tendermint/liquidity/app/params"
+	"github.com/tendermint/liquidity/x/liquidity/simulation"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 // TestWeightedOperations tests the weights of the operations.
@@ -28,7 +26,7 @@ func TestWeightedOperations(t *testing.T) {
 	cdc := app.AppCodec()
 	appParams := make(simtypes.AppParams)
 
-	weightesOps := simulation.WeightedOperations(appParams, cdc, app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	weightedOps := simulation.WeightedOperations(appParams, cdc, app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 
 	s := rand.NewSource(1)
 	r := rand.New(s)
@@ -39,13 +37,13 @@ func TestWeightedOperations(t *testing.T) {
 		opMsgRoute string
 		opMsgName  string
 	}{
-		{simappparams.DefaultWeightMsgCreateLiquidityPool, types.ModuleName, types.TypeMsgCreateLiquidityPool},
-		{simappparams.DefaultWeightMsgDepositToLiquidityPool, types.ModuleName, types.TypeMsgDepositToLiquidityPool},
-		{simappparams.DefaultWeightMsgWithdrawFromLiquidityPool, types.ModuleName, types.TypeMsgWithdrawFromLiquidityPool},
-		{simappparams.DefaultWeightMsgSwap, types.ModuleName, types.TypeMsgSwap},
+		{liquidityparams.DefaultWeightMsgCreatePool, types.ModuleName, types.TypeMsgCreatePool},
+		{liquidityparams.DefaultWeightMsgDepositWithinBatch, types.ModuleName, types.TypeMsgDepositWithinBatch},
+		{liquidityparams.DefaultWeightMsgWithdrawWithinBatch, types.ModuleName, types.TypeMsgWithdrawWithinBatch},
+		{liquidityparams.DefaultWeightMsgSwapWithinBatch, types.ModuleName, types.TypeMsgSwapWithinBatch},
 	}
 
-	for i, w := range weightesOps {
+	for i, w := range weightedOps {
 		operationMsg, _, _ := w.Op()(r, app.BaseApp, ctx, accs, ctx.ChainID())
 		// the following checks are very much dependent from the ordering of the output given
 		// by WeightedOperations. if the ordering in WeightedOperations changes some tests
@@ -56,9 +54,9 @@ func TestWeightedOperations(t *testing.T) {
 	}
 }
 
-// TestSimulateMsgCreateLiquidityPool tests the normal scenario of a valid message of type TypeMsgCreateLiquidityPool.
-// Abonormal scenarios, where the message are created by an errors are not tested here.
-func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
+// TestSimulateMsgCreatePool tests the normal scenario of a valid message of type TypeMsgCreatePool.
+// Abnormal scenarios, where the message are created by an errors are not tested here.
+func TestSimulateMsgCreatePool(t *testing.T) {
 	app, ctx := createTestApp(false)
 
 	// setup a single account
@@ -67,33 +65,33 @@ func TestSimulateMsgCreateLiquidityPool(t *testing.T) {
 	accounts := getTestingAccounts(t, r, app, ctx, 1)
 
 	// setup randomly generated liquidity pool creation fees
-	feeCoins := simulation.GenLiquidityPoolCreationFee(r)
+	feeCoins := simulation.GenPoolCreationFee(r)
 	params := app.LiquidityKeeper.GetParams(ctx)
-	params.LiquidityPoolCreationFee = feeCoins
+	params.PoolCreationFee = feeCoins
 	app.LiquidityKeeper.SetParams(ctx, params)
 
 	// begin a new block
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
 
 	// execute operation
-	op := simulation.SimulateMsgCreateLiquidityPool(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	op := simulation.SimulateMsgCreatePool(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
 	require.NoError(t, err)
 
-	var msg types.MsgCreateLiquidityPool
-	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	var msg types.MsgCreatePool
+	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetPoolCreator().String())
-	require.Equal(t, types.DefaultPoolTypeIndex, msg.PoolTypeIndex)
+	require.Equal(t, types.DefaultPoolTypeId, msg.PoolTypeId)
 	require.Equal(t, "171625357wLfFy,279341739zDmT", msg.DepositCoins.String())
-	require.Equal(t, types.TypeMsgCreateLiquidityPool, msg.Type())
+	require.Equal(t, types.TypeMsgCreatePool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
 
-// TestSimulateMsgDepositToLiquidityPool tests the normal scenario of a valid message of type TypeMsgDepositToLiquidityPool.
-// Abonormal scenarios, where the message are created by an errors are not tested here.
-func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
+// TestSimulateMsgDepositWithinBatch tests the normal scenario of a valid message of type TypeMsgDepositWithinBatch.
+// Abnormal scenarios, where the message are created by an errors are not tested here.
+func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	app, ctx := createTestApp(false)
 
 	// setup accounts
@@ -108,23 +106,23 @@ func TestSimulateMsgDepositToLiquidityPool(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
 
 	// execute operation
-	op := simulation.SimulateMsgDepositToLiquidityPool(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	op := simulation.SimulateMsgDepositWithinBatch(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
 	require.NoError(t, err)
 
-	var msg types.MsgDepositToLiquidityPool
-	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	var msg types.MsgDepositWithinBatch
+	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetDepositor().String())
 	require.Equal(t, "160538706Qfyze,478362889VIkPZ", msg.DepositCoins.String())
-	require.Equal(t, types.TypeMsgDepositToLiquidityPool, msg.Type())
+	require.Equal(t, types.TypeMsgDepositWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
 
-// TestSimulateMsgWithdrawFromLiquidityPool tests the normal scenario of a valid message of type TypeMsgWithdrawFromLiquidityPool.
-// Abonormal scenarios, where the message are created by an errors are not tested here.
-func TestSimulateMsgWithdrawFromLiquidityPool(t *testing.T) {
+// TestSimulateMsgWithdrawWithinBatch tests the normal scenario of a valid message of type TypeMsgWithdrawWithinBatch.
+// Abnormal scenarios, where the message are created by an errors are not tested here.
+func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 	app, ctx := createTestApp(false)
 
 	// setup accounts
@@ -139,23 +137,23 @@ func TestSimulateMsgWithdrawFromLiquidityPool(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
 
 	// execute operation
-	op := simulation.SimulateMsgWithdrawFromLiquidityPool(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	op := simulation.SimulateMsgWithdrawWithinBatch(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
 	require.NoError(t, err)
 
-	var msg types.MsgWithdrawFromLiquidityPool
-	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	var msg types.MsgWithdrawWithinBatch
+	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetWithdrawer().String())
 	require.Equal(t, "70867pool/2D59CF15954FA399BBEA5EE6A2E73D09BC39FC8720F2E922AC17C9AC06758EA8", msg.PoolCoin.String())
-	require.Equal(t, types.TypeMsgWithdrawFromLiquidityPool, msg.Type())
+	require.Equal(t, types.TypeMsgWithdrawWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
 
-// TestSimulateMsgSwap tests the normal scenario of a valid message of type TypeMsgSwap.
-// Abonormal scenarios, where the message are created by an errors are not tested here.
-func TestSimulateMsgSwap(t *testing.T) {
+// TestSimulateMsgSwapWithinBatch tests the normal scenario of a valid message of type TypeMsgSwapWithinBatch.
+// Abnormal scenarios, where the message are created by an errors are not tested here.
+func TestSimulateMsgSwapWithinBatch(t *testing.T) {
 	app, ctx := createTestApp(false)
 
 	// setup a single account
@@ -170,24 +168,24 @@ func TestSimulateMsgSwap(t *testing.T) {
 	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
 
 	// execute operation
-	op := simulation.SimulateMsgSwap(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	op := simulation.SimulateMsgSwapWithinBatch(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
 	require.NoError(t, err)
 
-	var msg types.MsgSwap
-	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	var msg types.MsgSwapWithinBatch
+	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetSwapRequester().String())
 	require.Equal(t, "960168fGaE", msg.OfferCoin.String())
 	require.Equal(t, "jXUlr", msg.DemandCoinDenom)
-	require.Equal(t, types.TypeMsgSwap, msg.Type())
+	require.Equal(t, types.TypeMsgSwapWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
 
 // returns context and an app
-func createTestApp(isCheckTx bool) (*app.LiquidityApp, sdk.Context) {
-	app := app.Setup(false)
+func createTestApp(isCheckTx bool) (*lapp.LiquidityApp, sdk.Context) {
+	app := lapp.Setup(false)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
 	app.MintKeeper.SetParams(ctx, minttypes.DefaultParams())
@@ -196,7 +194,7 @@ func createTestApp(isCheckTx bool) (*app.LiquidityApp, sdk.Context) {
 	return app, ctx
 }
 
-func getTestingAccounts(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx sdk.Context, n int) []simtypes.Account {
+func getTestingAccounts(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx sdk.Context, n int) []simtypes.Account {
 	accounts := simtypes.RandomAccounts(r, n)
 
 	initAmt := sdk.TokensFromConsensusPower(1e6)
@@ -213,7 +211,7 @@ func getTestingAccounts(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx s
 	return accounts
 }
 
-func setupLiquidityPools(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx sdk.Context, accounts []simtypes.Account) {
+func setupLiquidityPools(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx sdk.Context, accounts []simtypes.Account) {
 	params := app.StakingKeeper.GetParams(ctx)
 
 	for _, account := range accounts {
@@ -241,13 +239,13 @@ func setupLiquidityPools(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx 
 
 		// create liquidity pool with random deposit amounts
 		account := app.AccountKeeper.GetAccount(ctx, account.Address)
-		depositCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8))))
-		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositToPool.Int64()), 1e8))))
+		depositCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
+		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
-		createPoolMsg := types.NewMsgCreateLiquidityPool(account.GetAddress(), types.DefaultPoolTypeIndex, depositCoins)
+		createPoolMsg := types.NewMsgCreatePool(account.GetAddress(), types.DefaultPoolTypeId, depositCoins)
 
-		_, err = app.LiquidityKeeper.CreateLiquidityPool(ctx, createPoolMsg)
+		_, err = app.LiquidityKeeper.CreatePool(ctx, createPoolMsg)
 		require.NoError(t, err)
 	}
 }
