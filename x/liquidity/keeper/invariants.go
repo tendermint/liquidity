@@ -78,9 +78,8 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 
 	// TODO: handle case when someone sends coins to escrow module account
 
-	// TODO: double check if this is intended result
-	// there may be decimal error differences which should be smaller than 0.1
-	poolCoinRatio = poolCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
+	// there may be small differences due to decimal handling, which should be smaller than 0.000001
+	poolCoinRatio = poolCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
 
 	// NewPoolCoinAmount / LastPoolCoinSupply = AfterRefundedDepositCoinA / LastReserveCoinA
 	// NewPoolCoinAmount / LastPoolCoinSupply = AfterRefundedDepositCoinA / LastReserveCoinB
@@ -119,9 +118,8 @@ func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCo
 
 	depositCoinRatio := depositCoinA.Quo(depositCoinB)
 
-	// TODO: double check if this is intended result
-	// there may be decimal error differences which should be smaller than 0.1
-	depositCoinRatio = depositCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
+	// there may be small differences due to decimal handling, which should be smaller than 0.000001
+	depositCoinRatio = depositCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
 
 	// AfterRefundedDepositCoinA / AfterRefundedDepositCoinA = LastReserveCoinA / LastReserveCoinB
 	if !depositCoinRatio.GTE(lastReserveCoinRatio) {
@@ -131,9 +129,8 @@ func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCo
 
 // ImmutablePoolPriceAfterDepositInvariant checks immutable pool price after depositing coins.
 func ImmutablePoolPriceAfterDepositInvariant(lastReserveCoinRatio, afterReserveCoinRatio sdk.Dec) {
-	// TODO: double check if this is intended result
-	// there may be decimal error differences which should be smaller than 0.1
-	lastReserveCoinRatio = lastReserveCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
+	// there may be small differences due to decimal handling, which should be smaller than 0.000001
+	lastReserveCoinRatio = lastReserveCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
 
 	// LastReserveCoinA / LastReserveCoinB = AfterDepositReserveCoinA / AfterDepositReserveCoinB
 	if !lastReserveCoinRatio.GTE(afterReserveCoinRatio) {
@@ -147,9 +144,8 @@ func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, res
 	withdrawCoinARatio := withdrawCoinA.Add(withdrawProportion).Quo(reserveCoinA)
 	withdrawCoinBRatio := withdrawCoinB.Add(withdrawProportion).Quo(reserveCoinB)
 
-	// TODO: double check if this is intended result
-	// there may be decimal error differences which should be smaller than 0.1
-	burningPoolCoinRatio = burningPoolCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
+	// there may be small differences due to decimal handling, which should be smaller than 0.000001
+	burningPoolCoinRatio = burningPoolCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
 
 	// BurnedPoolCoinAmount / LastPoolCoinSupply = (WithdrawCoinA+WithdrawFeeCoinA) / LastReserveCoinA
 	// BurnedPoolCoinAmount / LastPoolCoinSupply = (WithdrawCoinB+WithdrawFeeCoinB) / LastReserveCoinB
@@ -182,9 +178,8 @@ func WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveC
 	withdrawCoinRatio := withdrawCoinA.Quo(withdrawCoinB)
 	reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
 
-	// TODO: double check if this is intended result
-	// there may be decimal error differences which should be smaller than 0.1
-	withdrawCoinRatio = withdrawCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
+	// there may be small differences due to decimal handling, which should be smaller than 0.000001
+	withdrawCoinRatio = withdrawCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
 
 	// WithdrawCoinA / WithdrawCoinB = LastReserveCoinA / LastReserveCoinB
 	if !withdrawCoinRatio.GTE(reserveCoinRatio) {
@@ -201,9 +196,8 @@ func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdr
 		reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
 		afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
 
-		// TODO: double check if this is intended result
-		// there may be decimal error differences which should be smaller than 0.1
-		reserveCoinRatio = reserveCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
+		// there may be small differences due to decimal handling, which should be smaller than 0.000001
+		reserveCoinRatio = reserveCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
 
 		// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
 		if !reserveCoinRatio.GTE(afterReserveCoinRatio) {
