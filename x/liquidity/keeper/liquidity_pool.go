@@ -476,12 +476,12 @@ func (k Keeper) GetPoolMetaDataResponse(ctx sdk.Context, pool types.Pool) types.
 }
 
 // GetPoolRecord returns the liquidity pool record with the given pool information
-func (k Keeper) GetPoolRecord(ctx sdk.Context, pool types.Pool) (*types.PoolRecord, bool) {
+func (k Keeper) GetPoolRecord(ctx sdk.Context, pool types.Pool) (types.PoolRecord, bool) {
 	batch, found := k.GetPoolBatch(ctx, pool.Id)
 	if !found {
-		return nil, found
+		return types.PoolRecord{}, false
 	}
-	return &types.PoolRecord{
+	return types.PoolRecord{
 		Pool:              pool,
 		PoolMetadata:      k.GetPoolMetaData(ctx, pool),
 		PoolBatch:         batch,

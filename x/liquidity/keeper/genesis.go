@@ -43,7 +43,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	for _, pool := range pools {
 		record, found := k.GetPoolRecord(ctx, pool)
 		if found {
-			poolRecords = append(poolRecords, *record)
+			poolRecords = append(poolRecords, record)
 		}
 	}
 	if len(poolRecords) == 0 {
