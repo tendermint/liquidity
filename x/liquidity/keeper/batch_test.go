@@ -20,6 +20,153 @@ const (
 	DenomB = "denomB"
 )
 
+func TestBadDeposit(t *testing.T) {
+	simapp, ctx := app.CreateTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, params.MinInitDepositAmount), sdk.NewCoin(DenomY, params.MinInitDepositAmount))
+	depositorAddr := app.AddRandomTestAddr(simapp, ctx, depositCoins.Add(params.PoolCreationFee...))
+
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, &types.MsgCreatePool{
+		PoolCreatorAddress: depositorAddr.String(),
+		PoolTypeId:         types.DefaultPoolTypeId,
+		DepositCoins:       depositCoins,
+	})
+	require.NoError(t, err)
+
+	// deposit with empty message
+	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, &types.MsgDepositWithinBatch{})
+	require.Error(t, err)
+
+	// deposit coins more than it has
+	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, &types.MsgDepositWithinBatch{
+		DepositorAddress: depositorAddr.String(),
+		PoolId:           pool.Id,
+		DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.OneInt()), sdk.NewCoin(DenomY, sdk.OneInt())),
+	})
+	require.Error(t, err)
+
+	// forcefully delete current pool batch
+	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
+	require.True(t, found)
+	simapp.LiquidityKeeper.DeletePoolBatch(ctx, batch)
+	// deposit coins when there is no pool batch
+	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, &types.MsgDepositWithinBatch{
+		DepositorAddress: depositorAddr.String(),
+		PoolId:           pool.Id,
+		DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.OneInt()), sdk.NewCoin(DenomY, sdk.OneInt())),
+	})
+	require.ErrorIs(t, err, types.ErrPoolBatchNotExists)
+}
+
+func TestBadWithdraw(t *testing.T) {
+	simapp, ctx := app.CreateTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, params.MinInitDepositAmount), sdk.NewCoin(DenomY, params.MinInitDepositAmount))
+	depositorAddr := app.AddRandomTestAddr(simapp, ctx, depositCoins.Add(params.PoolCreationFee...))
+
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, &types.MsgCreatePool{
+		PoolCreatorAddress: depositorAddr.String(),
+		PoolTypeId:         types.DefaultPoolTypeId,
+		DepositCoins:       depositCoins,
+	})
+	require.NoError(t, err)
+
+	// withdraw with empty message
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, &types.MsgWithdrawWithinBatch{})
+	require.Error(t, err)
+
+	balance := simapp.BankKeeper.GetBalance(ctx, depositorAddr, pool.PoolCoinDenom)
+
+	// mint extra pool coins to test if below fails
+	require.NoError(t, simapp.BankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(1000)))))
+	// withdraw pool coins more than it has
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, &types.MsgWithdrawWithinBatch{
+		WithdrawerAddress: depositorAddr.String(),
+		PoolId:            pool.Id,
+		PoolCoin:          balance.Add(sdk.NewCoin(pool.PoolCoinDenom, sdk.OneInt())),
+	})
+	require.Error(t, err)
+
+	// forcefully delete current pool batch
+	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
+	require.True(t, found)
+	simapp.LiquidityKeeper.DeletePoolBatch(ctx, batch)
+	// withdraw pool coins when there is no pool batch
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, &types.MsgWithdrawWithinBatch{
+		WithdrawerAddress: depositorAddr.String(),
+		PoolId:            pool.Id,
+		PoolCoin:          sdk.NewCoin(pool.PoolCoinDenom, sdk.OneInt()),
+	})
+	require.ErrorIs(t, err, types.ErrPoolBatchNotExists)
+}
+
+func TestBadSwap(t *testing.T) {
+	simapp, ctx := app.CreateTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, params.MinInitDepositAmount), sdk.NewCoin(DenomY, params.MinInitDepositAmount))
+	depositorAddr := app.AddRandomTestAddr(simapp, ctx, depositCoins.Add(params.PoolCreationFee...))
+
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, &types.MsgCreatePool{
+		PoolCreatorAddress: depositorAddr.String(),
+		PoolTypeId:         types.DefaultPoolTypeId,
+		DepositCoins:       depositCoins,
+	})
+	require.NoError(t, err)
+
+	// swap with empty message
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, &types.MsgSwapWithinBatch{}, 0)
+	require.Error(t, err)
+
+	orderPrice := sdk.OneDec()
+
+	// swap coin more than it has
+	offerCoin := sdk.NewCoin(DenomX, sdk.NewInt(100000))
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, &types.MsgSwapWithinBatch{
+		SwapRequesterAddress: depositorAddr.String(),
+		PoolId:               pool.Id,
+		SwapTypeId:           types.DefaultSwapTypeId,
+		OfferCoin:            offerCoin,
+		DemandCoinDenom:      DenomY,
+		OfferCoinFee:         types.GetOfferCoinFee(offerCoin, params.SwapFeeRate),
+		OrderPrice:           orderPrice,
+	}, 0)
+	require.Error(t, err)
+
+	// when swap fails, user's balance should never change
+	require.NoError(t, simapp.BankKeeper.SetBalance(ctx, depositorAddr, offerCoin))
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, &types.MsgSwapWithinBatch{
+		SwapRequesterAddress: depositorAddr.String(),
+		PoolId:               pool.Id,
+		SwapTypeId:           types.DefaultSwapTypeId,
+		OfferCoin:            offerCoin,
+		DemandCoinDenom:      DenomY,
+		OfferCoinFee:         types.GetOfferCoinFee(offerCoin, params.SwapFeeRate),
+		OrderPrice:           orderPrice,
+	}, 0)
+	require.Error(t, err)
+	balance := simapp.BankKeeper.GetBalance(ctx, depositorAddr, DenomX)
+	require.Equal(t, offerCoin, balance)
+
+	// forcefully delete current pool batch
+	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
+	require.True(t, found)
+	simapp.LiquidityKeeper.DeletePoolBatch(ctx, batch)
+	// swap coin when there is no pool batch
+	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, &types.MsgSwapWithinBatch{
+		SwapRequesterAddress: depositorAddr.String(),
+		PoolId:               pool.Id,
+		SwapTypeId:           types.DefaultSwapTypeId,
+		OfferCoin:            offerCoin,
+		DemandCoinDenom:      DenomY,
+		OfferCoinFee:         types.GetOfferCoinFee(offerCoin, params.SwapFeeRate),
+		OrderPrice:           orderPrice,
+	}, 0)
+	require.ErrorIs(t, err, types.ErrPoolBatchNotExists)
+}
+
 func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
