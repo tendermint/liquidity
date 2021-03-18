@@ -6,7 +6,7 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// register all liquidity invariants
+// RegisterInvariants registers all liquidity invariants
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 	ir.RegisterRoute(types.ModuleName, "escrow-amount",
 		LiquidityPoolsEscrowAmountInvariant(k))
@@ -51,8 +51,8 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// These invariants cannot be registered via RegisterInvariants since the module is implemented in batch style.
-// We should approach adding these invariant checks in deposit / withdraw / swap batch execution.
+// These invariants cannot be registered via RegisterInvariants since the module uses per-block batch execution.
+// We should approach adding these invariant checks inside actual logics of deposit / withdraw / swap.
 
 var (
 	invariantCheckFlag = true // TODO: better way to handle below invariant checks?
