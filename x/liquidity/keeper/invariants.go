@@ -6,10 +6,6 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// TODO: write invariants, migrate to invariant logics from swap logic
-// TODO: reserve coin, batch total result, set last reserve coin and escrow balance, and assert equal with add this batch result
-// TODO: remaining orderbook validity check
-
 // register all liquidity invariants
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 	ir.RegisterRoute(types.ModuleName, "escrow-amount",
