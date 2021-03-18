@@ -4,19 +4,17 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-
-	"github.com/tendermint/liquidity/app"
-	simappparams "github.com/tendermint/liquidity/app/params"
-	"github.com/tendermint/liquidity/x/liquidity/simulation"
-	"github.com/tendermint/liquidity/x/liquidity/types"
-
+	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+
+	lapp "github.com/tendermint/liquidity/app"
+	liquidityparams "github.com/tendermint/liquidity/app/params"
+	"github.com/tendermint/liquidity/x/liquidity/simulation"
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 // TestWeightedOperations tests the weights of the operations.
@@ -28,7 +26,7 @@ func TestWeightedOperations(t *testing.T) {
 	cdc := app.AppCodec()
 	appParams := make(simtypes.AppParams)
 
-	weightesOps := simulation.WeightedOperations(appParams, cdc, app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
+	weightedOps := simulation.WeightedOperations(appParams, cdc, app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 
 	s := rand.NewSource(1)
 	r := rand.New(s)
@@ -39,13 +37,13 @@ func TestWeightedOperations(t *testing.T) {
 		opMsgRoute string
 		opMsgName  string
 	}{
-		{simappparams.DefaultWeightMsgCreatePool, types.ModuleName, types.TypeMsgCreatePool},
-		{simappparams.DefaultWeightMsgDepositWithinBatch, types.ModuleName, types.TypeMsgDepositWithinBatch},
-		{simappparams.DefaultWeightMsgWithdrawWithinBatch, types.ModuleName, types.TypeMsgWithdrawWithinBatch},
-		{simappparams.DefaultWeightMsgSwapWithinBatch, types.ModuleName, types.TypeMsgSwapWithinBatch},
+		{liquidityparams.DefaultWeightMsgCreatePool, types.ModuleName, types.TypeMsgCreatePool},
+		{liquidityparams.DefaultWeightMsgDepositWithinBatch, types.ModuleName, types.TypeMsgDepositWithinBatch},
+		{liquidityparams.DefaultWeightMsgWithdrawWithinBatch, types.ModuleName, types.TypeMsgWithdrawWithinBatch},
+		{liquidityparams.DefaultWeightMsgSwapWithinBatch, types.ModuleName, types.TypeMsgSwapWithinBatch},
 	}
 
-	for i, w := range weightesOps {
+	for i, w := range weightedOps {
 		operationMsg, _, _ := w.Op()(r, app.BaseApp, ctx, accs, ctx.ChainID())
 		// the following checks are very much dependent from the ordering of the output given
 		// by WeightedOperations. if the ordering in WeightedOperations changes some tests
@@ -57,7 +55,7 @@ func TestWeightedOperations(t *testing.T) {
 }
 
 // TestSimulateMsgCreatePool tests the normal scenario of a valid message of type TypeMsgCreatePool.
-// Abonormal scenarios, where the message are created by an errors are not tested here.
+// Abnormal scenarios, where the message are created by an errors are not tested here.
 func TestSimulateMsgCreatePool(t *testing.T) {
 	app, ctx := createTestApp(false)
 
@@ -81,7 +79,7 @@ func TestSimulateMsgCreatePool(t *testing.T) {
 	require.NoError(t, err)
 
 	var msg types.MsgCreatePool
-	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetPoolCreator().String())
@@ -92,7 +90,7 @@ func TestSimulateMsgCreatePool(t *testing.T) {
 }
 
 // TestSimulateMsgDepositWithinBatch tests the normal scenario of a valid message of type TypeMsgDepositWithinBatch.
-// Abonormal scenarios, where the message are created by an errors are not tested here.
+// Abnormal scenarios, where the message are created by an errors are not tested here.
 func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	app, ctx := createTestApp(false)
 
@@ -113,7 +111,7 @@ func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	require.NoError(t, err)
 
 	var msg types.MsgDepositWithinBatch
-	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetDepositor().String())
@@ -123,7 +121,7 @@ func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 }
 
 // TestSimulateMsgWithdrawWithinBatch tests the normal scenario of a valid message of type TypeMsgWithdrawWithinBatch.
-// Abonormal scenarios, where the message are created by an errors are not tested here.
+// Abnormal scenarios, where the message are created by an errors are not tested here.
 func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 	app, ctx := createTestApp(false)
 
@@ -144,7 +142,7 @@ func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 	require.NoError(t, err)
 
 	var msg types.MsgWithdrawWithinBatch
-	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetWithdrawer().String())
@@ -154,7 +152,7 @@ func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 }
 
 // TestSimulateMsgSwapWithinBatch tests the normal scenario of a valid message of type TypeMsgSwapWithinBatch.
-// Abonormal scenarios, where the message are created by an errors are not tested here.
+// Abnormal scenarios, where the message are created by an errors are not tested here.
 func TestSimulateMsgSwapWithinBatch(t *testing.T) {
 	app, ctx := createTestApp(false)
 
@@ -175,7 +173,7 @@ func TestSimulateMsgSwapWithinBatch(t *testing.T) {
 	require.NoError(t, err)
 
 	var msg types.MsgSwapWithinBatch
-	types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetSwapRequester().String())
@@ -186,8 +184,8 @@ func TestSimulateMsgSwapWithinBatch(t *testing.T) {
 }
 
 // returns context and an app
-func createTestApp(isCheckTx bool) (*app.LiquidityApp, sdk.Context) {
-	app := app.Setup(false)
+func createTestApp(isCheckTx bool) (*lapp.LiquidityApp, sdk.Context) {
+	app := lapp.Setup(false)
 
 	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
 	app.MintKeeper.SetParams(ctx, minttypes.DefaultParams())
@@ -196,7 +194,7 @@ func createTestApp(isCheckTx bool) (*app.LiquidityApp, sdk.Context) {
 	return app, ctx
 }
 
-func getTestingAccounts(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx sdk.Context, n int) []simtypes.Account {
+func getTestingAccounts(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx sdk.Context, n int) []simtypes.Account {
 	accounts := simtypes.RandomAccounts(r, n)
 
 	initAmt := sdk.TokensFromConsensusPower(1e6)
@@ -213,7 +211,7 @@ func getTestingAccounts(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx s
 	return accounts
 }
 
-func setupLiquidityPools(t *testing.T, r *rand.Rand, app *app.LiquidityApp, ctx sdk.Context, accounts []simtypes.Account) {
+func setupLiquidityPools(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx sdk.Context, accounts []simtypes.Account) {
 	params := app.StakingKeeper.GetParams(ctx)
 
 	for _, account := range accounts {
