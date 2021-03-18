@@ -62,7 +62,15 @@ var (
 )
 
 // MintingPoolCoinsInvariant checks the correct ratio of minting amount of pool coins.
-func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB sdk.Dec) {
+func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB, refundedCoinA, refundedCoinB sdk.Dec) {
+	if !refundedCoinA.IsZero() {
+		depositCoinA = depositCoinA.Sub(refundedCoinA)
+	}
+
+	if !refundedCoinB.IsZero() {
+		depositCoinB = depositCoinB.Sub(refundedCoinB)
+	}
+
 	poolCoinRatio := mintPoolCoin.Quo(poolCoinTotalSupply)
 	depositCoinARatio := depositCoinA.Quo(lastReserveCoinA)
 	depositCoinBRatio := depositCoinB.Quo(lastReserveCoinB)
@@ -70,48 +78,66 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 	// TODO: handle case when someone sends coins to escrow module account
 
 	// TODO: double check if this is intended result
-	// there may be decimal error differences which should be smaller than 1
-	poolCoinRatio = poolCoinRatio.Add(sdk.NewDec(1.0))
+	// there may be decimal error differences which should be smaller than 0.1
+	poolCoinRatio = poolCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
 
-	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinA / LastReserveCoinA
-	// NewPoolCoinAmount / LastPoolCoinSupply = DepositCoinB / LastReserveCoinB
+	// NewPoolCoinAmount / LastPoolCoinSupply = AfterRefundedDepositCoinA / LastReserveCoinA
+	// NewPoolCoinAmount / LastPoolCoinSupply = AfterRefundedDepositCoinA / LastReserveCoinB
 	if !poolCoinRatio.GTE(depositCoinARatio) || !poolCoinRatio.GTE(depositCoinBRatio) {
 		panic("invariant check fails due to incorrect ratio of pool coins")
 	}
 }
 
 // DepositReserveCoinsInvariant checks the after deposit amounts.
-func DepositReserveCoinsInvariant(depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB, afterReserveCoinA, afterReserveCoinB sdk.Dec) {
-	// Debugging... TestLiquidityScenario2
-	// fmt.Println("afterReserveCoinA: ", afterReserveCoinA)
-	// fmt.Println("afterReserveCoinB: ", afterReserveCoinB)
-	// fmt.Println("lastReserveCoinA.Add(depositCoinADec): ", lastReserveCoinA.Add(depositCoinA))
-	// fmt.Println("lastReserveCoinB.Add(depositCoinBDec): ", lastReserveCoinB.Add(depositCoinB))
+func DepositReserveCoinsInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA, depositCoinB, afterReserveCoinA, afterReserveCoinB, refundedCoinA, refundedCoinB sdk.Dec) {
+	if !refundedCoinA.IsZero() {
+		depositCoinA = depositCoinA.Sub(refundedCoinA)
+	}
 
-	// AfterDepositReserveCoinA = LastReserveCoinA + DepositCoinA
-	// AfterDepositReserveCoinB = LastReserveCoinB + DepositCoinB
-	// if !afterReserveCoinA.Equal(lastReserveCoinA.Add(depositCoinA)) ||
-	// 	!afterReserveCoinB.Equal(lastReserveCoinB.Add(depositCoinB)) {
-	// 	panic("invariant check fails due to incorrect deposit amounts")
-	// }
+	if !refundedCoinB.IsZero() {
+		depositCoinB = depositCoinB.Sub(refundedCoinB)
+	}
+
+	// AfterDepositReserveCoinA = LastReserveCoinA + AfterRefundedDepositCoinA
+	// AfterDepositReserveCoinB = LastReserveCoinB + AfterRefundedDepositCoinA
+	if !afterReserveCoinA.Equal(lastReserveCoinA.Add(depositCoinA)) ||
+		!afterReserveCoinB.Equal(lastReserveCoinB.Add(depositCoinB)) {
+		panic("invariant check fails due to incorrect deposit amounts")
+	}
 }
 
 // DepositRatioInvariant checks the correct ratio of deposit coin amounts.
-func DepositRatioInvariant(depositCoinA, depositCoinB, lastReserveCoinRatio sdk.Dec) {
-	// depositCoinRatio := depositCoinA.Quo(depositCoinB)
+func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCoinB, lastReserveCoinRatio sdk.Dec) {
+	if !refundedCoinA.IsZero() {
+		depositCoinA = depositCoinA.Sub(refundedCoinA)
+	}
 
-	// // DepositCoinA / DepositCoinB = LastReserveCoinA / LastReserveCoinB
-	// if !depositCoinRatio.Equal(lastReserveCoinRatio) {
-	// 	panic("invariant check fails due to incorrect deposit ratio")
-	// }
+	if !refundedCoinB.IsZero() {
+		depositCoinB = depositCoinB.Sub(refundedCoinB)
+	}
+
+	depositCoinRatio := depositCoinA.Quo(depositCoinB)
+
+	// TODO: double check if this is intended result
+	// there may be decimal error differences which should be smaller than 0.1
+	depositCoinRatio = depositCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
+
+	// AfterRefundedDepositCoinA / AfterRefundedDepositCoinA = LastReserveCoinA / LastReserveCoinB
+	if !depositCoinRatio.GTE(lastReserveCoinRatio) {
+		panic("invariant check fails due to incorrect deposit ratio")
+	}
 }
 
 // ImmutablePoolPriceAfterDepositInvariant checks immutable pool price after depositing coins.
 func ImmutablePoolPriceAfterDepositInvariant(lastReserveCoinRatio, afterReserveCoinRatio sdk.Dec) {
+	// TODO: double check if this is intended result
+	// there may be decimal error differences which should be smaller than 0.1
+	lastReserveCoinRatio = lastReserveCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
+
 	// LastReserveCoinA / LastReserveCoinB = AfterDepositReserveCoinA / AfterDepositReserveCoinB
-	// if !lastReserveCoinRatio.Equal(afterReserveCoinRatio) {
-	// 	panic("invariant check fails due to incorrect pool price ratio")
-	// }
+	if !lastReserveCoinRatio.GTE(afterReserveCoinRatio) {
+		panic("invariant check fails due to incorrect pool price ratio")
+	}
 }
 
 // BurningPoolCoinsInvariant checks the correct burning amount of pool coins.
@@ -121,8 +147,8 @@ func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, res
 	withdrawCoinBRatio := withdrawCoinB.Add(withdrawProportion).Quo(reserveCoinB)
 
 	// TODO: double check if this is intended result
-	// there may be decimal error differences which should be smaller than 1
-	burningPoolCoinRatio = burningPoolCoinRatio.Add(sdk.NewDec(1))
+	// there may be decimal error differences which should be smaller than 0.1
+	burningPoolCoinRatio = burningPoolCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
 
 	// BurnedPoolCoinAmount / LastPoolCoinSupply = (WithdrawCoinA+WithdrawFeeCoinA) / LastReserveCoinA
 	// BurnedPoolCoinAmount / LastPoolCoinSupply = (WithdrawCoinB+WithdrawFeeCoinB) / LastReserveCoinB
@@ -152,24 +178,37 @@ func WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, r
 
 // WithdrawRatioInvariant checks the correct ratio of withdraw coin amounts.
 func WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB sdk.Dec) {
-	// withdrawCoinRatio := withdrawCoinA.Quo(withdrawCoinB)
-	// reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
+	withdrawCoinRatio := withdrawCoinA.Quo(withdrawCoinB)
+	reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
+
+	// TODO: double check if this is intended result
+	// there may be decimal error differences which should be smaller than 0.1
+	withdrawCoinRatio = withdrawCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
 
 	// WithdrawCoinA / WithdrawCoinB = LastReserveCoinA / LastReserveCoinB
-	// if !withdrawCoinRatio.Equal(reserveCoinRatio) {
-	// 	panic("invariant check fails due to incorrect ratio of withdraw coin amounts")
-	// }
+	if !withdrawCoinRatio.GTE(reserveCoinRatio) {
+		panic("invariant check fails due to incorrect ratio of withdraw coin amounts")
+	}
 }
 
 // ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins.
-func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, afterReserveCoinA, afterReserveCoinB sdk.Dec) {
-	// reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
-	// afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
+func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB sdk.Dec) {
+	if !afterReserveCoinA.IsZero() && !afterReserveCoinB.IsZero() {
+		reserveCoinA = reserveCoinA.Sub(withdrawCoinA)
+		reserveCoinB = reserveCoinB.Sub(withdrawCoinB)
 
-	// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
-	// if !reserveCoinRatio.Equal(afterReserveCoinRatio) {
-	// panic("invariant check fails due to incorrect pool price ratio")
-	// }
+		reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
+		afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
+
+		// TODO: double check if this is intended result
+		// there may be decimal error differences which should be smaller than 0.1
+		reserveCoinRatio = reserveCoinRatio.Add(sdk.NewDecWithPrec(1, 1))
+
+		// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
+		if !reserveCoinRatio.GTE(afterReserveCoinRatio) {
+			panic("invariant check fails due to incorrect pool price ratio")
+		}
+	}
 }
 
 // SwapPriceInvariants checks the calculated swap price is increased, decreased, or equal from the last pool price.

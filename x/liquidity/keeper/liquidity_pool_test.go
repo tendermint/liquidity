@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -315,17 +314,20 @@ func TestReinitializePool(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(100*1000000)))
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	X := sdk.NewCoin(denomA, sdk.NewInt(100*1000000))
+	Y := sdk.NewCoin(denomB, sdk.NewInt(100*1000000))
+
+	initCoins := sdk.NewCoins(X, Y)
+	app.SaveAccount(simapp, ctx, addrs[0], initCoins)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
-	depositBalance := sdk.NewCoins(depositA, depositB)
+	deposits := sdk.NewCoins(depositA, depositB)
+	require.Equal(t, initCoins, deposits)
 
-	require.Equal(t, deposit, depositBalance)
+	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, deposits)
 
-	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
-
+	// create pool with 100uETH and 100uUSD coins
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createMsg)
 	require.NoError(t, err)
 
@@ -334,19 +336,20 @@ func TestReinitializePool(t *testing.T) {
 
 	poolCoinBefore := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, lp)
 	withdrawerPoolCoinBefore := simapp.BankKeeper.GetBalance(ctx, addrs[0], lp.PoolCoinDenom)
+	require.Equal(t, poolCoinBefore, withdrawerPoolCoinBefore.Amount)
 
 	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, lp)
-	require.True(t, reserveCoins.IsEqual(deposit))
+	require.True(t, reserveCoins.IsEqual(initCoins))
 
-	fmt.Println(poolCoinBefore, withdrawerPoolCoinBefore.Amount)
-	require.Equal(t, poolCoinBefore, withdrawerPoolCoinBefore.Amount)
 	withdrawMsg := types.NewMsgWithdrawWithinBatch(addrs[0], lp.Id, sdk.NewCoin(lp.PoolCoinDenom, poolCoinBefore))
 
+	// withdraw total supply amount of pool coin
 	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
 	require.NoError(t, err)
 
 	poolBatch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, withdrawMsg.PoolId)
 	require.True(t, found)
+
 	msgs := simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, poolBatch)
 	require.Equal(t, 1, len(msgs))
 
@@ -357,15 +360,16 @@ func TestReinitializePool(t *testing.T) {
 	withdrawerPoolCoinAfter := simapp.BankKeeper.GetBalance(ctx, addrs[0], lp.PoolCoinDenom)
 	require.True(t, true, poolCoinAfter.IsZero())
 	require.True(t, true, withdrawerPoolCoinAfter.IsZero())
+
 	withdrawerDenomAbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lp.ReserveCoinDenoms[0])
 	withdrawerDenomBbalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], lp.ReserveCoinDenoms[1])
-	require.Equal(t, deposit.AmountOf(lp.ReserveCoinDenoms[0]), withdrawerDenomAbalance.Amount)
-	require.Equal(t, deposit.AmountOf(lp.ReserveCoinDenoms[1]), withdrawerDenomBbalance.Amount)
+	require.Equal(t, initCoins.AmountOf(lp.ReserveCoinDenoms[0]), withdrawerDenomAbalance.Amount)
+	require.Equal(t, initCoins.AmountOf(lp.ReserveCoinDenoms[1]), withdrawerDenomBbalance.Amount)
 
 	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, lp)
 	require.True(t, reserveCoins.IsZero())
 
-	depositMsg := types.NewMsgDepositWithinBatch(addrs[0], lp.Id, deposit)
+	depositMsg := types.NewMsgDepositWithinBatch(addrs[0], lp.Id, initCoins)
 	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, depositMsg)
 	require.NoError(t, err)
 
@@ -380,7 +384,7 @@ func TestReinitializePool(t *testing.T) {
 	require.Equal(t, poolCoin, depositorBalance.Amount)
 
 	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, lp)
-	require.True(t, reserveCoins.IsEqual(deposit))
+	require.True(t, reserveCoins.IsEqual(initCoins))
 }
 
 func TestGetLiquidityPoolMetadata(t *testing.T) {

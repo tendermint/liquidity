@@ -151,14 +151,16 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		return types.ErrPoolNotExists
 	}
 
-	var inputs []banktypes.Input
-	var outputs []banktypes.Output
-
 	depositCoins := msg.Msg.DepositCoins.Sort()
+
 	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	reserveAcc := pool.GetReserveAccount()
 	depositor := msg.Msg.GetDepositor()
+
 	params := k.GetParams(ctx)
+
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
 
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 
@@ -209,20 +211,21 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 
 	reserveCoins.Sort()
 
-	depositCoinA := depositCoins[0]
-	depositCoinB := depositCoins[1]
-	depositCoinAmountA := depositCoinA.Amount
-	depositCoinAmountB := depositCoinB.Amount
-
 	// Decimal Error, divide the Int coin amount by the Decimal Rate and erase the decimal point to deposit a lower value
 	lastReserveCoinA := sdk.NewDecFromInt(reserveCoins[0].Amount)
 	lastReserveCoinB := sdk.NewDecFromInt(reserveCoins[1].Amount)
 	lastReserveRatio := lastReserveCoinA.Quo(lastReserveCoinB)
 
+	depositCoinA := depositCoins[0]
+	depositCoinB := depositCoins[1]
+	depositCoinAmountA := depositCoinA.Amount
+	depositCoinAmountB := depositCoinB.Amount
 	depositableCoinAmountA := depositCoinB.Amount.ToDec().Mul(lastReserveRatio).TruncateInt()
 
 	acceptedCoins := sdk.NewCoins()
 	refundedCoins := sdk.NewCoins()
+	refundedCoinA := sdk.NewInt(0)
+	refundedCoinB := sdk.NewInt(0)
 
 	// handle when depositing coin A amount is less than, greater than or equal to depositable amount
 	if depositCoinA.Amount.LT(depositableCoinAmountA) {
@@ -232,11 +235,10 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
 		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 
-		// refund coin B amount
-		refundAmtB := depositCoinB.Amount.Sub(depositCoinAmountB)
+		refundedCoinB = depositCoinB.Amount.Sub(depositCoinAmountB)
 
-		if refundAmtB.IsPositive() {
-			refundedCoins = sdk.NewCoins(sdk.NewCoin(depositCoinB.Denom, refundAmtB))
+		if refundedCoinB.IsPositive() {
+			refundedCoins = sdk.NewCoins(sdk.NewCoin(depositCoinB.Denom, refundedCoinB))
 			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
 			outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
 		}
@@ -247,11 +249,10 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
 		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 
-		// refund coin A amount
-		refundAmtA := depositCoinA.Amount.Sub(depositCoinAmountA)
+		refundedCoinA = depositCoinA.Amount.Sub(depositCoinAmountA)
 
-		if refundAmtA.IsPositive() {
-			refundedCoins = sdk.NewCoins(sdk.NewCoin(depositCoinA.Denom, refundAmtA))
+		if refundedCoinA.IsPositive() {
+			refundedCoins = sdk.NewCoins(sdk.NewCoin(depositCoinA.Denom, refundedCoinA))
 			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
 			outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
 		}
@@ -289,14 +290,18 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		afterReserveCoinA := sdk.NewDecFromInt(afterReserveCoins[0].Amount)
 		afterReserveCoinB := sdk.NewDecFromInt(afterReserveCoins[1].Amount)
 		afterReserveRatio := afterReserveCoinA.Quo(afterReserveCoinB)
-		depositCoinADec := sdk.NewDecFromInt(depositCoinA.Amount)
-		depositCoinBDec := sdk.NewDecFromInt(depositCoinB.Amount)
 		poolCoinTotalSupplyDec := sdk.NewDecFromInt(poolCoinTotalSupply)
 		mintPoolCoinDec := sdk.NewDecFromInt(mintPoolCoin.Amount)
+		depositCoinADec := sdk.NewDecFromInt(depositCoinA.Amount)
+		depositCoinBDec := sdk.NewDecFromInt(depositCoinB.Amount)
+		refundedCoinADec := sdk.NewDecFromInt(refundedCoinA)
+		refundedCoinBDec := sdk.NewDecFromInt(refundedCoinB)
 
-		MintingPoolCoinsInvariant(poolCoinTotalSupplyDec, mintPoolCoinDec, depositCoinADec, depositCoinBDec, lastReserveCoinA, lastReserveCoinB)
-		DepositReserveCoinsInvariant(depositCoinADec, depositCoinBDec, lastReserveCoinA, lastReserveCoinB, afterReserveCoinA, afterReserveCoinB)
-		DepositRatioInvariant(depositCoinADec, depositCoinBDec, lastReserveRatio)
+		MintingPoolCoinsInvariant(poolCoinTotalSupplyDec, mintPoolCoinDec, depositCoinADec, depositCoinBDec,
+			lastReserveCoinA, lastReserveCoinB, refundedCoinADec, refundedCoinBDec)
+		DepositReserveCoinsInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinADec, depositCoinBDec,
+			afterReserveCoinA, afterReserveCoinB, refundedCoinADec, refundedCoinBDec)
+		DepositRatioInvariant(depositCoinADec, depositCoinBDec, refundedCoinADec, refundedCoinBDec, lastReserveRatio)
 		ImmutablePoolPriceAfterDepositInvariant(lastReserveRatio, afterReserveRatio)
 	}
 
@@ -341,7 +346,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 		return types.ErrPoolNotExists
 	}
 
-	totalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
+	poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 	reserveCoins.Sort()
 
@@ -355,9 +360,10 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	withdrawProportion := sdk.OneDec().Sub(params.WithdrawFeeRate)
 	withdrawCoins := sdk.NewCoins()
 
+	// calculate withdraw amount of respective reserve coin considering fees and pool coin's totaly supply
 	for _, reserveCoin := range reserveCoins {
-		// Decimal Error, Multiply the Int coin amount by the Decimal proportion and erase the decimal point to withdraw a conservative value
-		withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().Mul(withdrawProportion).TruncateInt().Quo(totalSupply)
+		// WithdrawAmount = ReserveAmount * PoolCoinAmount * WithdrawFeeProportion / TotalSupply
+		withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().Mul(withdrawProportion).TruncateInt().Quo(poolCoinTotalSupply)
 		withdrawCoins = withdrawCoins.Add(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))
 	}
 
@@ -366,7 +372,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 		outputs = append(outputs, banktypes.NewOutput(withdrawer, withdrawCoins))
 	}
 
-	// execute multi-send
+	// send withdrawing coins to the withdrawer
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		return err
 	}
@@ -380,12 +386,12 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	msg.ToBeDeleted = true
 	k.SetPoolBatchWithdrawMsgState(ctx, msg.Msg.PoolId, msg)
 
-	afterReserveCoinA := sdk.ZeroDec()
-	afterReserveCoinB := sdk.ZeroDec()
 	if invariantCheckFlag {
 		afterPoolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
 		afterReserveCoins := k.GetReserveCoins(ctx, pool)
-		if afterReserveCoins != nil {
+		afterReserveCoinA := sdk.ZeroDec()
+		afterReserveCoinB := sdk.ZeroDec()
+		if !afterReserveCoins.IsZero() {
 			afterReserveCoinA = afterReserveCoins[0].Amount.ToDec()
 			afterReserveCoinB = afterReserveCoins[1].Amount.ToDec()
 		}
@@ -394,16 +400,16 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 		withdrawCoinB := withdrawCoins[1].Amount.ToDec()
 		reserveCoinA := reserveCoins[0].Amount.ToDec()
 		reserveCoinB := reserveCoins[1].Amount.ToDec()
-		lastPoolTotalSupply := totalSupply.ToDec()
+		lastPoolTotalSupply := poolCoinTotalSupply.ToDec()
 		afterPoolTotalSupply := afterPoolCoinTotalSupply.ToDec()
-		lastPoolCoinSupply := totalSupply.ToDec()
+		lastPoolCoinSupply := poolCoinTotalSupply.ToDec()
 
 		BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
 			lastPoolTotalSupply, withdrawProportion)
 		WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
 			afterReserveCoinA, afterReserveCoinB, afterPoolTotalSupply, lastPoolCoinSupply, burnedPoolCoin)
 		WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB)
-		ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, afterReserveCoinA, afterReserveCoinB)
+		ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB)
 	}
 
 	ctx.EventManager().EmitEvent(
