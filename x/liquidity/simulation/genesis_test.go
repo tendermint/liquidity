@@ -5,20 +5,19 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	"github.com/stretchr/testify/require"
 
 	"github.com/tendermint/liquidity/x/liquidity/simulation"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 // TestRandomizedGenState tests the normal scenario of applying RandomizedGenState.
-// Abonormal scenarios are not tested here.
+// Abnormal scenarios are not tested here.
 func TestRandomizedGenState(t *testing.T) {
 	interfaceRegistry := codectypes.NewInterfaceRegistry()
 	cdc := codec.NewProtoCodec(interfaceRegistry)
@@ -47,13 +46,13 @@ func TestRandomizedGenState(t *testing.T) {
 	dec5, _ := sdk.NewDecFromStr("0.732160000000000000")
 	dec6, _ := sdk.NewDecFromStr("0.237840000000000000")
 
-	require.Equal(t, dec1, liquidityGenesis.Params.MinInitDepositToPool)
+	require.Equal(t, dec1, liquidityGenesis.Params.MinInitDepositAmount)
 	require.Equal(t, dec2, liquidityGenesis.Params.InitPoolCoinMintAmount)
-	require.Equal(t, dec3, liquidityGenesis.Params.ReserveCoinLimitAmount)
+	require.Equal(t, dec3, liquidityGenesis.Params.MaxReserveCoinAmount)
 	require.Equal(t, dec4, liquidityGenesis.Params.SwapFeeRate)
 	require.Equal(t, dec5, liquidityGenesis.Params.WithdrawFeeRate)
 	require.Equal(t, dec6, liquidityGenesis.Params.MaxOrderAmountRatio)
-	require.Equal(t, uint32(6), liquidityGenesis.Params.UnitBatchSize)
+	require.Equal(t, uint32(6), liquidityGenesis.Params.UnitBatchHeight)
 }
 
 // TestRandomizedGenState tests abnormal scenarios of applying RandomizedGenState.

@@ -49,7 +49,7 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 		return types.ErrEqualDenom
 	}
 
-	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, msg.DepositCoins); err != nil {
+	if err := types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, msg.DepositCoins); err != nil {
 		return err
 	}
 
@@ -82,12 +82,12 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 		return types.Pool{}, types.ErrInsufficientBalance
 	}
 	for _, coin := range msg.DepositCoins {
-		if coin.Amount.LT(params.MinInitDepositToPool) {
+		if coin.Amount.LT(params.MinInitDepositAmount) {
 			return types.Pool{}, types.ErrLessThanMinInitDeposit
 		}
 	}
 
-	if !poolCreatorBalances.IsAllGTE(params.LiquidityPoolCreationFee.Add(msg.DepositCoins...)) {
+	if !poolCreatorBalances.IsAllGTE(params.PoolCreationFee.Add(msg.DepositCoins...)) {
 		return types.Pool{}, types.ErrInsufficientPoolCreationFee
 	}
 
@@ -122,7 +122,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	}
 
 	// pool creation fees are collected in community pool
-	if err := k.distrKeeper.FundCommunityPool(ctx, params.LiquidityPoolCreationFee, poolCreator); err != nil {
+	if err := k.distrKeeper.FundCommunityPool(ctx, params.PoolCreationFee, poolCreator); err != nil {
 		return types.Pool{}, err
 	}
 
@@ -167,7 +167,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	// reinitialize pool in case of reserve coins has run out
 	if reserveCoins.IsZero() {
 		for _, depositCoin := range msg.Msg.DepositCoins {
-			if depositCoin.Amount.LT(params.MinInitDepositToPool) {
+			if depositCoin.Amount.LT(params.MinInitDepositAmount) {
 				return types.ErrLessThanMinInitDeposit
 			}
 		}
@@ -456,6 +456,7 @@ func (k Keeper) GetPoolCoinTotal(ctx sdk.Context, pool types.Pool) sdk.Coin {
 // GetReserveCoins returns reserve coins from the liquidity pool
 func (k Keeper) GetReserveCoins(ctx sdk.Context, pool types.Pool) (reserveCoins sdk.Coins) {
 	reserveAcc := pool.GetReserveAccount()
+	reserveCoins = sdk.NewCoins()
 	for _, denom := range pool.ReserveCoinDenoms {
 		reserveCoins = reserveCoins.Add(k.bankKeeper.GetBalance(ctx, reserveAcc, denom))
 	}
@@ -479,13 +480,6 @@ func (k Keeper) GetPoolMetaDataResponse(ctx sdk.Context, pool types.Pool) types.
 	}
 }
 
-// This method is added by hallazzang. Is it okay to remove?
-//func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.Pool) *types.PoolMetadata {
-//	totalSupply := sdk.NewCoin(pool.PoolCoinDenom, k.GetPoolCoinTotalSupply(ctx, pool))
-//	reserveCoin := k.GetReserveCoins(ctx, pool).Sort()
-//	return &types.PoolMetadata{PoolId: pool.PoolId, PoolCoinTotalSupply: totalSupply, ReserveCoins: reserveCoin}
-//}
-
 // GetPoolRecord returns the liquidity pool record with the given pool information
 func (k Keeper) GetPoolRecord(ctx sdk.Context, pool types.Pool) (*types.PoolRecord, bool) {
 	batch, found := k.GetPoolBatch(ctx, pool.Id)
@@ -503,7 +497,7 @@ func (k Keeper) GetPoolRecord(ctx sdk.Context, pool types.Pool) (*types.PoolReco
 }
 
 // SetPoolRecord stores liquidity pool states
-func (k Keeper) SetPoolRecord(ctx sdk.Context, record *types.PoolRecord) {
+func (k Keeper) SetPoolRecord(ctx sdk.Context, record types.PoolRecord) types.PoolRecord {
 	k.SetPoolAtomic(ctx, record.Pool)
 	//k.SetPool(ctx, record.Pool)
 	//k.SetPoolByReserveAccIndex(ctx, record.Pool)
@@ -513,6 +507,7 @@ func (k Keeper) SetPoolRecord(ctx sdk.Context, record *types.PoolRecord) {
 	k.SetPoolBatchDepositMsgStates(ctx, record.Pool.Id, record.DepositMsgStates)
 	k.SetPoolBatchWithdrawMsgStates(ctx, record.Pool.Id, record.WithdrawMsgStates)
 	k.SetPoolBatchSwapMsgStates(ctx, record.Pool.Id, record.SwapMsgStates)
+	return record
 }
 
 // RefundDepositLiquidityPool refunds deposit amounts to the depositor
@@ -809,7 +804,7 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 
 	params := k.GetParams(ctx)
 	reserveCoins := k.GetReserveCoins(ctx, pool)
-	if err := types.ValidateReserveCoinLimit(params.ReserveCoinLimitAmount, reserveCoins.Add(msg.DepositCoins...)); err != nil {
+	if err := types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, reserveCoins.Add(msg.DepositCoins...)); err != nil {
 		return err
 	}
 	// TODO: validate msgIndex
@@ -945,7 +940,7 @@ func (k Keeper) ValidatePoolMetadata(ctx sdk.Context, pool *types.Pool, metaData
 }
 
 // ValidatePoolRecord validates liquidity pool record after init or after export
-func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record *types.PoolRecord) error {
+func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record types.PoolRecord) error {
 	// validate liquidity pool
 	if err := k.ValidatePool(ctx, &record.Pool); err != nil {
 		return err

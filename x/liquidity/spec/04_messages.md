@@ -22,7 +22,7 @@ type MsgCreatePool struct {
   - there exists duplicated `LiquidityPool` with same `PoolTypeId` and Reserve Coin Denoms
   - if one or more coins in ReserveCoinDenoms do not exist in `bank` module
   - if the balance of `PoolCreator` does not have enough amount of coins for `DepositCoins`
-  - if the balance of `PoolCreator` does not have enough amount of coins for paying `LiquidityPoolCreationFee`
+  - if the balance of `PoolCreator` does not have enough amount of coins for paying `PoolCreationFee`
 
 ## MsgDepositWithinBatch
 
