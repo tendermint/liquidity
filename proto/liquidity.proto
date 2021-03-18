@@ -177,7 +177,7 @@ message Pool {
     // denom of pool coin of the pool
     string pool_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
+            example: "\"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\"",
         }];
 }
 

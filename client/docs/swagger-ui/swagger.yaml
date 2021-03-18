@@ -329,7 +329,8 @@ paths:
                       title: reserve account address of the pool
                     pool_coin_denom:
                       type: string
-                      example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                      example: >-
+                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       title: denom of pool coin of the pool
               pagination:
                 description: >-
@@ -2383,7 +2384,8 @@ paths:
                     title: reserve account address of the pool
                   pool_coin_denom:
                     type: string
-                    example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+                    example: >-
+                      pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                     title: denom of pool coin of the pool
             description: >-
               the response type for the QueryLiquidityPoolResponse RPC method.
@@ -4913,7 +4915,7 @@ definitions:
         title: reserve account address of the pool
       pool_coin_denom:
         type: string
-        example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+        example: pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
         title: denom of pool coin of the pool
   tendermint.liquidity.PoolBatch:
     type: object
@@ -5055,7 +5057,8 @@ definitions:
             title: reserve account address of the pool
           pool_coin_denom:
             type: string
-            example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+            example: >-
+              pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
             title: denom of pool coin of the pool
     description: >-
       the response type for the QueryLiquidityPoolResponse RPC method. It
@@ -5093,7 +5096,8 @@ definitions:
               title: reserve account address of the pool
             pool_coin_denom:
               type: string
-              example: cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+              example: >-
+                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               title: denom of pool coin of the pool
       pagination:
         description: >-
