@@ -6,7 +6,6 @@ info:
 paths:
   /liquidity/pools:
     post:
-      deprecated: true
       summary: Submit create liquidity pool message.
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -290,10 +289,8 @@ paths:
         url: >-
           https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
-      summary: Get existing liquidity pools for each pool
-      description: >-
-        It returns list of all liquidity pools currently existed paging results
-        containing next_key and total count.
+      summary: Get existing liquidity pools.
+      description: It returns list of all liquidity pools with pagination result.
       operationId: LiquidityPools
       responses:
         '200':
@@ -443,7 +440,6 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/deposits':
     post:
-      deprecated: true
       summary: Submit deposit to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -754,10 +750,10 @@ paths:
         url: >-
           https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
-      summary: Get all pool batch deposit messages of the liquidity pool
+      summary: Get all deposit messages in the pool's current batch.
       description: >-
-        It returns list of all currently existing deposit messages of the batch
-        and paging results containing next_key and total count.
+        It returns list of all deposit messages in the current batch of the pool
+        with pagination result.
       operationId: PoolBatchDepositMsgs
       responses:
         '200':
@@ -979,7 +975,6 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/swaps':
     post:
-      deprecated: true
       summary: Submit swap to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1333,10 +1328,10 @@ paths:
         url: >-
           https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
-      summary: Get all pool batch swap messages of the liquidity pool
+      summary: Get all swap messages in the pool's current batch.
       description: >-
-        It returns list of all currently existing swap messages of the batch and
-        paging results containing next_key and total count.
+        It returns list of all swap messages in the current batch of the pool
+        with pagination result.
       operationId: PoolBatchSwapMsgs
       responses:
         '200':
@@ -1672,7 +1667,6 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/withdraws':
     post:
-      deprecated: true
       summary: Submit withdraw from to the liquidity pool batch
       description: >-
         unsigned tx can be generated upon request through this POST endpoint,
@@ -1979,10 +1973,10 @@ paths:
         url: >-
           https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md
     get:
-      summary: Get all pool batch withdraw messages of the liquidity pool
+      summary: Get all withdraw messages in the pool's current batch.
       description: >-
-        It returns list of all currently existing withdraw messages of the batch
-        and paging results containing next_key and total count.
+        It returns list of all withdraw messages in the current batch of the
+        pool with pagination result.
       operationId: PoolBatchWithdrawMsgs
       responses:
         '200':
@@ -2200,8 +2194,8 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   /liquidity/params:
     get:
-      summary: Get a list of the liquidity parameters.
-      description: returns current parameter of the liquidity module.
+      summary: Get all parameters of the liquidity module.
+      description: It returns all parameters of the liquidity module.
       operationId: LiquidityQueries
       responses:
         '200':
@@ -2348,8 +2342,8 @@ paths:
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md
   '/liquidity/pools/{pool_id}':
     get:
-      summary: Get a liquidity pool with liquidity pool batch by pool_id
-      description: It returns the liquidity pool corresponding to the requested pool_id.
+      summary: Get specific liquidity pool.
+      description: It returns the liquidity pool corresponding to the pool_id.
       operationId: LiquidityPool
       responses:
         '200':
@@ -2446,10 +2440,8 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch':
     get:
-      summary: Get a liquidity pool batch by pool_id
-      description: >-
-        It returns the liquidity pool batch corresponding to the requested
-        pool_id.
+      summary: Get the pool's current batch.
+      description: It returns the current batch of the pool corresponding to the pool_id.
       operationId: LiquidityPoolBatch
       responses:
         '200':
@@ -2554,10 +2546,10 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/deposits/{msg_index}':
     get:
-      summary: Get the pool batch deposit message with msg_index of the liquidity pool
+      summary: Get specific deposit message in the pool's current batch.
       description: >-
-        It return the pool batch deposit message with msg_index of the liquidity
-        pool.
+        It returns the deposit message corresponding to the msg_index in the
+        pool's current batch.
       operationId: PoolBatchDepositMsg
       responses:
         '200':
@@ -2715,10 +2707,10 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/swaps/{msg_index}':
     get:
-      summary: Get the pool batch swap message with msg_index of the liquidity pool
+      summary: Get specific swap message in the pool's current batch.
       description: >-
-        It return the pool batch swap message with msg_index of the liquidity
-        pool.
+        It returns the swap message corresponding to the msg_index in the pool's
+        current batch
       operationId: PoolBatchSwapMsg
       responses:
         '200':
@@ -2990,10 +2982,10 @@ paths:
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
   '/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}':
     get:
-      summary: Get the pool batch withdraw message with msg_index of the liquidity pool
+      summary: Get specific withdraw message in the pool's current batch.
       description: >-
-        It return the pool batch withdraw message with msg_index of the
-        liquidity pool.
+        It returns the withdraw message corresponding to the msg_index in the
+        pool's current batch.
       operationId: PoolBatchWithdrawMsg
       responses:
         '200':

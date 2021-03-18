@@ -11,11 +11,11 @@ option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 
 // Query defines the gRPC querier service for liquidity module.
 service Query {
-    // Get existing liquidity pools for each pool
+    // Get existing liquidity pools.
     rpc LiquidityPools (QueryLiquidityPoolsRequest) returns (QueryLiquidityPoolsResponse) {
         option (google.api.http).get = "/liquidity/pools";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns list of all liquidity pools currently existed paging results containing next_key and total count.";
+            description: "It returns list of all liquidity pools with pagination result.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -33,11 +33,11 @@ service Query {
         };
     }
 
-    // Get a liquidity pool with liquidity pool batch by pool_id
+    // Get specific liquidity pool.
     rpc LiquidityPool (QueryLiquidityPoolRequest) returns (QueryLiquidityPoolResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns the liquidity pool corresponding to the requested pool_id.";
+            description: "It returns the liquidity pool corresponding to the pool_id.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -65,11 +65,11 @@ service Query {
         };
     }
 
-    // Get a liquidity pool batch by pool_id
+    // Get the pool's current batch.
     rpc LiquidityPoolBatch (QueryLiquidityPoolBatchRequest) returns (QueryLiquidityPoolBatchResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns the liquidity pool batch corresponding to the requested pool_id.";
+            description: "It returns the current batch of the pool corresponding to the pool_id.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -97,11 +97,11 @@ service Query {
         };
     }
 
-    // Get all pool batch swap messages of the liquidity pool
+    // Get all swap messages in the pool's current batch.
     rpc PoolBatchSwapMsgs(QueryPoolBatchSwapMsgsRequest) returns (QueryPoolBatchSwapMsgsResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/swaps";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns list of all currently existing swap messages of the batch and paging results containing next_key and total count.";
+            description: "It returns list of all swap messages in the current batch of the pool with pagination result.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -129,11 +129,11 @@ service Query {
         };
     }
 
-    // Get the pool batch swap message with msg_index of the liquidity pool
+    // Get specific swap message in the pool's current batch.
     rpc PoolBatchSwapMsg(QueryPoolBatchSwapMsgRequest) returns (QueryPoolBatchSwapMsgResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/swaps/{msg_index}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It return the pool batch swap message with msg_index of the liquidity pool.";
+            description: "It returns the swap message corresponding to the msg_index in the pool's current batch";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -161,11 +161,11 @@ service Query {
         };
     }
 
-    // Get all pool batch deposit messages of the liquidity pool
+    // Get all deposit messages in the pool's current batch.
     rpc PoolBatchDepositMsgs(QueryPoolBatchDepositMsgsRequest) returns (QueryPoolBatchDepositMsgsResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns list of all currently existing deposit messages of the batch and paging results containing next_key and total count.";
+            description: "It returns list of all deposit messages in the current batch of the pool with pagination result.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -194,11 +194,11 @@ service Query {
         };
     }
 
-    // Get the pool batch deposit message with msg_index of the liquidity pool
+    // Get specific deposit message in the pool's current batch.
     rpc PoolBatchDepositMsg(QueryPoolBatchDepositMsgRequest) returns (QueryPoolBatchDepositMsgResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits/{msg_index}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It return the pool batch deposit message with msg_index of the liquidity pool.";
+            description: "It returns the deposit message corresponding to the msg_index in the pool's current batch.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -226,11 +226,11 @@ service Query {
         };
     }
 
-    // Get all pool batch withdraw messages of the liquidity pool
+    // Get all withdraw messages in the pool's current batch.
     rpc PoolBatchWithdrawMsgs(QueryPoolBatchWithdrawMsgsRequest) returns (QueryPoolBatchWithdrawMsgsResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns list of all currently existing withdraw messages of the batch and paging results containing next_key and total count.";
+            description: "It returns list of all withdraw messages in the current batch of the pool with pagination result.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -259,11 +259,11 @@ service Query {
         };
     }
 
-    // Get the pool batch withdraw message with msg_index of the liquidity pool
+    // Get specific withdraw message in the pool's current batch.
     rpc PoolBatchWithdrawMsg(QueryPoolBatchWithdrawMsgRequest) returns (QueryPoolBatchWithdrawMsgResponse) {
         option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It return the pool batch withdraw message with msg_index of the liquidity pool.";
+            description: "It returns the withdraw message corresponding to the msg_index in the pool's current batch.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";
@@ -291,11 +291,11 @@ service Query {
         };
     }
 
-    // Get a list of the liquidity parameters.
+    // Get all parameters of the liquidity module.
     rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
         option (google.api.http).get = "/liquidity/params";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "returns current parameter of the liquidity module.";
+            description: "It returns all parameters of the liquidity module.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md";
                 description: "Find out more about the params";
