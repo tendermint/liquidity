@@ -49,15 +49,15 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	// find order match, calculate pool delta with the total x, y amounts for the invariant check
 	var matchResultXtoY, matchResultYtoX []types.MatchResult
 
-	poolXdelta := sdk.ZeroDec()
-	poolYdelta := sdk.ZeroDec()
+	poolXDelta := sdk.ZeroDec()
+	poolYDelta := sdk.ZeroDec()
 
 	if result.MatchType != types.NoMatch {
 		var poolXDeltaXtoY, poolXDeltaYtoX, poolYDeltaYtoX, poolYDeltaXtoY sdk.Dec
 		matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX, result.SwapPrice, currentHeight)
 		matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY, result.SwapPrice, currentHeight)
-		poolXdelta = poolXDeltaXtoY.Add(poolXDeltaYtoX)
-		poolYdelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
+		poolXDelta = poolXDeltaXtoY.Add(poolXDeltaYtoX)
+		poolYDelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
 
 	executedMsgCount := uint64(len(swapMsgStates))
@@ -66,14 +66,14 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 		return executedMsgCount, nil
 	}
 
-	XtoY, YtoX, X, Y, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
+	XtoY, YtoX, X, Y, poolXDelta2, poolYDelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		k.UpdateState(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
 	lastPrice := X.Quo(Y)
 
 	if invariantCheckFlag {
 		SwapPriceInvariants(XtoY, YtoX, matchResultXtoY, matchResultYtoX, fractionalCntX, fractionalCntY,
-			poolXdelta, poolYdelta, poolXdelta2, poolYdelta2, decimalErrorX, decimalErrorY, result)
+			poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
 	}
 
 	types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
@@ -120,8 +120,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 		return YtoX[i].Msg.OrderPrice.LT(YtoX[j].Msg.OrderPrice)
 	})
 
-	poolXdelta := sdk.ZeroDec()
-	poolYdelta := sdk.ZeroDec()
+	poolXDelta := sdk.ZeroDec()
+	poolYDelta := sdk.ZeroDec()
 	fractionalCntX := 0
 	fractionalCntY := 0
 
@@ -130,8 +130,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 	decimalErrorY := sdk.ZeroDec()
 
 	for _, match := range matchResultXtoY {
-		poolXdelta = poolXdelta.Add(match.TransactedCoinAmt)
-		poolYdelta = poolYdelta.Sub(match.ExchangedDemandCoinAmt)
+		poolXDelta = poolXDelta.Add(match.TransactedCoinAmt)
+		poolYDelta = poolYDelta.Sub(match.ExchangedDemandCoinAmt)
 		if match.BatchMsg.Msg.OfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) ||
 			match.BatchMsg.RemainingOfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) {
 			// full match
@@ -163,8 +163,8 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 		}
 	}
 	for _, match := range matchResultYtoX {
-		poolXdelta = poolXdelta.Sub(match.ExchangedDemandCoinAmt)
-		poolYdelta = poolYdelta.Add(match.TransactedCoinAmt)
+		poolXDelta = poolXDelta.Sub(match.ExchangedDemandCoinAmt)
+		poolYDelta = poolYDelta.Add(match.TransactedCoinAmt)
 		if match.BatchMsg.Msg.OfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) ||
 			match.BatchMsg.RemainingOfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) {
 			// full match
@@ -197,11 +197,11 @@ func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matc
 	}
 
 	// Offset accumulated decimal error values
-	poolXdelta = poolXdelta.Add(decimalErrorX)
-	poolYdelta = poolYdelta.Add(decimalErrorY)
+	poolXDelta = poolXDelta.Add(decimalErrorX)
+	poolYDelta = poolYDelta.Add(decimalErrorY)
 
-	X = X.Add(poolXdelta)
-	Y = Y.Add(poolYdelta)
+	X = X.Add(poolXDelta)
+	Y = Y.Add(poolYDelta)
 
-	return XtoY, YtoX, X, Y, poolXdelta, poolYdelta, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY
+	return XtoY, YtoX, X, Y, poolXDelta, poolYDelta, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY
 }

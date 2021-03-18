@@ -194,12 +194,9 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 
 ## Export, Genesis State
 
+`liquidityd export`
+
 ### export empty state case
-`liquidityd testnet --v 1` 
-
-`liquidityd start --home ./mytestnet/node0/liquidityd/`
-
-`liquidityd export  --home ./mytestnet/node0/liquidityd/`
 
 ```json
 {

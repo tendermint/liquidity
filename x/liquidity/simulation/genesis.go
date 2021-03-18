@@ -161,10 +161,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 		PoolRecords: []types.PoolRecord{},
 	}
 
-	bz, err := json.MarshalIndent(&liquidityGenesis, "", " ")
-	if err != nil {
-		panic(err)
-	}
+	bz, _ := json.MarshalIndent(&liquidityGenesis, "", " ")
 	fmt.Printf("Selected randomly generated liquidity parameters:\n%s\n", bz)
 	simState.GenState[types.ModuleName] = simState.Cdc.MustMarshalJSON(&liquidityGenesis)
 }

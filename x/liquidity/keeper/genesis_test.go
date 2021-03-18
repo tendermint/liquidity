@@ -1,14 +1,16 @@
 package keeper_test
 
 import (
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	"testing"
 )
 
 func TestGenesisState(t *testing.T) {
@@ -20,7 +22,7 @@ func TestGenesisState(t *testing.T) {
 	paramsDefault := simapp.LiquidityKeeper.GetParams(ctx)
 	genesis := types.DefaultGenesisState()
 
-	params.PoolCreationFee = sdk.Coins{sdk.Coin{"invalid denom---", sdk.NewInt(0)}}
+	params.PoolCreationFee = sdk.Coins{sdk.Coin{Denom: "invalid denom---", Amount: sdk.NewInt(0)}}
 	err := params.Validate()
 	require.Error(t, err)
 
@@ -50,10 +52,10 @@ func TestGenesisState(t *testing.T) {
 	require.Equal(t, sdk.NewInt(100000), poolCoinBalance.Amount)
 	require.Equal(t, poolCoins.QuoRaw(10), poolCoinBalance.Amount)
 
-	balanceXrefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomX)
-	balanceYrefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomY)
-	require.Equal(t, sdk.NewInt(20000000), balanceXrefunded.Amount)
-	require.Equal(t, sdk.ZeroInt(), balanceYrefunded.Amount)
+	balanceXRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomX)
+	balanceYRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomY)
+	require.Equal(t, sdk.NewInt(20000000), balanceXRefunded.Amount)
+	require.Equal(t, sdk.ZeroInt(), balanceYRefunded.Amount)
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -72,7 +74,7 @@ func TestGenesisState(t *testing.T) {
 	err = types.ValidateGenesis(*newGenesisBrokenPool)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(newGenesisBrokenPool.PoolRecords))
-	err = simapp.LiquidityKeeper.ValidatePoolRecord(ctx, &newGenesisBrokenPool.PoolRecords[0])
+	err = simapp.LiquidityKeeper.ValidatePoolRecord(ctx, newGenesisBrokenPool.PoolRecords[0])
 	require.Error(t, err)
 
 	// not initialized genState of other module (auth, bank, ... ) only liquidity module
@@ -83,15 +85,15 @@ func TestGenesisState(t *testing.T) {
 	require.Panics(t, func() {
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-	simapp2.BankKeeper.SetBalances(ctx2, pool.GetReserveAccount(), reserveCoins)
+	require.NoError(t, simapp2.BankKeeper.SetBalances(ctx2, pool.GetReserveAccount(), reserveCoins))
 	require.Panics(t, func() {
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-	simapp2.BankKeeper.SetBalances(ctx2, addrs[0], sdk.Coins{poolCoinBalanceCreator})
+	require.NoError(t, simapp2.BankKeeper.SetBalances(ctx2, addrs[0], sdk.Coins{poolCoinBalanceCreator}))
 	require.Panics(t, func() {
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-	simapp2.BankKeeper.SetBalances(ctx2, addrs[1], sdk.Coins{poolCoinBalance})
+	require.NoError(t, simapp2.BankKeeper.SetBalances(ctx2, addrs[1], sdk.Coins{poolCoinBalance}))
 	require.Panics(t, func() {
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})

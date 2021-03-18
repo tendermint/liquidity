@@ -8,9 +8,11 @@ package keeper
 import (
 	"context"
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/liquidity/x/liquidity/types"
 	"strconv"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 type msgServer struct {

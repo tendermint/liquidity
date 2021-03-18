@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
@@ -174,7 +175,7 @@ func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, afterR
 
 // SwapPriceInvariants checks the calculated swap price is increased, decreased, or equal from the last pool price.
 func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult,
-	fractionalCntX, fractionalCntY int, poolXdelta, poolYdelta, poolXdelta2, poolYdelta2, decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
+	fractionalCntX, fractionalCntY int, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
 	beforeXtoYLen := len(XtoY)
 	beforeYtoXLen := len(YtoX)
 	if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
@@ -206,8 +207,8 @@ func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matc
 	invariantCheckX = invariantCheckX.Add(totalAmtX)
 	invariantCheckY = invariantCheckY.Add(totalAmtY)
 
-	invariantCheckX = invariantCheckX.Add(poolXdelta)
-	invariantCheckY = invariantCheckY.Add(poolYdelta)
+	invariantCheckX = invariantCheckX.Add(poolXDelta)
+	invariantCheckY = invariantCheckY.Add(poolYDelta)
 
 	// print the invariant check and validity with swap, match result
 	if invariantCheckX.IsZero() && invariantCheckY.IsZero() {
@@ -215,8 +216,8 @@ func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matc
 		panic(invariantCheckX)
 	}
 
-	if !poolXdelta.Add(decimalErrorX).Equal(poolXdelta2) || !poolYdelta.Add(decimalErrorY).Equal(poolYdelta2) {
-		panic(poolXdelta)
+	if !poolXDelta.Add(decimalErrorX).Equal(poolXDelta2) || !poolYDelta.Add(decimalErrorY).Equal(poolYDelta2) {
+		panic(poolXDelta)
 	}
 
 	validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)

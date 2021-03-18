@@ -44,16 +44,16 @@ func TestSwapScenario(t *testing.T) {
 	// Create swap msg for test purposes and put it in the batch.
 	price, _ := sdk.NewDecFromStr("1.1")
 	priceY, _ := sdk.NewDecFromStr("1.2")
-	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
-	offerCoinListY := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
-	orderPriceList := []sdk.Dec{price}
-	orderPriceListY := []sdk.Dec{priceY}
-	orderAddrList := addrs[1:2]
-	orderAddrListY := addrs[2:3]
-	_, batch := app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	_, batch = app.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
+	xOfferCoins := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
+	yOfferCoins := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
+	xOrderPrices := []sdk.Dec{price}
+	yOrderPrices := []sdk.Dec{priceY}
+	xOrderAddrs := addrs[1:2]
+	yOrderAddrs := addrs[2:3]
+	_, batch := app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
+	_, batch = app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
+	_, batch = app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
+	_, batch = app.TestSwapPool(t, simapp, ctx, yOfferCoins, yOrderPrices, yOrderAddrs, poolId, false)
 
 	// Set the execution status flag of messages to true.
 	msgs := simapp.LiquidityKeeper.GetAllPoolBatchSwapMsgStatesAsPointer(ctx, batch)
@@ -66,13 +66,13 @@ func TestSwapScenario(t *testing.T) {
 	orderMap, XtoY, YtoX := types.MakeOrderMap(msgs, denomX, denomY, false)
 	orderBook := orderMap.SortOrderBook()
 	currentPrice := X.Quo(Y).ToDec()
-	require.Equal(t, orderMap[orderPriceList[0].String()].BuyOfferAmt, offerCoinList[0].Amount.MulRaw(3))
-	require.Equal(t, orderMap[orderPriceList[0].String()].Price, orderPriceList[0])
+	require.Equal(t, orderMap[xOrderPrices[0].String()].BuyOfferAmt, xOfferCoins[0].Amount.MulRaw(3))
+	require.Equal(t, orderMap[xOrderPrices[0].String()].Price, xOrderPrices[0])
 
 	require.Equal(t, 3, len(XtoY))
 	require.Equal(t, 1, len(YtoX))
-	require.Equal(t, 3, len(orderMap[orderPriceList[0].String()].SwapMsgStates))
-	require.Equal(t, 1, len(orderMap[orderPriceListY[0].String()].SwapMsgStates))
+	require.Equal(t, 3, len(orderMap[xOrderPrices[0].String()].SwapMsgStates))
+	require.Equal(t, 1, len(orderMap[yOrderPrices[0].String()].SwapMsgStates))
 	require.Equal(t, 3, len(orderBook[0].SwapMsgStates))
 	require.Equal(t, 1, len(orderBook[1].SwapMsgStates))
 
@@ -94,7 +94,7 @@ func TestSwapScenario(t *testing.T) {
 	matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX := types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
 		result.SwapPrice, ctx.BlockHeight())
 
-	XtoY, YtoX, XDec, YDec, poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
+	XtoY, YtoX, XDec, YDec, poolXDelta2, poolYDelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
 		simapp.LiquidityKeeper.UpdateState(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
 	require.Equal(t, 0, types.CountNotMatchedMsgs(XtoY))
@@ -109,7 +109,7 @@ func TestSwapScenario(t *testing.T) {
 	fmt.Println(poolYDeltaXtoY)
 
 	fmt.Println(poolXDeltaYtoX, poolYDeltaYtoX)
-	fmt.Println(poolXdelta2, poolYdelta2, fractionalCntX, fractionalCntY)
+	fmt.Println(poolXDelta2, poolYDelta2, fractionalCntX, fractionalCntY)
 	fmt.Println(decimalErrorX, decimalErrorY)
 	fmt.Println(XDec, YDec)
 
@@ -122,8 +122,8 @@ func TestSwapScenario(t *testing.T) {
 	fmt.Println("Y", YDec)
 	require.True(t, orderBookExecuted.Validate(lastPrice))
 
-	require.Equal(t, 0, types.CountNotMatchedMsgs(orderMapExecuted[orderPriceList[0].String()].SwapMsgStates))
-	require.Equal(t, 1, types.CountNotMatchedMsgs(orderMapExecuted[orderPriceListY[0].String()].SwapMsgStates))
+	require.Equal(t, 0, types.CountNotMatchedMsgs(orderMapExecuted[xOrderPrices[0].String()].SwapMsgStates))
+	require.Equal(t, 1, types.CountNotMatchedMsgs(orderMapExecuted[yOrderPrices[0].String()].SwapMsgStates))
 	require.Equal(t, 1, types.CountNotMatchedMsgs(orderBookExecuted[0].SwapMsgStates))
 
 	types.ValidateStateAndExpireOrders(XtoY, ctx.BlockHeight(), true)
@@ -133,8 +133,8 @@ func TestSwapScenario(t *testing.T) {
 	orderBookCleared := orderMapCleared.SortOrderBook()
 	require.True(t, orderBookCleared.Validate(lastPrice))
 
-	require.Equal(t, 0, types.CountNotMatchedMsgs(orderMapCleared[orderPriceList[0].String()].SwapMsgStates))
-	require.Equal(t, 0, types.CountNotMatchedMsgs(orderMapCleared[orderPriceListY[0].String()].SwapMsgStates))
+	require.Equal(t, 0, types.CountNotMatchedMsgs(orderMapCleared[xOrderPrices[0].String()].SwapMsgStates))
+	require.Equal(t, 0, types.CountNotMatchedMsgs(orderMapCleared[yOrderPrices[0].String()].SwapMsgStates))
 	require.Equal(t, 0, len(orderBookCleared))
 
 	// next block
@@ -270,17 +270,17 @@ func TestOrderBookSort(t *testing.T) {
 	a, _ := sdk.NewDecFromStr("0.1")
 	b, _ := sdk.NewDecFromStr("0.2")
 	c, _ := sdk.NewDecFromStr("0.3")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.ZeroInt(),
@@ -319,17 +319,17 @@ func TestExecutableAmt(t *testing.T) {
 	a, _ := sdk.NewDecFromStr("0.1")
 	b, _ := sdk.NewDecFromStr("0.2")
 	c, _ := sdk.NewDecFromStr("0.3")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(30000000),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.NewInt(90000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.ZeroInt(),
@@ -348,17 +348,17 @@ func TestPriceDirection(t *testing.T) {
 	a, _ := sdk.NewDecFromStr("1")
 	b, _ := sdk.NewDecFromStr("1.1")
 	c, _ := sdk.NewDecFromStr("1.2")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(20000000),
@@ -374,17 +374,17 @@ func TestPriceDirection(t *testing.T) {
 	a, _ = sdk.NewDecFromStr("0.7")
 	b, _ = sdk.NewDecFromStr("0.9")
 	c, _ = sdk.NewDecFromStr("0.8")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(20000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(40000000),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.NewInt(10000000),
 		SellOfferAmt: sdk.ZeroInt(),
@@ -399,7 +399,7 @@ func TestPriceDirection(t *testing.T) {
 	orderMap = make(types.OrderMap)
 	a, _ = sdk.NewDecFromStr("1.0")
 
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.NewInt(50000000),
@@ -416,17 +416,17 @@ func TestComputePriceDirection(t *testing.T) {
 	a, _ := sdk.NewDecFromStr("1")
 	b, _ := sdk.NewDecFromStr("1.1")
 	c, _ := sdk.NewDecFromStr("1.2")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.NewInt(40000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(20000000),
@@ -447,17 +447,17 @@ func TestComputePriceDirection(t *testing.T) {
 	a, _ = sdk.NewDecFromStr("0.7")
 	b, _ = sdk.NewDecFromStr("0.9")
 	c, _ = sdk.NewDecFromStr("0.8")
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(20000000),
 		SellOfferAmt: sdk.ZeroInt(),
 	}
-	orderMap[b.String()] = types.OrderByPrice{
+	orderMap[b.String()] = types.Order{
 		Price:        b,
 		BuyOfferAmt:  sdk.ZeroInt(),
 		SellOfferAmt: sdk.NewInt(40000000),
 	}
-	orderMap[c.String()] = types.OrderByPrice{
+	orderMap[c.String()] = types.Order{
 		Price:        c,
 		BuyOfferAmt:  sdk.NewInt(10000000),
 		SellOfferAmt: sdk.ZeroInt(),
@@ -477,7 +477,7 @@ func TestComputePriceDirection(t *testing.T) {
 	orderMap = make(types.OrderMap)
 	a, _ = sdk.NewDecFromStr("1.0")
 
-	orderMap[a.String()] = types.OrderByPrice{
+	orderMap[a.String()] = types.Order{
 		Price:        a,
 		BuyOfferAmt:  sdk.NewInt(50000000),
 		SellOfferAmt: sdk.NewInt(50000000),
