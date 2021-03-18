@@ -1,18 +1,20 @@
 package keeper_test
 
 import (
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/tendermint/tendermint/crypto/ed25519"
+
 	"github.com/tendermint/liquidity/app"
 	lapp "github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
-	"github.com/tendermint/tendermint/crypto/ed25519"
-	"testing"
 )
 
 // createTestInput Returns a simapp with custom LiquidityKeeper
@@ -78,10 +80,10 @@ func addTestAddrs(app *lapp.LiquidityApp, ctx sdk.Context, accNum int, accAmt sd
 
 // generateAddresses generates numAddrs of normal AccAddrs and ValAddrs
 func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int) ([]sdk.AccAddress, []sdk.ValAddress) {
-	addrDels := simapp.AddTestAddrsIncremental(app, ctx, numAddrs, sdk.NewInt(10000))
-	addrVals := simapp.ConvertAddrsToValAddrs(addrDels)
+	delAddrs := simapp.AddTestAddrsIncremental(app, ctx, numAddrs, sdk.NewInt(10000))
+	valAddrs := simapp.ConvertAddrsToValAddrs(delAddrs)
 
-	return addrDels, addrVals
+	return delAddrs, valAddrs
 }
 
 var (
@@ -108,7 +110,7 @@ func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, pow
 	val1, _ := stakingtypes.NewValidator(valAddrs[0], pks[0], stakingtypes.Description{})
 	val2, _ := stakingtypes.NewValidator(valAddrs[1], pks[1], stakingtypes.Description{})
 	val3, _ := stakingtypes.NewValidator(valAddrs[2], pks[2], stakingtypes.Description{})
-	vals := []stakingtypes.Validator{val1, val2, val3}
+	validators := []stakingtypes.Validator{val1, val2, val3}
 
 	app.StakingKeeper.SetValidator(ctx, val1)
 	app.StakingKeeper.SetValidator(ctx, val2)
@@ -126,7 +128,7 @@ func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, pow
 
 	_ = staking.EndBlocker(ctx, app.StakingKeeper)
 
-	return addrs, valAddrs, vals
+	return addrs, valAddrs, validators
 }
 
 func createLiquidity(t *testing.T, ctx sdk.Context, simapp *lapp.LiquidityApp) (
@@ -158,12 +160,12 @@ func createLiquidity(t *testing.T, ctx sdk.Context, simapp *lapp.LiquidityApp) (
 
 	price, _ := sdk.NewDecFromStr("1.1")
 	priceY, _ := sdk.NewDecFromStr("1.2")
-	offerCoinList := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
-	offerCoinListY := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
-	orderPriceList := []sdk.Dec{price}
-	orderPriceListY := []sdk.Dec{priceY}
-	orderAddrList := addrs[1:2]
-	orderAddrListY := addrs[2:3]
+	xOfferCoins := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
+	yOfferCoins := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
+	xOrderPrices := []sdk.Dec{price}
+	yOrderPrices := []sdk.Dec{priceY}
+	xOrderAddrs := addrs[1:2]
+	yOrderAddrs := addrs[2:3]
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -178,10 +180,10 @@ func createLiquidity(t *testing.T, ctx sdk.Context, simapp *lapp.LiquidityApp) (
 	lapp.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[2:3], poolId, false)
 	lapp.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[2:3], poolId, false)
 
-	lapp.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	lapp.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	lapp.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	lapp.TestSwapPool(t, simapp, ctx, offerCoinListY, orderPriceListY, orderAddrListY, poolId, false)
+	lapp.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
+	lapp.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
+	lapp.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
+	lapp.TestSwapPool(t, simapp, ctx, yOfferCoins, yOrderPrices, yOrderAddrs, poolId, false)
 
 	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
 	batches := simapp.LiquidityKeeper.GetAllPoolBatches(ctx)

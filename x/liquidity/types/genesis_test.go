@@ -1,13 +1,15 @@
 package types_test
 
 import (
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	"testing"
 )
 
 func TestGenesisState(t *testing.T) {
@@ -19,7 +21,7 @@ func TestGenesisState(t *testing.T) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	genesis := types.DefaultGenesisState()
 
-	params.PoolCreationFee = sdk.Coins{sdk.Coin{"invalid denom---", sdk.NewInt(0)}}
+	params.PoolCreationFee = sdk.Coins{sdk.Coin{Denom: "invalid denom---", Amount: sdk.NewInt(0)}}
 	err := params.Validate()
 	require.Error(t, err)
 
@@ -54,7 +56,7 @@ func TestGenesisState(t *testing.T) {
 	require.Error(t, err)
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.PoolCreationFee = sdk.Coins{sdk.Coin{"invalid denom---", sdk.NewInt(0)}}
+	params.PoolCreationFee = sdk.Coins{sdk.Coin{Denom: "invalid denom---", Amount: sdk.NewInt(0)}}
 	err = params.Validate()
 	require.Error(t, err)
 	err = types.ValidateGenesis(*genesisState)
