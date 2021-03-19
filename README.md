@@ -130,8 +130,8 @@ make install
 liquidityd init testing --chain-id testing
 liquidityd keys add validator --keyring-backend test
 liquidityd keys add user1 --keyring-backend test
-liquidityd add-genesis-account $(liquidityd keys show validator --keyring-backend test -a) 2000000000stake,1000000000token
-liquidityd add-genesis-account $(liquidityd keys show user1 --keyring-backend test -a) 1000000000stake,1000000000atom
+liquidityd add-genesis-account $(liquidityd keys show validator --keyring-backend test -a) 10000000000stake,10000000000uatom,300000000000uusdt
+liquidityd add-genesis-account $(liquidityd keys show user1 --keyring-backend test -a) 10000000000stake,10000000000uatom,300000000000uusdt
 liquidityd gentx validator 1000000000stake --chain-id testing --keyring-backend test
 liquidityd collect-gentxs
 liquidityd start
@@ -142,19 +142,19 @@ liquidityd start
 Example of creating test liquidity pool 1 using cli
 
 ```bash
-liquidityd tx liquidity create-pool 1 100000000stake,100000000token --from validator --keyring-backend test --chain-id testing -y
+liquidityd tx liquidity create-pool 1 10000000stake,10000000uusdt --from validator --keyring-backend test --chain-id testing -y
 ```
 
 Example of creating test liquidity pool 2 using cli
 
 ```bash
-liquidityd tx liquidity create-pool 1 100000000stake,100000000atom --from user1 --keyring-backend test --chain-id testing -y
+liquidityd tx liquidity create-pool 1 1000000000uatom,30000000000uusdt --from user1 --keyring-backend test --chain-id testing -y
 ```
 
 Example of Swap request using cli
 
 ```bash
-liquidityd tx liquidity swap 2 1 1000stake atom 0.9 0.003 --from validator --chain-id testing --keyring-backend test -y
+liquidityd tx liquidity swap 2 1 30000000uusdt uatom 0.032 0.003 --from validator --chain-id testing --keyring-backend test -y
 ```
 
 ### Broadcasting Txs with REST
