@@ -211,7 +211,7 @@ func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec
 	if direction == Decreasing {
 		start, end, delta = end, start, -1
 	}
-	for i := start; i != end; i += delta {
+	for i := start; i != end + delta; i += delta {
 		order := orderBook[i]
 		if (direction == Increasing && order.Price.LT(currentPrice)) ||
 			(direction == Decreasing && order.Price.GT(currentPrice)) {
