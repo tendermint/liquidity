@@ -37,16 +37,6 @@ func TestSortDenoms(t *testing.T) {
 	}
 }
 
-func TestStringInSlice(t *testing.T) {
-	denomA := "uCoinA"
-	denomB := "uCoinB"
-	denomC := "uCoinC"
-	denoms := []string{denomA, denomB}
-	require.True(t, types.StringInSlice(denomA, denoms))
-	require.True(t, types.StringInSlice(denomB, denoms))
-	require.False(t, types.StringInSlice(denomC, denoms))
-}
-
 func TestCoinSafeSubAmount(t *testing.T) {
 	denom := "uCoinA"
 	a := sdk.NewCoin(denom, sdk.NewInt(100))
@@ -91,50 +81,6 @@ func TestGetPoolReserveAcc3(t *testing.T) {
 	require.Equal(t, "pool2E1D74ED1B6B98A5CD7F1D3F17E1CCD4E524408D5860FBD5A87CBC07C1BB9967", types.GetPoolCoinDenom(poolName))
 }
 
-func TestCheckDecApproxEqual(t *testing.T) {
-	require.True(t, types.CheckDecApproxEqual(sdk.ZeroDec(), sdk.ZeroDec(), types.DecimalErrThreshold3))
-	require.False(t, types.CheckDecApproxEqual(sdk.ZeroDec(), sdk.OneDec(), types.DecimalErrThreshold3))
-
-	a := sdk.NewDecWithPrec(9999999999, 10)
-	b := sdk.NewDecWithPrec(9999999998, 10)
-	res := types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.True(t, res)
-
-	a = sdk.NewDecWithPrec(9999999999, 10)
-	b = sdk.NewDecWithPrec(9999999997, 10)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.False(t, res)
-
-	a = sdk.NewDecWithPrec(99999999999, 10)
-	b = sdk.NewDecWithPrec(99999999998, 10)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.True(t, res)
-
-	a = sdk.NewDecWithPrec(9999999999, 11)
-	b = sdk.NewDecWithPrec(9999999997, 11)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.False(t, res)
-
-	a = sdk.NewDec(9999999999)
-	b = sdk.NewDec(9999999998)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.True(t, res)
-
-	a = sdk.NewDec(9999999999)
-	b = sdk.NewDec(9999999997)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.False(t, res)
-
-	a = sdk.NewDec(1)
-	b = sdk.NewDec(1)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.True(t, res)
-
-	a = sdk.NewDec(1)
-	b = sdk.NewDec(2)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.False(t, res)
-}
 func TestGetCoinsTotalAmount(t *testing.T) {
 	denomA := "uCoinA"
 	denomB := "uCoinB"

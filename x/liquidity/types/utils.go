@@ -36,16 +36,6 @@ func GetPoolCoinDenom(poolName string) string {
 	return fmt.Sprintf("%s%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(poolName)))
 }
 
-// Find A string is exists in the given list
-func StringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 // Safe Sub function for Coin with subtracting amount
 func CoinSafeSubAmount(coinA sdk.Coin, coinBAmt sdk.Int) sdk.Coin {
 	var resCoin sdk.Coin
@@ -55,19 +45,6 @@ func CoinSafeSubAmount(coinA sdk.Coin, coinBAmt sdk.Int) sdk.Coin {
 		resCoin = coinA.Sub(sdk.NewCoin(coinA.Denom, coinBAmt))
 	}
 	return resCoin
-}
-
-// Check the decimals equal approximately
-func CheckDecApproxEqual(a, b, threshold sdk.Dec) bool {
-	if a.IsZero() && b.IsZero() {
-		return true
-	} else if a.IsZero() || b.IsZero() {
-		return false
-	} else if a.Quo(b).Sub(sdk.OneDec()).Abs().LTE(threshold) {
-		return true
-	} else {
-		return false
-	}
 }
 
 // Get Total amount of the coins
