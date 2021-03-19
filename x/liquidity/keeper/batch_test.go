@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	DenomX            = "denomX"
-	DenomY            = "denomY"
-	DenomA            = "denomA"
-	DenomB            = "denomB"
+	DenomX = "denomX"
+	DenomY = "denomY"
+	DenomA = "denomA"
+	DenomB = "denomB"
 )
 
 func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {

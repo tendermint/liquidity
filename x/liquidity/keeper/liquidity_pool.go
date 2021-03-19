@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"strconv"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -958,4 +959,22 @@ func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record types.PoolRecord) err
 
 	// TODO: add verify of escrow amount and poolcoin amount with compare to remaining msgs
 	return nil
+}
+
+// IsPoolCoinDenom checks is the denom poolcoin or not, need to additional checking the reserve account is existed
+func (k Keeper) IsPoolCoinDenom(ctx sdk.Context, denom string) bool {
+	if err := sdk.ValidateDenom(denom); err != nil {
+		return false
+	}
+	denomSplit := strings.SplitN(denom, types.PoolCoinDenomPrefix, 2)
+	if len(denomSplit) == 2 && denomSplit[0] == "" && len(denomSplit[1]) == 64 {
+		reserveAcc, err := sdk.AccAddressFromHex(denomSplit[1][:40])
+		if err != nil {
+			return false
+		}
+		_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
+		return found
+	} else {
+		return false
+	}
 }

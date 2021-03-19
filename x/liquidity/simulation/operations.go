@@ -115,7 +115,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		fees, err := randomFees(r, ctx, spendable)
+		fees, err := randomFees(r, ctx, k, spendable)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
 		}
@@ -211,7 +211,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		fees, err := randomFees(r, ctx, spendable)
+		fees, err := randomFees(r, ctx, k, spendable)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to generate fees"), nil, err
 		}
@@ -297,7 +297,7 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		fees, err := randomFees(r, ctx, spendable)
+		fees, err := randomFees(r, ctx, k, spendable)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "unable to generate fees"), nil, err
 		}
@@ -371,7 +371,7 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		fees, err := randomFees(r, ctx, spendable)
+		fees, err := randomFees(r, ctx, k, spendable)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "unable to generate fees"), nil, err
 		}
@@ -483,7 +483,7 @@ func randomOfferCoin(r *rand.Rand, k keeper.Keeper, ctx sdk.Context, pool types.
 // randomFees returns a random fee by selecting a random coin denomination except pool coin and
 // amount from the account's available balance. If the user doesn't have enough
 // funds for paying fees, it returns empty coins.
-func randomFees(r *rand.Rand, ctx sdk.Context, spendableCoins sdk.Coins) (sdk.Coins, error) {
+func randomFees(r *rand.Rand, ctx sdk.Context, keeper keeper.Keeper, spendableCoins sdk.Coins) (sdk.Coins, error) {
 	if spendableCoins.Empty() {
 		return nil, nil
 	}
@@ -491,7 +491,7 @@ func randomFees(r *rand.Rand, ctx sdk.Context, spendableCoins sdk.Coins) (sdk.Co
 	perm := r.Perm(len(spendableCoins))
 	var randCoin sdk.Coin
 	for _, index := range perm {
-		if types.IsPoolCoinDenom(spendableCoins[index].Denom) {
+		if keeper.IsPoolCoinDenom(ctx, spendableCoins[index].Denom) {
 			continue
 		}
 		randCoin = spendableCoins[index]

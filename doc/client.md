@@ -148,7 +148,7 @@ result
             },
             {
               "key": "pool_coin_denom",
-              "value": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
+              "value": "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
             }
           ]
         },
@@ -194,7 +194,7 @@ result
             },
             {
               "key": "amount",
-              "value": "1000000pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
+              "value": "1000000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
             },
             {
               "key": "recipient",
@@ -343,7 +343,7 @@ result
           "attributes": [
             {
               "key": "action",
-              "value": "deposit_to_pool"
+              "value": "deposit_within_batch"
             },
             {
               "key": "sender",
@@ -460,18 +460,39 @@ result
 
 ```
 {
-  "height": "6677",
-  "txhash": "FCA49D6FC23E1B500C5DED27591CF97AC1B69E635384BF5FCC727A016B31881E",
+  "height": "6671",
+  "txhash": "0815AAC69C31E1F889D3231A87DB8B567E93459423D049C0E0E90D346B3E0384",
   "codespace": "",
   "code": 0,
-  "data": "0A110A0F6465706F7369745F746F5F706F6F6C",
+  "data": "0A130A11737761705F77697468696E5F6261746368",
   "logs": [
     {
       "msg_index": 0,
       "log": "",
       "events": [
         {
-          "type": "deposit_within_batch",
+          "type": "message",
+          "attributes": [
+            {
+              "key": "action",
+              "value": "swap_within_batch"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos13hwd59j2d4tngxgfpp0v248sxwgenvs232aaqu"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos13hwd59j2d4tngxgfpp0v248sxwgenvs232aaqu"
+            },
+            {
+              "key": "module",
+              "value": "liquidity"
+            }
+          ]
+        },
+        {
+          "type": "swap_within_batch",
           "attributes": [
             {
               "key": "pool_id",
@@ -483,28 +504,31 @@ result
             },
             {
               "key": "msg_index",
-              "value": "3"
+              "value": "1"
             },
             {
-              "key": "deposit_coins",
-              "value": "50000000stake,50000000token"
-            }
-          ]
-        },
-        {
-          "type": "message",
-          "attributes": [
-            {
-              "key": "action",
-              "value": "deposit_to_pool"
+              "key": "swap_type_id",
+              "value": "1"
             },
             {
-              "key": "sender",
-              "value": "cosmos13hwd59j2d4tngxgfpp0v248sxwgenvs232aaqu"
+              "key": "offer_coin_denom",
+              "value": "token"
             },
             {
-              "key": "module",
-              "value": "liquidity"
+              "key": "offer_coin_amount",
+              "value": "1000"
+            },
+            {
+              "key": "offer_coin_fee_amount",
+              "value": "1"
+            },
+            {
+              "key": "demand_coin_denom",
+              "value": "stake"
+            },
+            {
+              "key": "order_price",
+              "value": "0.900000000000000000"
             }
           ]
         },
@@ -521,7 +545,19 @@ result
             },
             {
               "key": "amount",
-              "value": "50000000stake,50000000token"
+              "value": "1000token"
+            },
+            {
+              "key": "recipient",
+              "value": "cosmos1tx68a8k9yz54z06qfve9l2zxvgsz4ka3hr8962"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos13hwd59j2d4tngxgfpp0v248sxwgenvs232aaqu"
+            },
+            {
+              "key": "amount",
+              "value": "1token"
             }
           ]
         }
@@ -530,7 +566,7 @@ result
   ],
   "info": "",
   "gas_wanted": "200000",
-  "gas_used": "79179",
+  "gas_used": "94701",
   "tx": null,
   "timestamp": ""
 }
@@ -547,7 +583,7 @@ this requests are stacked in the batch of the liquidity pool, not immediately pr
 processed in the endblock at once with other requests.
 
 Example:
-$ liquidity tx liquidity withdraw 1 1000pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07 --from mykey
+$ liquidity tx liquidity withdraw 1 1000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07 --from mykey
 
 You should request the matched pool-coin as the pool.
 
@@ -562,7 +598,7 @@ check the balance before broadcast tx
 ```
 balances:
 - amount: "2500000"
-  denom: pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
+  denom: poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
 - amount: "650000000"
   denom: stake
 - amount: "750000000"
@@ -571,7 +607,7 @@ balances:
 
 example tx command with result
 
-`$ liquidityd tx liquidity withdraw 1 500000pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07 --from validator --chain-id testing --keyring-backend test -y`
+`$ liquidityd tx liquidity withdraw 1 500000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07 --from validator --chain-id testing --keyring-backend test -y`
 
 ```json
 {
@@ -582,7 +618,7 @@ example tx command with result
         "withdrawer_address": "cosmos13hwd59j2d4tngxgfpp0v248sxwgenvs232aaqu",
         "pool_id": "1",
         "pool_coin": {
-          "denom": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
+          "denom": "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
           "amount": "500000"
         }
       }
@@ -624,7 +660,7 @@ result
           "attributes": [
             {
               "key": "action",
-              "value": "withdraw_from_pool"
+              "value": "withdraw_within_batch"
             },
             {
               "key": "sender",
@@ -649,7 +685,7 @@ result
             },
             {
               "key": "amount",
-              "value": "500000pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
+              "value": "500000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
             }
           ]
         },
@@ -670,7 +706,7 @@ result
             },
             {
               "key": "pool_coin_denom",
-              "value": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
+              "value": "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
             },
             {
               "key": "pool_coin_amount",
@@ -696,7 +732,7 @@ balances after withdraw
 ```
 balances:
 - amount: "2000000"
-  denom: pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
+  denom: poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
 - amount: "699850000"
   denom: stake
 - amount: "799850000"
@@ -880,13 +916,13 @@ id: "1"
 metadata:
   pool_coin_total_supply:
     amount: "2499625"
-    denom: pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
+    denom: poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
   reserve_coins:
   - amount: "250150000"
     denom: stake
   - amount: "250150000"
     denom: token
-pool_coin_denom: pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
+pool_coin_denom: poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
 reserve_account_address: cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u
 reserve_coin_denoms:
 - stake
@@ -928,13 +964,13 @@ pools:
   metadata:
     pool_coin_total_supply:
       amount: "2499625"
-      denom: pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
+      denom: poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
     reserve_coins:
     - amount: "250150000"
       denom: stake
     - amount: "250150000"
       denom: token
-  pool_coin_denom: pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
+  pool_coin_denom: poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07
   reserve_account_address: cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u
   reserve_coin_denoms:
   - stake
@@ -951,13 +987,13 @@ pools:
   metadata:
     pool_coin_total_supply:
       amount: "1000000"
-      denom: pool/4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC
+      denom: pool4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC
     reserve_coins:
     - amount: "100000000"
       denom: atom
     - amount: "100000000"
       denom: stake
-  pool_coin_denom: pool/4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC
+  pool_coin_denom: pool4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC
   reserve_account_address: cosmos1guvgyffq53h87etuq5d85x9fazzh6ta5tq2rjn
   reserve_coin_denoms:
   - atom
@@ -1102,7 +1138,7 @@ example query command with result
         "withdrawer_address": "cosmos13hwd59j2d4tngxgfpp0v248sxwgenvs232aaqu",
         "pool_id": "1",
         "pool_coin": {
-          "denom": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
+          "denom": "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
           "amount": "500000"
         }
       }

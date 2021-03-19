@@ -42,7 +42,7 @@ Coin swaps are executed for every batch, which is composed of one or more consec
 
 ### Pool Identification
 
-#### PoolKey
+#### PoolName
 
 - `reserveCoinDenoms1/reserveCoinDenoms2/poolTypeId`
 - string join with reserve coin denoms and `poolTypeId` using separator `/`
@@ -50,11 +50,11 @@ Coin swaps are executed for every batch, which is composed of one or more consec
 
 #### PoolReserveAcc
 
-- `sdk.AccAddress(crypto.AddressHash([]byte(PoolKey)))`
+- `sdk.AccAddress(crypto.AddressHash([]byte(PoolName)))`
 - e.g. `cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3` (`D35A0CC16EE598F90B044CE296A405BA9C381E38`)
 
 #### PoolCoinDenom
 
-- `fmt.Sprintf("%s/%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(PoolKey)))`
-- PoolCoinDenomPrefix: `pool/`
-- e.g. `pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4`
+- `fmt.Sprintf("%s%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(PoolName)))`
+- PoolCoinDenomPrefix: `pool`
+- e.g. `poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4`
