@@ -3,10 +3,10 @@ package types
 
 // liquidity module event types, it will be improve the completeness of Milestone 2.
 const (
-	EventTypeCreatePool          = "create_pool"
-	EventTypeDepositWithinBatch  = "deposit_within_batch"
-	EventTypeWithdrawWithinBatch = "withdraw_within_batch"
-	EventTypeSwapWithinBatch     = "swap_within_batch"
+	EventTypeCreatePool          = TypeMsgCreatePool
+	EventTypeDepositWithinBatch  = TypeMsgDepositWithinBatch
+	EventTypeWithdrawWithinBatch = TypeMsgWithdrawWithinBatch
+	EventTypeSwapWithinBatch     = TypeMsgSwapWithinBatch
 	EventTypeDepositToPool       = "deposit_to_pool"
 	EventTypeWithdrawFromPool    = "withdraw_from_pool"
 	EventTypeSwapTransacted      = "swap_transacted"

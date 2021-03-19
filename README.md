@@ -264,7 +264,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
         "deposit_msg_states": [],
         "pool": {
           "id": "1",
-          "pool_coin_denom": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
+          "pool_coin_denom": "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
           "reserve_account_address": "cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u",
           "reserve_coin_denoms": [
             "stake",
@@ -284,7 +284,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
         "pool_metadata": {
           "pool_coin_total_supply": {
             "amount": "1999625",
-            "denom": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
+            "denom": "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
           },
           "pool_id": "1",
           "reserve_coins": [
@@ -305,7 +305,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
         "deposit_msg_states": [],
         "pool": {
           "id": "2",
-          "pool_coin_denom": "pool/4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC",
+          "pool_coin_denom": "pool4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC",
           "reserve_account_address": "cosmos1guvgyffq53h87etuq5d85x9fazzh6ta5tq2rjn",
           "reserve_coin_denoms": [
             "atom",
@@ -325,7 +325,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
         "pool_metadata": {
           "pool_coin_total_supply": {
             "amount": "1000000",
-            "denom": "pool/4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC"
+            "denom": "pool4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC"
           },
           "pool_id": "2",
           "reserve_coins": [

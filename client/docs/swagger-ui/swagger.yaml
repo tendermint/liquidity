@@ -330,7 +330,7 @@ paths:
                     pool_coin_denom:
                       type: string
                       example: >-
-                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                        poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       title: denom of pool coin of the pool
               pagination:
                 description: >-
@@ -1946,7 +1946,7 @@ paths:
                     format: sdk.Coin
                     example:
                       denom: >-
-                        pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                        poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       amount: '1000'
                 description: >-
                   `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
@@ -2055,7 +2055,7 @@ paths:
                           format: sdk.Coin
                           example:
                             denom: >-
-                              pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                              poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                             amount: '1000'
                       description: >-
                         `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
@@ -2385,7 +2385,7 @@ paths:
                   pool_coin_denom:
                     type: string
                     example: >-
-                      pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                      poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                     title: denom of pool coin of the pool
             description: >-
               the response type for the QueryLiquidityPoolResponse RPC method.
@@ -3061,7 +3061,7 @@ paths:
                         format: sdk.Coin
                         example:
                           denom: >-
-                            pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                            poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                           amount: '1000'
                     description: >-
                       `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
@@ -4271,8 +4271,7 @@ definitions:
           signatures required by gogoproto.
         format: sdk.Coin
         example:
-          denom: >-
-            pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+          denom: poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
           amount: '1000'
     description: >-
       `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -4427,7 +4426,7 @@ definitions:
             format: sdk.Coin
             example:
               denom: >-
-                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               amount: '1000'
         description: >-
           `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -4915,7 +4914,7 @@ definitions:
         title: reserve account address of the pool
       pool_coin_denom:
         type: string
-        example: pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+        example: poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
         title: denom of pool coin of the pool
   tendermint.liquidity.PoolBatch:
     type: object
@@ -5058,7 +5057,7 @@ definitions:
           pool_coin_denom:
             type: string
             example: >-
-              pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+              poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
             title: denom of pool coin of the pool
     description: >-
       the response type for the QueryLiquidityPoolResponse RPC method. It
@@ -5097,7 +5096,7 @@ definitions:
             pool_coin_denom:
               type: string
               example: >-
-                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               title: denom of pool coin of the pool
       pagination:
         description: >-
@@ -5902,7 +5901,7 @@ definitions:
                 format: sdk.Coin
                 example:
                   denom: >-
-                    pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                    poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                   amount: '1000'
             description: >-
               `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -5986,7 +5985,7 @@ definitions:
                   format: sdk.Coin
                   example:
                     denom: >-
-                      pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                      poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                     amount: '1000'
               description: >-
                 `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
@@ -6269,7 +6268,7 @@ definitions:
             format: sdk.Coin
             example:
               denom: >-
-                pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
+                poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               amount: '1000'
         description: >-
           `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
