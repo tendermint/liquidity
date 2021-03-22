@@ -365,6 +365,12 @@ generate `swagger.yaml` from `proto/*.proto`
 ```bash
 $ make proto-swagger-gen
 ```
+
+update `statik.go` 
+
+```bash
+$ make update-swagger-docs
+```
  
 ## Resources
  - [Liquidity Module Spec](x/liquidity/spec)
