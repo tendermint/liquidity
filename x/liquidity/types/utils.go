@@ -32,7 +32,7 @@ func GetPoolReserveAcc(poolName string) sdk.AccAddress {
 
 // Generation absolute denomination of the Pool Coin. This rule will be changed on next milestone
 func GetPoolCoinDenom(poolName string) string {
-	// originally pool coin denom has prefix with / splitter, but remove prefix for pass validation of ibc-tranfer
+	// originally pool coin denom has prefix with / splitter, but remove prefix for pass validation of ibc-transfer
 	return fmt.Sprintf("%s%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(poolName)))
 }
 
