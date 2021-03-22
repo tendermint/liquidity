@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -198,9 +199,12 @@ func TestAddr(addr string, bech string) (sdk.AccAddress, error) {
 	return res, nil
 }
 
-// CreateTestInput Returns a simapp with custom LiquidityKeeper
-// to avoid messing with the hooks.
+// CreateTestInput returns a simapp with custom LiquidityKeeper to avoid
+// messing with the hooks.
 func CreateTestInput() (*LiquidityApp, sdk.Context) {
+	cdc := codec.NewLegacyAmino()
+	types.RegisterLegacyAminoCodec(cdc)
+
 	app := Setup(false)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
