@@ -12,6 +12,33 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
+func TestParams(t *testing.T) {
+	require.IsType(t, paramstypes.KeyTable{}, types.ParamKeyTable())
+
+	simapp, ctx := app.CreateTestInput()
+	defaultParams := types.DefaultParams()
+	require.Equal(t, defaultParams, simapp.LiquidityKeeper.GetParams(ctx))
+
+	paramsStr := `pool_types:
+- id: 1
+  name: DefaultPoolType
+  min_reserve_coin_num: 2
+  max_reserve_coin_num: 2
+  description: ""
+min_init_deposit_amount: "1000000"
+init_pool_coin_mint_amount: "1000000"
+max_reserve_coin_amount: "0"
+pool_creation_fee:
+- denom: stake
+  amount: "100000000"
+swap_fee_rate: "0.003000000000000000"
+withdraw_fee_rate: "0.003000000000000000"
+max_order_amount_ratio: "0.100000000000000000"
+unit_batch_height: 1
+`
+	require.Equal(t, paramsStr, defaultParams.String())
+}
+
 func TestParams_Validate(t *testing.T) {
 	require.NoError(t, types.DefaultParams().Validate())
 
@@ -213,31 +240,4 @@ func TestParams_Validate(t *testing.T) {
 			require.Equal(t, tc.errString, err2.Error())
 		})
 	}
-}
-
-func TestParams(t *testing.T) {
-	require.IsType(t, paramstypes.KeyTable{}, types.ParamKeyTable())
-
-	simapp, ctx := app.CreateTestInput()
-	defaultParams := types.DefaultParams()
-	require.Equal(t, defaultParams, simapp.LiquidityKeeper.GetParams(ctx))
-
-	paramsStr := `pool_types:
-- id: 1
-  name: DefaultPoolType
-  min_reserve_coin_num: 2
-  max_reserve_coin_num: 2
-  description: ""
-min_init_deposit_amount: "1000000"
-init_pool_coin_mint_amount: "1000000"
-max_reserve_coin_amount: "0"
-pool_creation_fee:
-- denom: stake
-  amount: "100000000"
-swap_fee_rate: "0.003000000000000000"
-withdraw_fee_rate: "0.003000000000000000"
-max_order_amount_ratio: "0.100000000000000000"
-unit_batch_height: 1
-`
-	require.Equal(t, paramsStr, defaultParams.String())
 }
