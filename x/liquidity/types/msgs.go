@@ -15,9 +15,9 @@ var (
 // Messages Type of Liquidity module
 const (
 	TypeMsgCreatePool          = "create_pool"
-	TypeMsgDepositWithinBatch  = "deposit_to_pool"
-	TypeMsgWithdrawWithinBatch = "withdraw_from_pool"
-	TypeMsgSwapWithinBatch     = "swap"
+	TypeMsgDepositWithinBatch  = "deposit_within_batch"
+	TypeMsgWithdrawWithinBatch = "withdraw_within_batch"
+	TypeMsgSwapWithinBatch     = "swap_within_batch"
 )
 
 // ------------------------------------------------------------------------

@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"sort"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -26,33 +25,15 @@ func SortDenoms(denoms []string) []string {
 	return denoms
 }
 
-// GetPoolReserveAcc returns the poor account for the provided poolKey (reserve denoms + poolType)
-func GetPoolReserveAcc(poolKey string) sdk.AccAddress {
-	return sdk.AccAddress(crypto.AddressHash([]byte(poolKey)))
+// GetPoolReserveAcc returns the poor account for the provided poolName (reserve denoms + poolType)
+func GetPoolReserveAcc(poolName string) sdk.AccAddress {
+	return sdk.AccAddress(crypto.AddressHash([]byte(poolName)))
 }
 
 // Generation absolute denomination of the Pool Coin. This rule will be changed on next milestone
-func GetPoolCoinDenom(poolKey string) string {
-	return fmt.Sprintf("%s/%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(poolKey)))
-}
-
-// check is the denom poolcoin or not, need to additional checking the reserve account is existed
-func IsPoolCoinDenom(denom string) bool {
-	if err := sdk.ValidateDenom(denom); err != nil {
-		return false
-	}
-
-	denomSplit := strings.SplitN(denom, "/", 2)
-	switch {
-	case strings.TrimSpace(denom) == "",
-		len(denomSplit) == 1 && denomSplit[0] == PoolCoinDenomPrefix,
-		len(denomSplit) == 2 && (denomSplit[0] != PoolCoinDenomPrefix || strings.TrimSpace(denomSplit[1]) == ""):
-		return false
-
-	case denomSplit[0] == denom && strings.TrimSpace(denom) != "":
-		return false
-	}
-	return true
+func GetPoolCoinDenom(poolName string) string {
+	// originally pool coin denom has prefix with / splitter, but remove prefix for pass validation of ibc-tranfer
+	return fmt.Sprintf("%s%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(poolName)))
 }
 
 // Find A string is exists in the given list

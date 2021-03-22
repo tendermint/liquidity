@@ -154,7 +154,7 @@ message MsgWithdrawWithinBatch {
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"pool_coin\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "{\"denom\": \"pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\", \"amount\": \"1000\"}",
+      example: "{\"denom\": \"poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\", \"amount\": \"1000\"}",
       format: "sdk.Coin"
     }];
 }

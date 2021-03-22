@@ -146,7 +146,7 @@ func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetWithdrawer().String())
-	require.Equal(t, "70867pool/2D59CF15954FA399BBEA5EE6A2E73D09BC39FC8720F2E922AC17C9AC06758EA8", msg.PoolCoin.String())
+	require.Equal(t, "70867pool2D59CF15954FA399BBEA5EE6A2E73D09BC39FC8720F2E922AC17C9AC06758EA8", msg.PoolCoin.String())
 	require.Equal(t, types.TypeMsgWithdrawWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
