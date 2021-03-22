@@ -238,7 +238,7 @@ message MsgSwapWithinBatch {
       }
   ];
 
-  // limit order price for this offer
+  // limit order price for the order, the price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
   bytes order_price = 7 [
     (gogoproto.moretags)   = "yaml:\"order_price\"",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
