@@ -565,7 +565,6 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.With
 // TransactAndRefundSwapLiquidityPool transacts, refunds, expires, sends coins with escrow, update state by TransactAndRefundSwapLiquidityPool
 func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []*types.SwapMsgState,
 	matchResultMap map[uint64]types.MatchResult, pool types.Pool, batchResult types.BatchResult) error {
-
 	var inputs []banktypes.Input
 	var outputs []banktypes.Output
 	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
@@ -746,7 +745,6 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, batchMsgs []
 
 				batchMsg.Succeeded = false
 				batchMsg.ToBeDeleted = true
-
 			} else {
 				panic("impossible case")
 			}
