@@ -83,12 +83,12 @@ func TestGetPoolReserveAcc2(t *testing.T) {
 }
 
 func TestGetPoolReserveAcc3(t *testing.T) {
-	poolName := types.PoolName([]string{"acoin", "bcoin"}, 1)
-	require.Equal(t, "acoin/bcoin/1", poolName)
+	poolName := types.PoolName([]string{"uusd", "uatom"}, 1)
+	require.Equal(t, "uatom/uusd/1", poolName)
 	reserveAcc := types.GetPoolReserveAcc(poolName)
 	require.NotNil(t, reserveAcc)
-	require.Equal(t, "cosmos19cwhfmgmdwv2tntlr5l30cwv6njjgsyd2528kv", reserveAcc.String())
-	require.Equal(t, "pool2E1D74ED1B6B98A5CD7F1D3F17E1CCD4E524408D5860FBD5A87CBC07C1BB9967", types.GetPoolCoinDenom(poolName))
+	require.Equal(t, "cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we", reserveAcc.String())
+	require.Equal(t, "pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295", types.GetPoolCoinDenom(poolName))
 }
 
 func TestCheckDecApproxEqual(t *testing.T) {

@@ -510,7 +510,7 @@ type MsgSwapWithinBatch struct {
 	DemandCoinDenom string `protobuf:"bytes,5,opt,name=demand_coin_denom,json=demandCoinDenom,proto3" json:"demand_coin_denom,omitempty" yaml:"demand_coin_denom"`
 	// offer coin fee for pay fees in half offer coin
 	OfferCoinFee types.Coin `protobuf:"bytes,6,opt,name=offer_coin_fee,json=offerCoinFee,proto3" json:"offer_coin_fee" yaml:"offer_coin_fee"`
-	// limit order price for this offer
+	// limit order price for the order, the price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
 	OrderPrice github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=order_price,json=orderPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"order_price" yaml:"order_price"`
 }
 

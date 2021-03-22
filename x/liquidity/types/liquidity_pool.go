@@ -56,7 +56,7 @@ func (pool Pool) Validate() error {
 
 // Calculate unique Pool key of the liquidity pool
 func PoolName(reserveCoinDenoms []string, poolTypeId uint32) string {
-	return strings.Join(append(reserveCoinDenoms, strconv.FormatUint(uint64(poolTypeId), 10)), "/")
+	return strings.Join(append(SortDenoms(reserveCoinDenoms), strconv.FormatUint(uint64(poolTypeId), 10)), "/")
 }
 
 // NewPoolBatch creates a new PoolBatch object.
