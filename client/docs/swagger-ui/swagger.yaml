@@ -1290,7 +1290,11 @@ paths:
                     type: string
                     format: sdk.Dec
                     example: '1.1'
-                    title: limit order price for this offer
+                    title: >-
+                      limit order price for the order, the price is the exchange
+                      ratio of X/Y where X is the amount of the first coin and Y
+                      is the amount of the second coin when their denoms are
+                      sorted alphabetically
                 description: >-
                   `MsgSwapWithinBatch` defines an sdk.Msg type that supports
                   submitting swap offer request to the batch of the liquidity
@@ -1516,7 +1520,11 @@ paths:
                           type: string
                           format: sdk.Dec
                           example: '1.1'
-                          title: limit order price for this offer
+                          title: >-
+                            limit order price for the order, the price is the
+                            exchange ratio of X/Y where X is the amount of the
+                            first coin and Y is the amount of the second coin
+                            when their denoms are sorted alphabetically
                       description: >-
                         `MsgSwapWithinBatch` defines an sdk.Msg type that
                         supports submitting swap offer request to the batch of
@@ -2893,7 +2901,11 @@ paths:
                         type: string
                         format: sdk.Dec
                         example: '1.1'
-                        title: limit order price for this offer
+                        title: >-
+                          limit order price for the order, the price is the
+                          exchange ratio of X/Y where X is the amount of the
+                          first coin and Y is the amount of the second coin when
+                          their denoms are sorted alphabetically
                     description: >-
                       `MsgSwapWithinBatch` defines an sdk.Msg type that supports
                       submitting swap offer request to the batch of the
@@ -3932,7 +3944,10 @@ definitions:
         type: string
         format: sdk.Dec
         example: '1.1'
-        title: limit order price for this offer
+        title: >-
+          limit order price for the order, the price is the exchange ratio of
+          X/Y where X is the amount of the first coin and Y is the amount of the
+          second coin when their denoms are sorted alphabetically
     description: >-
       `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap
       offer request to the batch of the liquidity pool
@@ -4135,7 +4150,10 @@ definitions:
             type: string
             format: sdk.Dec
             example: '1.1'
-            title: limit order price for this offer
+            title: >-
+              limit order price for the order, the price is the exchange ratio
+              of X/Y where X is the amount of the first coin and Y is the amount
+              of the second coin when their denoms are sorted alphabetically
         description: >-
           `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting
           swap offer request to the batch of the liquidity pool
@@ -5588,7 +5606,11 @@ definitions:
                 type: string
                 format: sdk.Dec
                 example: '1.1'
-                title: limit order price for this offer
+                title: >-
+                  limit order price for the order, the price is the exchange
+                  ratio of X/Y where X is the amount of the first coin and Y is
+                  the amount of the second coin when their denoms are sorted
+                  alphabetically
             description: >-
               `MsgSwapWithinBatch` defines an sdk.Msg type that supports
               submitting swap offer request to the batch of the liquidity pool
@@ -5788,7 +5810,11 @@ definitions:
                   type: string
                   format: sdk.Dec
                   example: '1.1'
-                  title: limit order price for this offer
+                  title: >-
+                    limit order price for the order, the price is the exchange
+                    ratio of X/Y where X is the amount of the first coin and Y
+                    is the amount of the second coin when their denoms are
+                    sorted alphabetically
               description: >-
                 `MsgSwapWithinBatch` defines an sdk.Msg type that supports
                 submitting swap offer request to the batch of the liquidity pool
@@ -6182,7 +6208,10 @@ definitions:
             type: string
             format: sdk.Dec
             example: '1.1'
-            title: limit order price for this offer
+            title: >-
+              limit order price for the order, the price is the exchange ratio
+              of X/Y where X is the amount of the first coin and Y is the amount
+              of the second coin when their denoms are sorted alphabetically
         description: >-
           `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting
           swap offer request to the batch of the liquidity pool
