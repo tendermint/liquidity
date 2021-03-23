@@ -67,6 +67,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	if err := k.ValidateMsgCreatePool(ctx, msg); err != nil {
 		return types.Pool{}, err
 	}
+
 	params := k.GetParams(ctx)
 
 	denom1, denom2 := types.AlphabeticalDenomPair(msg.DepositCoins[0].Denom, msg.DepositCoins[1].Denom)
@@ -82,6 +83,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
 		return types.Pool{}, types.ErrInsufficientBalance
 	}
+
 	for _, coin := range msg.DepositCoins {
 		if coin.Amount.LT(params.MinInitDepositAmount) {
 			return types.Pool{}, types.ErrLessThanMinInitDeposit

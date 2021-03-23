@@ -6,13 +6,13 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// RegisterInvariants registers all liquidity invariants
+// RegisterInvariants registers all liquidity invariants.
 func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
 	ir.RegisterRoute(types.ModuleName, "escrow-amount",
 		LiquidityPoolsEscrowAmountInvariant(k))
 }
 
-// AllInvariants runs all invariants of the liquidity module
+// AllInvariants runs all invariants of the liquidity module.
 func AllInvariants(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		res, stop := LiquidityPoolsEscrowAmountInvariant(k)(ctx)
@@ -20,7 +20,7 @@ func AllInvariants(k Keeper) sdk.Invariant {
 	}
 }
 
-// LiquidityPoolsEscrowAmountInvariant checks that outstanding unwithdrawn fees are never negative
+// LiquidityPoolsEscrowAmountInvariant checks that outstanding unwithdrawn fees are never negative.
 func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 		remainingCoins := sdk.NewCoins()
@@ -72,8 +72,6 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 	depositCoinARatio := depositCoinA.Quo(lastReserveCoinA)
 	depositCoinBRatio := depositCoinB.Quo(lastReserveCoinB)
 
-	// TODO: handle case when someone sends coins to escrow module account
-
 	// there may be small differences due to decimal handling, which should be smaller than 0.000001
 	poolCoinRatio = poolCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
 
@@ -84,7 +82,7 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 	}
 }
 
-// DepositReserveCoinsInvariant checks the after deposit amounts.
+// DepositReserveCoinsInvariant checks after deposit amounts.
 func DepositReserveCoinsInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA, depositCoinB, afterReserveCoinA, afterReserveCoinB, refundedCoinA, refundedCoinB sdk.Dec) {
 	if !refundedCoinA.IsZero() {
 		depositCoinA = depositCoinA.Sub(refundedCoinA)
@@ -185,20 +183,18 @@ func WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveC
 
 // ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins.
 func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB sdk.Dec) {
-	if !afterReserveCoinA.IsZero() && !afterReserveCoinB.IsZero() {
-		reserveCoinA = reserveCoinA.Sub(withdrawCoinA)
-		reserveCoinB = reserveCoinB.Sub(withdrawCoinB)
+	reserveCoinA = reserveCoinA.Sub(withdrawCoinA)
+	reserveCoinB = reserveCoinB.Sub(withdrawCoinB)
 
-		reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
-		afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
+	reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
+	afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
 
-		// there may be small differences due to decimal handling, which should be smaller than 0.000001
-		reserveCoinRatio = reserveCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
+	// there may be small differences due to decimal handling, which should be smaller than 0.000001
+	reserveCoinRatio = reserveCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
 
-		// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
-		if !reserveCoinRatio.GTE(afterReserveCoinRatio) {
-			panic("invariant check fails due to incorrect pool price ratio")
-		}
+	// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
+	if !reserveCoinRatio.GTE(afterReserveCoinRatio) {
+		panic("invariant check fails due to incorrect pool price ratio")
 	}
 }
 
@@ -207,9 +203,11 @@ func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matc
 	fractionalCntX, fractionalCntY int, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
 	beforeXtoYLen := len(XtoY)
 	beforeYtoXLen := len(YtoX)
+
 	if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
 		panic(beforeXtoYLen)
 	}
+
 	if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != types.CountNotMatchedMsgs(YtoX)+types.CountFractionalMatchedMsgs(YtoX) {
 		panic(beforeYtoXLen)
 	}
@@ -240,8 +238,7 @@ func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matc
 	invariantCheckY = invariantCheckY.Add(poolYDelta)
 
 	// print the invariant check and validity with swap, match result
-	if invariantCheckX.IsZero() && invariantCheckY.IsZero() {
-	} else {
+	if !invariantCheckX.IsZero() && !invariantCheckY.IsZero() {
 		panic(invariantCheckX)
 	}
 
