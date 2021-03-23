@@ -212,30 +212,6 @@ message PoolMetadata {
         }];
 }
 
-message PoolMetadataResponse {
-    option (gogoproto.equal) = true;
-    option (gogoproto.goproto_stringer) = true;
-
-    // pool coin issued at the pool
-    cosmos.base.v1beta1.Coin pool_coin_total_supply = 1 [
-        (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
-        (gogoproto.nullable)   = false,
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "{\"denom\": \"poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\", \"amount\": \"1000000\"}",
-            format: "sdk.Coin"
-        }];
-
-    // reserve coins deposited in the pool
-    repeated cosmos.base.v1beta1.Coin reserve_coins = 2 [
-        (gogoproto.moretags)   = "yaml:\"reserve_coins\"",
-        (gogoproto.nullable)   = false,
-        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "[{\"denom\": \"denomX\", \"amount\": \"1000000\"}, {\"denom\": \"denomY\", \"amount\": \"2000000\"}]",
-            format: "sdk.Coins"
-        }];
-}
-
 message PoolBatch {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
