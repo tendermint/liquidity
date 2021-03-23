@@ -56,14 +56,6 @@ message MsgCreatePool {
     }];
 }
 
-// MsgCreatePoolRequest is the request type for the Msg/MsgCreatePoolRequest RPC method.
-message MsgCreatePoolRequest {
-  BaseReq base_req = 1;
-
-  // MsgCreatePool
-  MsgCreatePool msg = 2;
-}
-
 // MsgCreatePoolResponse defines the Msg/CreatePool response type.
 message MsgCreatePoolResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
@@ -109,20 +101,6 @@ message MsgDepositWithinBatch {
 
 }
 
-// MsgDepositWithinBatchRequest is the request type for the Msg/DepositWithinBatch RPC method.
-message MsgDepositWithinBatchRequest {
-  BaseReq base_req = 1;
-  // id of the target pool
-  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
-    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "\"1\"",
-      format: "uint64"
-    }];
-
-  // MsgDepositWithinBatch
-  MsgDepositWithinBatch msg = 3;
-}
-
 // MsgDepositWithinBatchResponse defines the Msg/DepositWithinBatch response type.
 message MsgDepositWithinBatchResponse {
   StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
@@ -157,20 +135,6 @@ message MsgWithdrawWithinBatch {
       example: "{\"denom\": \"poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\", \"amount\": \"1000\"}",
       format: "sdk.Coin"
     }];
-}
-
-// MsgWithdrawWithinBatchRequest is the request type for the Query/WithdrawWithinBatch RPC method.
-message MsgWithdrawWithinBatchRequest {
-  BaseReq base_req = 1;
-  // id of the target pool
-  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
-    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "\"1\"",
-      format: "uint64"
-    }];
-
-  // MsgWithdrawWithinBatch
-  MsgWithdrawWithinBatch msg = 3;
 }
 
 // MsgWithdrawWithinBatchResponse defines the Msg/WithdrawWithinBatch response type.
@@ -247,20 +211,6 @@ message MsgSwapWithinBatch {
       example: "\"1.1\"",
       format: "sdk.Dec"
     }];
-}
-
-// MsgSwapWithinBatchRequest is the request type for the Query/Swap RPC method.
-message MsgSwapWithinBatchRequest {
-  BaseReq base_req = 1;
-  // id of the target pool
-  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
-    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-      example: "\"1\"",
-      format: "uint64"
-    }];
-
-  // MsgSwapWithinBatch
-  MsgSwapWithinBatch msg = 3;
 }
 
 // MsgSwapWithinBatchResponse defines the Msg/Swap response type.

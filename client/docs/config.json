@@ -7,14 +7,6 @@
   },
   "apis": [
     {
-      "url": "./tmp-swagger-gen/msg.swagger.json",
-      "operationIds": {
-        "rename": {
-          "Params": "LiquidityTxs"
-        }
-      }
-    },
-    {
       "url": "./tmp-swagger-gen/query.swagger.json",
       "operationIds": {
         "rename": {
