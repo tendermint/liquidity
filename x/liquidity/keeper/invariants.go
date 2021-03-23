@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
@@ -198,57 +200,53 @@ func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdr
 	}
 }
 
+// SwapMatchingInvariants checks swap matching results of both X to Y and Y to X cases.
+func SwapMatchingInvariants(XtoY, YtoX []*types.SwapMsgState, fractionalCntX, fractionalCntY int, matchResultXtoY, matchResultYtoX []types.MatchResult) {
+	beforeMatchingXtoYLen := len(XtoY)
+	beforeMatchingYtoXLen := len(YtoX)
+	afterMatchingXtoYLen := len(matchResultXtoY)
+	afterMatchingYtoXLen := len(matchResultYtoX)
+
+	totalMatchingXtoYLen := beforeMatchingXtoYLen - afterMatchingXtoYLen + fractionalCntX
+	totalMatchingYtoXLen := beforeMatchingYtoXLen - afterMatchingYtoXLen + fractionalCntY
+
+	if totalMatchingXtoYLen != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
+		panic("invariant check fails due to not equal XtoY matching length")
+	}
+
+	if totalMatchingYtoXLen != types.CountNotMatchedMsgs(YtoX)+types.CountFractionalMatchedMsgs(YtoX) {
+		panic("invariant check fails due to not equal YtoX matching length")
+	}
+}
+
 // SwapPriceInvariants checks the calculated swap price is increased, decreased, or equal from the last pool price.
-func SwapPriceInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult,
-	fractionalCntX, fractionalCntY int, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
-	beforeXtoYLen := len(XtoY)
-	beforeYtoXLen := len(YtoX)
+func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2,
+	decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
+	invariantCheckX := sdk.ZeroDec()
+	invariantCheckY := sdk.ZeroDec()
 
-	if beforeXtoYLen-len(matchResultXtoY)+fractionalCntX != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
-		panic(beforeXtoYLen)
+	for _, m := range matchResultXtoY {
+		invariantCheckX = invariantCheckX.Sub(m.TransactedCoinAmt)
+		invariantCheckY = invariantCheckY.Add(m.ExchangedDemandCoinAmt)
 	}
 
-	if beforeYtoXLen-len(matchResultYtoX)+fractionalCntY != types.CountNotMatchedMsgs(YtoX)+types.CountFractionalMatchedMsgs(YtoX) {
-		panic(beforeYtoXLen)
+	for _, m := range matchResultYtoX {
+		invariantCheckY = invariantCheckY.Sub(m.TransactedCoinAmt)
+		invariantCheckX = invariantCheckX.Add(m.ExchangedDemandCoinAmt)
 	}
-
-	totalAmtX := sdk.ZeroDec()
-	totalAmtY := sdk.ZeroDec()
-
-	for _, mr := range matchResultXtoY {
-		totalAmtX = totalAmtX.Sub(mr.TransactedCoinAmt)
-		totalAmtY = totalAmtY.Add(mr.ExchangedDemandCoinAmt)
-	}
-
-	invariantCheckX := totalAmtX
-	invariantCheckY := totalAmtY
-
-	totalAmtX = sdk.ZeroDec()
-	totalAmtY = sdk.ZeroDec()
-
-	for _, mr := range matchResultYtoX {
-		totalAmtY = totalAmtY.Sub(mr.TransactedCoinAmt)
-		totalAmtX = totalAmtX.Add(mr.ExchangedDemandCoinAmt)
-	}
-
-	invariantCheckX = invariantCheckX.Add(totalAmtX)
-	invariantCheckY = invariantCheckY.Add(totalAmtY)
-
-	invariantCheckX = invariantCheckX.Add(poolXDelta)
-	invariantCheckY = invariantCheckY.Add(poolYDelta)
 
 	// print the invariant check and validity with swap, match result
 	if !invariantCheckX.IsZero() && !invariantCheckY.IsZero() {
-		panic(invariantCheckX)
+		panic(fmt.Errorf("invariant check fails due to swap price: %s", invariantCheckX.String()))
 	}
 
 	if !poolXDelta.Add(decimalErrorX).Equal(poolXDelta2) || !poolYDelta.Add(decimalErrorY).Equal(poolYDelta2) {
-		panic(poolXDelta)
+		panic(fmt.Errorf("invariant check fails due to swap price: %s", poolXDelta.String()))
 	}
 
 	validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
 	if !validitySwapPrice {
-		panic("validitySwapPrice")
+		panic("invariant check fails due to validity of the swap price")
 	}
 }
 
