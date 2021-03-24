@@ -72,8 +72,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	lastPrice := X.Quo(Y)
 
 	if invariantCheckFlag {
-		SwapPriceInvariants(XtoY, YtoX, matchResultXtoY, matchResultYtoX, fractionalCntX, fractionalCntY,
-			poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
+		SwapMatchingInvariants(XtoY, YtoX, fractionalCntX, fractionalCntY, matchResultXtoY, matchResultYtoX)
+		SwapPriceInvariants(matchResultXtoY, matchResultYtoX, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
 	}
 
 	types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
@@ -98,8 +98,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	}
 
 	if invariantCheckFlag {
-		OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates,
-			XtoY, YtoX, result, currentPoolPrice, denomX)
+		SwapPriceDirection(currentPoolPrice, result)
+		SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates, XtoY, YtoX)
+		SwapOrdersExecutionStateInvariants(matchResultMap, swapMsgStates, result, denomX)
 	}
 
 	// execute transact, refund, expire, send coins with escrow, update state by TransactAndRefundSwapLiquidityPool

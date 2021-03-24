@@ -28,22 +28,18 @@ func ValidateGenesis(data GenesisState) error {
 
 // Validate Liquidity Pool Record after init or after export
 func (record PoolRecord) Validate() error {
-	if (len(record.DepositMsgStates) != 0 && record.PoolBatch.DepositMsgIndex !=
-		record.DepositMsgStates[len(record.DepositMsgStates)-1].MsgIndex+1) ||
-		record.PoolBatch.DepositMsgIndex == 0 {
+	if record.PoolBatch.DepositMsgIndex == 0 ||
+		(len(record.DepositMsgStates) > 0 && record.PoolBatch.DepositMsgIndex != record.DepositMsgStates[len(record.DepositMsgStates)-1].MsgIndex+1) {
 		return ErrBadBatchMsgIndex
 	}
-	if (len(record.WithdrawMsgStates) != 0 && record.PoolBatch.WithdrawMsgIndex !=
-		record.WithdrawMsgStates[len(record.WithdrawMsgStates)-1].MsgIndex+1) ||
-		record.PoolBatch.WithdrawMsgIndex == 0 {
+	if record.PoolBatch.WithdrawMsgIndex == 0 ||
+		(len(record.WithdrawMsgStates) != 0 && record.PoolBatch.WithdrawMsgIndex != record.WithdrawMsgStates[len(record.WithdrawMsgStates)-1].MsgIndex+1) {
 		return ErrBadBatchMsgIndex
 	}
-	if (len(record.SwapMsgStates) != 0 && record.PoolBatch.SwapMsgIndex !=
-		record.SwapMsgStates[len(record.SwapMsgStates)-1].MsgIndex+1) ||
-		record.PoolBatch.SwapMsgIndex == 0 {
+	if record.PoolBatch.SwapMsgIndex == 0 ||
+		(len(record.SwapMsgStates) != 0 && record.PoolBatch.SwapMsgIndex != record.SwapMsgStates[len(record.SwapMsgStates)-1].MsgIndex+1) {
 		return ErrBadBatchMsgIndex
 	}
-
 	// TODO: add verify of escrow amount and poolcoin amount with compare to remaining msgs
 	return nil
 }

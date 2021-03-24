@@ -11,6 +11,34 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
+func TestUnmarshalerPanics(t *testing.T) {
+	t.Run("MustUnmarshalPool", func(t *testing.T) {
+		require.Panics(t, func() {
+			types.MustUnmarshalPool(types.ModuleCdc, []byte{0x00})
+		})
+	})
+	t.Run("MustUnmarshalPoolBatch", func(t *testing.T) {
+		require.Panics(t, func() {
+			types.MustUnmarshalPoolBatch(types.ModuleCdc, []byte{0x00})
+		})
+	})
+	t.Run("MustUnmarshalDepositMsgState", func(t *testing.T) {
+		require.Panics(t, func() {
+			types.MustUnmarshalDepositMsgState(types.ModuleCdc, []byte{0x00})
+		})
+	})
+	t.Run("MustUnmarshalWithdrawMsgState", func(t *testing.T) {
+		require.Panics(t, func() {
+			types.MustUnmarshalWithdrawMsgState(types.ModuleCdc, []byte{0x00})
+		})
+	})
+	t.Run("MustUnmarshalSwapMsgState", func(t *testing.T) {
+		require.Panics(t, func() {
+			types.MustUnmarshalSwapMsgState(types.ModuleCdc, []byte{0x00})
+		})
+	})
+}
+
 func TestLiquidityPoolBatch(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
 	params := simapp.LiquidityKeeper.GetParams(ctx)
