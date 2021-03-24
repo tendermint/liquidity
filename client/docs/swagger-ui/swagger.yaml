@@ -2,9 +2,9 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.2.0
+  version: 2.2.1
 paths:
-  /liquidity/params:
+  /tendermint/liquidity/params:
     get:
       summary: Get all parameters of the liquidity module.
       description: It returns all parameters of the liquidity module.
@@ -152,7 +152,7 @@ paths:
         description: Find out more about the params
         url: >-
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md
-  /liquidity/pools:
+  /tendermint/liquidity/pools:
     get:
       summary: Get existing liquidity pools.
       description: It returns list of all liquidity pools with pagination result.
@@ -304,7 +304,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/liquidity/pools/{pool_id}':
+  '/tendermint/liquidity/pools/{pool_id}':
     get:
       summary: Get specific liquidity pool.
       description: It returns the liquidity pool corresponding to the pool_id.
@@ -403,7 +403,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/liquidity/pools/{pool_id}/batch':
+  '/tendermint/liquidity/pools/{pool_id}/batch':
     get:
       summary: Get the pool's current batch.
       description: It returns the current batch of the pool corresponding to the pool_id.
@@ -509,7 +509,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/liquidity/pools/{pool_id}/batch/deposits':
+  '/tendermint/liquidity/pools/{pool_id}/batch/deposits':
     get:
       summary: Get all deposit messages in the pool's current batch.
       description: >-
@@ -734,7 +734,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/liquidity/pools/{pool_id}/batch/deposits/{msg_index}':
+  '/tendermint/liquidity/pools/{pool_id}/batch/deposits/{msg_index}':
     get:
       summary: Get specific deposit message in the pool's current batch.
       description: >-
@@ -895,7 +895,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/liquidity/pools/{pool_id}/batch/swaps':
+  '/tendermint/liquidity/pools/{pool_id}/batch/swaps':
     get:
       summary: Get all swap messages in the pool's current batch.
       description: >-
@@ -1238,7 +1238,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/liquidity/pools/{pool_id}/batch/swaps/{msg_index}':
+  '/tendermint/liquidity/pools/{pool_id}/batch/swaps/{msg_index}':
     get:
       summary: Get specific swap message in the pool's current batch.
       description: >-
@@ -1517,7 +1517,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/liquidity/pools/{pool_id}/batch/withdraws':
+  '/tendermint/liquidity/pools/{pool_id}/batch/withdraws':
     get:
       summary: Get all withdraw messages in the pool's current batch.
       description: >-
@@ -1738,7 +1738,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}':
+  '/tendermint/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}':
     get:
       summary: Get specific withdraw message in the pool's current batch.
       description: >-
@@ -2004,7 +2004,7 @@ definitions:
             value:
               type: string
               format: byte
-  tendermint.liquidity.DepositMsgState:
+  tendermint.liquidity.v1beta1.DepositMsgState:
     type: object
     properties:
       msg_height:
@@ -2084,7 +2084,7 @@ definitions:
 
           See:
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-  tendermint.liquidity.MsgDepositWithinBatch:
+  tendermint.liquidity.v1beta1.MsgDepositWithinBatch:
     type: object
     properties:
       depositor_address:
@@ -2133,7 +2133,7 @@ definitions:
 
       See:
       https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-  tendermint.liquidity.MsgSwapWithinBatch:
+  tendermint.liquidity.v1beta1.MsgSwapWithinBatch:
     type: object
     properties:
       swap_requester_address:
@@ -2226,7 +2226,7 @@ definitions:
       See: https://github.com/tendermint/liquidity/tree/develop/doc
 
       https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-  tendermint.liquidity.MsgWithdrawWithinBatch:
+  tendermint.liquidity.v1beta1.MsgWithdrawWithinBatch:
     type: object
     properties:
       withdrawer_address:
@@ -2270,7 +2270,7 @@ definitions:
 
       See:
       https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-  tendermint.liquidity.Params:
+  tendermint.liquidity.v1beta1.Params:
     type: object
     properties:
       pool_types:
@@ -2363,7 +2363,7 @@ definitions:
         format: uint32
         example: '1'
         title: The smallest unit batch height for every liquidity pool
-  tendermint.liquidity.Pool:
+  tendermint.liquidity.v1beta1.Pool:
     type: object
     properties:
       id:
@@ -2393,7 +2393,7 @@ definitions:
         type: string
         example: poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
         title: denom of pool coin of the pool
-  tendermint.liquidity.PoolBatch:
+  tendermint.liquidity.v1beta1.PoolBatch:
     type: object
     properties:
       pool_id:
@@ -2430,7 +2430,7 @@ definitions:
         type: boolean
         example: true
         title: 'true if executed, false if not executed yet'
-  tendermint.liquidity.PoolType:
+  tendermint.liquidity.v1beta1.PoolType:
     type: object
     properties:
       id:
@@ -2459,7 +2459,7 @@ definitions:
       description:
         type: string
         title: description of the pool type
-  tendermint.liquidity.QueryLiquidityPoolBatchResponse:
+  tendermint.liquidity.v1beta1.QueryLiquidityPoolBatchResponse:
     type: object
     properties:
       batch:
@@ -2502,7 +2502,7 @@ definitions:
     description: >-
       the response type for the QueryLiquidityPoolBatchResponse RPC method. It
       returns the liquidity pool batch corresponding to the requested pool_id.
-  tendermint.liquidity.QueryLiquidityPoolResponse:
+  tendermint.liquidity.v1beta1.QueryLiquidityPoolResponse:
     type: object
     properties:
       pool:
@@ -2539,7 +2539,7 @@ definitions:
     description: >-
       the response type for the QueryLiquidityPoolResponse RPC method. It
       returns the liquidity pool corresponding to the requested pool_id.
-  tendermint.liquidity.QueryLiquidityPoolsResponse:
+  tendermint.liquidity.v1beta1.QueryLiquidityPoolsResponse:
     type: object
     properties:
       pools:
@@ -2599,7 +2599,7 @@ definitions:
       the response type for the QueryLiquidityPoolsResponse RPC method. This
       includes list of all liquidity pools currently existed and paging results
       containing next_key and total count.
-  tendermint.liquidity.QueryParamsResponse:
+  tendermint.liquidity.v1beta1.QueryParamsResponse:
     type: object
     properties:
       params:
@@ -2702,7 +2702,7 @@ definitions:
     description: >-
       the response type for the QueryParamsResponse RPC method. This includes
       current parameter of the liquidity module.
-  tendermint.liquidity.QueryPoolBatchDepositMsgResponse:
+  tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgResponse:
     type: object
     properties:
       deposit:
@@ -2788,7 +2788,7 @@ definitions:
     title: >-
       the response type for the QueryPoolBatchDepositMsg RPC method. This
       includes a batch swap message of the batch
-  tendermint.liquidity.QueryPoolBatchDepositMsgsResponse:
+  tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgsResponse:
     type: object
     properties:
       deposits:
@@ -2897,7 +2897,7 @@ definitions:
       the response type for the QueryPoolBatchDeposit RPC method. This includes
       a list of all currently existing deposit messages of the batch and paging
       results containing next_key and total count.
-  tendermint.liquidity.QueryPoolBatchSwapMsgResponse:
+  tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgResponse:
     type: object
     properties:
       swap:
@@ -3099,7 +3099,7 @@ definitions:
     title: >-
       the response type for the QueryPoolBatchSwapMsg RPC method. This includes
       a batch swap message of the batch
-  tendermint.liquidity.QueryPoolBatchSwapMsgsResponse:
+  tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgsResponse:
     type: object
     properties:
       swaps:
@@ -3324,7 +3324,7 @@ definitions:
       the response type for the QueryPoolBatchSwapMsgs RPC method. This includes
       list of all currently existing swap messages of the batch and paging
       results containing next_key and total count.
-  tendermint.liquidity.QueryPoolBatchWithdrawMsgResponse:
+  tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgResponse:
     type: object
     properties:
       withdraw:
@@ -3406,7 +3406,7 @@ definitions:
     title: >-
       the response type for the QueryPoolBatchWithdrawMsg RPC method. This
       includes a batch swap message of the batch
-  tendermint.liquidity.QueryPoolBatchWithdrawMsgsResponse:
+  tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsResponse:
     type: object
     properties:
       withdraws:
@@ -3511,7 +3511,7 @@ definitions:
       the response type for the QueryPoolBatchWithdraw RPC method. This includes
       a list of all currently existing withdraw messages of the batch and paging
       results containing next_key and total count.
-  tendermint.liquidity.SwapMsgState:
+  tendermint.liquidity.v1beta1.SwapMsgState:
     type: object
     properties:
       msg_height:
@@ -3697,7 +3697,7 @@ definitions:
           See: https://github.com/tendermint/liquidity/tree/develop/doc
 
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
-  tendermint.liquidity.WithdrawMsgState:
+  tendermint.liquidity.v1beta1.WithdrawMsgState:
     type: object
     properties:
       msg_height:

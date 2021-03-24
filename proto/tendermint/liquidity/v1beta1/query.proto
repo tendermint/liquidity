@@ -1,8 +1,8 @@
 syntax = "proto3";
-package tendermint.liquidity;
+package tendermint.liquidity.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "liquidity.proto";
+import "tendermint/liquidity/v1beta1/liquidity.proto";
 import "google/api/annotations.proto";
 import "cosmos_proto/pagination.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -13,7 +13,7 @@ option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 service Query {
     // Get existing liquidity pools.
     rpc LiquidityPools (QueryLiquidityPoolsRequest) returns (QueryLiquidityPoolsResponse) {
-        option (google.api.http).get = "/liquidity/pools";
+        option (google.api.http).get = "/tendermint/liquidity/pools";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns list of all liquidity pools with pagination result.";
             external_docs: {
@@ -35,7 +35,7 @@ service Query {
 
     // Get specific liquidity pool.
     rpc LiquidityPool (QueryLiquidityPoolRequest) returns (QueryLiquidityPoolResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}";
+        option (google.api.http).get = "/tendermint/liquidity/pools/{pool_id}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns the liquidity pool corresponding to the pool_id.";
             external_docs: {
@@ -67,7 +67,7 @@ service Query {
 
     // Get the pool's current batch.
     rpc LiquidityPoolBatch (QueryLiquidityPoolBatchRequest) returns (QueryLiquidityPoolBatchResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch";
+        option (google.api.http).get = "/tendermint/liquidity/pools/{pool_id}/batch";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns the current batch of the pool corresponding to the pool_id.";
             external_docs: {
@@ -99,7 +99,7 @@ service Query {
 
     // Get all swap messages in the pool's current batch.
     rpc PoolBatchSwapMsgs(QueryPoolBatchSwapMsgsRequest) returns (QueryPoolBatchSwapMsgsResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/swaps";
+        option (google.api.http).get = "/tendermint/liquidity/pools/{pool_id}/batch/swaps";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns list of all swap messages in the current batch of the pool with pagination result.";
             external_docs: {
@@ -131,7 +131,7 @@ service Query {
 
     // Get specific swap message in the pool's current batch.
     rpc PoolBatchSwapMsg(QueryPoolBatchSwapMsgRequest) returns (QueryPoolBatchSwapMsgResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/swaps/{msg_index}";
+        option (google.api.http).get = "/tendermint/liquidity/pools/{pool_id}/batch/swaps/{msg_index}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns the swap message corresponding to the msg_index in the pool's current batch";
             external_docs: {
@@ -163,7 +163,7 @@ service Query {
 
     // Get all deposit messages in the pool's current batch.
     rpc PoolBatchDepositMsgs(QueryPoolBatchDepositMsgsRequest) returns (QueryPoolBatchDepositMsgsResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits";
+        option (google.api.http).get = "/tendermint/liquidity/pools/{pool_id}/batch/deposits";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns list of all deposit messages in the current batch of the pool with pagination result.";
             external_docs: {
@@ -196,7 +196,7 @@ service Query {
 
     // Get specific deposit message in the pool's current batch.
     rpc PoolBatchDepositMsg(QueryPoolBatchDepositMsgRequest) returns (QueryPoolBatchDepositMsgResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits/{msg_index}";
+        option (google.api.http).get = "/tendermint/liquidity/pools/{pool_id}/batch/deposits/{msg_index}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns the deposit message corresponding to the msg_index in the pool's current batch.";
             external_docs: {
@@ -228,7 +228,7 @@ service Query {
 
     // Get all withdraw messages in the pool's current batch.
     rpc PoolBatchWithdrawMsgs(QueryPoolBatchWithdrawMsgsRequest) returns (QueryPoolBatchWithdrawMsgsResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws";
+        option (google.api.http).get = "/tendermint/liquidity/pools/{pool_id}/batch/withdraws";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns list of all withdraw messages in the current batch of the pool with pagination result.";
             external_docs: {
@@ -261,7 +261,7 @@ service Query {
 
     // Get specific withdraw message in the pool's current batch.
     rpc PoolBatchWithdrawMsg(QueryPoolBatchWithdrawMsgRequest) returns (QueryPoolBatchWithdrawMsgResponse) {
-        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}";
+        option (google.api.http).get = "/tendermint/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns the withdraw message corresponding to the msg_index in the pool's current batch.";
             external_docs: {
@@ -293,7 +293,7 @@ service Query {
 
     // Get all parameters of the liquidity module.
     rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-        option (google.api.http).get = "/liquidity/params";
+        option (google.api.http).get = "/tendermint/liquidity/params";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns all parameters of the liquidity module.";
             external_docs: {
@@ -312,38 +312,6 @@ message QueryLiquidityPoolRequest {
 // the response type for the QueryLiquidityPoolResponse RPC method. It returns the liquidity pool corresponding to the requested pool_id.
 message QueryLiquidityPoolResponse {
     Pool pool = 1 [(gogoproto.nullable) = false];
-//    // id of the pool
-//    uint64 id = 1 [(gogoproto.moretags) = "yaml:\"id\"", (gogoproto.jsontag) = "id",
-//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-//            example: "\"1\"",
-//            format: "uint64"
-//        }];
-//
-//    // id of the pool type
-//    uint32 type_id = 2 [(gogoproto.moretags) = "yaml:\"type_id\"",
-//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-//            example: "\"1\"",
-//            format: "uint32"
-//        }];
-//
-//    // denoms of reserve coin pair of the pool
-//    repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
-//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-//            example: "[\"denomX\",\"denomY\"]"
-//        }];
-//
-//    // reserve account address of the pool
-//    string reserve_account_address = 4 [(gogoproto.moretags) = "yaml:\"reserve_account_address\"",
-//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-//            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
-//            format: "sdk.AccAddress"
-//        }];
-//
-//    // denom of pool coin of the pool
-//    string pool_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\"",
-//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-//            example: "\"poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\"",
-//        }];
 }
 
 // the request type for the QueryLiquidityPoolBatch RPC method. requestable including specified pool_id.
