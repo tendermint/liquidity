@@ -383,7 +383,6 @@ func TestWithdrawPool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, poolC
 	iterNum := len(addrs)
 	for i := 0; i < iterNum; i++ {
 		balancePoolCoin := simapp.BankKeeper.GetBalance(ctx, addrs[i], pool.PoolCoinDenom)
-		fmt.Println(balancePoolCoin, poolCoinAmt)
 		require.True(t, balancePoolCoin.Amount.GTE(poolCoinAmt))
 
 		withdrawCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
