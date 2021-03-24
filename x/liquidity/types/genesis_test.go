@@ -126,15 +126,15 @@ func TestPoolRecord_Validate(t *testing.T) {
 		},
 		{
 			"MismatchingPoolBatchSwapMsgIndex",
-				types.PoolRecord{
-					PoolBatch: types.PoolBatch{
-						DepositMsgIndex:  1,
-						WithdrawMsgIndex: 1,
-						SwapMsgIndex:     10,
-					},
-					DepositMsgStates:  nil,
-					WithdrawMsgStates: nil,
-					SwapMsgStates:     []types.SwapMsgState{{MsgIndex: 1}},
+			types.PoolRecord{
+				PoolBatch: types.PoolBatch{
+					DepositMsgIndex:  1,
+					WithdrawMsgIndex: 1,
+					SwapMsgIndex:     10,
+				},
+				DepositMsgStates:  nil,
+				WithdrawMsgStates: nil,
+				SwapMsgStates:     []types.SwapMsgState{{MsgIndex: 1}},
 			},
 			true,
 		},
