@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -14,10 +13,8 @@ import (
 )
 
 func TestGenesisState(t *testing.T) {
-	cdc := codec.NewLegacyAmino()
-	types.RegisterLegacyAminoCodec(cdc)
-	simapp := app.Setup(false)
-	ctx := simapp.BaseApp.NewContext(false, tmproto.Header{})
+	simapp, ctx := app.CreateTestInput()
+
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	paramsDefault := simapp.LiquidityKeeper.GetParams(ctx)
 	genesis := types.DefaultGenesisState()
