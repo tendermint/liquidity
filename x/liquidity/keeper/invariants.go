@@ -185,18 +185,21 @@ func WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveC
 
 // ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins.
 func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB sdk.Dec) {
-	reserveCoinA = reserveCoinA.Sub(withdrawCoinA)
-	reserveCoinB = reserveCoinB.Sub(withdrawCoinB)
+	// TestReinitializePool tests a scenario where after reserve coins are zero
+	if !afterReserveCoinA.IsZero() && !afterReserveCoinB.IsZero() {
+		reserveCoinA = reserveCoinA.Sub(withdrawCoinA)
+		reserveCoinB = reserveCoinB.Sub(withdrawCoinB)
 
-	reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
-	afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
+		reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
+		afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
 
-	// there may be small differences due to decimal handling, which should be smaller than 0.000001
-	reserveCoinRatio = reserveCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
+		// there may be small differences due to decimal handling, which should be smaller than 0.000001
+		reserveCoinRatio = reserveCoinRatio.Add(sdk.NewDecWithPrec(1, 6))
 
-	// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
-	if !reserveCoinRatio.GTE(afterReserveCoinRatio) {
-		panic("invariant check fails due to incorrect pool price ratio")
+		// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
+		if !reserveCoinRatio.GTE(afterReserveCoinRatio) {
+			panic("invariant check fails due to incorrect pool price ratio")
+		}
 	}
 }
 
@@ -211,15 +214,15 @@ func SwapMatchingInvariants(XtoY, YtoX []*types.SwapMsgState, fractionalCntX, fr
 	totalMatchingYtoXLen := beforeMatchingYtoXLen - afterMatchingYtoXLen + fractionalCntY
 
 	if totalMatchingXtoYLen != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
-		panic("invariant check fails due to not equal XtoY matching length")
+		panic("invariant check fails due to invalid XtoY match length")
 	}
 
 	if totalMatchingYtoXLen != types.CountNotMatchedMsgs(YtoX)+types.CountFractionalMatchedMsgs(YtoX) {
-		panic("invariant check fails due to not equal YtoX matching length")
+		panic("invariant check fails due to invalid YtoX match length")
 	}
 }
 
-// SwapPriceInvariants checks the calculated swap price is increased, decreased, or equal from the last pool price.
+// SwapPriceInvariants checks swap price invariants.
 func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2,
 	decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
 	invariantCheckX := sdk.ZeroDec()
@@ -235,29 +238,48 @@ func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, p
 		invariantCheckX = invariantCheckX.Add(m.ExchangedDemandCoinAmt)
 	}
 
-	// print the invariant check and validity with swap, match result
+	invariantCheckX = invariantCheckX.Add(poolXDelta2)
+	invariantCheckY = invariantCheckY.Add(poolYDelta2)
+
 	if !invariantCheckX.IsZero() && !invariantCheckY.IsZero() {
-		panic(fmt.Errorf("invariant check fails due to swap price: %s", invariantCheckX.String()))
+		panic(fmt.Errorf("invariant check fails due to invalid swap price: %s", invariantCheckX.String()))
 	}
 
 	if !poolXDelta.Add(decimalErrorX).Equal(poolXDelta2) || !poolYDelta.Add(decimalErrorY).Equal(poolYDelta2) {
-		panic(fmt.Errorf("invariant check fails due to swap price: %s", poolXDelta.String()))
+		panic(fmt.Errorf("invariant check fails due to invalid swap price: %s", poolXDelta.String()))
 	}
 
 	validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
 	if !validitySwapPrice {
-		panic("invariant check fails due to validity of the swap price")
+		panic("invariant check fails due to invalid swap price")
 	}
 }
 
-// OrdersWithNotExecutedStateInvariants checks all executed orders have order price which is not "executable" or not "unexecutable".
-func OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, matchResultMap map[uint64]types.MatchResult,
-	swapMsgStates []*types.SwapMsgState, XtoY, YtoX []*types.SwapMsgState, result types.BatchResult, currentPoolPrice sdk.Dec, denomX string) {
+// SwapPriceDirection checks whether the calculated swap price is increased, decreased, or stayed from the last pool price.
+func SwapPriceDirection(currentPoolPrice sdk.Dec, batchResult types.BatchResult) {
+	switch batchResult.PriceDirection {
+	case types.Increasing:
+		if !batchResult.SwapPrice.GTE(currentPoolPrice) {
+			panic("invariant check fails due to incorrect price direction")
+		}
+	case types.Decreasing:
+		if !batchResult.SwapPrice.LTE(currentPoolPrice) {
+			panic("invariant check fails due to incorrect price direction")
+		}
+	case types.Staying:
+		if !batchResult.SwapPrice.Equal(currentPoolPrice) {
+			panic("invariant check fails due to incorrect price direction")
+		}
+	}
+}
+
+// SwapMsgStatesInvariants checks swap match result states invariants.
+func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, matchResultMap map[uint64]types.MatchResult,
+	swapMsgStates []*types.SwapMsgState, XtoY, YtoX []*types.SwapMsgState) {
 	if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
 		panic("invalid length of match result")
 	}
 
-	// compare swapMsgs state with XtoY, YtoX
 	for k, v := range matchResultMap {
 		if k != v.OrderMsgIndex {
 			panic("broken map consistency")
@@ -288,7 +310,7 @@ func OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResul
 		if msgAfter, ok := matchResultMap[sms.MsgIndex]; ok {
 			if sms.MsgIndex == msgAfter.BatchMsg.MsgIndex {
 				if *(sms) != *(msgAfter.BatchMsg) || sms != msgAfter.BatchMsg {
-					panic("msg not matched")
+					panic("batch message not matched")
 				} else {
 					break
 				}
@@ -297,43 +319,28 @@ func OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResul
 			}
 		}
 	}
+}
 
-	// checks whether the calculated swapPrice is increased / decreased/ or stayed from the last pool price
-	switch result.PriceDirection {
-	case types.Increasing:
-		if !result.SwapPrice.GTE(currentPoolPrice) {
-			panic("invariant check fails due to increase of swap price")
-		}
-	case types.Decreasing:
-		if !result.SwapPrice.LTE(currentPoolPrice) {
-			panic("invariant check fails due to decrease of swap price")
-		}
-	case types.Staying:
-		if !result.SwapPrice.Equal(currentPoolPrice) {
-			panic("invariant check fails due to stay of swap price")
-		}
-	}
-
-	// invariant check, execution validity check
+// SwapOrdersExecutionStateInvariants checks all executed orders have order price which is not "executable" or not "unexecutable".
+func SwapOrdersExecutionStateInvariants(matchResultMap map[uint64]types.MatchResult, swapMsgStates []*types.SwapMsgState,
+	batchResult types.BatchResult, denomX string) {
 	for _, sms := range swapMsgStates {
 		if _, ok := matchResultMap[sms.MsgIndex]; ok {
-			// checks whether all executed orders have order price which is not "unexecutable"
 			if !sms.Executed || !sms.Succeeded {
 				panic("swap msg state consistency error, matched but not succeeded")
 			}
 
 			if sms.Msg.OfferCoin.Denom == denomX {
 				// buy orders having equal or higher order price than found swapPrice
-				if !sms.Msg.OrderPrice.GTE(result.SwapPrice) {
+				if !sms.Msg.OrderPrice.GTE(batchResult.SwapPrice) {
 					panic("execution validity failed, executed but unexecutable")
 				}
 			} else {
 				// sell orders having equal or lower order price than found swapPrice
-				if !sms.Msg.OrderPrice.LTE(result.SwapPrice) {
+				if !sms.Msg.OrderPrice.LTE(batchResult.SwapPrice) {
 					panic("execution validity failed, executed but unexecutable")
 				}
 			}
-
 		} else {
 			// check whether every unexecuted orders have order price which is not "executable"
 			if sms.Executed && sms.Succeeded {
@@ -342,12 +349,12 @@ func OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResul
 
 			if sms.Msg.OfferCoin.Denom == denomX {
 				// buy orders having equal or lower order price than found swapPrice
-				if !sms.Msg.OrderPrice.LTE(result.SwapPrice) {
+				if !sms.Msg.OrderPrice.LTE(batchResult.SwapPrice) {
 					panic("execution validity failed, unexecuted but executable")
 				}
 			} else {
 				// sell orders having equal or higher order price than found swapPrice
-				if !sms.Msg.OrderPrice.GTE(result.SwapPrice) {
+				if !sms.Msg.OrderPrice.GTE(batchResult.SwapPrice) {
 					panic("execution validity failed, unexecuted but executable")
 				}
 			}

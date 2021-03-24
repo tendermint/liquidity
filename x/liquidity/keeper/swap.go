@@ -98,8 +98,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	}
 
 	if invariantCheckFlag {
-		OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates,
-			XtoY, YtoX, result, currentPoolPrice, denomX)
+		SwapPriceDirection(currentPoolPrice, result)
+		SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates, XtoY, YtoX)
+		SwapOrdersExecutionStateInvariants(matchResultMap, swapMsgStates, result, denomX)
 	}
 
 	// execute transact, refund, expire, send coins with escrow, update state by TransactAndRefundSwapLiquidityPool
