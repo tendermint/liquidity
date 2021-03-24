@@ -845,6 +845,7 @@ func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWit
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
+
 	pool, found := k.GetPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
@@ -859,16 +860,17 @@ func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWit
 
 	// can not exceed max order ratio  of reserve coins that can be ordered at a order
 	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
+
 	// Decimal Error, Multiply the Int coin amount by the Decimal Rate and erase the decimal point to order a lower value
 	maximumOrderableAmt := reserveCoinAmt.ToDec().Mul(params.MaxOrderAmountRatio).TruncateInt()
 	if msg.OfferCoin.Amount.GT(maximumOrderableAmt) {
 		return types.ErrExceededMaxOrderable
 	}
-	// TODO: half-half invariant check, need to after msg created
+
 	if msg.OfferCoinFee.Denom != msg.OfferCoin.Denom {
 		return types.ErrBadOfferCoinFee
 	}
-	// TODO: half-half fee refund when over
+
 	if !msg.OfferCoinFee.Equal(types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)) {
 		return types.ErrBadOfferCoinFee
 	}
