@@ -10,7 +10,7 @@ import (
 
 // PoolName returns unique name of the pool consists of given reserve coin denoms and type id.
 func PoolName(reserveCoinDenoms []string, poolTypeId uint32) string {
-  return strings.Join(append(SortDenoms(reserveCoinDenoms), strconv.FormatUint(uint64(poolTypeId), 10)), "/")
+	return strings.Join(append(SortDenoms(reserveCoinDenoms), strconv.FormatUint(uint64(poolTypeId), 10)), "/")
 }
 
 // Name returns the pool's name.

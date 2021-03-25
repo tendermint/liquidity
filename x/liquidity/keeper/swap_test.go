@@ -257,3 +257,44 @@ func TestBadSwapExecution(t *testing.T) {
 
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 }
+
+func TestBalancesAfterSwap(t *testing.T) {
+	for price := int64(9800); price < 10000; price++ {
+		simapp, ctx := app.CreateTestInput()
+		params := simapp.LiquidityKeeper.GetParams(ctx)
+		denomX, denomY := types.AlphabeticalDenomPair("denomx", "denomy")
+		X, Y := sdk.NewInt(100_000_000), sdk.NewInt(100_000_000)
+
+		creatorCoins := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
+		creatorAddr := app.AddRandomTestAddr(simapp, ctx, creatorCoins.Add(params.PoolCreationFee...))
+
+		orderPrice := sdk.NewDecWithPrec(price, 4)
+		aliceCoin := sdk.NewCoin(denomY, sdk.NewInt(10_000_000))
+		aliceAddr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(aliceCoin))
+
+		pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, creatorCoins))
+		require.NoError(t, err)
+
+		liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+		offerAmt := aliceCoin.Amount.ToDec().Quo(sdk.MustNewDecFromStr("1.0015")).TruncateInt()
+		offerCoin := sdk.NewCoin(denomY, offerAmt)
+
+		_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, types.NewMsgSwapWithinBatch(
+			aliceAddr, pool.Id, types.DefaultSwapTypeId, offerCoin, denomX, orderPrice, params.SwapFeeRate), 0)
+		require.NoError(t, err)
+
+		liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+		deltaX := simapp.BankKeeper.GetBalance(ctx, aliceAddr, denomX).Amount
+		deltaY := simapp.BankKeeper.GetBalance(ctx, aliceAddr, denomY).Amount.Sub(aliceCoin.Amount)
+		require.Truef(t, !deltaX.IsNegative(), "deltaX should not be negative: %s", deltaX)
+		require.Truef(t, deltaY.IsNegative(), "deltaY should be negative: %s", deltaY)
+
+		deltaXWithoutFee := deltaX.ToDec().Quo(sdk.MustNewDecFromStr("0.9985"))
+		deltaYWithoutFee := deltaY.ToDec().Quo(sdk.MustNewDecFromStr("1.0015"))
+		effectivePrice := deltaXWithoutFee.Quo(deltaYWithoutFee.Neg())
+		priceDiffRatio := orderPrice.Sub(effectivePrice).Abs().Quo(orderPrice)
+		require.Truef(t, priceDiffRatio.LT(sdk.MustNewDecFromStr("0.01")), "effectivePrice differs too much from orderPrice")
+	}
+}
