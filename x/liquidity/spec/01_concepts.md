@@ -4,7 +4,9 @@
 
 ## Liquidity Module
 
-The liquidity module serves an automated market maker (AMM) style decentralized exchange on the Cosmos SDK. An AMM style exchange provides a unique coin swap model for its users, liquidity providers, and swap requestors. AMMs are a class of decentralized exchanges that rely on mathematical formulas to set the price of a token.
+The liquidity module serves an automated market maker (AMM) style decentralized exchange on the Cosmos SDK. An AMM style exchange provides a unique coin swap model for its users, liquidity providers, and swap requestors.
+
+AMMs are a class of decentralized exchanges that rely on mathematical formulas to set the price of a token.
 
 ### Democratized Liquidity
 
