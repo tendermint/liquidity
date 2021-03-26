@@ -4,11 +4,19 @@
 
 ## Liquidity Module
 
+The Liquidity Module allows you to implement a token decentralized exchange (DEX) on any Cosmos SDK based network.
+
 The liquidity module serves an automated market maker (AMM) style decentralized exchange on the Cosmos SDK. An AMM style exchange provides a unique coin swap model for its users, liquidity providers, and swap requestors.
 
 AMMs are a class of decentralized exchanges that rely on mathematical formulas to set the price of a token.
 
+The liquidity module create incentives for users to transfer tokens. The most direct way is for the Hub to create liquidity for the greater interchain economy. Token holders need a trusted way to discover the prices of tokens, exchange tokens, and generate liquidity by using liquidity pools.
+
+Liquidity Module has two major distinctive characteristics: First, it combines a traditional order book based exchange system with a Uniswap-like AMM (Automated Market Maker) mechanism. This hybrid system deepens liquidity for the token swap marketplace. The second major characteristic of the Liquidity Module is batch-style swap execution. The order book accumulates incoming limit orders into a batch. It matches accumulated limit orders and orders from the liquidity pool at an equivalent swap price at each batch execution height. All limit orders in a batch are treated equally and executed at the same swap price. This mechanism minimizes front-running risk and sub-second latency competition, thereby protecting ordinary traders.
+
 ### Democratized Liquidity
+
+The Liquidity Module allows any user to create a liquidity pool with a pair of tokens, provide liquidity by depositing reserve tokens into the liquidity pool, and trade tokens using the liquidity pool.
 
 AMM allows liquidity providers to play market maker roles without technically sophisticated real-time orderbook management software or significant capital investments.
 
