@@ -476,14 +476,6 @@ func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.Pool) types.PoolMeta
 	}
 }
 
-// GetPoolMetaDataResponse returns metadata of the pool, containing pool coin total supply, Reserved Coins, skipped PoolId, It used for result of queries
-func (k Keeper) GetPoolMetaDataResponse(ctx sdk.Context, pool types.Pool) types.PoolMetadataResponse {
-	return types.PoolMetadataResponse{
-		PoolCoinTotalSupply: k.GetPoolCoinTotal(ctx, pool),
-		ReserveCoins:        k.GetReserveCoins(ctx, pool),
-	}
-}
-
 // GetPoolRecord returns the liquidity pool record with the given pool information
 func (k Keeper) GetPoolRecord(ctx sdk.Context, pool types.Pool) (types.PoolRecord, bool) {
 	batch, found := k.GetPoolBatch(ctx, pool.Id)

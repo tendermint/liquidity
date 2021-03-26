@@ -1,7 +1,7 @@
 syntax = "proto3";
-package tendermint.liquidity;
+package tendermint.liquidity.v1beta1;
 
-import "tx.proto";
+import "tendermint/liquidity/v1beta1/tx.proto";
 import "gogoproto/gogo.proto";
 import "cosmos_proto/coin.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -95,7 +95,7 @@ message Params {
     ];
 
     // Swap fee rate for every executed swap
-    bytes swap_fee_rate = 6 [
+    string swap_fee_rate = 6 [
         (gogoproto.moretags)   = "yaml:\"swap_fee_rate\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable)   = false,
@@ -105,7 +105,7 @@ message Params {
         }];
 
     // Reserve coin withdrawal with less proportion by withdrawFeeRate
-    bytes withdraw_fee_rate = 7 [
+    string withdraw_fee_rate = 7 [
         (gogoproto.moretags)   = "yaml:\"withdraw_fee_rate\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable)   = false,
@@ -115,7 +115,7 @@ message Params {
         }];
 
     // Maximum ratio of reserve coins that can be ordered at a swap order
-    bytes max_order_amount_ratio = 8 [
+    string max_order_amount_ratio = 8 [
         (gogoproto.moretags)   = "yaml:\"max_order_amount_ratio\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
         (gogoproto.nullable)   = false,
@@ -203,30 +203,6 @@ message PoolMetadata {
 
     // reserve coins deposited in the pool
     repeated cosmos.base.v1beta1.Coin reserve_coins = 3 [
-        (gogoproto.moretags)   = "yaml:\"reserve_coins\"",
-        (gogoproto.nullable)   = false,
-        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "[{\"denom\": \"denomX\", \"amount\": \"1000000\"}, {\"denom\": \"denomY\", \"amount\": \"2000000\"}]",
-            format: "sdk.Coins"
-        }];
-}
-
-message PoolMetadataResponse {
-    option (gogoproto.equal) = true;
-    option (gogoproto.goproto_stringer) = true;
-
-    // pool coin issued at the pool
-    cosmos.base.v1beta1.Coin pool_coin_total_supply = 1 [
-        (gogoproto.moretags)   = "yaml:\"pool_coin_total_supply\"",
-        (gogoproto.nullable)   = false,
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "{\"denom\": \"poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\", \"amount\": \"1000000\"}",
-            format: "sdk.Coin"
-        }];
-
-    // reserve coins deposited in the pool
-    repeated cosmos.base.v1beta1.Coin reserve_coins = 2 [
         (gogoproto.moretags)   = "yaml:\"reserve_coins\"",
         (gogoproto.nullable)   = false,
         (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
