@@ -763,6 +763,8 @@ func (k Keeper) RefundSwaps(ctx sdk.Context, pool types.Pool, swapMsgStates []*t
 				inputs = append(inputs, input)
 				outputs = append(outputs, output)
 			}
+			sms.Succeeded = false
+			sms.ToBeDeleted = true
 		}
 	}
 	// remove zero coins
