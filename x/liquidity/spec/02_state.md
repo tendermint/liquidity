@@ -1,8 +1,8 @@
 <!-- order: 2 -->
 
-# State
+ # State
 
-The Liquidity Module keeps track of the Pool and PoolBatch states.
+The Liquidity Module keeps track of the Pool and PoolBatch states. The state represents your app at a given moment.
 
 ## Pool
 
@@ -19,6 +19,8 @@ type Pool struct {
     PoolCoinDenom          string         // denom of pool coin for this liquidity pool
 }
 ```
+
+The parameters of the Pool state are:
 
 - Pool: `0x11 | Id -> amino(Pool)`
 
@@ -78,6 +80,8 @@ type SwapMsgState struct {
     Msg                MsgSwapWithinBatch
 }
 ```
+
+The parameters of the PoolBatch state are:
 
 - PoolBatchIndex: `0x21 | PoolId -> amino(int64)`
 
