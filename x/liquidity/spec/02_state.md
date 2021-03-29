@@ -1,12 +1,14 @@
 <!-- order: 2 -->
 
- # State
+# State
 
 The Liquidity Module keeps track of the Pool and PoolBatch states.
 
 ## Pool
 
-The Pool state stores static information of a liquidity pool. Pool contain information about the pool type, reserve coin denoms, reserve address, and denom of this liquidity pool.
+The Pool state contains information about the pool type, reserve coin denoms, reserve address, and denom of this liquidity pool.
+
+The Pool state stores static information of a liquidity pool in this structure:
 
 ```go
 type Pool struct {
@@ -30,7 +32,9 @@ type Pool struct {
 
 ## PoolBatch
 
-The PoolBatch state stores information about the liquidity pool batch. PoolBatch stores the id of the target liquidity pool, the batch index, height at the beginning of the batch, last index of messages, and batch execution status.
+The PoolBatch state stores the target liquidity pool id, the batch index, the height at the beginning of the batch, the last index of the messages, and batch execution status.
+
+The PoolBatch state stores information about the liquidity pool batch in this structure:
 
 ```go
 type PoolBatch struct {
