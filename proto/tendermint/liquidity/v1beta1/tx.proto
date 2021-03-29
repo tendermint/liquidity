@@ -57,9 +57,7 @@ message MsgCreatePool {
 }
 
 // MsgCreatePoolResponse defines the Msg/CreatePool response type.
-message MsgCreatePoolResponse {
-  StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
-}
+message MsgCreatePoolResponse {}
 
 // `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
 // Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, deposit_coins for reserve
@@ -102,9 +100,7 @@ message MsgDepositWithinBatch {
 }
 
 // MsgDepositWithinBatchResponse defines the Msg/DepositWithinBatch response type.
-message MsgDepositWithinBatchResponse {
-  StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
-}
+message MsgDepositWithinBatchResponse {}
 
 // `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
 // Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
@@ -138,9 +134,7 @@ message MsgWithdrawWithinBatch {
 }
 
 // MsgWithdrawWithinBatchResponse defines the Msg/WithdrawWithinBatch response type.
-message MsgWithdrawWithinBatchResponse {
-  StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
-}
+message MsgWithdrawWithinBatchResponse {}
 
 // `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
 // Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
@@ -214,9 +208,7 @@ message MsgSwapWithinBatch {
 }
 
 // MsgSwapWithinBatchResponse defines the Msg/Swap response type.
-message MsgSwapWithinBatchResponse {
-  StdTx std_tx = 1 [(gogoproto.moretags) = "yaml:\"std_tx\""];
-}
+message MsgSwapWithinBatchResponse {}
 
 // Base Request struct for Post Tx, standard of tendermint/cosmos-sdk
 message BaseReq {
@@ -364,23 +356,4 @@ message Signature {
       format: "uint64"
     }];
 
-}
-
-// Base response struct of result of the requested Tx, standard of tendermint/cosmos-sdk
-message StdTx {
-  // Msgs
-  repeated string msg = 1 [(gogoproto.moretags) = "yaml:\"msg\""];
-//  repeated string msg = 1 [(gogoproto.moretags) = "yaml:\"msg\"",
-//    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-//      example: "[\"string\"]"
-//    }];
-
-  // Fee
-  Fee fee = 2 [(gogoproto.moretags) = "yaml:\"fee\""];
-
-  // Memo of the transaction
-  string memo = 3 [(gogoproto.moretags) = "yaml:\"memo\""];
-
-  // Signature
-  Signature signature = 4 [(gogoproto.moretags) = "yaml:\"signature\""];
 }
