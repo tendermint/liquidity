@@ -6,10 +6,6 @@ import "cosmos_proto/coin.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
-//option (gogoproto.goproto_getters_all) = false;
-
-//option (gogoproto.goproto_stringer_all) = false;
-//option (gogoproto.stringer_all)         = false;
 
 // Msg defines the liquidity Msg service.
 service Msg {

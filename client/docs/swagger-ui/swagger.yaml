@@ -4,7 +4,7 @@ info:
   description: 'A REST interface for state queries, transactions'
   version: 2.2.1
 paths:
-  /tendermint/liquidity/params:
+  /tendermint/liquidity/v1beta1/params:
     get:
       summary: Get all parameters of the liquidity module.
       description: It returns all parameters of the liquidity module.
@@ -159,7 +159,7 @@ paths:
         description: Find out more about the params
         url: >-
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md
-  /tendermint/liquidity/pools:
+  /tendermint/liquidity/v1beta1/pools:
     get:
       summary: Get existing liquidity pools.
       description: It returns list of all liquidity pools with pagination result.
@@ -314,7 +314,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/pools/{pool_id}':
+  '/tendermint/liquidity/v1beta1/pools/{pool_id}':
     get:
       summary: Get specific liquidity pool.
       description: It returns the liquidity pool corresponding to the pool_id.
@@ -414,7 +414,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/pools/{pool_id}/batch':
+  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch':
     get:
       summary: Get the pool's current batch.
       description: It returns the current batch of the pool corresponding to the pool_id.
@@ -524,7 +524,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/pools/{pool_id}/batch/deposits':
+  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/deposits':
     get:
       summary: Get all deposit messages in the pool's current batch.
       description: >-
@@ -753,7 +753,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/pools/{pool_id}/batch/deposits/{msg_index}':
+  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/deposits/{msg_index}':
     get:
       summary: Get specific deposit message in the pool's current batch.
       description: >-
@@ -918,7 +918,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/pools/{pool_id}/batch/swaps':
+  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/swaps':
     get:
       summary: Get all swap messages in the pool's current batch.
       description: >-
@@ -1272,7 +1272,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/pools/{pool_id}/batch/swaps/{msg_index}':
+  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/swaps/{msg_index}':
     get:
       summary: Get specific swap message in the pool's current batch.
       description: >-
@@ -1561,7 +1561,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/pools/{pool_id}/batch/withdraws':
+  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/withdraws':
     get:
       summary: Get all withdraw messages in the pool's current batch.
       description: >-
@@ -1786,7 +1786,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}':
+  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/withdraws/{msg_index}':
     get:
       summary: Get specific withdraw message in the pool's current batch.
       description: >-
