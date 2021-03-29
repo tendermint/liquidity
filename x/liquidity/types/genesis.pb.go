@@ -23,6 +23,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// record of the state of each pool for variable checking when genesis export or import
 type PoolRecord struct {
 	Pool              Pool               `protobuf:"bytes,1,opt,name=pool,proto3" json:"pool" yaml:"pool"`
 	PoolMetadata      PoolMetadata       `protobuf:"bytes,2,opt,name=pool_metadata,json=poolMetadata,proto3" json:"pool_metadata" yaml:"pool_metadata"`
