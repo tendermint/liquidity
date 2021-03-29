@@ -147,11 +147,11 @@ type MatchResult struct {
 
 // The price and coins of swap messages in orderbook are calculated
 // to derive match result with the price direction.
-func (orderBook OrderBook) Match(X, Y sdk.Dec) BatchResult {
+func (orderBook OrderBook) Match(X, Y sdk.Dec) (BatchResult, bool) {
 	currentPrice := X.Quo(Y)
 	priceDirection := orderBook.PriceDirection(currentPrice)
 	if priceDirection == Staying {
-		return orderBook.CalculateMatchStay(currentPrice)
+		return orderBook.CalculateMatchStay(currentPrice), true
 	}
 	return orderBook.CalculateMatch(priceDirection, X, Y)
 }
@@ -203,7 +203,8 @@ func (orderBook OrderBook) CalculateMatchStay(currentPrice sdk.Dec) (r BatchResu
 }
 
 // Calculates the batch results with the logic for each direction
-func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec) (maxScenario BatchResult) {
+// TODO: return pointer
+func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec) (maxScenario BatchResult, found bool) {
 	currentPrice := X.Quo(Y)
 	lastOrderPrice := currentPrice
 	var matchScenarios []BatchResult
@@ -234,14 +235,16 @@ func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec
 		if s.EX.GTE(MEX.ToDec()) && s.EY.GTE(MEY.ToDec()) {
 			if s.MatchType == ExactMatch && s.TransactAmt.IsPositive() {
 				maxScenario = s
+				found = true
 				break
 			} else if s.TransactAmt.GT(maxScenario.TransactAmt) {
 				maxScenario = s
+				found = true
 			}
 		}
 	}
 	maxScenario.PriceDirection = direction
-	return maxScenario
+	return
 }
 
 // Calculates the batch results with the processing logic for each direction
@@ -462,7 +465,7 @@ func CheckSwapPrice(matchResultXtoY, matchResultYtoX []MatchResult, swapPrice sd
 
 // Find matched orders and set status for msgs
 func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, executableAmt, swapPrice sdk.Dec, height int64) (
-	matchResults []MatchResult, executedSwapMsgStates []*SwapMsgState, poolXDelta, poolYDelta sdk.Dec) {
+	matchResults []MatchResult, poolXDelta, poolYDelta sdk.Dec) {
 
 	poolXDelta = sdk.ZeroDec()
 	poolYDelta = sdk.ZeroDec()
@@ -556,7 +559,6 @@ func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, exe
 						panic(matchResult.TransactedCoinAmt)
 					}
 					matchResults = append(matchResults, matchResult)
-					executedSwapMsgStates = append(executedSwapMsgStates, matchOrder)
 					if direction == DirectionXtoY {
 						poolXDelta = poolXDelta.Add(matchResult.TransactedCoinAmt)
 						poolYDelta = poolYDelta.Sub(matchResult.ExchangedDemandCoinAmt)
