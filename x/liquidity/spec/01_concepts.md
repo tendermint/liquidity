@@ -22,8 +22,6 @@ These features of the Liquidity Module create incentives to transfer tokens:
 
 Democratized liquidity lowers the cost of liquidity and provides an enriched quality liquidity provided on the AMM exchange.
 
-A liquidity pool is a collection of funds locked in a smart contract. Use the Liquidity Module to deposit coins into liquidity pools, monitor asset composition changes, and accumulate fee rewards from liquidity providing.
-
 AMM allows liquidity providers to play market maker roles without investing in technically sophisticated real-time orderbook management software or making significant capital investments.
 
 ### Liquidity Pool
@@ -40,7 +38,7 @@ You can request coin swap to a liquidity pool on an AMM style exchange without u
 
 2. The current other coin swap requests and the current liquidity pool coin reserve status.
 
-3. Swap orders are executed only when execution swap price is equal to or greater than the submitted order price of the swap order.
+3. Swap orders are executed only when the execution swap price is equal to or greater than the submitted order price of the swap order.
 
 ### Price Discovery
 
@@ -48,7 +46,7 @@ Coin swap prices in liquidity pools are determined by the current liquidity pool
 
 ### Escrow Process
 
-For swap orders and deposit and withdrawal messages, the module withdraws the escrow amount of coins from the users' balance.
+For swap orders and deposit and withdrawal messages, the module withdraws the escrow amount of coins from your balance.
 
 ### Swap Fees
 
