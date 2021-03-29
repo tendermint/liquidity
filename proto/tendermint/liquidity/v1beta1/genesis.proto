@@ -6,6 +6,7 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 
+// record of the state of each pool for variable checking when genesis export or import
 message PoolRecord {
     Pool pool = 1 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"pool\""];
     PoolMetadata pool_metadata = 2 [(gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"pool_metadata\""];

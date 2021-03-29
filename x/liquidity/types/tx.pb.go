@@ -32,6 +32,8 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgCreatePool defines an sdk.Msg type that supports submitting create liquidity pool
+//
+// See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 type MsgCreatePool struct {
 	PoolCreatorAddress string `protobuf:"bytes,1,opt,name=pool_creator_address,json=poolCreatorAddress,proto3" json:"pool_creator_address,omitempty" yaml:"pool_creator_address"`
 	// id of target pool type, only 1 is allowed on this version, Must match the value in the pool.
@@ -111,17 +113,12 @@ func (m *MsgCreatePoolResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgCreatePoolResponse proto.InternalMessageInfo
 
 // `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
-// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, deposit_coins for reserve
+// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, `deposit_coins` for reserve
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests.
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 type MsgDepositWithinBatch struct {
-	// The publisher in which to create the book.
-	//
-	// Format: `publishers/{publisher}`
-	//
-	// Example: `publishers/1257894000000000000`
 	DepositorAddress string `protobuf:"bytes,1,opt,name=depositor_address,json=depositorAddress,proto3" json:"depositor_address,omitempty" yaml:"depositor_address"`
 	// id of the target pool
 	PoolId uint64 `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
@@ -284,7 +281,8 @@ var xxx_messageInfo_MsgWithdrawWithinBatchResponse proto.InternalMessageInfo
 
 // `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
 // Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
-// `demand_coin_denom` with the coin and the price you're offering and current `params.swap_fee_rate`
+// `demand_coin_denom` with the coin and the price you're offering
+// and `offer_coin_fee` must half of offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests
 // You should request the same each field as the pool
@@ -304,9 +302,10 @@ type MsgSwapWithinBatch struct {
 	OfferCoin types.Coin `protobuf:"bytes,4,opt,name=offer_coin,json=offerCoin,proto3" json:"offer_coin" yaml:"offer_coin"`
 	// denom of demand coin to be exchanged on the swap request, Must match the denom in the pool.
 	DemandCoinDenom string `protobuf:"bytes,5,opt,name=demand_coin_denom,json=demandCoinDenom,proto3" json:"demand_coin_denom,omitempty" yaml:"demand_coin_denom"`
-	// offer coin fee for pay fees in half offer coin
+	// half of offer coin amount * params.swap_fee_rate for reservation to pay fees
 	OfferCoinFee types.Coin `protobuf:"bytes,6,opt,name=offer_coin_fee,json=offerCoinFee,proto3" json:"offer_coin_fee" yaml:"offer_coin_fee"`
-	// limit order price for the order, the price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
+	// limit order price for the order, the price is the exchange ratio of X/Y where X is the amount of the first coin and
+	// Y is the amount of the second coin when their denoms are sorted alphabetically
 	OrderPrice github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=order_price,json=orderPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"order_price" yaml:"order_price"`
 }
 

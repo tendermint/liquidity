@@ -28,6 +28,8 @@ service Msg {
 }
 
 // MsgCreatePool defines an sdk.Msg type that supports submitting create liquidity pool
+//
+// See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgCreatePool {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
@@ -60,7 +62,7 @@ message MsgCreatePool {
 message MsgCreatePoolResponse {}
 
 // `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
-// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, deposit_coins for reserve
+// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, `deposit_coins` for reserve
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests.
 //
@@ -69,17 +71,13 @@ message MsgDepositWithinBatch {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
 
-  // The publisher in which to create the book.
-  //
-  // Format: `publishers/{publisher}`
-  //
-  // Example: `publishers/1257894000000000000`
   string depositor_address = 1 [(gogoproto.moretags) = "yaml:\"depositor_address\"",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "account address of the origin of this message",
       example: "\"cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun\"",
       format: "sdk.AccAddress"
     }];
+
   // id of the target pool
   uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -138,7 +136,8 @@ message MsgWithdrawWithinBatchResponse {}
 
 // `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
 // Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
-// `demand_coin_denom` with the coin and the price you're offering and current `params.swap_fee_rate`
+// `demand_coin_denom` with the coin and the price you're offering
+// and `offer_coin_fee` must half of offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests
 // You should request the same each field as the pool
@@ -186,7 +185,7 @@ message MsgSwapWithinBatch {
       example: "\"denomB\"",
     }];
 
-  // offer coin fee for pay fees in half offer coin
+  // half of offer coin amount * params.swap_fee_rate for reservation to pay fees
   cosmos.base.v1beta1.Coin offer_coin_fee = 6 [
     (gogoproto.nullable)     = false,
     (gogoproto.moretags)     = "yaml:\"offer_coin_fee\"",
@@ -196,7 +195,8 @@ message MsgSwapWithinBatch {
       }
   ];
 
-  // limit order price for the order, the price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
+  // limit order price for the order, the price is the exchange ratio of X/Y where X is the amount of the first coin and
+  // Y is the amount of the second coin when their denoms are sorted alphabetically
   string order_price = 7 [
     (gogoproto.moretags)   = "yaml:\"order_price\"",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
