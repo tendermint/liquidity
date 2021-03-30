@@ -1,6 +1,6 @@
 <!-- order: 4 -->
 
- # Messages
+# Messages
 
 Messages (Msg) trigger state transitions. Msgs are wrapped in transactions (Txs) that clients submit to the network. The Cosmos SDK wraps and unwraps Liquidity Module messages from transactions.
 
