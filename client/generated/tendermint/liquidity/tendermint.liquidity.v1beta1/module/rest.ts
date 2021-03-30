@@ -1,0 +1,999 @@
+/* eslint-disable */
+/* tslint:disable */
+/*
+ * ---------------------------------------------------------------
+ * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
+ * ##                                                           ##
+ * ## AUTHOR: acacode                                           ##
+ * ## SOURCE: https://github.com/acacode/swagger-typescript-api ##
+ * ---------------------------------------------------------------
+ */
+
+export interface ProtobufAny {
+  typeUrl?: string;
+
+  /** @format byte */
+  value?: string;
+}
+
+export interface RpcStatus {
+  /** @format int32 */
+  code?: number;
+  message?: string;
+  details?: ProtobufAny[];
+}
+
+/**
+* Coin defines a token with a denomination and an amount.
+
+NOTE: The amount field is an Int which implements the custom method
+signatures required by gogoproto.
+*/
+export interface V1Beta1Coin {
+  denom?: string;
+  amount?: string;
+}
+
+export interface V1Beta1DepositMsgState {
+  /**
+   * @format int64
+   * @example 1000
+   */
+  msgHeight?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  msgIndex?: string;
+
+  /** @example true */
+  executed?: boolean;
+
+  /** @example true */
+  succeeded?: boolean;
+
+  /** @example true */
+  toBeDeleted?: boolean;
+
+  /**
+   * `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
+   * Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, `deposit_coins` for reserve
+   * this requests are stacked in the batch of the liquidity pool, not immediately processed and
+   * processed in the `endblock` at once with other requests.
+   *
+   * See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+   */
+  msg?: V1Beta1MsgDepositWithinBatch;
+}
+
+/**
+ * MsgCreatePoolResponse defines the Msg/CreatePool response type.
+ */
+export type V1Beta1MsgCreatePoolResponse = object;
+
+/**
+* `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
+Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, `deposit_coins` for reserve
+this requests are stacked in the batch of the liquidity pool, not immediately processed and
+processed in the `endblock` at once with other requests.
+
+See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+*/
+export interface V1Beta1MsgDepositWithinBatch {
+  /**
+   * account address of the origin of this message
+   * @format sdk.AccAddress
+   * @example cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+   */
+  depositorAddress?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  poolId?: string;
+
+  /**
+   * @format sdk.Coins
+   * @example [{"denom":"denomX","amount":"1000000"},{"denom":"denomY","amount":"2000000"}]
+   */
+  depositCoins?: V1Beta1Coin[];
+}
+
+/**
+ * MsgDepositWithinBatchResponse defines the Msg/DepositWithinBatch response type.
+ */
+export type V1Beta1MsgDepositWithinBatchResponse = object;
+
+/**
+* `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
+Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
+`demand_coin_denom` with the coin and the price you're offering
+and `offer_coin_fee` must half of offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
+this requests are stacked in the batch of the liquidity pool, not immediately processed and
+processed in the `endblock` at once with other requests
+You should request the same each field as the pool
+Currently, only the default `swap_type_id`1 is available on this version
+The detailed swap algorithm can be found here.
+
+See: https://github.com/tendermint/liquidity/tree/develop/doc
+https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+*/
+export interface V1Beta1MsgSwapWithinBatch {
+  /**
+   * account address of the origin of this message
+   * @format sdk.AccAddress
+   * @example cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+   */
+  swapRequesterAddress?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  poolId?: string;
+
+  /**
+   * id of swap type, only 1 is allowed on this version, Must match the value in the pool.
+   * @format uint32
+   * @example 1
+   */
+  swapTypeId?: number;
+
+  /**
+   * offer sdk.coin for the swap request, Must match the denom in the pool.
+   * @format sdk.Coin
+   * @example {"denom":"denomX","amount":"1000000"}
+   */
+  offerCoin?: V1Beta1Coin;
+
+  /**
+   * denom of demand coin to be exchanged on the swap request, Must match the denom in the pool.
+   * @example denomB
+   */
+  demandCoinDenom?: string;
+
+  /**
+   * Coin defines a token with a denomination and an amount.
+   *
+   * NOTE: The amount field is an Int which implements the custom method
+   * signatures required by gogoproto.
+   * @format sdk.Coin
+   * @example {"denom":"denomX","amount":"5000"}
+   */
+  offerCoinFee?: V1Beta1Coin;
+
+  /**
+   * @format sdk.Dec
+   * @example 1.1
+   */
+  orderPrice?: string;
+}
+
+/**
+ * MsgSwapWithinBatchResponse defines the Msg/Swap response type.
+ */
+export type V1Beta1MsgSwapWithinBatchResponse = object;
+
+/**
+* `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
+Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
+this requests are stacked in the batch of the liquidity pool, not immediately processed and
+processed in the `endblock` at once with other requests.
+
+See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+*/
+export interface V1Beta1MsgWithdrawWithinBatch {
+  /**
+   * account address of the origin of this message
+   * @format sdk.AccAddress
+   * @example cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
+   */
+  withdrawerAddress?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  poolId?: string;
+
+  /**
+   * Coin defines a token with a denomination and an amount.
+   *
+   * NOTE: The amount field is an Int which implements the custom method
+   * signatures required by gogoproto.
+   * @format sdk.Coin
+   * @example {"denom":"poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4","amount":"1000"}
+   */
+  poolCoin?: V1Beta1Coin;
+}
+
+/**
+ * MsgWithdrawWithinBatchResponse defines the Msg/WithdrawWithinBatch response type.
+ */
+export type V1Beta1MsgWithdrawWithinBatchResponse = object;
+
+/**
+* message SomeRequest {
+         Foo some_parameter = 1;
+         PageRequest pagination = 2;
+ }
+*/
+export interface V1Beta1PageRequest {
+  /**
+   * key is a value returned in PageResponse.next_key to begin
+   * querying the next page most efficiently. Only one of offset or key
+   * should be set.
+   * @format byte
+   */
+  key?: string;
+
+  /**
+   * offset is a numeric offset that can be used when key is unavailable.
+   * It is less efficient than using key. Only one of offset or key should
+   * be set.
+   * @format uint64
+   */
+  offset?: string;
+
+  /**
+   * limit is the total number of results to be returned in the result page.
+   * If left empty it will default to a value to be set by each app.
+   * @format uint64
+   */
+  limit?: string;
+
+  /**
+   * count_total is set to true  to indicate that the result set should include
+   * a count of the total number of items available for pagination in UIs.
+   * count_total is only respected when offset is used. It is ignored when key
+   * is set.
+   */
+  countTotal?: boolean;
+}
+
+/**
+* PageResponse is to be embedded in gRPC response messages where the
+corresponding request message has used PageRequest.
+
+ message SomeResponse {
+         repeated Bar results = 1;
+         PageResponse page = 2;
+ }
+*/
+export interface V1Beta1PageResponse {
+  /** @format byte */
+  nextKey?: string;
+
+  /** @format uint64 */
+  total?: string;
+}
+
+/**
+ * Params defines the parameters for the liquidity module.
+ */
+export interface V1Beta1Params {
+  poolTypes?: V1Beta1PoolType[];
+
+  /**
+   * @format sdk.Int
+   * @example 1000000
+   */
+  minInitDepositAmount?: string;
+
+  /**
+   * @format sdk.Int
+   * @example 1000000
+   */
+  initPoolCoinMintAmount?: string;
+
+  /**
+   * @format sdk.Int
+   * @example 1000000000000
+   */
+  maxReserveCoinAmount?: string;
+
+  /**
+   * @format sdk.Coins
+   * @example [{"denom":"uatom","amount":"100000000"}]
+   */
+  poolCreationFee?: V1Beta1Coin[];
+
+  /**
+   * @format sdk.Dec
+   * @example 0.003
+   */
+  swapFeeRate?: string;
+
+  /**
+   * @format sdk.Dec
+   * @example 0.003
+   */
+  withdrawFeeRate?: string;
+
+  /**
+   * @format sdk.Dec
+   * @example 0.003
+   */
+  maxOrderAmountRatio?: string;
+
+  /**
+   * @format uint32
+   * @example 1
+   */
+  unitBatchHeight?: number;
+}
+
+export interface V1Beta1Pool {
+  /**
+   * @format uint64
+   * @example 1
+   */
+  id?: string;
+
+  /**
+   * @format uint32
+   * @example 1
+   */
+  typeId?: number;
+
+  /** @example ["denomX","denomY"] */
+  reserveCoinDenoms?: string[];
+
+  /**
+   * @format sdk.AccAddress
+   * @example cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3
+   */
+  reserveAccountAddress?: string;
+
+  /** @example poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4 */
+  poolCoinDenom?: string;
+}
+
+/**
+ * PoolBatch defines the batch(es) of a given liquidity pool that contains indexes of deposit / withdraw / swap messages. Index param increments by 1 if the pool id is same.
+ */
+export interface V1Beta1PoolBatch {
+  /**
+   * @format uint64
+   * @example 1
+   */
+  poolId?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  index?: string;
+
+  /**
+   * @format int64
+   * @example 1000
+   */
+  beginHeight?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  depositMsgIndex?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  withdrawMsgIndex?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  swapMsgIndex?: string;
+
+  /** @example true */
+  executed?: boolean;
+}
+
+export interface V1Beta1PoolType {
+  /**
+   * @format uint32
+   * @example 1
+   */
+  id?: number;
+
+  /** @example ConstantProductLiquidityPool */
+  name?: string;
+
+  /**
+   * @format uint32
+   * @example 2
+   */
+  minReserveCoinNum?: number;
+
+  /**
+   * @format uint32
+   * @example 2
+   */
+  maxReserveCoinNum?: number;
+  description?: string;
+}
+
+/**
+ * the response type for the QueryLiquidityPoolBatchResponse RPC method. It returns the liquidity pool batch corresponding to the requested pool_id.
+ */
+export interface V1Beta1QueryLiquidityPoolBatchResponse {
+  /** PoolBatch defines the batch(es) of a given liquidity pool that contains indexes of deposit / withdraw / swap messages. Index param increments by 1 if the pool id is same. */
+  batch?: V1Beta1PoolBatch;
+}
+
+/**
+ * the response type for the QueryLiquidityPoolResponse RPC method. It returns the liquidity pool corresponding to the requested pool_id.
+ */
+export interface V1Beta1QueryLiquidityPoolResponse {
+  pool?: V1Beta1Pool;
+}
+
+/**
+ * the response type for the QueryLiquidityPoolsResponse RPC method. This includes list of all liquidity pools currently existed and paging results containing next_key and total count.
+ */
+export interface V1Beta1QueryLiquidityPoolsResponse {
+  pools?: V1Beta1Pool[];
+
+  /** pagination defines the pagination in the response. not working on this version. */
+  pagination?: V1Beta1PageResponse;
+}
+
+/**
+ * the response type for the QueryParamsResponse RPC method. This includes current parameter of the liquidity module.
+ */
+export interface V1Beta1QueryParamsResponse {
+  /** params holds all the parameters of this module. */
+  params?: V1Beta1Params;
+}
+
+export interface V1Beta1QueryPoolBatchDepositMsgResponse {
+  deposit?: V1Beta1DepositMsgState;
+}
+
+/**
+ * the response type for the QueryPoolBatchDeposit RPC method. This includes a list of all currently existing deposit messages of the batch and paging results containing next_key and total count.
+ */
+export interface V1Beta1QueryPoolBatchDepositMsgsResponse {
+  deposits?: V1Beta1DepositMsgState[];
+
+  /** pagination defines the pagination in the response. not working on this version. */
+  pagination?: V1Beta1PageResponse;
+}
+
+export interface V1Beta1QueryPoolBatchSwapMsgResponse {
+  swap?: V1Beta1SwapMsgState;
+}
+
+/**
+ * the response type for the QueryPoolBatchSwapMsgs RPC method. This includes list of all currently existing swap messages of the batch and paging results containing next_key and total count.
+ */
+export interface V1Beta1QueryPoolBatchSwapMsgsResponse {
+  swaps?: V1Beta1SwapMsgState[];
+
+  /** pagination defines the pagination in the response. not working on this version. */
+  pagination?: V1Beta1PageResponse;
+}
+
+export interface V1Beta1QueryPoolBatchWithdrawMsgResponse {
+  withdraw?: V1Beta1WithdrawMsgState;
+}
+
+/**
+ * the response type for the QueryPoolBatchWithdraw RPC method. This includes a list of all currently existing withdraw messages of the batch and paging results containing next_key and total count.
+ */
+export interface V1Beta1QueryPoolBatchWithdrawMsgsResponse {
+  withdraws?: V1Beta1WithdrawMsgState[];
+
+  /** pagination defines the pagination in the response. not working on this version. */
+  pagination?: V1Beta1PageResponse;
+}
+
+export interface V1Beta1SwapMsgState {
+  /**
+   * @format int64
+   * @example 1000
+   */
+  msgHeight?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  msgIndex?: string;
+
+  /** @example true */
+  executed?: boolean;
+
+  /** @example true */
+  succeeded?: boolean;
+
+  /** @example true */
+  toBeDeleted?: boolean;
+
+  /**
+   * @format int64
+   * @example 1000
+   */
+  orderExpiryHeight?: string;
+
+  /**
+   * Coin defines a token with a denomination and an amount.
+   *
+   * NOTE: The amount field is an Int which implements the custom method
+   * signatures required by gogoproto.
+   * @format sdk.Coin
+   * @example {"denom":"denomX","amount":"600000"}
+   */
+  exchangedOfferCoin?: V1Beta1Coin;
+
+  /**
+   * Coin defines a token with a denomination and an amount.
+   *
+   * NOTE: The amount field is an Int which implements the custom method
+   * signatures required by gogoproto.
+   * @format sdk.Coin
+   * @example {"denom":"denomX","amount":"400000"}
+   */
+  remainingOfferCoin?: V1Beta1Coin;
+
+  /**
+   * Coin defines a token with a denomination and an amount.
+   *
+   * NOTE: The amount field is an Int which implements the custom method
+   * signatures required by gogoproto.
+   * @format sdk.Coin
+   * @example {"denom":"denomX","amount":"5000"}
+   */
+  reservedOfferCoinFee?: V1Beta1Coin;
+
+  /**
+   * `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
+   * Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
+   * `demand_coin_denom` with the coin and the price you're offering
+   * and `offer_coin_fee` must half of offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
+   * this requests are stacked in the batch of the liquidity pool, not immediately processed and
+   * processed in the `endblock` at once with other requests
+   * You should request the same each field as the pool
+   * Currently, only the default `swap_type_id`1 is available on this version
+   * The detailed swap algorithm can be found here.
+   *
+   * See: https://github.com/tendermint/liquidity/tree/develop/doc
+   * https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+   */
+  msg?: V1Beta1MsgSwapWithinBatch;
+}
+
+export interface V1Beta1WithdrawMsgState {
+  /**
+   * @format int64
+   * @example 1000
+   */
+  msgHeight?: string;
+
+  /**
+   * @format uint64
+   * @example 1
+   */
+  msgIndex?: string;
+
+  /** @example true */
+  executed?: boolean;
+
+  /** @example true */
+  succeeded?: boolean;
+
+  /** @example true */
+  toBeDeleted?: boolean;
+
+  /**
+   * `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
+   * Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
+   * this requests are stacked in the batch of the liquidity pool, not immediately processed and
+   * processed in the `endblock` at once with other requests.
+   *
+   * See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+   */
+  msg?: V1Beta1MsgWithdrawWithinBatch;
+}
+
+export type QueryParamsType = Record<string | number, any>;
+export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
+
+export interface FullRequestParams extends Omit<RequestInit, "body"> {
+  /** set parameter to `true` for call `securityWorker` for this request */
+  secure?: boolean;
+  /** request path */
+  path: string;
+  /** content type of request body */
+  type?: ContentType;
+  /** query params */
+  query?: QueryParamsType;
+  /** format of response (i.e. response.json() -> format: "json") */
+  format?: keyof Omit<Body, "body" | "bodyUsed">;
+  /** request body */
+  body?: unknown;
+  /** base url */
+  baseUrl?: string;
+  /** request cancellation token */
+  cancelToken?: CancelToken;
+}
+
+export type RequestParams = Omit<FullRequestParams, "body" | "method" | "query" | "path">;
+
+export interface ApiConfig<SecurityDataType = unknown> {
+  baseUrl?: string;
+  baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
+  securityWorker?: (securityData: SecurityDataType) => RequestParams | void;
+}
+
+export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
+  data: D;
+  error: E;
+}
+
+type CancelToken = Symbol | string | number;
+
+export enum ContentType {
+  Json = "application/json",
+  FormData = "multipart/form-data",
+  UrlEncoded = "application/x-www-form-urlencoded",
+}
+
+export class HttpClient<SecurityDataType = unknown> {
+  public baseUrl: string = "";
+  private securityData: SecurityDataType = null as any;
+  private securityWorker: null | ApiConfig<SecurityDataType>["securityWorker"] = null;
+  private abortControllers = new Map<CancelToken, AbortController>();
+
+  private baseApiParams: RequestParams = {
+    credentials: "same-origin",
+    headers: {},
+    redirect: "follow",
+    referrerPolicy: "no-referrer",
+  };
+
+  constructor(apiConfig: ApiConfig<SecurityDataType> = {}) {
+    Object.assign(this, apiConfig);
+  }
+
+  public setSecurityData = (data: SecurityDataType) => {
+    this.securityData = data;
+  };
+
+  private addQueryParam(query: QueryParamsType, key: string) {
+    const value = query[key];
+
+    return (
+      encodeURIComponent(key) +
+      "=" +
+      encodeURIComponent(Array.isArray(value) ? value.join(",") : typeof value === "number" ? value : `${value}`)
+    );
+  }
+
+  protected toQueryString(rawQuery?: QueryParamsType): string {
+    const query = rawQuery || {};
+    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
+    return keys
+      .map((key) =>
+        typeof query[key] === "object" && !Array.isArray(query[key])
+          ? this.toQueryString(query[key] as QueryParamsType)
+          : this.addQueryParam(query, key),
+      )
+      .join("&");
+  }
+
+  protected addQueryParams(rawQuery?: QueryParamsType): string {
+    const queryString = this.toQueryString(rawQuery);
+    return queryString ? `?${queryString}` : "";
+  }
+
+  private contentFormatters: Record<ContentType, (input: any) => any> = {
+    [ContentType.Json]: (input: any) =>
+      input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
+    [ContentType.FormData]: (input: any) =>
+      Object.keys(input || {}).reduce((data, key) => {
+        data.append(key, input[key]);
+        return data;
+      }, new FormData()),
+    [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
+  };
+
+  private mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
+    return {
+      ...this.baseApiParams,
+      ...params1,
+      ...(params2 || {}),
+      headers: {
+        ...(this.baseApiParams.headers || {}),
+        ...(params1.headers || {}),
+        ...((params2 && params2.headers) || {}),
+      },
+    };
+  }
+
+  private createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
+    if (this.abortControllers.has(cancelToken)) {
+      const abortController = this.abortControllers.get(cancelToken);
+      if (abortController) {
+        return abortController.signal;
+      }
+      return void 0;
+    }
+
+    const abortController = new AbortController();
+    this.abortControllers.set(cancelToken, abortController);
+    return abortController.signal;
+  };
+
+  public abortRequest = (cancelToken: CancelToken) => {
+    const abortController = this.abortControllers.get(cancelToken);
+
+    if (abortController) {
+      abortController.abort();
+      this.abortControllers.delete(cancelToken);
+    }
+  };
+
+  public request = <T = any, E = any>({
+    body,
+    secure,
+    path,
+    type,
+    query,
+    format = "json",
+    baseUrl,
+    cancelToken,
+    ...params
+  }: FullRequestParams): Promise<HttpResponse<T, E>> => {
+    const secureParams = (secure && this.securityWorker && this.securityWorker(this.securityData)) || {};
+    const requestParams = this.mergeRequestParams(params, secureParams);
+    const queryString = query && this.toQueryString(query);
+    const payloadFormatter = this.contentFormatters[type || ContentType.Json];
+
+    return fetch(`${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`, {
+      ...requestParams,
+      headers: {
+        ...(type && type !== ContentType.FormData ? { "Content-Type": type } : {}),
+        ...(requestParams.headers || {}),
+      },
+      signal: cancelToken ? this.createAbortSignal(cancelToken) : void 0,
+      body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
+    }).then(async (response) => {
+      const r = response as HttpResponse<T, E>;
+      r.data = (null as unknown) as T;
+      r.error = (null as unknown) as E;
+
+      const data = await response[format]()
+        .then((data) => {
+          if (r.ok) {
+            r.data = data;
+          } else {
+            r.error = data;
+          }
+          return r;
+        })
+        .catch((e) => {
+          r.error = e;
+          return r;
+        });
+
+      if (cancelToken) {
+        this.abortControllers.delete(cancelToken);
+      }
+
+      if (!response.ok) throw data;
+      return data;
+    });
+  };
+}
+
+/**
+ * @title tendermint/liquidity/v1beta1/genesis.proto
+ * @version version not set
+ */
+export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+  /**
+   * @description It returns all parameters of the liquidity module.
+   *
+   * @tags Query
+   * @name QueryParams
+   * @summary Get all parameters of the liquidity module.
+   * @request GET:/tendermint/liquidity/v1beta1/params
+   */
+  queryParams = (params: RequestParams = {}) =>
+    this.request<V1Beta1QueryParamsResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/params`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * @description It returns list of all liquidity pools with pagination result.
+   *
+   * @tags Query
+   * @name QueryLiquidityPools
+   * @summary Get existing liquidity pools.
+   * @request GET:/tendermint/liquidity/v1beta1/pools
+   */
+  queryLiquidityPools = (
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.countTotal"?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<V1Beta1QueryLiquidityPoolsResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/pools`,
+      method: "GET",
+      query: query,
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * @description It returns the liquidity pool corresponding to the pool_id.
+   *
+   * @tags Query
+   * @name QueryLiquidityPool
+   * @summary Get specific liquidity pool.
+   * @request GET:/tendermint/liquidity/v1beta1/pools/{poolId}
+   */
+  queryLiquidityPool = (poolId: string, params: RequestParams = {}) =>
+    this.request<V1Beta1QueryLiquidityPoolResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/pools/${poolId}`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * @description It returns the current batch of the pool corresponding to the pool_id.
+   *
+   * @tags Query
+   * @name QueryLiquidityPoolBatch
+   * @summary Get the pool's current batch.
+   * @request GET:/tendermint/liquidity/v1beta1/pools/{poolId}/batch
+   */
+  queryLiquidityPoolBatch = (poolId: string, params: RequestParams = {}) =>
+    this.request<V1Beta1QueryLiquidityPoolBatchResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/pools/${poolId}/batch`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * @description It returns list of all deposit messages in the current batch of the pool with pagination result.
+   *
+   * @tags Query
+   * @name QueryPoolBatchDepositMsgs
+   * @summary Get all deposit messages in the pool's current batch.
+   * @request GET:/tendermint/liquidity/v1beta1/pools/{poolId}/batch/deposits
+   */
+  queryPoolBatchDepositMsgs = (
+    poolId: string,
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.countTotal"?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<V1Beta1QueryPoolBatchDepositMsgsResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/pools/${poolId}/batch/deposits`,
+      method: "GET",
+      query: query,
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * @description It returns the deposit message corresponding to the msg_index in the pool's current batch.
+   *
+   * @tags Query
+   * @name QueryPoolBatchDepositMsg
+   * @summary Get specific deposit message in the pool's current batch.
+   * @request GET:/tendermint/liquidity/v1beta1/pools/{poolId}/batch/deposits/{msgIndex}
+   */
+  queryPoolBatchDepositMsg = (poolId: string, msgIndex: string, params: RequestParams = {}) =>
+    this.request<V1Beta1QueryPoolBatchDepositMsgResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/pools/${poolId}/batch/deposits/${msgIndex}`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * @description It returns list of all swap messages in the current batch of the pool with pagination result.
+   *
+   * @tags Query
+   * @name QueryPoolBatchSwapMsgs
+   * @summary Get all swap messages in the pool's current batch.
+   * @request GET:/tendermint/liquidity/v1beta1/pools/{poolId}/batch/swaps
+   */
+  queryPoolBatchSwapMsgs = (
+    poolId: string,
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.countTotal"?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<V1Beta1QueryPoolBatchSwapMsgsResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/pools/${poolId}/batch/swaps`,
+      method: "GET",
+      query: query,
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * @description It returns the swap message corresponding to the msg_index in the pool's current batch
+   *
+   * @tags Query
+   * @name QueryPoolBatchSwapMsg
+   * @summary Get specific swap message in the pool's current batch.
+   * @request GET:/tendermint/liquidity/v1beta1/pools/{poolId}/batch/swaps/{msgIndex}
+   */
+  queryPoolBatchSwapMsg = (poolId: string, msgIndex: string, params: RequestParams = {}) =>
+    this.request<V1Beta1QueryPoolBatchSwapMsgResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/pools/${poolId}/batch/swaps/${msgIndex}`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * @description It returns list of all withdraw messages in the current batch of the pool with pagination result.
+   *
+   * @tags Query
+   * @name QueryPoolBatchWithdrawMsgs
+   * @summary Get all withdraw messages in the pool's current batch.
+   * @request GET:/tendermint/liquidity/v1beta1/pools/{poolId}/batch/withdraws
+   */
+  queryPoolBatchWithdrawMsgs = (
+    poolId: string,
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.countTotal"?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<V1Beta1QueryPoolBatchWithdrawMsgsResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/pools/${poolId}/batch/withdraws`,
+      method: "GET",
+      query: query,
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * @description It returns the withdraw message corresponding to the msg_index in the pool's current batch.
+   *
+   * @tags Query
+   * @name QueryPoolBatchWithdrawMsg
+   * @summary Get specific withdraw message in the pool's current batch.
+   * @request GET:/tendermint/liquidity/v1beta1/pools/{poolId}/batch/withdraws/{msgIndex}
+   */
+  queryPoolBatchWithdrawMsg = (poolId: string, msgIndex: string, params: RequestParams = {}) =>
+    this.request<V1Beta1QueryPoolBatchWithdrawMsgResponse, RpcStatus>({
+      path: `/tendermint/liquidity/v1beta1/pools/${poolId}/batch/withdraws/${msgIndex}`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+}
