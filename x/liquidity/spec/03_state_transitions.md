@@ -12,15 +12,15 @@ The coin escrow processes for each message type are:
 
 ### MsgDepositWithinBatch
 
-To deposit coins into existing `Pool`, the depositor must escrow `DepositCoins` into `LiquidityModuleEscrowAccount`.
+To deposit coins into an existing `Pool`, the depositor must escrow `DepositCoins` into `LiquidityModuleEscrowAccount`.
 
 ### MsgWithdrawWithinBatch
 
-To withdraw coins from `Pool`, the withdrawer must escrow `PoolCoin` into `LiquidityModuleEscrowAccount`.
+To withdraw coins from a `Pool`, the withdrawer must escrow `PoolCoin` into `LiquidityModuleEscrowAccount`.
 
 ### MsgSwapWithinBatch
 
-To request a coin swap, swap requestor must escrow `OfferCoin` into `LiquidityModuleEscrowAccount`.
+To request a coin swap, the swap requestor must escrow `OfferCoin` into `LiquidityModuleEscrowAccount`.
 
 ## LiquidityPoolBatch Execution
 
@@ -165,6 +165,7 @@ Variables:
 - `swapPrice(i)` = `orderPrice(i)`
 
 - `PoolX(i)` = (`X` - `swapPrice(i)`*`Y`)/2
+
 - Amount of Y coins matched:
 
   - `EY(i)` ← min[ `EY(i)`, (`EX(i)`+`PoolX(i)`)/`swapPrice(i)` ]
