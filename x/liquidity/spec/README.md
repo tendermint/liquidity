@@ -1,21 +1,14 @@
-<!--
-order: 0
-title: Liquidity Overview
-parent:
-  title: "liquidity"
--->
+<!-- order: 0 title: Liquidity Overview parent: title: "liquidity" -->
 
-# `liquidity`
+ # `liquidity`
 
 ## Abstract
 
-### Overview
+This document specifies the Liquidity Module of the Cosmos SDK that serves AMM (Automated Market Makers) style decentralized liquidity providing and coin swap functions.
 
-This paper specifies the Liquidity module of the Cosmos-SDK, which serves AMM(Automated Market Makers) style decentralized liquidity providing and coin swap functions.
+The module enable you to create a liquidity pool, deposit coins, or withdraw coins from the liquidity pool, and request a coin swap to the liquidity pool.
 
-The module enable anyone to create a liquidity pool, deposit or withdraw coins from the liquidity pool, and request coin swap to the liquidity pool.
-
-This module will be used in the Cosmos Hub, and any other blockchain based on Cosmos-SDK.
+This module is in the Cosmos Hub and any other blockchains based on the Cosmos SDK.
 
 ## Contents
 
@@ -30,4 +23,4 @@ This module will be used in the Cosmos Hub, and any other blockchain based on Co
 
 ## References
 
-[https://github.com/b-harvest/Liquidity-Module-For-the-Hub](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
+<https://github.com/b-harvest/Liquidity-Module-For-the-Hub>
