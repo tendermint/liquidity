@@ -30,7 +30,7 @@ AMM allows liquidity providers to play market maker roles without investing in t
 
 A liquidity pool contains two assets in a trading pair. A liquidity pool is a coin reserve with a pair of tokens to provide liquidity for coin swap requests between the two coins. The liquidity pool acts as the opposite party of swap requests as the role of market makers in the AMM style exchange.
 
-Liquidity providers deposit the two kinds of coins into the liquidity pool and then share the accumulated swap fee with respect to their pool share. Pool share is represented as possession of pool coins.
+Liquidity providers deposit coin pairs in the liquidity pool and then share the accumulated swap fees with respect to their pool share. Pool share is represented as possession of pool coins.
 
 ### Coin Swap
 
@@ -56,7 +56,7 @@ Coin swap requestors pay swap fees to liquidity pools. Swap fees are accumulated
 
 ### Batches and Swap Executions
 
-Coin swaps are executed for every batch. A batch is composed of one or more consecutive blocks. The size of each batch can be decided by governance parameters and the algorithm in the liquidity module.
+Coin swaps are executed for every batch. A batch is composed of one or more consecutive blocks. The size of each batch is determined by the governance parameters and the algorithm in the liquidity module.
 
 ### Pool Identification
 

@@ -2,7 +2,7 @@
 
 # Begin-Block
 
-## Delete pool batch messages to delete and reset states for pool batch messages
+## Delete pool batch messages and reset states for pool batch messages
 
 Delete `{*action}MsgState messages that have`ToBeDeleted`state and then reset states remaining`{*action}MsgState`messages for execute on`end-block` of next batch index
 
