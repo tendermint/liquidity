@@ -143,6 +143,9 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 }
 
 func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState, batch types.PoolBatch) error {
+	if msg.Executed || msg.ToBeDeleted || msg.Succeeded {
+		return fmt.Errorf("cannot process already executed batch msg")
+	}
 	msg.Executed = true
 	k.SetPoolBatchDepositMsgState(ctx, msg.Msg.PoolId, msg)
 
@@ -335,14 +338,15 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 
 // WithdrawLiquidityPool withdraws pool coin from the liquidity pool
 func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgState, batch types.PoolBatch) error {
+	if msg.Executed || msg.ToBeDeleted || msg.Succeeded {
+		return fmt.Errorf("cannot process already executed batch msg")
+	}
 	msg.Executed = true
 	k.SetPoolBatchWithdrawMsgState(ctx, msg.Msg.PoolId, msg)
 
 	if err := k.ValidateMsgWithdrawLiquidityPool(ctx, *msg.Msg); err != nil {
 		return err
 	}
-	// TODO: validate reserveCoin balance
-
 	poolCoins := sdk.NewCoins(msg.Msg.PoolCoin)
 
 	pool, found := k.GetPool(ctx, msg.Msg.PoolId)
@@ -364,16 +368,25 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	withdrawProportion := sdk.OneDec().Sub(params.WithdrawFeeRate)
 	withdrawCoins := sdk.NewCoins()
 
-	// calculate withdraw amount of respective reserve coin considering fees and pool coin's totally supply
-	for _, reserveCoin := range reserveCoins {
-		// WithdrawAmount = ReserveAmount * PoolCoinAmount * WithdrawFeeProportion / TotalSupply
-		withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().MulTruncate(withdrawProportion).TruncateInt().Quo(poolCoinTotalSupply)
-		withdrawCoins = withdrawCoins.Add(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))
+	// Case for withdrawing all reserve coins
+	if msg.Msg.PoolCoin.Amount.Equal(poolCoinTotalSupply) {
+		withdrawCoins = reserveCoins
+	} else {
+		// Calculate withdraw amount of respective reserve coin considering fees and pool coin's totally supply
+		for _, reserveCoin := range reserveCoins {
+			// WithdrawAmount = ReserveAmount * PoolCoinAmount * WithdrawFeeProportion / TotalSupply
+			withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().MulTruncate(withdrawProportion).TruncateInt().Quo(poolCoinTotalSupply)
+			if withdrawAmt.IsPositive() {
+				withdrawCoins = withdrawCoins.Add(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))
+			}
+		}
 	}
 
 	if withdrawCoins.IsValid() {
 		inputs = append(inputs, banktypes.NewInput(reserveAcc, withdrawCoins))
 		outputs = append(outputs, banktypes.NewOutput(withdrawer, withdrawCoins))
+	} else {
+		return types.ErrBadPoolCoinAmount
 	}
 
 	// send withdrawing coins to the withdrawer
@@ -840,6 +853,11 @@ func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgW
 	}
 
 	poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
+
+	if !poolCoinTotalSupply.IsPositive() || !k.GetReserveCoins(ctx, pool).IsAllPositive() {
+		return types.ErrDepletedPool
+	}
+
 	if msg.PoolCoin.Amount.GT(poolCoinTotalSupply) {
 		return types.ErrBadPoolCoinAmount
 	}
@@ -866,6 +884,10 @@ func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWit
 
 	// can not exceed max order ratio  of reserve coins that can be ordered at a order
 	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
+
+	if !reserveCoinAmt.IsPositive() {
+		return types.ErrDepletedPool
+	}
 
 	// Decimal Error, Multiply the Int coin amount by the Decimal Rate and erase the decimal point to order a lower value
 	maximumOrderableAmt := reserveCoinAmt.ToDec().MulTruncate(params.MaxOrderAmountRatio).TruncateInt()
