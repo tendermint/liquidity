@@ -548,3 +548,84 @@ func TestGetPoolByReserveAccIndex(t *testing.T) {
 	require.False(t, simapp.LiquidityKeeper.IsPoolCoinDenom(ctx, pool.Name()))
 	//SetPoolByReserveAccIndex
 }
+
+func TestDepositEdgecase(t *testing.T) {
+	simapp, ctx := createTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	X, Y := sdk.NewInt(1_000_000), sdk.NewInt(10_000_000)
+
+	creatorCoins := sdk.NewCoins()
+	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, X), sdk.NewCoin(DenomY, Y))
+	creatorAddr := lapp.AddRandomTestAddr(simapp, ctx, creatorCoins.Add(depositCoins...).Add(params.PoolCreationFee...))
+
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, depositCoins))
+	require.NoError(t, err)
+
+	creatorBalance := simapp.BankKeeper.GetBalance(ctx, creatorAddr, pool.PoolCoinDenom)
+
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, creatorBalance.Sub(sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(2)))))
+	require.NoError(t, err)
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	fmt.Println(simapp.LiquidityKeeper.GetPoolCoinTotal(ctx, pool))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, creatorAddr))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount()))
+
+	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, types.NewMsgDepositWithinBatch(creatorAddr, pool.Id, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(100_000)), sdk.NewCoin(DenomY, sdk.NewInt(1_000_000)))))
+	require.NoError(t, err)
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	fmt.Println(simapp.LiquidityKeeper.GetPoolCoinTotal(ctx, pool))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, creatorAddr))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount()))
+}
+
+func TestWithdrawEdgecase(t *testing.T) {
+	simapp, ctx := createTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	X, Y := sdk.NewInt(1_000_000), sdk.NewInt(10_000_000)
+
+	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, X), sdk.NewCoin(DenomY, Y))
+	creatorAddr := lapp.AddRandomTestAddr(simapp, ctx, depositCoins.Add(params.PoolCreationFee...))
+
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, depositCoins))
+	require.NoError(t, err)
+
+	creatorBalance := simapp.BankKeeper.GetBalance(ctx, creatorAddr, pool.PoolCoinDenom).Sub(sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(2)))
+
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, creatorBalance))
+	require.NoError(t, err)
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	fmt.Println(simapp.LiquidityKeeper.GetPoolCoinTotal(ctx, pool))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, creatorAddr))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount()))
+
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, sdk.NewCoin(pool.PoolCoinDenom, sdk.OneInt())))
+	require.NoError(t, err)
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	fmt.Println(simapp.LiquidityKeeper.GetPoolCoinTotal(ctx, pool))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, creatorAddr))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount()))
+
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, sdk.NewCoin(pool.PoolCoinDenom, sdk.OneInt())))
+	require.NoError(t, err)
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	fmt.Println(simapp.LiquidityKeeper.GetPoolCoinTotal(ctx, pool))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, creatorAddr))
+	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount()))
+}
