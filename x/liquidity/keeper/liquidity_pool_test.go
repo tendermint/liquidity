@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -549,40 +550,60 @@ func TestGetPoolByReserveAccIndex(t *testing.T) {
 	//SetPoolByReserveAccIndex
 }
 
-func TestDepositEdgecase(t *testing.T) {
-	simapp, ctx := createTestInput()
-	params := simapp.LiquidityKeeper.GetParams(ctx)
+func TestDepositWithdrawEdgecase(t *testing.T) {
+	for seed := int64(0); seed < 20; seed++ {
+		r := rand.New(rand.NewSource(seed))
 
-	X, Y := sdk.NewInt(1_000_000), sdk.NewInt(10_000_000)
+		simapp, ctx := createTestInput()
+		params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	creatorCoins := sdk.NewCoins()
-	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, X), sdk.NewCoin(DenomY, Y))
-	creatorAddr := lapp.AddRandomTestAddr(simapp, ctx, creatorCoins.Add(depositCoins...).Add(params.PoolCreationFee...))
+		X := params.MinInitDepositAmount.Add(lapp.GetRandRange(r, 0, 1_000_000))
+		Y := params.MinInitDepositAmount.Add(lapp.GetRandRange(r, 0, 1_000_000))
 
-	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, depositCoins))
-	require.NoError(t, err)
+		creatorCoins := sdk.NewCoins(sdk.NewCoin(DenomX, X), sdk.NewCoin(DenomY, Y))
+		creatorAddr := lapp.AddRandomTestAddr(simapp, ctx, creatorCoins.Add(params.PoolCreationFee...))
 
-	creatorBalance := simapp.BankKeeper.GetBalance(ctx, creatorAddr, pool.PoolCoinDenom)
+		pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, creatorCoins))
+		require.NoError(t, err)
 
-	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, creatorBalance.Sub(sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(2)))))
-	require.NoError(t, err)
+		for i := 0; i < 500; i++ {
+			type action int
+			const (
+				deposit action = iota + 1
+				withdraw
+			)
+			actions := []action{}
+			balanceX := simapp.BankKeeper.GetBalance(ctx, creatorAddr, DenomX)
+			balanceY := simapp.BankKeeper.GetBalance(ctx, creatorAddr, DenomY)
+			balancePoolCoin := simapp.BankKeeper.GetBalance(ctx, creatorAddr, pool.PoolCoinDenom)
+			if balanceX.IsPositive() || balanceY.IsPositive() {
+				actions = append(actions, deposit)
+			}
+			if balancePoolCoin.Amount.GT(sdk.OneInt()) {
+				actions = append(actions, withdraw)
+			}
+			require.Positive(t, len(actions))
+			switch actions[r.Intn(len(actions))] {
+			case deposit:
+				depositAmtA := sdk.OneInt().Add(sdk.NewInt(r.Int63n(balanceX.Amount.Int64())))
+				depositAmtB := sdk.OneInt().Add(sdk.NewInt(r.Int63n(balanceY.Amount.Int64())))
+				depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, depositAmtA), sdk.NewCoin(DenomY, depositAmtB))
+				_, err := simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, types.NewMsgDepositWithinBatch(
+					creatorAddr, pool.Id, depositCoins))
+				require.NoError(t, err)
+			case withdraw:
+				totalPoolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+				withdrawAmt := sdk.OneInt().Add(sdk.NewInt(r.Int63n(balancePoolCoin.Amount.Int64())))
+				withdrawCoin := sdk.NewCoin(pool.PoolCoinDenom, sdk.MinInt(totalPoolCoin.Sub(sdk.OneInt()), withdrawAmt))
+				_, err := simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, types.NewMsgWithdrawWithinBatch(
+					creatorAddr, pool.Id, withdrawCoin))
+				require.NoError(t, err)
+			}
 
-	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
-
-	fmt.Println(simapp.LiquidityKeeper.GetPoolCoinTotal(ctx, pool))
-	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, creatorAddr))
-	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount()))
-
-	_, err = simapp.LiquidityKeeper.DepositLiquidityPoolToBatch(ctx, types.NewMsgDepositWithinBatch(creatorAddr, pool.Id, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(100_000)), sdk.NewCoin(DenomY, sdk.NewInt(1_000_000)))))
-	require.NoError(t, err)
-
-	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
-
-	fmt.Println(simapp.LiquidityKeeper.GetPoolCoinTotal(ctx, pool))
-	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, creatorAddr))
-	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount()))
+			liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+			liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+		}
+	}
 }
 
 func TestWithdrawEdgecase(t *testing.T) {

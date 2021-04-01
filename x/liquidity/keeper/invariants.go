@@ -58,7 +58,7 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 
 var (
 	invariantCheckFlag = true                     // TODO: better way to handle below invariant checks?
-	diffThreshold      = sdk.NewDecWithPrec(1, 2) // 1%
+	diffThreshold      = sdk.NewDecWithPrec(5, 1) // 50%
 )
 
 func diff(a, b sdk.Dec) sdk.Dec {
