@@ -3,18 +3,20 @@ package testutil
 import (
 	"fmt"
 
-	"github.com/tendermint/liquidity/app"
+	liquidityapp "github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/app/params"
 	liquiditycli "github.com/tendermint/liquidity/x/liquidity/client/cli"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	dbm "github.com/tendermint/tm-db"
 )
@@ -22,17 +24,17 @@ import (
 // NewConfig returns config that defines the necessary configuration
 // used to bootstrap and start an in-process local testing network.
 func NewConfig() network.Config {
-	encCfg := app.MakeEncodingConfig()
+	encCfg := liquidityapp.MakeEncodingConfig()
 	cfg := network.DefaultConfig()
-	cfg.AppConstructor = NewAppConstructor(encCfg)                // the ABCI application constructor
-	cfg.GenesisState = app.ModuleBasics.DefaultGenesis(cfg.Codec) // liquidity genesis state to provide
+	cfg.AppConstructor = NewAppConstructor(encCfg)                         // the ABCI application constructor
+	cfg.GenesisState = liquidityapp.ModuleBasics.DefaultGenesis(cfg.Codec) // liquidity genesis state to provide
 	return cfg
 }
 
 // NewAppConstructor returns a new liquidity app AppConstructor.
 func NewAppConstructor(encodingCfg params.EncodingConfig) network.AppConstructor {
 	return func(val network.Validator) servertypes.Application {
-		return app.NewLiquidityApp(
+		return liquidityapp.NewLiquidityApp(
 			val.Ctx.Logger, dbm.NewMemDB(), nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
 			encodingCfg,
 			simapp.EmptyAppOptions{},
@@ -42,8 +44,20 @@ func NewAppConstructor(encodingCfg params.EncodingConfig) network.AppConstructor
 	}
 }
 
-func MsgCreatePoolExec(clientCtx client.Context, from, to, amount fmt.Stringer, extraArgs ...string) (testutil.BufferWriter, error) {
-	args := []string{from.String(), to.String(), amount.String()}
+var commonArgs = []string{
+	fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+	fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+	fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10))).String()),
+}
+
+// MsgCreatePoolExec creates a transaction for creating liquidity pool.
+func MsgCreatePoolExec(clientCtx client.Context, from, poolId, depositCoins string, extraArgs ...string) (testutil.BufferWriter, error) {
+	args := append([]string{
+		poolId,
+		depositCoins,
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
+	}, commonArgs...)
+
 	args = append(args, extraArgs...)
 
 	return clitestutil.ExecTestCLICmd(clientCtx, liquiditycli.NewCreatePoolCmd(), args)
