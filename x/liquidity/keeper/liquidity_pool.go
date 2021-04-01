@@ -271,7 +271,9 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 
 	// calculate pool token mint amount
 	poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
-	poolCoinAmt := poolCoinTotalSupply.Mul(depositCoinAmountA).Quo(reserveCoins[0].Amount)
+	poolCoinAmt := sdk.MinInt(
+		poolCoinTotalSupply.ToDec().Mul(depositCoinAmountA.ToDec()).Quo(reserveCoins[0].Amount.ToDec()).TruncateInt(),
+		poolCoinTotalSupply.ToDec().Mul(depositCoinAmountB.ToDec()).Quo(reserveCoins[1].Amount.ToDec()).TruncateInt())
 	mintPoolCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
 	mintPoolCoins := sdk.NewCoins(mintPoolCoin)
 

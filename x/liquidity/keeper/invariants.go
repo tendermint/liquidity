@@ -58,7 +58,7 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 
 var (
 	invariantCheckFlag = true                     // TODO: better way to handle below invariant checks?
-	diffThreshold      = sdk.NewDecWithPrec(5, 1) // 50%
+	diffThreshold      = sdk.NewDecWithPrec(2, 1) // 20%
 )
 
 func diff(a, b sdk.Dec) sdk.Dec {
@@ -79,9 +79,9 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 	depositCoinARatio := depositCoinA.Quo(lastReserveCoinA)
 	depositCoinBRatio := depositCoinB.Quo(lastReserveCoinB)
 
-	// NewPoolCoinAmount / LastPoolCoinSupply = AfterRefundedDepositCoinA / LastReserveCoinA
-	// NewPoolCoinAmount / LastPoolCoinSupply = AfterRefundedDepositCoinA / LastReserveCoinB
-	if diff(poolCoinRatio, depositCoinARatio).GT(diffThreshold) || diff(poolCoinRatio, depositCoinBRatio).GT(diffThreshold) {
+	// NewPoolCoinAmount / LastPoolCoinSupply <= AfterRefundedDepositCoinA / LastReserveCoinA
+	// NewPoolCoinAmount / LastPoolCoinSupply <= AfterRefundedDepositCoinA / LastReserveCoinB
+	if depositCoinARatio.LT(poolCoinRatio) || depositCoinBRatio.LT(poolCoinRatio) {
 		panic("invariant check fails due to incorrect ratio of pool coins")
 	}
 }
@@ -137,12 +137,12 @@ func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, res
 		return
 	}
 
-	withdrawCoinARatio := withdrawCoinA.Add(withdrawProportion).Quo(reserveCoinA)
-	withdrawCoinBRatio := withdrawCoinB.Add(withdrawProportion).Quo(reserveCoinB)
+	withdrawCoinARatio := withdrawCoinA.Quo(withdrawProportion).Quo(reserveCoinA)
+	withdrawCoinBRatio := withdrawCoinB.Quo(withdrawProportion).Quo(reserveCoinB)
 
-	// BurnedPoolCoinAmount / LastPoolCoinSupply = (WithdrawCoinA+WithdrawFeeCoinA) / LastReserveCoinA
-	// BurnedPoolCoinAmount / LastPoolCoinSupply = (WithdrawCoinB+WithdrawFeeCoinB) / LastReserveCoinB
-	if diff(burningPoolCoinRatio, withdrawCoinARatio).GT(diffThreshold) || diff(burningPoolCoinRatio, withdrawCoinBRatio).GT(diffThreshold) {
+	// BurnedPoolCoinAmount / LastPoolCoinSupply >= (WithdrawCoinA+WithdrawFeeCoinA) / LastReserveCoinA
+	// BurnedPoolCoinAmount / LastPoolCoinSupply >= (WithdrawCoinB+WithdrawFeeCoinB) / LastReserveCoinB
+	if withdrawCoinARatio.GT(burningPoolCoinRatio) || withdrawCoinBRatio.GT(burningPoolCoinRatio) {
 		panic("invariant check fails due to incorrect ratio of burning pool coins")
 	}
 }
