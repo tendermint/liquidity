@@ -62,3 +62,47 @@ func MsgCreatePoolExec(clientCtx client.Context, from, poolId, depositCoins stri
 
 	return clitestutil.ExecTestCLICmd(clientCtx, liquiditycli.NewCreatePoolCmd(), args)
 }
+
+// MsgDepositWithinBatchExec creates a transaction to deposit new amounts to the pool.
+func MsgDepositWithinBatchExec(clientCtx client.Context, from, poolId, depositCoins string, extraArgs ...string) (testutil.BufferWriter, error) {
+	args := append([]string{
+		poolId,
+		depositCoins,
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
+	}, commonArgs...)
+
+	args = append(args, extraArgs...)
+
+	return clitestutil.ExecTestCLICmd(clientCtx, liquiditycli.NewDepositWithinBatchCmd(), args)
+}
+
+// MsgWithdrawWithinBatchExec creates a transaction to withraw pool coin amount from the pool.
+func MsgWithdrawWithinBatchExec(clientCtx client.Context, from, poolId, poolCoin string, extraArgs ...string) (testutil.BufferWriter, error) {
+	args := append([]string{
+		poolId,
+		poolCoin,
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
+	}, commonArgs...)
+
+	args = append(args, extraArgs...)
+
+	return clitestutil.ExecTestCLICmd(clientCtx, liquiditycli.NewWithdrawWithinBatchCmd(), args)
+}
+
+// MsgSwapWithinBatchExec creates a transaction to swap coins in the pool.
+func MsgSwapWithinBatchExec(clientCtx client.Context, from, poolId, swapTypeId,
+	offerCoin, demandCoinDenom, orderPrice, swapFeeRate string, extraArgs ...string) (testutil.BufferWriter, error) {
+	args := append([]string{
+		poolId,
+		swapTypeId,
+		offerCoin,
+		demandCoinDenom,
+		orderPrice,
+		swapFeeRate,
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
+	}, commonArgs...)
+
+	args = append(args, extraArgs...)
+
+	return clitestutil.ExecTestCLICmd(clientCtx, liquiditycli.NewSwapWithinBatchCmd(), args)
+}
