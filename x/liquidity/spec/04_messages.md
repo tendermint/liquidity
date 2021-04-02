@@ -1,6 +1,6 @@
 <!-- order: 4 -->
 
-# Messages
+ # Messages
 
 Messages (Msg) trigger state transitions. Msgs are wrapped in transactions (Txs) that clients submit to the network. The Cosmos SDK wraps and unwraps Liquidity Module messages from transactions.
 
@@ -8,7 +8,7 @@ All Liquidity Module messages require a corresponding handler that performs vali
 
 ## MsgCreatePool
 
-This message is sent when a liquidity pool is created.
+This message is submitted when a liquidity pool is created.
 
 ```go
 type MsgCreatePool struct {
@@ -33,7 +33,7 @@ The MsgCreatePool message performs these validity checks:
 
 ## MsgDepositWithinBatch
 
-This message is sent when a deposit in a liquidity pool batch occurs.
+This message is sent when a deposit to a liquidity pool batch is submitted.
 
 ```go
 type MsgDepositWithinBatch struct {
