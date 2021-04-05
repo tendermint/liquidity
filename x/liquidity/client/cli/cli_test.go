@@ -8,14 +8,14 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/tendermint/liquidity/x/liquidity/client/cli"
-	liquiditytestutil "github.com/tendermint/liquidity/x/liquidity/client/testutil"
-	liquiditytypes "github.com/tendermint/liquidity/x/liquidity/types"
-
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/tendermint/liquidity/x/liquidity/client/cli"
+	liquiditytestutil "github.com/tendermint/liquidity/x/liquidity/client/testutil"
+	liquiditytypes "github.com/tendermint/liquidity/x/liquidity/types"
 
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 )
@@ -35,27 +35,21 @@ func (s *IntegrationTestSuite) SetupTest() {
 	s.T().Log("setting up integration test suite")
 
 	cfg := liquiditytestutil.NewConfig()
-	genesisState := cfg.GenesisState
-	cfg.NumValidators = 2
+	cfg.NumValidators = 1
 
-	var liquidtyData liquiditytypes.GenesisState
-	s.Require().NoError(cfg.Codec.UnmarshalJSON(cfg.GenesisState[liquiditytypes.ModuleName], &liquidtyData))
+	var liquidtyGenesisState liquiditytypes.GenesisState
+	s.Require().NoError(cfg.Codec.UnmarshalJSON(cfg.GenesisState[liquiditytypes.ModuleName], &liquidtyGenesisState))
 
-	liquidtyData.Params = liquiditytypes.DefaultParams()
+	liquidtyGenesisState.Params = liquiditytypes.DefaultParams()
 
-	liquidtyDataBz, err := cfg.Codec.MarshalJSON(&liquidtyData)
-	s.Require().NoError(err)
-
-	genesisState[liquiditytypes.ModuleName] = liquidtyDataBz
-	cfg.GenesisState = genesisState
-
+	cfg.GenesisState[liquiditytypes.ModuleName] = cfg.Codec.MustMarshalJSON(&liquidtyGenesisState)
 	cfg.AccountTokens = sdk.NewInt(100_000_000_000) // node%dtoken denom
 	cfg.StakingTokens = sdk.NewInt(100_000_000_000) // stake denom
 
 	s.cfg = cfg
 	s.network = network.New(s.T(), cfg)
 
-	_, err = s.network.WaitForHeight(1)
+	_, err := s.network.WaitForHeight(1)
 	s.Require().NoError(err)
 }
 
