@@ -38,27 +38,29 @@ func (s *IntegrationTestSuite) SetupTest() {
 	cfg.NumValidators = 1
 
 	var liquidtyGenesisState liquiditytypes.GenesisState
-	s.Require().NoError(cfg.Codec.UnmarshalJSON(cfg.GenesisState[liquiditytypes.ModuleName], &liquidtyGenesisState))
+	err := cfg.Codec.UnmarshalJSON(cfg.GenesisState[liquiditytypes.ModuleName], &liquidtyGenesisState)
+	s.Require().NoError(err)
 
 	liquidtyGenesisState.Params = liquiditytypes.DefaultParams()
 
 	cfg.GenesisState[liquiditytypes.ModuleName] = cfg.Codec.MustMarshalJSON(&liquidtyGenesisState)
-	cfg.AccountTokens = sdk.NewInt(100_000_000_000) // node%dtoken denom
+	cfg.AccountTokens = sdk.NewInt(100_000_000_000) // node0token denom
 	cfg.StakingTokens = sdk.NewInt(100_000_000_000) // stake denom
 
 	s.cfg = cfg
 	s.network = network.New(s.T(), cfg)
 
-	_, err := s.network.WaitForHeight(1)
+	_, err = s.network.WaitForHeight(1)
 	s.Require().NoError(err)
 }
 
-// TearDownTest cleans up the curret test network after _each_ test.
-func (s *IntegrationTestSuite) TearDownSuite() {
+// TearDownTest cleans up the curret test network after each test in the suite.
+func (s *IntegrationTestSuite) TearDownTest() {
 	s.T().Log("tearing down integration test suite")
 	s.network.Cleanup()
 }
 
+// TestIntegrationTestSuite every integration test suite.
 func TestIntegrationTestSuite(t *testing.T) {
 	suite.Run(t, new(IntegrationTestSuite))
 }
@@ -66,8 +68,7 @@ func TestIntegrationTestSuite(t *testing.T) {
 func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
 	testCases := []struct {
@@ -78,22 +79,22 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 		expectedCode uint32
 	}{
 		{
-			"valid transaction",
+			"invalid pool type id",
 			[]string{
-				fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeId),
+				"invalidpooltypeid",
 				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
-			false, &sdk.TxResponse{}, 0,
+			true, nil, 0,
 		},
 		{
-			"invalid pool type id",
+			"pool type id is not supported",
 			[]string{
-				"pooltypeidisnotnumber",
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+				fmt.Sprintf("%d", uint32(2)),
+				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000)), sdk.NewCoin("denomZ", sdk.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
@@ -114,28 +115,28 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 			true, nil, 0,
 		},
 		{
-			"pool type id not available",
-			[]string{
-				fmt.Sprintf("%d", uint32(2)),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000)), sdk.NewCoin("denomZ", sdk.NewInt(100_000_000))).String(),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, nil, 0,
-		},
-		{
 			"deposit coin less than minimum deposit amount",
 			[]string{
-				fmt.Sprintf("%d", uint32(2)),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1_000)), sdk.NewCoin(denomY, sdk.NewInt(1_000))).String(),
+				fmt.Sprintf("%d", uint32(1)),
+				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
-			true, nil, 0,
+			false, &sdk.TxResponse{}, 9,
+		},
+		{
+			"valid transaction",
+			[]string{
+				fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeId),
+				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+			},
+			false, &sdk.TxResponse{}, 0,
 		},
 	}
 
@@ -164,11 +165,10 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -187,18 +187,6 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 		respType     proto.Message
 		expectedCode uint32
 	}{
-		{
-			"valid transaction",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			false, &sdk.TxResponse{}, 0,
-		},
 		{
 			"invalid pool id",
 			[]string{
@@ -222,6 +210,18 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			true, nil, 0,
+		},
+		{
+			"valid transaction",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+			},
+			false, &sdk.TxResponse{}, 0,
 		},
 	}
 
@@ -250,11 +250,10 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -274,18 +273,6 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 		expectedCode uint32
 	}{
 		{
-			"valid transaction",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", sdk.NewInt(10_000))).String(),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			false, &sdk.TxResponse{}, 0,
-		},
-		{
 			"invalid pool id",
 			[]string{
 				"invalidpoolid",
@@ -297,21 +284,30 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 			},
 			true, nil, 0,
 		},
-		// TODO: devise another way to handle this case.
-		// Note that since liquidity module is implemented in batch-style, tx message is included in a block and return error as below error message.
-		// {"height":"4","txhash":"93BF23046BC55F7D763DF6FA2FF739E2C4158663B03699E2966FB91196065857","codespace":"liquidity","code":29,"data":"","raw_log":"failed to execute message; message index: 0: bad pool coin denom","logs":[],"info":"","gas_wanted":"200000","gas_used":"52016","tx":null,"timestamp":""}
-		// {
-		// 	"bad pool coin",
-		// 	[]string{
-		// 		fmt.Sprintf("%d", uint32(1)),
-		// 		sdk.NewCoins(sdk.NewCoin("poolBadPoolCoinDenom", sdk.NewInt(10_000))).String(),
-		// 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-		// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-		// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-		// 	},
-		// 	true, nil, 0,
-		// },
+		{
+			"bad pool coin",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				sdk.NewCoins(sdk.NewCoin("badpoolcoindenom", sdk.NewInt(10_000))).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+			},
+			false, &sdk.TxResponse{}, 29,
+		},
+		{
+			"valid transaction",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", sdk.NewInt(10_000))).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+			},
+			false, &sdk.TxResponse{}, 0,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -339,11 +335,10 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -363,22 +358,6 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 		expectedCode uint32
 	}{
 		{
-			"valid transaction",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("%d", liquiditytypes.DefaultSwapTypeId),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000))).String(),
-				denomY,
-				fmt.Sprintf("%.2f", 1.0),
-				fmt.Sprintf("%.3f", 0.003),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			false, &sdk.TxResponse{}, 0,
-		},
-		{
 			"invalid pool id",
 			[]string{
 				"invalidpoolid",
@@ -395,23 +374,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 			true, nil, 0,
 		},
 		{
-			"invalid swap type id",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				"invalidswaptypeid",
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000))).String(),
-				denomY,
-				fmt.Sprintf("%.2f", 0.02),
-				fmt.Sprintf("%.3f", 0.003),
-				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-			},
-			true, nil, 0,
-		},
-		{
-			"swap type id not available",
+			"swap type id not supported",
 			[]string{
 				fmt.Sprintf("%d", uint32(1)),
 				fmt.Sprintf("%d", uint32(2)),
@@ -426,25 +389,38 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 			},
 			true, nil, 0,
 		},
-		// TODO: devise another way to handle this case.
-		// Note that since liquidity module is implemented in batch-style, tx message is included in a block and return error as below error message.
-		// {"height":"5","txhash":"B3F2C9AA81357CCCEE8DBD456994FD8310F307B7E4AB5D91C84DEB234083BC21","codespace":"liquidity","code":35,"data":"","raw_log":"failed to execute message; message index: 0: bad offer coin fee","logs":[],"info":"","gas_wanted":"200000","gas_used":"73743","tx":null,"timestamp":""}
-		// {
-		// 	"bad offer coin fee",
-		// 	[]string{
-		// 		fmt.Sprintf("%d", uint32(1)),
-		// 		fmt.Sprintf("%d", uint32(1)),
-		// 		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000))).String(),
-		// 		denomY,
-		// 		fmt.Sprintf("%.2f", 0.02),
-		// 		fmt.Sprintf("%.2f", 0.01),
-		// 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
-		// 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-		// 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
-		// 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
-		// 	},
-		// 	true, nil, 0,
-		// },
+		{
+			"bad offer coin fee",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("%d", uint32(1)),
+				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000))).String(),
+				denomY,
+				fmt.Sprintf("%.2f", 0.02),
+				fmt.Sprintf("%.2f", 0.01),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+			},
+			false, &sdk.TxResponse{}, 35,
+		},
+		{
+			"valid transaction",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("%d", liquiditytypes.DefaultSwapTypeId),
+				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000))).String(),
+				denomY,
+				fmt.Sprintf("%.2f", 1.0),
+				fmt.Sprintf("%.3f", 0.003),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+			},
+			false, &sdk.TxResponse{}, 0,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -521,11 +497,10 @@ withdraw_fee_rate: "0.003000000000000000"`,
 func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -543,14 +518,6 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 		expectErr bool
 	}{
 		{
-			"valid case",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
-			},
-			false,
-		},
-		{
 			"with invalid pool id",
 			[]string{
 				"invalidpoolid",
@@ -559,12 +526,20 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 			true,
 		},
 		{
-			"with not available pool id",
+			"with not supported pool id",
 			[]string{
 				fmt.Sprintf("%d", uint32(2)),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
+		},
+		{
+			"valid case",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
 		},
 	}
 
@@ -580,11 +555,12 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
-				var poolResp liquiditytypes.QueryLiquidityPoolResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &poolResp)
+				var resp liquiditytypes.QueryLiquidityPoolResponse
+				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
-				s.Require().Len(poolResp.GetPool().ReserveCoinDenoms, 2)
-				s.Require().Equal(poolResp.GetPool().ReserveAccountAddress, "cosmos1cva80e6jcxpezd3k5dl7zwy2eg30u7ld3y0a67")
+				s.Require().Equal(uint64(1), resp.GetPool().Id)
+				s.Require().Equal(uint32(1), resp.GetPool().TypeId)
+				s.Require().Len(resp.GetPool().ReserveCoinDenoms, 2)
 			}
 		})
 	}
@@ -593,11 +569,10 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -635,9 +610,15 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
-				var poolsResp liquiditytypes.QueryLiquidityPoolsResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &poolsResp)
+				var resps liquiditytypes.QueryLiquidityPoolsResponse
+				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resps)
 				s.Require().NoError(err)
+
+				for _, pool := range resps.GetPools() {
+					s.Require().Equal(uint64(1), pool.Id)
+					s.Require().Equal(uint32(1), pool.TypeId)
+					s.Require().Len(pool.ReserveCoinDenoms, 2)
+				}
 			}
 		})
 	}
@@ -646,11 +627,10 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
 func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -665,14 +645,6 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 		expectErr bool
 	}{
 		{
-			"valid case",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
-			},
-			false,
-		},
-		{
 			"with invalid pool id",
 			[]string{
 				"invalidpoolid",
@@ -681,12 +653,20 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 			true,
 		},
 		{
-			"with not available pool id",
+			"with not supported pool id",
 			[]string{
 				fmt.Sprintf("%d", uint32(2)),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
+		},
+		{
+			"valid case",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
 		},
 	}
 
@@ -702,11 +682,11 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
-				var poolBatchResp liquiditytypes.QueryLiquidityPoolBatchResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &poolBatchResp)
+				var resp liquiditytypes.QueryLiquidityPoolBatchResponse
+				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
-				s.Require().Equal(uint64(1), poolBatchResp.GetBatch().PoolId)
-				s.Require().Equal(false, poolBatchResp.GetBatch().Executed)
+				s.Require().Equal(uint64(1), resp.GetBatch().PoolId)
+				s.Require().Equal(false, resp.GetBatch().Executed)
 			}
 		})
 	}
@@ -715,11 +695,10 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -746,15 +725,6 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 		expectErr bool
 	}{
 		{
-			"valid case",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
-			},
-			false,
-		},
-		{
 			"with invalid pool id",
 			[]string{
 				"invalidpoolid",
@@ -764,13 +734,22 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 			true,
 		},
 		{
-			"with not available pool id",
+			"with not supported pool id",
 			[]string{
 				fmt.Sprintf("%d", uint32(2)),
 				fmt.Sprintf("%d", uint32(1)),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
+		},
+		{
+			"valid case",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
 		},
 	}
 
@@ -786,13 +765,13 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
-				var depositResp liquiditytypes.QueryPoolBatchDepositMsgResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &depositResp)
+				var resp liquiditytypes.QueryPoolBatchDepositMsgResponse
+				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
-				s.Require().Equal(val.Address.String(), depositResp.GetDeposit().Msg.DepositorAddress)
-				s.Require().Equal(true, depositResp.GetDeposit().Executed)
-				s.Require().Equal(true, depositResp.GetDeposit().Succeeded)
-				s.Require().Equal(true, depositResp.GetDeposit().ToBeDeleted)
+				s.Require().Equal(val.Address.String(), resp.GetDeposit().Msg.DepositorAddress)
+				s.Require().Equal(true, resp.GetDeposit().Executed)
+				s.Require().Equal(true, resp.GetDeposit().Succeeded)
+				s.Require().Equal(true, resp.GetDeposit().ToBeDeleted)
 			}
 		})
 	}
@@ -801,11 +780,10 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -832,14 +810,6 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 		expectErr bool
 	}{
 		{
-			"valid case",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
-			},
-			false,
-		},
-		{
 			"with invalid pool id",
 			[]string{
 				"invalidpoolid",
@@ -849,12 +819,20 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 			true,
 		},
 		{
-			"with not available pool id",
+			"with not supported pool id",
 			[]string{
 				fmt.Sprintf("%d", uint32(2)),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
+		},
+		{
+			"valid case",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
 		},
 	}
 
@@ -870,9 +848,15 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
-				var depositsResp liquiditytypes.QueryPoolBatchDepositMsgsResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &depositsResp)
+				var resps liquiditytypes.QueryPoolBatchDepositMsgsResponse
+				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resps)
 				s.Require().NoError(err)
+
+				for _, deposit := range resps.GetDeposits() {
+					s.Require().Equal(true, deposit.Executed)
+					s.Require().Equal(true, deposit.Succeeded)
+					s.Require().Equal(true, deposit.ToBeDeleted)
+				}
 			}
 		})
 	}
@@ -881,11 +865,10 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -913,15 +896,6 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 		expectErr bool
 	}{
 		{
-			"valid case",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
-			},
-			false,
-		},
-		{
 			"with invalid pool id",
 			[]string{
 				"invalidpoolid",
@@ -931,13 +905,22 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 			true,
 		},
 		{
-			"with not available pool id",
+			"with not suppoorted pool id",
 			[]string{
 				fmt.Sprintf("%d", uint32(2)),
 				fmt.Sprintf("%d", uint32(1)),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
+		},
+		{
+			"valid case",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
 		},
 	}
 
@@ -953,14 +936,14 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
-				var withdrawResp liquiditytypes.QueryPoolBatchWithdrawMsgResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &withdrawResp)
+				var resp liquiditytypes.QueryPoolBatchWithdrawMsgResponse
+				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
-				s.Require().Equal(val.Address.String(), withdrawResp.GetWithdraw().Msg.WithdrawerAddress)
-				s.Require().Equal(poolCoinDenom, withdrawResp.GetWithdraw().Msg.PoolCoin.Denom)
-				s.Require().Equal(true, withdrawResp.GetWithdraw().Executed)
-				s.Require().Equal(true, withdrawResp.GetWithdraw().Succeeded)
-				s.Require().Equal(true, withdrawResp.GetWithdraw().ToBeDeleted)
+				s.Require().Equal(val.Address.String(), resp.GetWithdraw().Msg.WithdrawerAddress)
+				s.Require().Equal(poolCoinDenom, resp.GetWithdraw().Msg.PoolCoin.Denom)
+				s.Require().Equal(true, resp.GetWithdraw().Executed)
+				s.Require().Equal(true, resp.GetWithdraw().Succeeded)
+				s.Require().Equal(true, resp.GetWithdraw().ToBeDeleted)
 			}
 		})
 	}
@@ -969,11 +952,10 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -1000,14 +982,6 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 		expectErr bool
 	}{
 		{
-			"valid case",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
-			},
-			false,
-		},
-		{
 			"with invalid pool id",
 			[]string{
 				"invalidpoolid",
@@ -1016,12 +990,20 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 			true,
 		},
 		{
-			"with not available pool id",
+			"with not supported pool id",
 			[]string{
 				fmt.Sprintf("%d", uint32(2)),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
+		},
+		{
+			"valid case",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
 		},
 	}
 
@@ -1037,9 +1019,16 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
-				var withdrawsResp liquiditytypes.QueryPoolBatchWithdrawMsgsResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &withdrawsResp)
+				var resps liquiditytypes.QueryPoolBatchWithdrawMsgsResponse
+				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resps)
 				s.Require().NoError(err)
+
+				for _, withdraw := range resps.GetWithdraws() {
+					s.Require().Equal(val.Address.String(), withdraw.Msg.WithdrawerAddress)
+					s.Require().Equal(true, withdraw.Executed)
+					s.Require().Equal(true, withdraw.Succeeded)
+					s.Require().Equal(true, withdraw.ToBeDeleted)
+				}
 			}
 		})
 	}
@@ -1048,13 +1037,12 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 	val := s.network.Validators[0]
 
-	// use two different tokens that are minted to the test accounts
-	// when creating a new network for integration tests.
+	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
-	X := sdk.NewCoin(denomX, sdk.NewInt(100_000_000))
-	Y := sdk.NewCoin(denomY, sdk.NewInt(100_000_000))
+	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
+	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
 
-	// create a liquidity pool
+	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -1067,16 +1055,15 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 	s.Require().NoError(err)
 
 	// swap coins from the pool
-	offerCoin := sdk.NewCoin(denomX, sdk.NewInt(100_000))
-	currentPrice := X.Amount.ToDec().Quo(Y.Amount.ToDec())
+	offerCoin := sdk.NewCoin(denomY, sdk.NewInt(50_000_000))
 	_, err = liquiditytestutil.MsgSwapWithinBatchExec(
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", uint32(1)),
 		fmt.Sprintf("%d", liquiditytypes.DefaultSwapTypeId),
 		offerCoin.String(),
-		denomY,
-		currentPrice.String(),
+		denomX,
+		fmt.Sprintf("%.3f", 0.019),
 		fmt.Sprintf("%.3f", 0.003),
 	)
 	s.Require().NoError(err)
@@ -1087,15 +1074,6 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 		expectErr bool
 	}{
 		{
-			"valid case",
-			[]string{
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("%d", uint32(1)),
-				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
-			},
-			false,
-		},
-		{
 			"with invalid pool id",
 			[]string{
 				"invalidpoolid",
@@ -1105,13 +1083,22 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 			true,
 		},
 		{
-			"with not available pool id",
+			"with not supported pool id",
 			[]string{
 				fmt.Sprintf("%d", uint32(2)),
 				fmt.Sprintf("%d", uint32(1)),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			true,
+		},
+		{
+			"valid case",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
 		},
 	}
 
@@ -1127,18 +1114,106 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 			if tc.expectErr {
 				s.Require().Error(err)
 			} else {
-				fmt.Println("out: ", out)
-				fmt.Println("err: ", err)
-				var swapResp liquiditytypes.QueryPoolBatchSwapMsgResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &swapResp)
+				var resp liquiditytypes.QueryPoolBatchSwapMsgResponse
+				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
-				s.Require().Equal(val.Address.String(), swapResp.GetSwap().Msg.SwapRequesterAddress)
-				s.Require().Equal(true, swapResp.GetSwap().Executed)
-				s.Require().Equal(true, swapResp.GetSwap().Succeeded) // false
-				s.Require().Equal(true, swapResp.GetSwap().ToBeDeleted)
+				s.Require().Equal(val.Address.String(), resp.GetSwap().Msg.SwapRequesterAddress)
+				s.Require().Equal(true, resp.GetSwap().Executed)
+				s.Require().Equal(true, resp.GetSwap().Succeeded)
+				s.Require().Equal(true, resp.GetSwap().ToBeDeleted)
 			}
 		})
 	}
 }
 
-func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {}
+func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
+	val := s.network.Validators[0]
+
+	// use two different tokens that are minted to the test account
+	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
+	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
+	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
+
+	// liquidity pool should be created prior to test this integration test
+	_, err := liquiditytestutil.MsgCreatePoolExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeId),
+		sdk.NewCoins(X, Y).String(),
+	)
+	s.Require().NoError(err)
+
+	err = s.network.WaitForNextBlock()
+	s.Require().NoError(err)
+
+	// swap coins from the pool
+	offerCoin := sdk.NewCoin(denomY, sdk.NewInt(50_000_000))
+	_, err = liquiditytestutil.MsgSwapWithinBatchExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", uint32(1)),
+		fmt.Sprintf("%d", liquiditytypes.DefaultSwapTypeId),
+		offerCoin.String(),
+		denomX,
+		fmt.Sprintf("%.3f", 0.019),
+		fmt.Sprintf("%.3f", 0.003),
+	)
+	s.Require().NoError(err)
+
+	testCases := []struct {
+		name      string
+		args      []string
+		expectErr bool
+	}{
+		{
+			"with invalid pool id",
+			[]string{
+				"invalidpoolid",
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			true,
+		},
+		{
+			"with not supported pool id",
+			[]string{
+				fmt.Sprintf("%d", uint32(2)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			true,
+		},
+		{
+			"valid case",
+			[]string{
+				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			cmd := cli.GetCmdQueryPoolBatchSwapMsgs()
+			clientCtx := val.ClientCtx
+
+			out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, tc.args)
+
+			if tc.expectErr {
+				s.Require().Error(err)
+			} else {
+				var resps liquiditytypes.QueryPoolBatchSwapMsgsResponse
+				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resps)
+				s.Require().NoError(err)
+
+				for _, swap := range resps.GetSwaps() {
+					s.Require().Equal(val.Address.String(), swap.Msg.SwapRequesterAddress)
+					s.Require().Equal(true, swap.Executed)
+					s.Require().Equal(true, swap.Succeeded)
+					s.Require().Equal(true, swap.ToBeDeleted)
+				}
+			}
+		})
+	}
+}
