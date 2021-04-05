@@ -135,16 +135,6 @@ message Params {
             example: "\"1\"",
             format: "uint32"
         }];
-
-    //    // fees paid for each batch messages, to be added v2
-    //    repeated cosmos.base.v1beta1.Coin liquidity_msg_fee = 5 [
-    //        (gogoproto.moretags)   = "yaml:\"liquidity_msg_fee\"",
-    //        (gogoproto.nullable)   = false,
-    //        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-    //        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-    //            example: "[{\"denom\": \"uatom\", \"amount\": \"50000\"}]",
-    //            format: "sdk.Coins"
-    //        }];
 }
 
 // The liquidity pool information
