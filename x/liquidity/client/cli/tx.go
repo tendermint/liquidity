@@ -134,7 +134,7 @@ Deposits must be the same coin denoms as the reserve coins.
 			// Get pool type index
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid unit, input a valid pool-id", args[0])
 			}
 
 			// Get deposit coins
