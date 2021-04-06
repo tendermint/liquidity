@@ -29,10 +29,10 @@ paths:
                           format: uint32
                           example: '1'
                           title: >-
-                            This is the id of the pool_type that will be used as
-                            pool_type_id for pool creation.
+                            The id of the pool_type to use as pool_type_id for
+                            pool creation.
 
-                            In this version, pool-type-id 1 is only available
+                            Only pool-type-id 1 is supported
 
                             {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
                         name:
@@ -101,9 +101,7 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                    title: >-
-                      Fee paid for new Liquidity Pool creation to prevent
-                      spamming
+                    description: Fee to create a Liquidity Pool.
                   swap_fee_rate:
                     type: string
                     format: sdk.Dec
@@ -203,9 +201,7 @@ paths:
                       example: >-
                         poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                       title: denom of pool coin of the pool
-                  title: >-
-                    Pool defines the liquidity pool that contains pool
-                    information
+                  title: The liquidity pool information
               pagination:
                 description: >-
                   pagination defines the pagination in the response. not working
@@ -356,7 +352,7 @@ paths:
                     example: >-
                       poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                     title: denom of pool coin of the pool
-                title: Pool defines the liquidity pool that contains pool information
+                title: The liquidity pool information
             description: >-
               the response type for the QueryLiquidityPoolResponse RPC method.
               It returns the liquidity pool corresponding to the requested
@@ -463,9 +459,9 @@ paths:
                     example: true
                     title: 'true if executed, false if not executed yet'
                 description: >-
-                  PoolBatch defines the batch(es) of a given liquidity pool that
-                  contains indexes of deposit / withdraw / swap messages. Index
-                  param increments by 1 if the pool id is same.
+                  The batch or batches of a given liquidity pool that contains
+                  indexes of the deposit, withdraw, and swap messages. The index
+                  param increments by 1 if the pool id exists.
             description: >-
               the response type for the QueryLiquidityPoolBatchResponse RPC
               method. It returns the liquidity pool batch corresponding to the
@@ -611,24 +607,25 @@ paths:
                           title: reserve coin pair of the pool to deposit
                       description: >-
                         `MsgDepositWithinBatch defines` an `sdk.Msg` type that
-                        supports submitting deposit request to the batch of the
-                        liquidity pool
+                        supports submitting a deposit request to the batch of
+                        the liquidity pool
 
-                        Deposit submit to the batch of the Liquidity pool with
-                        the specified `pool_id`, `deposit_coins` for reserve
+                        The deposit is submitted with the specified `pool_id`
+                        and reserve `deposit_coins`
 
-                        this requests are stacked in the batch of the liquidity
-                        pool, not immediately processed and
+                        The deposit requests are stacked in the liquidity pool
+                        batch and are not immediately processed
 
-                        processed in the `endblock` at once with other requests.
+                        Batch deposit requests are processed in the `endblock`
+                        at the same time as other requests.
 
 
                         See:
                         https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
                   title: >-
-                    DepositMsgState defines the state of deposit message that
-                    contains state information as it is processed in the next
-                    batch(s)
+                    DepositMsgState defines the state of the deposit message
+                    that contains the state information as it is processed in
+                    the next batch or batches
               pagination:
                 description: >-
                   pagination defines the pagination in the response. not working
@@ -836,24 +833,25 @@ paths:
                         title: reserve coin pair of the pool to deposit
                     description: >-
                       `MsgDepositWithinBatch defines` an `sdk.Msg` type that
-                      supports submitting deposit request to the batch of the
+                      supports submitting a deposit request to the batch of the
                       liquidity pool
 
-                      Deposit submit to the batch of the Liquidity pool with the
-                      specified `pool_id`, `deposit_coins` for reserve
+                      The deposit is submitted with the specified `pool_id` and
+                      reserve `deposit_coins`
 
-                      this requests are stacked in the batch of the liquidity
-                      pool, not immediately processed and
+                      The deposit requests are stacked in the liquidity pool
+                      batch and are not immediately processed
 
-                      processed in the `endblock` at once with other requests.
+                      Batch deposit requests are processed in the `endblock` at
+                      the same time as other requests.
 
 
                       See:
                       https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
                 title: >-
-                  DepositMsgState defines the state of deposit message that
-                  contains state information as it is processed in the next
-                  batch(s)
+                  DepositMsgState defines the state of the deposit message that
+                  contains the state information as it is processed in the next
+                  batch or batches
             title: >-
               the response type for the QueryPoolBatchDepositMsg RPC method.
               This includes a batch swap message of the batch
@@ -1050,9 +1048,7 @@ paths:
                           type: integer
                           format: uint32
                           example: '1'
-                          description: >-
-                            id of swap type, only 1 is allowed on this version,
-                            Must match the value in the pool.
+                          description: id of swap type. Must match the value in the pool.
                         offer_coin:
                           type: object
                           properties:
@@ -1078,7 +1074,7 @@ paths:
                           example: denomB
                           description: >-
                             denom of demand coin to be exchanged on the swap
-                            request, Must match the denom in the pool.
+                            request, must match the denom in the pool.
                         offer_coin_fee:
                           type: object
                           properties:
@@ -1115,30 +1111,27 @@ paths:
                             are sorted alphabetically
                       description: >-
                         `MsgSwapWithinBatch` defines an sdk.Msg type that
-                        supports submitting swap offer request to the batch of
-                        the liquidity pool
+                        submits a swap offer request to the liquidity pool batch
 
-                        Swap offer submit to the batch to the Liquidity pool
-                        with the specified the `pool_id`, `swap_type_id`,
+                        The swap offer is submitted with the specified the
+                        `pool_id`, `swap_type_id`,
 
                         `demand_coin_denom` with the coin and the price you're
                         offering
 
-                        and `offer_coin_fee` must half of offer coin amount *
-                        current `params.swap_fee_rate` for reservation to pay
-                        fees
+                        The `offer_coin_fee` must be half of offer coin amount *
+                        current `params.swap_fee_rate` to qualify for a
+                        reservation to pay fees
 
-                        this requests are stacked in the batch of the liquidity
-                        pool, not immediately processed and
+                        This request is added to the pool and executed at the
+                        end of the batch (`endblock`)
 
-                        processed in the `endblock` at once with other requests
+                        You must submit the request using the same fields as the
+                        pool
 
-                        You should request the same each field as the pool
+                        Only the default `swap_type_id`1 is supported
 
-                        Currently, only the default `swap_type_id`1 is available
-                        on this version
-
-                        The detailed swap algorithm can be found here.
+                        The detailed swap algorithm is shown here.
 
 
                         See:
@@ -1147,7 +1140,8 @@ paths:
                         https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
                   title: >-
                     SwapMsgState defines the state of swap message that contains
-                    state information as it is processed in the next batch(s)
+                    state information as it is processed in the next batch or
+                    batches
               pagination:
                 description: >-
                   pagination defines the pagination in the response. not working
@@ -1400,9 +1394,7 @@ paths:
                         type: integer
                         format: uint32
                         example: '1'
-                        description: >-
-                          id of swap type, only 1 is allowed on this version,
-                          Must match the value in the pool.
+                        description: id of swap type. Must match the value in the pool.
                       offer_coin:
                         type: object
                         properties:
@@ -1428,7 +1420,7 @@ paths:
                         example: denomB
                         description: >-
                           denom of demand coin to be exchanged on the swap
-                          request, Must match the denom in the pool.
+                          request, must match the denom in the pool.
                       offer_coin_fee:
                         type: object
                         properties:
@@ -1464,30 +1456,28 @@ paths:
                           Y is the amount of the second coin when their denoms
                           are sorted alphabetically
                     description: >-
-                      `MsgSwapWithinBatch` defines an sdk.Msg type that supports
-                      submitting swap offer request to the batch of the
-                      liquidity pool
+                      `MsgSwapWithinBatch` defines an sdk.Msg type that submits
+                      a swap offer request to the liquidity pool batch
 
-                      Swap offer submit to the batch to the Liquidity pool with
-                      the specified the `pool_id`, `swap_type_id`,
+                      The swap offer is submitted with the specified the
+                      `pool_id`, `swap_type_id`,
 
                       `demand_coin_denom` with the coin and the price you're
                       offering
 
-                      and `offer_coin_fee` must half of offer coin amount *
-                      current `params.swap_fee_rate` for reservation to pay fees
+                      The `offer_coin_fee` must be half of offer coin amount *
+                      current `params.swap_fee_rate` to qualify for a
+                      reservation to pay fees
 
-                      this requests are stacked in the batch of the liquidity
-                      pool, not immediately processed and
+                      This request is added to the pool and executed at the end
+                      of the batch (`endblock`)
 
-                      processed in the `endblock` at once with other requests
+                      You must submit the request using the same fields as the
+                      pool
 
-                      You should request the same each field as the pool
+                      Only the default `swap_type_id`1 is supported
 
-                      Currently, only the default `swap_type_id`1 is available
-                      on this version
-
-                      The detailed swap algorithm can be found here.
+                      The detailed swap algorithm is shown here.
 
 
                       See:
@@ -1496,7 +1486,8 @@ paths:
                       https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
                 title: >-
                   SwapMsgState defines the state of swap message that contains
-                  state information as it is processed in the next batch(s)
+                  state information as it is processed in the next batch or
+                  batches
             title: >-
               the response type for the QueryPoolBatchSwapMsg RPC method. This
               includes a batch swap message of the batch
@@ -1644,8 +1635,7 @@ paths:
                             amount: '1000'
                       description: >-
                         `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
-                        supports submitting withdraw request to the batch of the
-                        liquidity pool
+                        submits a withdraw request to the liquidity pool batch
 
                         Withdraw submit to the batch from the Liquidity pool
                         with the specified `pool_id`, `pool_coin` of the pool
@@ -1659,9 +1649,9 @@ paths:
                         See:
                         https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
                   title: >-
-                    WithdrawMsgState defines the state of withdraw message that
-                    contains state information as it is processed in the next
-                    batch(s)
+                    WithdrawMsgState defines the state of the withdraw message
+                    that contains state information as it is processed in the
+                    next batch or batches
               pagination:
                 description: >-
                   pagination defines the pagination in the response. not working
@@ -1865,8 +1855,7 @@ paths:
                           amount: '1000'
                     description: >-
                       `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
-                      supports submitting withdraw request to the batch of the
-                      liquidity pool
+                      submits a withdraw request to the liquidity pool batch
 
                       Withdraw submit to the batch from the Liquidity pool with
                       the specified `pool_id`, `pool_coin` of the pool
@@ -1880,9 +1869,9 @@ paths:
                       See:
                       https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
                 title: >-
-                  WithdrawMsgState defines the state of withdraw message that
-                  contains state information as it is processed in the next
-                  batch(s)
+                  WithdrawMsgState defines the state of the withdraw message
+                  that contains state information as it is processed in the next
+                  batch or batches
             title: >-
               the response type for the QueryPoolBatchWithdrawMsg RPC method.
               This includes a batch swap message of the batch
@@ -2123,22 +2112,23 @@ definitions:
             title: reserve coin pair of the pool to deposit
         description: >-
           `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
-          submitting deposit request to the batch of the liquidity pool
+          submitting a deposit request to the batch of the liquidity pool
 
-          Deposit submit to the batch of the Liquidity pool with the specified
-          `pool_id`, `deposit_coins` for reserve
+          The deposit is submitted with the specified `pool_id` and reserve
+          `deposit_coins`
 
-          this requests are stacked in the batch of the liquidity pool, not
-          immediately processed and
+          The deposit requests are stacked in the liquidity pool batch and are
+          not immediately processed
 
-          processed in the `endblock` at once with other requests.
+          Batch deposit requests are processed in the `endblock` at the same
+          time as other requests.
 
 
           See:
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
     title: >-
-      DepositMsgState defines the state of deposit message that contains state
-      information as it is processed in the next batch(s)
+      DepositMsgState defines the state of the deposit message that contains the
+      state information as it is processed in the next batch or batches
   tendermint.liquidity.v1beta1.MsgDepositWithinBatch:
     type: object
     properties:
@@ -2175,15 +2165,16 @@ definitions:
         title: reserve coin pair of the pool to deposit
     description: >-
       `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting
-      deposit request to the batch of the liquidity pool
+      a deposit request to the batch of the liquidity pool
 
-      Deposit submit to the batch of the Liquidity pool with the specified
-      `pool_id`, `deposit_coins` for reserve
+      The deposit is submitted with the specified `pool_id` and reserve
+      `deposit_coins`
 
-      this requests are stacked in the batch of the liquidity pool, not
-      immediately processed and
+      The deposit requests are stacked in the liquidity pool batch and are not
+      immediately processed
 
-      processed in the `endblock` at once with other requests.
+      Batch deposit requests are processed in the `endblock` at the same time as
+      other requests.
 
 
       See:
@@ -2206,9 +2197,7 @@ definitions:
         type: integer
         format: uint32
         example: '1'
-        description: >-
-          id of swap type, only 1 is allowed on this version, Must match the
-          value in the pool.
+        description: id of swap type. Must match the value in the pool.
       offer_coin:
         type: object
         properties:
@@ -2229,7 +2218,7 @@ definitions:
         type: string
         example: denomB
         description: >-
-          denom of demand coin to be exchanged on the swap request, Must match
+          denom of demand coin to be exchanged on the swap request, must match
           the denom in the pool.
       offer_coin_fee:
         type: object
@@ -2261,27 +2250,25 @@ definitions:
           Y is the amount of the second coin when their denoms are sorted
           alphabetically
     description: >-
-      `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap
-      offer request to the batch of the liquidity pool
+      `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap offer
+      request to the liquidity pool batch
 
-      Swap offer submit to the batch to the Liquidity pool with the specified
-      the `pool_id`, `swap_type_id`,
+      The swap offer is submitted with the specified the `pool_id`,
+      `swap_type_id`,
 
       `demand_coin_denom` with the coin and the price you're offering
 
-      and `offer_coin_fee` must half of offer coin amount * current
-      `params.swap_fee_rate` for reservation to pay fees
+      The `offer_coin_fee` must be half of offer coin amount * current
+      `params.swap_fee_rate` to qualify for a reservation to pay fees
 
-      this requests are stacked in the batch of the liquidity pool, not
-      immediately processed and
+      This request is added to the pool and executed at the end of the batch
+      (`endblock`)
 
-      processed in the `endblock` at once with other requests
+      You must submit the request using the same fields as the pool
 
-      You should request the same each field as the pool
+      Only the default `swap_type_id`1 is supported
 
-      Currently, only the default `swap_type_id`1 is available on this version
-
-      The detailed swap algorithm can be found here.
+      The detailed swap algorithm is shown here.
 
 
       See: https://github.com/tendermint/liquidity/tree/develop/doc
@@ -2317,8 +2304,8 @@ definitions:
           denom: poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
           amount: '1000'
     description: >-
-      `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
-      submitting withdraw request to the batch of the liquidity pool
+      `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a withdraw
+      request to the liquidity pool batch
 
       Withdraw submit to the batch from the Liquidity pool with the specified
       `pool_id`, `pool_coin` of the pool
@@ -2344,10 +2331,10 @@ definitions:
               format: uint32
               example: '1'
               title: >-
-                This is the id of the pool_type that will be used as
-                pool_type_id for pool creation.
+                The id of the pool_type to use as pool_type_id for pool
+                creation.
 
-                In this version, pool-type-id 1 is only available
+                Only pool-type-id 1 is supported
 
                 {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
             name:
@@ -2412,7 +2399,7 @@ definitions:
 
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
-        title: Fee paid for new Liquidity Pool creation to prevent spamming
+        description: Fee to create a Liquidity Pool.
       swap_fee_rate:
         type: string
         format: sdk.Dec
@@ -2464,7 +2451,7 @@ definitions:
         type: string
         example: poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
         title: denom of pool coin of the pool
-    title: Pool defines the liquidity pool that contains pool information
+    title: The liquidity pool information
   tendermint.liquidity.v1beta1.PoolBatch:
     type: object
     properties:
@@ -2503,9 +2490,9 @@ definitions:
         example: true
         title: 'true if executed, false if not executed yet'
     description: >-
-      PoolBatch defines the batch(es) of a given liquidity pool that contains
-      indexes of deposit / withdraw / swap messages. Index param increments by 1
-      if the pool id is same.
+      The batch or batches of a given liquidity pool that contains indexes of
+      the deposit, withdraw, and swap messages. The index param increments by 1
+      if the pool id exists.
   tendermint.liquidity.v1beta1.PoolType:
     type: object
     properties:
@@ -2514,10 +2501,9 @@ definitions:
         format: uint32
         example: '1'
         title: >-
-          This is the id of the pool_type that will be used as pool_type_id for
-          pool creation.
+          The id of the pool_type to use as pool_type_id for pool creation.
 
-          In this version, pool-type-id 1 is only available
+          Only pool-type-id 1 is supported
 
           {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
       name:
@@ -2585,9 +2571,9 @@ definitions:
             example: true
             title: 'true if executed, false if not executed yet'
         description: >-
-          PoolBatch defines the batch(es) of a given liquidity pool that
-          contains indexes of deposit / withdraw / swap messages. Index param
-          increments by 1 if the pool id is same.
+          The batch or batches of a given liquidity pool that contains indexes
+          of the deposit, withdraw, and swap messages. The index param
+          increments by 1 if the pool id exists.
     description: >-
       the response type for the QueryLiquidityPoolBatchResponse RPC method. It
       returns the liquidity pool batch corresponding to the requested pool_id.
@@ -2625,7 +2611,7 @@ definitions:
             example: >-
               poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
             title: denom of pool coin of the pool
-        title: Pool defines the liquidity pool that contains pool information
+        title: The liquidity pool information
     description: >-
       the response type for the QueryLiquidityPoolResponse RPC method. It
       returns the liquidity pool corresponding to the requested pool_id.
@@ -2665,7 +2651,7 @@ definitions:
               example: >-
                 poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               title: denom of pool coin of the pool
-          title: Pool defines the liquidity pool that contains pool information
+          title: The liquidity pool information
       pagination:
         description: >-
           pagination defines the pagination in the response. not working on this
@@ -2707,10 +2693,10 @@ definitions:
                   format: uint32
                   example: '1'
                   title: >-
-                    This is the id of the pool_type that will be used as
-                    pool_type_id for pool creation.
+                    The id of the pool_type to use as pool_type_id for pool
+                    creation.
 
-                    In this version, pool-type-id 1 is only available
+                    Only pool-type-id 1 is supported
 
                     {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
                 name:
@@ -2778,7 +2764,7 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            title: Fee paid for new Liquidity Pool creation to prevent spamming
+            description: Fee to create a Liquidity Pool.
           swap_fee_rate:
             type: string
             format: sdk.Dec
@@ -2872,22 +2858,23 @@ definitions:
                 title: reserve coin pair of the pool to deposit
             description: >-
               `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
-              submitting deposit request to the batch of the liquidity pool
+              submitting a deposit request to the batch of the liquidity pool
 
-              Deposit submit to the batch of the Liquidity pool with the
-              specified `pool_id`, `deposit_coins` for reserve
+              The deposit is submitted with the specified `pool_id` and reserve
+              `deposit_coins`
 
-              this requests are stacked in the batch of the liquidity pool, not
-              immediately processed and
+              The deposit requests are stacked in the liquidity pool batch and
+              are not immediately processed
 
-              processed in the `endblock` at once with other requests.
+              Batch deposit requests are processed in the `endblock` at the same
+              time as other requests.
 
 
               See:
               https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
         title: >-
-          DepositMsgState defines the state of deposit message that contains
-          state information as it is processed in the next batch(s)
+          DepositMsgState defines the state of the deposit message that contains
+          the state information as it is processed in the next batch or batches
     title: >-
       the response type for the QueryPoolBatchDepositMsg RPC method. This
       includes a batch swap message of the batch
@@ -2963,22 +2950,24 @@ definitions:
                   title: reserve coin pair of the pool to deposit
               description: >-
                 `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
-                submitting deposit request to the batch of the liquidity pool
+                submitting a deposit request to the batch of the liquidity pool
 
-                Deposit submit to the batch of the Liquidity pool with the
-                specified `pool_id`, `deposit_coins` for reserve
+                The deposit is submitted with the specified `pool_id` and
+                reserve `deposit_coins`
 
-                this requests are stacked in the batch of the liquidity pool,
-                not immediately processed and
+                The deposit requests are stacked in the liquidity pool batch and
+                are not immediately processed
 
-                processed in the `endblock` at once with other requests.
+                Batch deposit requests are processed in the `endblock` at the
+                same time as other requests.
 
 
                 See:
                 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
           title: >-
-            DepositMsgState defines the state of deposit message that contains
-            state information as it is processed in the next batch(s)
+            DepositMsgState defines the state of the deposit message that
+            contains the state information as it is processed in the next batch
+            or batches
       pagination:
         description: >-
           pagination defines the pagination in the response. not working on this
@@ -3119,9 +3108,7 @@ definitions:
                 type: integer
                 format: uint32
                 example: '1'
-                description: >-
-                  id of swap type, only 1 is allowed on this version, Must match
-                  the value in the pool.
+                description: id of swap type. Must match the value in the pool.
               offer_coin:
                 type: object
                 properties:
@@ -3145,7 +3132,7 @@ definitions:
                 type: string
                 example: denomB
                 description: >-
-                  denom of demand coin to be exchanged on the swap request, Must
+                  denom of demand coin to be exchanged on the swap request, must
                   match the denom in the pool.
               offer_coin_fee:
                 type: object
@@ -3180,28 +3167,25 @@ definitions:
                   Y is the amount of the second coin when their denoms are
                   sorted alphabetically
             description: >-
-              `MsgSwapWithinBatch` defines an sdk.Msg type that supports
-              submitting swap offer request to the batch of the liquidity pool
+              `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap
+              offer request to the liquidity pool batch
 
-              Swap offer submit to the batch to the Liquidity pool with the
-              specified the `pool_id`, `swap_type_id`,
+              The swap offer is submitted with the specified the `pool_id`,
+              `swap_type_id`,
 
               `demand_coin_denom` with the coin and the price you're offering
 
-              and `offer_coin_fee` must half of offer coin amount * current
-              `params.swap_fee_rate` for reservation to pay fees
+              The `offer_coin_fee` must be half of offer coin amount * current
+              `params.swap_fee_rate` to qualify for a reservation to pay fees
 
-              this requests are stacked in the batch of the liquidity pool, not
-              immediately processed and
+              This request is added to the pool and executed at the end of the
+              batch (`endblock`)
 
-              processed in the `endblock` at once with other requests
+              You must submit the request using the same fields as the pool
 
-              You should request the same each field as the pool
+              Only the default `swap_type_id`1 is supported
 
-              Currently, only the default `swap_type_id`1 is available on this
-              version
-
-              The detailed swap algorithm can be found here.
+              The detailed swap algorithm is shown here.
 
 
               See: https://github.com/tendermint/liquidity/tree/develop/doc
@@ -3209,7 +3193,7 @@ definitions:
               https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
         title: >-
           SwapMsgState defines the state of swap message that contains state
-          information as it is processed in the next batch(s)
+          information as it is processed in the next batch or batches
     title: >-
       the response type for the QueryPoolBatchSwapMsg RPC method. This includes
       a batch swap message of the batch
@@ -3331,9 +3315,7 @@ definitions:
                   type: integer
                   format: uint32
                   example: '1'
-                  description: >-
-                    id of swap type, only 1 is allowed on this version, Must
-                    match the value in the pool.
+                  description: id of swap type. Must match the value in the pool.
                 offer_coin:
                   type: object
                   properties:
@@ -3358,7 +3340,7 @@ definitions:
                   example: denomB
                   description: >-
                     denom of demand coin to be exchanged on the swap request,
-                    Must match the denom in the pool.
+                    must match the denom in the pool.
                 offer_coin_fee:
                   type: object
                   properties:
@@ -3392,28 +3374,25 @@ definitions:
                     Y is the amount of the second coin when their denoms are
                     sorted alphabetically
               description: >-
-                `MsgSwapWithinBatch` defines an sdk.Msg type that supports
-                submitting swap offer request to the batch of the liquidity pool
+                `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap
+                offer request to the liquidity pool batch
 
-                Swap offer submit to the batch to the Liquidity pool with the
-                specified the `pool_id`, `swap_type_id`,
+                The swap offer is submitted with the specified the `pool_id`,
+                `swap_type_id`,
 
                 `demand_coin_denom` with the coin and the price you're offering
 
-                and `offer_coin_fee` must half of offer coin amount * current
-                `params.swap_fee_rate` for reservation to pay fees
+                The `offer_coin_fee` must be half of offer coin amount * current
+                `params.swap_fee_rate` to qualify for a reservation to pay fees
 
-                this requests are stacked in the batch of the liquidity pool,
-                not immediately processed and
+                This request is added to the pool and executed at the end of the
+                batch (`endblock`)
 
-                processed in the `endblock` at once with other requests
+                You must submit the request using the same fields as the pool
 
-                You should request the same each field as the pool
+                Only the default `swap_type_id`1 is supported
 
-                Currently, only the default `swap_type_id`1 is available on this
-                version
-
-                The detailed swap algorithm can be found here.
+                The detailed swap algorithm is shown here.
 
 
                 See: https://github.com/tendermint/liquidity/tree/develop/doc
@@ -3421,7 +3400,7 @@ definitions:
                 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
           title: >-
             SwapMsgState defines the state of swap message that contains state
-            information as it is processed in the next batch(s)
+            information as it is processed in the next batch or batches
       pagination:
         description: >-
           pagination defines the pagination in the response. not working on this
@@ -3511,8 +3490,8 @@ definitions:
                     poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                   amount: '1000'
             description: >-
-              `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
-              submitting withdraw request to the batch of the liquidity pool
+              `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a
+              withdraw request to the liquidity pool batch
 
               Withdraw submit to the batch from the Liquidity pool with the
               specified `pool_id`, `pool_coin` of the pool
@@ -3526,8 +3505,9 @@ definitions:
               See:
               https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
         title: >-
-          WithdrawMsgState defines the state of withdraw message that contains
-          state information as it is processed in the next batch(s)
+          WithdrawMsgState defines the state of the withdraw message that
+          contains state information as it is processed in the next batch or
+          batches
     title: >-
       the response type for the QueryPoolBatchWithdrawMsg RPC method. This
       includes a batch swap message of the batch
@@ -3598,8 +3578,8 @@ definitions:
                       poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
                     amount: '1000'
               description: >-
-                `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
-                submitting withdraw request to the batch of the liquidity pool
+                `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits
+                a withdraw request to the liquidity pool batch
 
                 Withdraw submit to the batch from the Liquidity pool with the
                 specified `pool_id`, `pool_coin` of the pool
@@ -3613,8 +3593,9 @@ definitions:
                 See:
                 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
           title: >-
-            WithdrawMsgState defines the state of withdraw message that contains
-            state information as it is processed in the next batch(s)
+            WithdrawMsgState defines the state of the withdraw message that
+            contains state information as it is processed in the next batch or
+            batches
       pagination:
         description: >-
           pagination defines the pagination in the response. not working on this
@@ -3743,9 +3724,7 @@ definitions:
             type: integer
             format: uint32
             example: '1'
-            description: >-
-              id of swap type, only 1 is allowed on this version, Must match the
-              value in the pool.
+            description: id of swap type. Must match the value in the pool.
           offer_coin:
             type: object
             properties:
@@ -3769,7 +3748,7 @@ definitions:
             type: string
             example: denomB
             description: >-
-              denom of demand coin to be exchanged on the swap request, Must
+              denom of demand coin to be exchanged on the swap request, must
               match the denom in the pool.
           offer_coin_fee:
             type: object
@@ -3804,28 +3783,25 @@ definitions:
               Y is the amount of the second coin when their denoms are sorted
               alphabetically
         description: >-
-          `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting
-          swap offer request to the batch of the liquidity pool
+          `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap offer
+          request to the liquidity pool batch
 
-          Swap offer submit to the batch to the Liquidity pool with the
-          specified the `pool_id`, `swap_type_id`,
+          The swap offer is submitted with the specified the `pool_id`,
+          `swap_type_id`,
 
           `demand_coin_denom` with the coin and the price you're offering
 
-          and `offer_coin_fee` must half of offer coin amount * current
-          `params.swap_fee_rate` for reservation to pay fees
+          The `offer_coin_fee` must be half of offer coin amount * current
+          `params.swap_fee_rate` to qualify for a reservation to pay fees
 
-          this requests are stacked in the batch of the liquidity pool, not
-          immediately processed and
+          This request is added to the pool and executed at the end of the batch
+          (`endblock`)
 
-          processed in the `endblock` at once with other requests
+          You must submit the request using the same fields as the pool
 
-          You should request the same each field as the pool
+          Only the default `swap_type_id`1 is supported
 
-          Currently, only the default `swap_type_id`1 is available on this
-          version
-
-          The detailed swap algorithm can be found here.
+          The detailed swap algorithm is shown here.
 
 
           See: https://github.com/tendermint/liquidity/tree/develop/doc
@@ -3833,7 +3809,7 @@ definitions:
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
     title: >-
       SwapMsgState defines the state of swap message that contains state
-      information as it is processed in the next batch(s)
+      information as it is processed in the next batch or batches
   tendermint.liquidity.v1beta1.WithdrawMsgState:
     type: object
     properties:
@@ -3896,8 +3872,8 @@ definitions:
                 poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4
               amount: '1000'
         description: >-
-          `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports
-          submitting withdraw request to the batch of the liquidity pool
+          `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a
+          withdraw request to the liquidity pool batch
 
           Withdraw submit to the batch from the Liquidity pool with the
           specified `pool_id`, `pool_coin` of the pool
@@ -3911,5 +3887,5 @@ definitions:
           See:
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
     title: >-
-      WithdrawMsgState defines the state of withdraw message that contains state
-      information as it is processed in the next batch(s)
+      WithdrawMsgState defines the state of the withdraw message that contains
+      state information as it is processed in the next batch or batches

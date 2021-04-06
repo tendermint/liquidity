@@ -28,8 +28,8 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Structure for the pool type to distinguish the characteristics of the reserve pools
 type PoolType struct {
-	// This is the id of the pool_type that will be used as pool_type_id for pool creation.
-	// In this version, pool-type-id 1 is only available
+	// The id of the pool_type to use as pool_type_id for pool creation.
+	// Only pool-type-id 1 is supported
 	// {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty" yaml:"id"`
 	// name of the pool type
@@ -85,7 +85,7 @@ type Params struct {
 	InitPoolCoinMintAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=init_pool_coin_mint_amount,json=initPoolCoinMintAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"init_pool_coin_mint_amount" yaml:"init_pool_coin_mint_amount"`
 	// Limit the size of each liquidity pool in the beginning phase of Liquidity Module adoption to minimize risk, 0 means no limit
 	MaxReserveCoinAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,4,opt,name=max_reserve_coin_amount,json=maxReserveCoinAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"max_reserve_coin_amount" yaml:"max_reserve_coin_amount"`
-	// Fee paid for new Liquidity Pool creation to prevent spamming
+	// Fee to create a Liquidity Pool.
 	PoolCreationFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=pool_creation_fee,json=poolCreationFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"pool_creation_fee" yaml:"pool_creation_fee"`
 	// Swap fee rate for every executed swap
 	SwapFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=swap_fee_rate,json=swapFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"swap_fee_rate" yaml:"swap_fee_rate"`
@@ -129,7 +129,7 @@ func (m *Params) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
-// Pool defines the liquidity pool that contains pool information
+// The liquidity pool information
 type Pool struct {
 	// id of the pool
 	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id" yaml:"id"`
@@ -176,7 +176,7 @@ func (m *Pool) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Pool proto.InternalMessageInfo
 
-// Metadata of the state of each pool for invariant checking when genesis export or import
+// Metadata for the state of each pool for invariant checking after genesis export or import
 type PoolMetadata struct {
 	// id of the pool
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
@@ -219,7 +219,7 @@ func (m *PoolMetadata) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_PoolMetadata proto.InternalMessageInfo
 
-// PoolBatch defines the batch(es) of a given liquidity pool that contains indexes of deposit / withdraw / swap messages. Index param increments by 1 if the pool id is same.
+// The batch or batches of a given liquidity pool that contains indexes of the deposit, withdraw, and swap messages. The index param increments by 1 if the pool id exists.
 type PoolBatch struct {
 	// id of the pool
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
@@ -270,7 +270,7 @@ func (m *PoolBatch) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_PoolBatch proto.InternalMessageInfo
 
-// DepositMsgState defines the state of deposit message that contains state information as it is processed in the next batch(s)
+// DepositMsgState defines the state of the deposit message that contains the state information as it is processed in the next batch or batches
 type DepositMsgState struct {
 	// height where this message is appended to the batch
 	MsgHeight int64 `protobuf:"varint,1,opt,name=msg_height,json=msgHeight,proto3" json:"msg_height,omitempty" yaml:"msg_height"`
@@ -319,7 +319,7 @@ func (m *DepositMsgState) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_DepositMsgState proto.InternalMessageInfo
 
-// WithdrawMsgState defines the state of withdraw message that contains state information as it is processed in the next batch(s)
+// WithdrawMsgState defines the state of the withdraw message that contains state information as it is processed in the next batch or batches
 type WithdrawMsgState struct {
 	// height where this message is appended to the batch
 	MsgHeight int64 `protobuf:"varint,1,opt,name=msg_height,json=msgHeight,proto3" json:"msg_height,omitempty" yaml:"msg_height"`
@@ -368,7 +368,7 @@ func (m *WithdrawMsgState) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_WithdrawMsgState proto.InternalMessageInfo
 
-// SwapMsgState defines the state of swap message that contains state information as it is processed in the next batch(s)
+// SwapMsgState defines the state of swap message that contains state information as it is processed in the next batch or batches
 type SwapMsgState struct {
 	// height where this message is appended to the batch
 	MsgHeight int64 `protobuf:"varint,1,opt,name=msg_height,json=msgHeight,proto3" json:"msg_height,omitempty" yaml:"msg_height"`
