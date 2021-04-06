@@ -31,14 +31,14 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgCreatePool defines an sdk.Msg type that supports submitting create liquidity pool
+// MsgCreatePool defines an sdk.Msg type that creates a liquidity pool
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 type MsgCreatePool struct {
 	PoolCreatorAddress string `protobuf:"bytes,1,opt,name=pool_creator_address,json=poolCreatorAddress,proto3" json:"pool_creator_address,omitempty" yaml:"pool_creator_address"`
-	// id of target pool type, only 1 is allowed on this version, Must match the value in the pool.
+	// id of the target pool type. Must match the value in the pool.
 	PoolTypeId uint32 `protobuf:"varint,2,opt,name=pool_type_id,json=poolTypeId,proto3" json:"pool_type_id,omitempty" yaml:"pool_type_id"`
-	// reserve coin pair of the pool to deposit
+	// reserve coin pair to deposit to the pool
 	DepositCoins github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=deposit_coins,json=depositCoins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"deposit_coins" yaml:"deposit_coins"`
 }
 
@@ -112,10 +112,10 @@ func (m *MsgCreatePoolResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgCreatePoolResponse proto.InternalMessageInfo
 
-// `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
-// Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, `deposit_coins` for reserve
-// this requests are stacked in the batch of the liquidity pool, not immediately processed and
-// processed in the `endblock` at once with other requests.
+// `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting a deposit request to the batch of the liquidity pool
+// The deposit is submitted with the specified `pool_id` and reserve `deposit_coins`
+// The deposit requests are stacked in the liquidity pool batch and are not immediately processed
+// Batch deposit requests are processed in the `endblock` at the same time as other requests.
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 type MsgDepositWithinBatch struct {
@@ -196,7 +196,7 @@ func (m *MsgDepositWithinBatchResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgDepositWithinBatchResponse proto.InternalMessageInfo
 
-// `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
+// `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a withdraw request to the liquidity pool batch
 // Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
 // processed in the `endblock` at once with other requests.
@@ -279,15 +279,14 @@ func (m *MsgWithdrawWithinBatchResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgWithdrawWithinBatchResponse proto.InternalMessageInfo
 
-// `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
-// Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
+// `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap offer request to the liquidity pool batch
+// The swap offer is submitted with the specified the `pool_id`, `swap_type_id`,
 // `demand_coin_denom` with the coin and the price you're offering
-// and `offer_coin_fee` must half of offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
-// this requests are stacked in the batch of the liquidity pool, not immediately processed and
-// processed in the `endblock` at once with other requests
-// You should request the same each field as the pool
-// Currently, only the default `swap_type_id`1 is available on this version
-// The detailed swap algorithm can be found here.
+// The `offer_coin_fee` must be half of offer coin amount * current `params.swap_fee_rate` to qualify for a reservation to pay fees
+// This request is added to the pool and executed at the end of the batch (`endblock`)
+// You must submit the request using the same fields as the pool
+// Only the default `swap_type_id`1 is supported
+// The detailed swap algorithm is shown here.
 //
 // See: https://github.com/tendermint/liquidity/tree/develop/doc
 // https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
@@ -296,11 +295,11 @@ type MsgSwapWithinBatch struct {
 	SwapRequesterAddress string `protobuf:"bytes,1,opt,name=swap_requester_address,json=swapRequesterAddress,proto3" json:"swap_requester_address,omitempty" yaml:"swap_requester_address"`
 	// id of the target pool
 	PoolId uint64 `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
-	// id of swap type, only 1 is allowed on this version, Must match the value in the pool.
+	// id of swap type. Must match the value in the pool.
 	SwapTypeId uint32 `protobuf:"varint,3,opt,name=swap_type_id,json=swapTypeId,proto3" json:"swap_type_id,omitempty" yaml:"swap_type_id"`
-	// offer sdk.coin for the swap request, Must match the denom in the pool.
+	// offer sdk.coin for the swap request, must match the denom in the pool.
 	OfferCoin types.Coin `protobuf:"bytes,4,opt,name=offer_coin,json=offerCoin,proto3" json:"offer_coin" yaml:"offer_coin"`
-	// denom of demand coin to be exchanged on the swap request, Must match the denom in the pool.
+	// denom of demand coin to be exchanged on the swap request, must match the denom in the pool.
 	DemandCoinDenom string `protobuf:"bytes,5,opt,name=demand_coin_denom,json=demandCoinDenom,proto3" json:"demand_coin_denom,omitempty" yaml:"demand_coin_denom"`
 	// half of offer coin amount * params.swap_fee_rate for reservation to pay fees
 	OfferCoinFee types.Coin `protobuf:"bytes,6,opt,name=offer_coin_fee,json=offerCoinFee,proto3" json:"offer_coin_fee" yaml:"offer_coin_fee"`
@@ -486,7 +485,7 @@ type MsgClient interface {
 	CreatePool(ctx context.Context, in *MsgCreatePool, opts ...grpc.CallOption) (*MsgCreatePoolResponse, error)
 	// Submit deposit to the liquidity pool batch.
 	DepositWithinBatch(ctx context.Context, in *MsgDepositWithinBatch, opts ...grpc.CallOption) (*MsgDepositWithinBatchResponse, error)
-	// Submit withdraw from to the liquidity pool batch.
+	// Submit withdraw from the liquidity pool batch.
 	WithdrawWithinBatch(ctx context.Context, in *MsgWithdrawWithinBatch, opts ...grpc.CallOption) (*MsgWithdrawWithinBatchResponse, error)
 	// Submit swap to the liquidity pool batch.
 	Swap(ctx context.Context, in *MsgSwapWithinBatch, opts ...grpc.CallOption) (*MsgSwapWithinBatchResponse, error)
@@ -542,7 +541,7 @@ type MsgServer interface {
 	CreatePool(context.Context, *MsgCreatePool) (*MsgCreatePoolResponse, error)
 	// Submit deposit to the liquidity pool batch.
 	DepositWithinBatch(context.Context, *MsgDepositWithinBatch) (*MsgDepositWithinBatchResponse, error)
-	// Submit withdraw from to the liquidity pool batch.
+	// Submit withdraw from the liquidity pool batch.
 	WithdrawWithinBatch(context.Context, *MsgWithdrawWithinBatch) (*MsgWithdrawWithinBatchResponse, error)
 	// Submit swap to the liquidity pool batch.
 	Swap(context.Context, *MsgSwapWithinBatch) (*MsgSwapWithinBatchResponse, error)

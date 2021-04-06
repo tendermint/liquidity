@@ -58,9 +58,9 @@ message MsgCreatePool {
 message MsgCreatePoolResponse {}
 
 // `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting a deposit request to the batch of the liquidity pool
-// The deposit is submitted with the specified `pool_id` and reserve `deposit_coins`.
-// The deposit requests are stacked in the liquidity pool batch and are not immediately processed. 
-//  Batch deposit requests are processed in the `endblock` at the same time as other requests.
+// The deposit is submitted with the specified `pool_id` and reserve `deposit_coins`
+// The deposit requests are stacked in the liquidity pool batch and are not immediately processed
+// Batch deposit requests are processed in the `endblock` at the same time as other requests.
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgDepositWithinBatch {
@@ -130,14 +130,14 @@ message MsgWithdrawWithinBatch {
 // MsgWithdrawWithinBatchResponse defines the Msg/WithdrawWithinBatch response type.
 message MsgWithdrawWithinBatchResponse {}
 
-// `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap offer request to the liquidity pool batch. 
+// `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap offer request to the liquidity pool batch
 // The swap offer is submitted with the specified the `pool_id`, `swap_type_id`,
-// `demand_coin_denom` with the coin and the price you're offering.
-//  The `offer_coin_fee` must be half of offer coin amount * current `params.swap_fee_rate` to qualify for a reservation to pay fees. 
-// This request is added to the pool and executed at the end of the batch (`endblock`).
-// You must submit the request using the same fields as the pool.
-// Only the default `swap_type_id`1 is supported.
-// The detailed swap algorithm is shown here:
+// `demand_coin_denom` with the coin and the price you're offering
+// The `offer_coin_fee` must be half of offer coin amount * current `params.swap_fee_rate` to qualify for a reservation to pay fees
+// This request is added to the pool and executed at the end of the batch (`endblock`)
+// You must submit the request using the same fields as the pool
+// Only the default `swap_type_id`1 is supported
+// The detailed swap algorithm is shown here.
 //
 // See: https://github.com/tendermint/liquidity/tree/develop/doc
 // https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
