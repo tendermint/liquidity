@@ -68,7 +68,7 @@ The only supported pool-type-id is 1.
 			// Get pool type index
 			poolTypeId, err := strconv.ParseUint(args[0], 10, 32)
 			if err != nil {
-				return fmt.Errorf("pool-type-id %s not a valid uint, input a valid pool-type-id", args[0])
+				return fmt.Errorf("pool-type-id %s not a valid uint, input a valid unsigned 32-bit integer pool-type-id", args[0])
 			}
 
 			// Get deposit coins
@@ -134,7 +134,7 @@ Deposits must be the same coin denoms as the reserve coins.
 			// Get pool type index
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint32, input a valid unsigned 32-bit integer pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
 			// Get deposit coins
@@ -196,7 +196,7 @@ The appropriate pool coin must be requested from the specified pool.
 			// Get pool type index
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint32, input a valid unsigned 32-bit integer pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
 			// Get pool coin of the target pool
@@ -264,7 +264,7 @@ The only supported swap-type-id is 1. For the detailed swap algorithm, see https
 			// Get pool id
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint32, input a valid unsigned 32-bit integer pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
 			// Get swap type
