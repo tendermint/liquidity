@@ -87,7 +87,7 @@ The only supported pool-type-id is 1. pool-type-id 1 requires two different coin
 			}
 
 			if depositCoins.Len() != 2 {
-				return fmt.Errorf("the number of deposit coins must be two in the pool-type-id 1")
+				return fmt.Errorf("the number of deposit coins must be two in pool-type-id 1")
 			}
 
 			msg := types.NewMsgCreatePool(poolCreator, uint32(poolTypeId), depositCoins)
@@ -108,18 +108,18 @@ func NewDepositWithinBatchCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit [pool-id] [deposit-coins]",
 		Args:  cobra.ExactArgs(2),
-		Short: "Deposit coins to the specified liquidity pool",
+		Short: "Deposit coins to a liquidity pool",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Deposit coins to the specified liquidity pool.
+			fmt.Sprintf(`Deposit coins a liquidity pool.
 
-This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch.
+This deposit request is not processed immediately since it is accumulated in the batch of the liquidity pool.
+All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
 $ %s tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
 
-In this example, user requests to deposit 100000000uatom and 5000000000uusd to the specified liquidity pool.
-User must deposit the same coin denoms as the reserve coins.
+This example request deposits 100000000stake and 100000000token to liquidity pool `1`.
+Deposits must be the same coin denoms as the reserve coins.
 `,
 				version.AppName,
 			),
