@@ -49,7 +49,7 @@ func NewCreatePoolCmd() *cobra.Command {
 Example:
 $ %s tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
-This example creates a liquidity pool of pool-type 1 with coin pair deposits 100000000stake and 100000000token.
+This example creates a liquidity pool of pool-type-id 1 and deposits 100000000stake and 100000000token.
 New liquidity pools can be created only for coin combinations that do not exist in the network.
 The only supported pool-type-id is 1. pool-type-id 1 requires two different coins.
 
@@ -68,7 +68,7 @@ The only supported pool-type-id is 1. pool-type-id 1 requires two different coin
 			// Get pool type index
 			poolTypeId, err := strconv.ParseUint(args[0], 10, 32)
 			if err != nil {
-				return fmt.Errorf("pool-type-id %s not a valid uint, please input a valid pool-type-id", args[0])
+				return fmt.Errorf("pool-type-id %s not a valid uint, input a valid pool-type-id", args[0])
 			}
 
 			// Get deposit coins
