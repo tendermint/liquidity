@@ -49,9 +49,9 @@ func NewCreatePoolCmd() *cobra.Command {
 Example:
 $ %s tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
-This example creates a liquidity pool of pool-type-id 1 and deposits 100000000stake and 100000000token.
+This example creates a liquidity pool of pool-type-id 1 (two coins) and deposits 100000000stake and 100000000token.
 New liquidity pools can be created only for coin combinations that do not already exist in the network.
-The only supported pool-type-id is 1. pool-type-id 1 requires two different coins.
+The only supported pool-type-id is 1. 
 
 {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
 `,
@@ -134,7 +134,7 @@ Deposits must be the same coin denoms as the reserve coins.
 			// Get pool type index
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid unit, input a valid pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid uint32, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
 			// Get deposit coins
@@ -196,7 +196,7 @@ User must request the appropriate pool coin from the specified pool.
 			// Get pool type index
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid uint32, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
 			// Get pool coin of the target pool
@@ -264,13 +264,13 @@ In this version, swap-type-id 1 is only available. The detailed swap algorithm c
 			// Get pool id
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid uint32, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
 			// Get swap type
 			swapTypeId, err := strconv.ParseUint(args[1], 10, 32)
 			if err != nil {
-				return fmt.Errorf("swap-type-id %s not a valid uint, please input a valid swap-type-id", args[2])
+				return fmt.Errorf("swap-type-id %s not a valid uint, input a valid unsigned 32-bit integer swap-type-id", args[2])
 			}
 
 			if swapTypeId != 1 {
