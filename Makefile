@@ -2,7 +2,7 @@
 
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
-PACKAGES_NOSIMULATION=$(shell go list ./...)
+PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 BINDIR ?= $(GOPATH)/bin
 SIMAPP = ./app
 
