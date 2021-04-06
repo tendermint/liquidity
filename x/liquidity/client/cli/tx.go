@@ -50,7 +50,7 @@ Example:
 $ %s tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
 This example creates a liquidity pool of pool-type-id 1 and deposits 100000000stake and 100000000token.
-New liquidity pools can be created only for coin combinations that do not exist in the network.
+New liquidity pools can be created only for coin combinations that do not already exist in the network.
 The only supported pool-type-id is 1. pool-type-id 1 requires two different coins.
 
 {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
