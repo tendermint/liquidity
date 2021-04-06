@@ -42,16 +42,16 @@ func NewCreatePoolCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-pool [pool-type-id] [deposit-coins]",
 		Args:  cobra.ExactArgs(2),
-		Short: "Create new liquidity pool with the specified pool type and deposit coins",
+		Short: "Create liquidity pool and deposit coins",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Create new liquidity pool with the specified pool type and deposit coins.
+			fmt.Sprintf(`Create liquidity pool and deposit coins.
 
 Example:
 $ %s tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
-In this example, user requests to create new liquidity pool with 100000000stake and 100000000token.
-User must create with a combination of coins that are not already exist in the network.
-In this version, pool-type-id 1 is only available, which requires two different coins.
+This example creates a liquidity pool of pool-type 1 with coin pair deposits 100000000stake and 100000000token.
+New liquidity pools can be created only for coin combinations that do not exist in the network.
+The only supported pool-type-id is 1. pool-type-id 1 requires two different coins.
 
 {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
 `,
@@ -175,12 +175,12 @@ func NewWithdrawWithinBatchCmd() *cobra.Command {
 			fmt.Sprintf(`Withdraw pool coin from the specified liquidity pool.
 
 This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch. 
+This will be processed with other requests at once in every end of batch.
 
 Example:
 $ %s tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from mykey
 
-In this example, user requests to withdraw 10000 pool coin from the specified liquidity pool. 
+In this example, user requests to withdraw 10000 pool coin from the specified liquidity pool.
 User must request the appropriate pool coin from the specified pool.
 `,
 				version.AppName,
@@ -233,7 +233,7 @@ func NewSwapWithinBatchCmd() *cobra.Command {
 			fmt.Sprintf(`Swap offer coin with demand coin from the specified liquidity pool with the given order price.
 
 This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch. 
+This will be processed with other requests at once in every end of batch.
 Note that the order of swap requests is ignored since the universal swap price is calculated within every batch to prevent front running.
 
 The requested swap is executed with a swap price calculated from given swap price function of the pool, the current other swap requests and the current liquidity pool coin reserve status.
@@ -246,8 +246,8 @@ In this example, we assume there exists a liquidity pool with 1000000000uatom an
 User requests to swap 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
 User must have sufficient balance half of the swap-fee-rate of the offer coin to reserve offer coin fee.
 
-The order price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically. 
-Increasing order price means to decrease the possibility for your request to be processed and end up buying uatom at cheaper price than the pool price.  
+The order price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically.
+Increasing order price means to decrease the possibility for your request to be processed and end up buying uatom at cheaper price than the pool price.
 
 For explicit calculations, you must enter the swap-fee-rate value of the current parameter state.
 In this version, swap-type-id 1 is only available. The detailed swap algorithm can be found at https://github.com/tendermint/liquidity`,
