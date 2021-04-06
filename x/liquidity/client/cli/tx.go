@@ -51,7 +51,7 @@ $ %s tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
 This example creates a liquidity pool of pool-type-id 1 (two coins) and deposits 100000000stake and 100000000token.
 New liquidity pools can be created only for coin combinations that do not already exist in the network.
-The only supported pool-type-id is 1. 
+The only supported pool-type-id is 1.
 
 {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
 `,
@@ -112,13 +112,13 @@ func NewDepositWithinBatchCmd() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Deposit coins a liquidity pool.
 
-This deposit request is not processed immediately since it is accumulated in the batch of the liquidity pool.
+This deposit request is not processed immediately since it is accumulated in the liquidity pool batch.
 All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
 $ %s tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
 
-This example request deposits 100000000stake and 100000000token to liquidity pool `1`.
+This example request deposits 100000000stake and 100000000token to pool-id 1.
 Deposits must be the same coin denoms as the reserve coins.
 `,
 				version.AppName,
@@ -174,14 +174,14 @@ func NewWithdrawWithinBatchCmd() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Withdraw pool coin from the specified liquidity pool.
 
-This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch.
+This swap request is not processed immediately since it is accumulated in the liquidity pool batch.
+All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
 $ %s tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from mykey
 
-In this example, user requests to withdraw 10000 pool coin from the specified liquidity pool.
-User must request the appropriate pool coin from the specified pool.
+This example request withdraws 10000 pool coin from the specified liquidity pool.
+The appropriate pool coin must be requested from the specified pool.
 `,
 				version.AppName,
 			),
@@ -228,29 +228,29 @@ func NewSwapWithinBatchCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "swap [pool-id] [swap-type-id] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]",
 		Args:  cobra.ExactArgs(6),
-		Short: "Swap offer coin with demand coin from the specified liquidity pool with the given order price",
+		Short: "Swap offer coin with demand coin from the liquidity pool with the given order price",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Swap offer coin with demand coin from the specified liquidity pool with the given order price.
+			fmt.Sprintf(`Swap offer coin with demand coin from the liquidity pool with the given order price.
 
-This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch.
-Note that the order of swap requests is ignored since the universal swap price is calculated within every batch to prevent front running.
+This swap request is not processed immediately since it is accumulated in the liquidity pool batch.
+All requests in a batch are treated equally and executed at the same swap price.
+The order of swap requests is ignored since the universal swap price is calculated in every batch to prevent front running.
 
-The requested swap is executed with a swap price calculated from given swap price function of the pool, the current other swap requests and the current liquidity pool coin reserve status.
-Swap orders are executed only when execution swap price is equal or better than submitted order price of the swap order.
+The requested swap is executed with a swap price that is calculated from the given swap price function of the pool, the other swap requests, and the liquidity pool coin reserve status.
+Swap orders are executed only when the execution swap price is equal to or greater than the submitted order price of the swap order.
 
 Example:
 $ %s liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from mykey
 
-In this example, we assume there exists a liquidity pool with 1000000000uatom and 50000000000uusd.
-User requests to swap 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
-User must have sufficient balance half of the swap-fee-rate of the offer coin to reserve offer coin fee.
+For this example, imagine that an existing liquidity pool has with 1000000000uatom and 50000000000uusd.
+This example request swaps 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
+A sufficient balance of half of the swap-fee-rate of the offer coin is required to reserve the offer coin fee.
 
-The order price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically.
-Increasing order price means to decrease the possibility for your request to be processed and end up buying uatom at cheaper price than the pool price.
+The order price is the exchange ratio of X/Y, where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically.
+Increasing order price reduces the possibility for your request to be processed and results in buying uatom at a lower price than the pool price.
 
 For explicit calculations, you must enter the swap-fee-rate value of the current parameter state.
-In this version, swap-type-id 1 is only available. The detailed swap algorithm can be found at https://github.com/tendermint/liquidity`,
+The only supported swap-type-id is 1. For the detailed swap algorithm, see https://github.com/tendermint/liquidity`,
 				version.AppName,
 			),
 		),
