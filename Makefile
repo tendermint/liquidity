@@ -214,12 +214,13 @@ format:
 ###                                Protobuf                                 ###
 ###############################################################################
 
-proto-all: proto-tools proto-gen proto-swagger-gen
+proto-all: proto-gen proto-swagger-gen
 
 proto-gen:
-	@./scripts/protocgen.sh
+	docker run --rm -v $(CURDIR):/workspace --workdir /workspace bharvest/liquidity-proto-gen sh ./scripts/protocgen.sh
+	go mod tidy
 
 proto-swagger-gen:
-	@./scripts/protoc-swagger-gen.sh
+	docker run --rm -v $(CURDIR):/workspace --workdir /workspace bharvest/liquidity-proto-gen sh ./scripts/protoc-swagger-gen.sh
 
 .PHONY: proto-all proto-gen proto-swagger-gen
