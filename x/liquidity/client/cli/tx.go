@@ -49,7 +49,7 @@ func NewCreatePoolCmd() *cobra.Command {
 Example:
 $ %s tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
-This example creates a liquidity pool of pool-type-id 1 (two coins) and deposits 100000000stake and 100000000token.
+This example creates a liquidity pool of pool-type-id 1 (two coins) and deposits 1000000000uatom and 50000000000uusd.
 New liquidity pools can be created only for coin combinations that do not already exist in the network.
 The only supported pool-type-id is 1.
 
@@ -118,7 +118,7 @@ All requests in a batch are treated equally and executed at the same swap price.
 Example:
 $ %s tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
 
-This example request deposits 100000000stake and 100000000token to pool-id 1.
+This example request deposits 100000000uatom and 5000000000uusd to pool-id 1.
 Deposits must be the same coin denoms as the reserve coins.
 `,
 				version.AppName,
