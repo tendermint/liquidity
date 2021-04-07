@@ -293,10 +293,6 @@ In this version, swap-type-id 1 is only available. The detailed swap algorithm c
 				return err
 			}
 
-			if err != nil {
-				return fmt.Errorf("pool-type-id %s not a valid uint, please input a valid pool-type-id", args[1])
-			}
-
 			orderPrice, err := sdk.NewDecFromStr(args[4])
 			if err != nil {
 				return err

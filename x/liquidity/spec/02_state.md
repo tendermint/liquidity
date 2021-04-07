@@ -48,8 +48,13 @@ type PoolBatch struct {
     SwapMsgIndex     uint64  // last index of SwapMsgStates
     Executed         bool    // true if executed, false if not executed yet
 }
+```
 
+## Batch Msg States
 
+`DepositMsgState` defines the state of deposit message that contains state information as it is processed in the next batch(s)
+
+```go
 type DepositMsgState struct {
     MsgHeight  uint64 // height where this message is appended to the batch
     MsgIndex   uint64 // index of this deposit message in this liquidity pool
@@ -58,7 +63,11 @@ type DepositMsgState struct {
     ToBeDelete bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
     Msg        MsgDepositWithinBatch
 }
+```
 
+`WithdrawMsgState` defines the state of withdraw message that contains state information as it is processed in the next batch(s)
+
+```go
 type WithdrawMsgState struct {
     MsgHeight  uint64 // height where this message is appended to the batch
     MsgIndex   uint64 // index of this withdraw message in this liquidity pool
@@ -67,7 +76,11 @@ type WithdrawMsgState struct {
     ToBeDelete bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
     Msg        MsgWithdrawWithinBatch
 }
+```
 
+`SwapMsgState` defines the state of swap message that contains state information as it is processed in the next batch(s)
+
+```go
 type SwapMsgState struct {
     MsgHeight          uint64 // height where this message is appended to the batch
     MsgIndex           uint64 // index of this swap message in this liquidity pool

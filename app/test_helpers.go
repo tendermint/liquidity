@@ -246,7 +246,7 @@ func GetRandomSizeOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, size
 func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY, sizeYtoX int) (XtoY, YtoX []*types.MsgSwapWithinBatch) {
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 
-	for i := 0; i < sizeXtoY; i++ {
+	for len(XtoY) < sizeXtoY {
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
 		//offerAmt := X.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
 		orderAmt := sdk.ZeroDec()
@@ -255,7 +255,10 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 		} else {
 			orderAmt = sdk.NewDecFromIntWithPrec(GetRandRange(r, 1000, 10000), 0)
 		}
-		orderCoin := sdk.NewCoin(denomX, orderAmt.RoundInt())
+		if orderAmt.Quo(orderPrice).TruncateInt().IsZero() {
+			continue
+		}
+		orderCoin := sdk.NewCoin(denomX, orderAmt.Ceil().TruncateInt())
 
 		XtoY = append(XtoY, &types.MsgSwapWithinBatch{
 			OfferCoin:       orderCoin,
@@ -264,7 +267,7 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 		})
 	}
 
-	for i := 0; i < sizeYtoX; i++ {
+	for len(YtoX) < sizeYtoX {
 		orderPrice := currentPrice.Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 991, 1009), 3))
 		//offerAmt := Y.ToDec().Mul(sdk.NewDecFromIntWithPrec(GetRandRange(r, 1, 100), 4))
 		orderAmt := sdk.ZeroDec()
@@ -273,7 +276,10 @@ func GetRandomOrders(denomX, denomY string, X, Y sdk.Int, r *rand.Rand, sizeXtoY
 		} else {
 			orderAmt = sdk.NewDecFromIntWithPrec(GetRandRange(r, 1000, 10000), 0)
 		}
-		orderCoin := sdk.NewCoin(denomY, orderAmt.RoundInt())
+		if orderAmt.Mul(orderPrice).TruncateInt().IsZero() {
+			continue
+		}
+		orderCoin := sdk.NewCoin(denomY, orderAmt.Ceil().TruncateInt())
 
 		YtoX = append(YtoX, &types.MsgSwapWithinBatch{
 			OfferCoin:       orderCoin,

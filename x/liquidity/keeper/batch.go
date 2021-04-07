@@ -91,6 +91,9 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 			}
 
 			k.IterateAllPoolBatchDepositMsgStates(ctx, poolBatch, func(batchMsg types.DepositMsgState) bool {
+				if batchMsg.Executed || batchMsg.ToBeDeleted || batchMsg.Succeeded {
+					return false
+				}
 				executedMsgCount++
 				if err := k.DepositLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
 					if err := k.RefundDepositLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
@@ -101,6 +104,9 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 			})
 
 			k.IterateAllPoolBatchWithdrawMsgStates(ctx, poolBatch, func(batchMsg types.WithdrawMsgState) bool {
+				if batchMsg.Executed || batchMsg.ToBeDeleted || batchMsg.Succeeded {
+					return false
+				}
 				executedMsgCount++
 				if err := k.WithdrawLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
 					if err := k.RefundWithdrawLiquidityPool(ctx, batchMsg, poolBatch); err != nil {

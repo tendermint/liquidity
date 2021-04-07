@@ -8,7 +8,11 @@ All Liquidity Module messages require a corresponding handler that performs vali
 
 ## MsgCreatePool
 
+<<<<<<< HEAD
 This message is submitted when a liquidity pool is created.
+=======
+Create new liquidity pool with the specified pool type and deposit coins.
+>>>>>>> master
 
 ```go
 type MsgCreatePool struct {
@@ -33,7 +37,11 @@ The MsgCreatePool message performs these validity checks:
 
 ## MsgDepositWithinBatch
 
+<<<<<<< HEAD
 This message is sent when a deposit to a liquidity pool batch is submitted.
+=======
+Deposit coins to the specified liquidity pool.
+>>>>>>> master
 
 ```go
 type MsgDepositWithinBatch struct {
@@ -56,7 +64,11 @@ The MsgDepositWithinBatch message performs these validity checks:
 
 ## MsgWithdrawWithinBatch
 
+<<<<<<< HEAD
 This message is sent when a withdrawal from a liquidity pool batch occurs.
+=======
+Withdraw pool coin from the specified liquidity pool.
+>>>>>>> master
 
 ```go
 type MsgWithdrawWithinBatch struct {
@@ -79,7 +91,11 @@ The MsgWithdrawWithinBatch message performs these validity checks:
 
 ## MsgSwapWithinBatch
 
+<<<<<<< HEAD
 This message is sent when coins are swapped between liquidity pools.
+=======
+// Swap offer coin with demand coin from the specified liquidity pool with the given order price.
+>>>>>>> master
 
 ```go
 type MsgSwapWithinBatch struct {

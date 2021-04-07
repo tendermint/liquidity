@@ -9,10 +9,13 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 option (gogoproto.goproto_getters_all) = false;
 
+// Structure for the pool type to distinguish the characteristics of the reserve pools
 message PoolType {
     option (gogoproto.equal) = true;
 
-    // id of target pool type, only 1 is allowed on this version.
+    // This is the id of the pool_type that will be used as pool_type_id for pool creation.
+    // In this version, pool-type-id 1 is only available
+    // {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
     uint32 id = 1 [(gogoproto.moretags) = "yaml:\"id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
@@ -43,6 +46,7 @@ message PoolType {
     string description = 5 [(gogoproto.moretags) = "yaml:\"description\""];
 }
 
+// Params defines the parameters for the liquidity module.
 message Params {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = false;
@@ -143,6 +147,7 @@ message Params {
     //        }];
 }
 
+// Pool defines the liquidity pool that contains pool information
 message Pool {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
@@ -154,7 +159,7 @@ message Pool {
             format: "uint64"
         }];
 
-    // id of the pool type
+    // id of the pool_type
     uint32 type_id = 2 [(gogoproto.moretags) = "yaml:\"type_id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
@@ -181,6 +186,7 @@ message Pool {
         }];
 }
 
+// Metadata of the state of each pool for invariant checking when genesis export or import
 message PoolMetadata {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
@@ -212,6 +218,7 @@ message PoolMetadata {
         }];
 }
 
+// PoolBatch defines the batch(es) of a given liquidity pool that contains indexes of deposit / withdraw / swap messages. Index param increments by 1 if the pool id is same.
 message PoolBatch {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
@@ -265,52 +272,7 @@ message PoolBatch {
         }];
 }
 
-message PoolBatchResponse {
-    option (gogoproto.equal) = true;
-    option (gogoproto.goproto_stringer) = true;
-
-    // index of this batch
-    uint64 index = 1 [(gogoproto.moretags) = "yaml:\"index\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"1\"",
-            format: "uint64"
-        }];
-
-    // height where this batch is begun
-    int64 begin_height = 2 [(gogoproto.moretags) = "yaml:\"begin_height\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"1000\"",
-            format: "int64"
-        }];
-
-    // last index of DepositMsgStates
-    uint64 deposit_msg_index = 3 [(gogoproto.moretags) = "yaml:\"deposit_msg_index\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"1\"",
-            format: "uint64"
-        }];
-
-    // last index of WithdrawMsgStates
-    uint64 withdraw_msg_index = 4 [(gogoproto.moretags) = "yaml:\"withdraw_msg_index\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"1\"",
-            format: "uint64"
-        }];
-
-    // last index of SwapMsgStates
-    uint64 swap_msg_index = 5 [(gogoproto.moretags) = "yaml:\"swap_msg_index\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "\"1\"",
-            format: "uint64"
-        }];
-
-    // true if executed, false if not executed yet
-    bool executed = 6 [(gogoproto.moretags) = "yaml:\"executed\"",
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            example: "true",
-        }];
-}
-
+// DepositMsgState defines the state of deposit message that contains state information as it is processed in the next batch(s)
 message DepositMsgState {
 
     // height where this message is appended to the batch
@@ -349,6 +311,7 @@ message DepositMsgState {
     MsgDepositWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
+// WithdrawMsgState defines the state of withdraw message that contains state information as it is processed in the next batch(s)
 message WithdrawMsgState {
 
     // height where this message is appended to the batch
@@ -387,6 +350,7 @@ message WithdrawMsgState {
     MsgWithdrawWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
+// SwapMsgState defines the state of swap message that contains state information as it is processed in the next batch(s)
 message SwapMsgState {
 
     // height where this message is appended to the batch
