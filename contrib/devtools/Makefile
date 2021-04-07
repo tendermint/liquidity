@@ -44,22 +44,12 @@ UNAME_M ?= $(shell uname -m)
 GOPATH ?= $(shell $(GO) env GOPATH)
 GITHUBDIR := $(GOPATH)$(FS)src$(FS)github.com
 
-BUF_VERSION ?= 0.11.0
-
 TOOLS_DESTDIR  ?= $(GOPATH)/bin
 STATIK         = $(TOOLS_DESTDIR)/statik
 RUNSIM         = $(TOOLS_DESTDIR)/runsim
 
 tools: tools-stamp
 tools-stamp: statik runsim
-	# Create dummy file to satisfy dependency and avoid
-	# rebuilding when this Makefile target is hit twice
-	# in a row.
-	touch $@
-
-proto-tools: proto-tools-stamp
-proto-tools-stamp:
-	bash contrib/devtools/proto-tools-installer.sh
 	# Create dummy file to satisfy dependency and avoid
 	# rebuilding when this Makefile target is hit twice
 	# in a row.
