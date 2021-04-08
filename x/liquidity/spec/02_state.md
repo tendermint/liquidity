@@ -34,7 +34,7 @@ The parameters of the Pool state are:
 
 ## PoolBatch
 
-The PoolBatch state stores information about the target liquidity pool, the batch index, the height at the beginning of the batch, the last index of the messages, and batch execution status.
+The PoolBatch state stores information about the target liquidity pool, the batch index, the block height at the beginning of the batch, the last index of the messages, and batch execution status.
 
 The PoolBatch state stores information about the liquidity pool batch in this structure:
 
