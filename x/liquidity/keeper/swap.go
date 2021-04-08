@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -83,7 +84,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	orderMapExecuted, _, _ := types.MakeOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	if !orderBookExecuted.Validate(lastPrice) {
-		panic(types.ErrOrderBookInvalidity)
+		return executedMsgCount, types.ErrOrderBookInvalidity
 	}
 
 	types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
@@ -93,7 +94,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	matchResultMap := make(map[uint64]types.MatchResult)
 	for _, msg := range append(matchResultXtoY, matchResultYtoX...) {
 		if _, ok := matchResultMap[msg.OrderMsgIndex]; ok {
-			panic("duplicated match order")
+			return executedMsgCount, fmt.Errorf("duplicate match order")
 		}
 		matchResultMap[msg.OrderMsgIndex] = msg
 	}
@@ -106,7 +107,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 
 	// execute transact, refund, expire, send coins with escrow, update state by TransactAndRefundSwapLiquidityPool
 	if err := k.TransactAndRefundSwapLiquidityPool(ctx, swapMsgStates, matchResultMap, pool, result); err != nil {
-		panic(err)
+		return executedMsgCount, err
 	}
 
 	return executedMsgCount, nil

@@ -399,7 +399,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 
 	// burn the escrowed pool coins
 	if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, poolCoins); err != nil {
-		panic(err)
+		return err
 	}
 
 	msg.Succeeded = true
@@ -591,27 +591,27 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 	}
 	for _, sms := range swapMsgStates {
 		if !sms.Executed && sms.Succeeded {
-			panic("can't refund not executed with succeed msg")
+			return fmt.Errorf("can't refund not executed with succeed msg")
 		}
 		if pool.Id != sms.Msg.PoolId {
-			panic("broken msg pool consistency")
+			return fmt.Errorf("broken msg pool consistency")
 		}
 
 		// Full matched, fractional matched
 		if msgAfter, ok := matchResultMap[sms.MsgIndex]; ok {
 			if sms.MsgIndex != msgAfter.OrderMsgIndex {
-				panic("broken msg consistency")
+				return fmt.Errorf("broken msg consistency")
 			}
 
-			if (*msgAfter.BatchMsg) != (*sms) {
-				panic("broken msg consistency")
+			if *msgAfter.BatchMsg != *sms {
+				return fmt.Errorf("broken msg consistency")
 			}
 
 			// Fractional match, but expired order case
 			if sms.RemainingOfferCoin.IsPositive() {
 				// Not to delete, but expired case
 				if !sms.ToBeDeleted && sms.OrderExpiryHeight <= ctx.BlockHeight() {
-					panic("Consistency of OrderExpiryHeight and ToBeDeleted is broken.")
+					return fmt.Errorf("consistency of OrderExpiryHeight and ToBeDeleted is broken")
 				} else if !sms.ToBeDeleted && sms.OrderExpiryHeight > ctx.BlockHeight() {
 					// Fractional matched, to be remaining order, not refund, only transact fractional exchange amt
 					// Add transacted coins to multisend
@@ -631,7 +631,6 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 						sdk.NewCoins(sdk.NewCoin(sms.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
 
 					sms.Succeeded = true
-
 				} else if sms.ToBeDeleted || sms.OrderExpiryHeight == ctx.BlockHeight() {
 					// Fractional matched, but expired order, transact with refund remaining offer coin
 					// Add transacted coins to multisend
@@ -653,7 +652,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 					// Refund remaining OfferCoin, ReservedOfferCoinFee
 					if input, output, err := k.ReleaseEscrowForMultiSend(sms.Msg.GetSwapRequester(),
 						sdk.NewCoins(sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))); err != nil {
-						panic(err)
+						return err
 					} else {
 						inputs = append(inputs, input)
 						outputs = append(outputs, output)
@@ -662,7 +661,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 					sms.Succeeded = true
 					sms.ToBeDeleted = true
 				} else {
-					panic("Consistency of OrderExpiryHeight and ToBeDeleted is broken.")
+					return fmt.Errorf("consistency of OrderExpiryHeight and ToBeDeleted is broken")
 				}
 			} else if sms.RemainingOfferCoin.IsZero() {
 				// Full matched case, Add transacted coins to multisend
@@ -684,7 +683,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 				sms.Succeeded = true
 				sms.ToBeDeleted = true
 			} else {
-				panic("Negative RemainingOfferCoin.")
+				return fmt.Errorf("negative RemainingOfferCoin")
 			}
 
 			ctx.EventManager().EmitEvent(
@@ -714,7 +713,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 				// Refund remaining coins
 				if input, output, err := k.ReleaseEscrowForMultiSend(sms.Msg.GetSwapRequester(),
 					sdk.NewCoins(sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))); err != nil {
-					panic(err)
+					return err
 				} else {
 					inputs = append(inputs, input)
 					outputs = append(outputs, output)
@@ -725,7 +724,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 				// Not matched and expired, Refund remaining coins
 				if input, output, err := k.ReleaseEscrowForMultiSend(sms.Msg.GetSwapRequester(),
 					sdk.NewCoins(sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))); err != nil {
-					panic(err)
+					return err
 				} else {
 					inputs = append(inputs, input)
 					outputs = append(outputs, output)
@@ -733,7 +732,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 				sms.Succeeded = false
 				sms.ToBeDeleted = true
 			} else {
-				panic("Consistency of OrderExpiryHeight and ToBeDeleted is broken.")
+				return fmt.Errorf("consistency of OrderExpiryHeight and ToBeDeleted is broken")
 			}
 		}
 	}
@@ -774,7 +773,7 @@ func (k Keeper) RefundSwaps(ctx sdk.Context, pool types.Pool, swapMsgStates []*t
 		if sms.OrderExpiryHeight == ctx.BlockHeight() {
 			if input, output, err := k.ReleaseEscrowForMultiSend(sms.Msg.GetSwapRequester(),
 				sdk.NewCoins(sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))); err != nil {
-				panic(err)
+				return err
 			} else {
 				inputs = append(inputs, input)
 				outputs = append(outputs, output)
