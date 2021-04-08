@@ -56,7 +56,7 @@ Withdraw coins in batch from liquidity pool with the `MsgWithdrawWithinBatch` me
 type MsgWithdrawWithinBatch struct {
     WithdrawerAddress string         // account address of the origin of this message
     PoolId            uint64         // id of the liquidity pool to withdraw the coins from
-    PoolCoin          sdk.Coin       // pool coin sent for reserve coin withdraw
+    PoolCoin          sdk.Coin       // pool coin sent for reserve coin withdrawal
 }
 ```
 
@@ -71,13 +71,9 @@ The MsgWithdrawWithinBatch message performs validity checks. The transaction tha
 
 ## MsgSwapWithinBatch
 
-<<<<<<< HEAD
+Swap coins between liquidity pools in batch with the `MsgSwapWithinBatch` message.
 
-# This message is sent when coins are swapped between liquidity pools.
-
-// Swap offer coin with demand coin from the specified liquidity pool with the given order price.
-
-> > > > > > > master
+Offer coins are swapped with demand coins for the given order price.
 
 ```go
 type MsgSwapWithinBatch struct {
@@ -93,15 +89,13 @@ type MsgSwapWithinBatch struct {
 
 ## Validity checks
 
-The MsgWithdrawWithinBatch message performs these validity checks:
+The MsgWithdrawWithinBatch message performs validity checks. The transaction that is triggerd with the `MsgSwapWithinBatch` message fails if:
 
-- `MsgSwapWithinBatch` fails if
-
-  - `SwapRequester` address does not exist
-  - `PoolId` does not exist
-  - `SwapTypeId` does not exist
-  - Denoms of `OfferCoin` or `DemandCoin` do not exist in `bank` module
-  - The balance of `SwapRequester` does not have enough amount of coins for `OfferCoin`
-  - `OrderPrice` <= zero
-  - `OfferCoinFee` Equal `OfferCoin` _`params.SwapFeeRate`_ `0.5` with truncating Int
-  - Has sufficient balance `OfferCoinFee` to reserve offer coin fee
+- `SwapRequester` address does not exist
+- `PoolId` does not exist
+- `SwapTypeId` does not exist
+- Denoms of `OfferCoin` or `DemandCoin` do not exist in `bank` module
+- The balance of `SwapRequester` does not have enough coins for `OfferCoin`
+- `OrderPrice` <= zero
+- `OfferCoinFee` equals `OfferCoin` _`params.SwapFeeRate`_ `0.5` with truncating Int
+- Has sufficient balance `OfferCoinFee` to reserve offer coin fee
