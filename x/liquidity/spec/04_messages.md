@@ -31,13 +31,13 @@ The `MsgCreatePool` fails if:
 
 ## MsgDepositWithinBatch
 
-Coins are deposited to a liquidity pool with the `MsgDepositWithinBatch` message.
+Coins are deposited in a batch to a liquidity pool with the `MsgDepositWithinBatch` message.
 
 ```go
 type MsgDepositWithinBatch struct {
-    DepositorAddress    string         // account address of the origin of this message
-    PoolId              uint64         // id of the liquidity pool where this message is belong to
-    DepositCoins         sdk.Coins      // deposit coins of this pool deposit message
+    DepositorAddress    string         // account address of depositor that originated this message
+    PoolId              uint64         // id of the liquidity pool to receive deposit
+    DepositCoins         sdk.Coins      // deposit coins
 }
 ```
 
@@ -45,12 +45,12 @@ type MsgDepositWithinBatch struct {
 
 The MsgDepositWithinBatch message performs these validity checks:
 
-- `MsgDepositWithinBatch` fails if
+The `MsgDepositWithinBatch` fails if:
 
-  - `Depositor` address does not exist
-  - `PoolId` does not exist
-  - The denoms of `DepositCoins` are not composed of `ReserveCoinDenoms` of the `LiquidityPool` with given `PoolId`
-  - The balance of `Depositor` does not have enough coins for `DepositCoins`
+- `Depositor` address does not exist
+- `PoolId` does not exist
+- The denoms of `DepositCoins` are not composed of existing `ReserveCoinDenoms` of the specified `LiquidityPool`
+- The balance of `Depositor` does not have enough coins for `DepositCoins`
 
 ## MsgWithdrawWithinBatch
 
