@@ -17,8 +17,8 @@ Create new liquidity pool with the specified pool type and deposit coins.
 ```go
 type MsgCreatePool struct {
     PoolCreatorAddress  string         // account address of the origin of this message
-    PoolTypeId          uint32         // id of the liquidity pool type of this new liquidity pool
-    DepositCoins         sdk.Coins      // deposit coins for initial pool deposit into this new liquidity pool
+    PoolTypeId          uint32         // id of the new liquidity pool
+    DepositCoins         sdk.Coins      // deposit initial coins for new liquidity pool
 }
 ```
 
