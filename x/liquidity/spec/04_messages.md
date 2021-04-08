@@ -2,17 +2,11 @@
 
  # Messages
 
-Messages (Msg) trigger state transitions. Msgs are wrapped in transactions (Txs) that clients submit to the network. The Cosmos SDK wraps and unwraps Liquidity Module messages from transactions.
-
-All Liquidity Module messages require a corresponding handler that performs validation logic. See [State Transitions](./03_state_transitions).
+Messages (Msg) are objects that trigger state transitions. Msgs are wrapped in transactions (Txs) that clients submit to the network. The Cosmos SDK wraps and unwraps Liquidity Module messages from transactions.
 
 ## MsgCreatePool
 
-<<<<<<< HEAD
-This message is submitted when a liquidity pool is created.
-=======
-Create new liquidity pool with the specified pool type and deposit coins.
->>>>>>> master
+A liquidity pool is created and initial coins are deposited with the `MsgCreatePool` message.
 
 ```go
 type MsgCreatePool struct {
@@ -24,24 +18,20 @@ type MsgCreatePool struct {
 
 ### Validity checks
 
-The MsgCreatePool message performs these validity checks:
+These validity checks are performed for MsgCreatePool messages:
 
-- `MsgCreatePool` fails if
+The `MsgCreatePool` fails if:
 
-  - `PoolCreator` address does not exist
-  - `PoolTypeId` does not exist in parameters
-  - A duplicate `LiquidityPool` with same `PoolTypeId` and Reserve Coin Denoms exists
-  - One or more coins in ReserveCoinDenoms do not exist in `bank` module
-  - The balance of `PoolCreator` does not have enough amount of coins for `DepositCoins`
-  - The balance of `PoolCreator` does not have enough amount of coins for paying `PoolCreationFee`
+- `PoolCreator` address does not exist
+- `PoolTypeId` does not exist in parameters
+- A duplicate `LiquidityPool` with same `PoolTypeId` and `ReserveCoinDenoms` exists
+- One or more coins in `ReserveCoinDenoms` do not exist in `bank` module
+- The balance of `PoolCreator` does not have enough amount of coins for `DepositCoins`
+- The balance of `PoolCreator` does not have enough coins for `PoolCreationFee`
 
 ## MsgDepositWithinBatch
 
-<<<<<<< HEAD
-This message is sent when a deposit to a liquidity pool batch is submitted.
-=======
-Deposit coins to the specified liquidity pool.
->>>>>>> master
+Coins are deposited to a liquidity pool with the `MsgDepositWithinBatch` message.
 
 ```go
 type MsgDepositWithinBatch struct {
@@ -51,7 +41,7 @@ type MsgDepositWithinBatch struct {
 }
 ```
 
-### Validity checks
+## Validity checks
 
 The MsgDepositWithinBatch message performs these validity checks:
 
@@ -65,10 +55,12 @@ The MsgDepositWithinBatch message performs these validity checks:
 ## MsgWithdrawWithinBatch
 
 <<<<<<< HEAD
-This message is sent when a withdrawal from a liquidity pool batch occurs.
-=======
+
+# This message is sent when a withdrawal from a liquidity pool batch occurs.
+
 Withdraw pool coin from the specified liquidity pool.
->>>>>>> master
+
+> > > > > > > master
 
 ```go
 type MsgWithdrawWithinBatch struct {
@@ -78,7 +70,7 @@ type MsgWithdrawWithinBatch struct {
 }
 ```
 
-### Validity checks
+## Validity checks
 
 The MsgWithdrawWithinBatch message performs these validity checks:
 
@@ -92,10 +84,12 @@ The MsgWithdrawWithinBatch message performs these validity checks:
 ## MsgSwapWithinBatch
 
 <<<<<<< HEAD
-This message is sent when coins are swapped between liquidity pools.
-=======
+
+# This message is sent when coins are swapped between liquidity pools.
+
 // Swap offer coin with demand coin from the specified liquidity pool with the given order price.
->>>>>>> master
+
+> > > > > > > master
 
 ```go
 type MsgSwapWithinBatch struct {
@@ -109,7 +103,7 @@ type MsgSwapWithinBatch struct {
 }
 ```
 
-### Validity checks
+## Validity checks
 
 The MsgWithdrawWithinBatch message performs these validity checks:
 
