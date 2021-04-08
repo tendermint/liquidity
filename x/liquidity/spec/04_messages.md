@@ -78,18 +78,18 @@ Offer coins are swapped with demand coins for the given order price.
 ```go
 type MsgSwapWithinBatch struct {
     SwapRequesterAddress string     // account address of the origin of this message
-    PoolId               uint64     // id of the liquidity pool where this message is belong to
+    PoolId               uint64     // id of the liquidity pool
     SwapTypeId           uint32     // swap type id of this swap message, default 1: InstantSwap, requesting instant swap
-    OfferCoin            sdk.Coin   // offer coin of this swap message
-    DemandCoinDenom      string     // denom of demand coin of this swap message
+    OfferCoin            sdk.Coin   // offer coin of this swap
+    DemandCoinDenom      string     // denom of demand coin of this swap
     OfferCoinFee         sdk.Coin   // offer coin fee for pay fees in half offer coin
-    OrderPrice           sdk.Dec    // limit order price for the order, the price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
+    OrderPrice           sdk.Dec    // limit order price where the price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
 }
 ```
 
 ## Validity checks
 
-The MsgWithdrawWithinBatch message performs validity checks. The transaction that is triggerd with the `MsgSwapWithinBatch` message fails if:
+The MsgWithdrawWithinBatch message performs validity checks. The transaction that is triggered with the `MsgSwapWithinBatch` message fails if:
 
 - `SwapRequester` address does not exist
 - `PoolId` does not exist
