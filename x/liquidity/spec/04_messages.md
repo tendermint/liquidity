@@ -18,9 +18,7 @@ type MsgCreatePool struct {
 
 ### Validity checks
 
-These validity checks are performed for MsgCreatePool messages:
-
-The `MsgCreatePool` fails if:
+Validity checks are performed for MsgCreatePool messages. The transaction that is triggered with `MsgCreatePool` fails if:
 
 - `PoolCreator` address does not exist
 - `PoolTypeId` does not exist in parameters
@@ -43,9 +41,7 @@ type MsgDepositWithinBatch struct {
 
 ## Validity checks
 
-The MsgDepositWithinBatch message performs these validity checks:
-
-The `MsgDepositWithinBatch` fails if:
+The MsgDepositWithinBatch message performs validity checks. The transaction that is triggered with the `MsgDepositWithinBatch` message fails if:
 
 - `Depositor` address does not exist
 - `PoolId` does not exist
@@ -54,32 +50,24 @@ The `MsgDepositWithinBatch` fails if:
 
 ## MsgWithdrawWithinBatch
 
-<<<<<<< HEAD
-
-# This message is sent when a withdrawal from a liquidity pool batch occurs.
-
-Withdraw pool coin from the specified liquidity pool.
-
-> > > > > > > master
+Withdraw coins in batch from liquidity pool with the `MsgWithdrawWithinBatch` message.
 
 ```go
 type MsgWithdrawWithinBatch struct {
     WithdrawerAddress string         // account address of the origin of this message
-    PoolId            uint64         // id of the liquidity pool where this message is belong to
+    PoolId            uint64         // id of the liquidity pool to withdraw the coins from
     PoolCoin          sdk.Coin       // pool coin sent for reserve coin withdraw
 }
 ```
 
 ## Validity checks
 
-The MsgWithdrawWithinBatch message performs these validity checks:
+The MsgWithdrawWithinBatch message performs validity checks. The transaction that is triggered with the `MsgWithdrawWithinBatch` message fails if:
 
-- `MsgWithdrawWithinBatch` fails if
-
-  - `Withdrawer` address does not exist
-  - `PoolId` does not exist
-  - The denom of `PoolCoin` are not equal to the `PoolCoinDenom` of the `LiquidityPool` with given `PoolId`
-  - The balance of `Depositor` does not have enough coins for `PoolCoin`
+- `Withdrawer` address does not exist
+- `PoolId` does not exist
+- The denom of `PoolCoin` are not equal to the `PoolCoinDenom` of the `LiquidityPool`
+- The balance of `Depositor` does not have enough coins for `PoolCoin`
 
 ## MsgSwapWithinBatch
 
