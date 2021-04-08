@@ -91,7 +91,7 @@ type SwapMsgState struct {
     Executed           bool   // true if executed on this batch, false if not executed
     Succeeded          bool   // true if executed successfully on this batch, false if failed
     ToBeDelete         bool   // true if ready to be deleted on kvstore, false if not ready to be deleted
-    OrderExpiryHeight  int64  // swap orders are cancelled when current height is equal or greater than ExpiryHeight
+    OrderExpiryHeight  int64  // swap orders are cancelled when current height is equal to or greater than ExpiryHeight
     ExchangedOfferCoin sdk.Coin // offer coin exchanged so far
     RemainingOfferCoin sdk.Coin // offer coin  remaining to be exchanged
     Msg                MsgSwapWithinBatch
