@@ -220,8 +220,7 @@ func GetCmdQueryPoolBatchDepositMsgs() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query all deposit messages of the liquidity pool batch on the specified pool
 
-if batch messages are normally processed from the endblock,
-the resulting state is applied and removes the messages from the beginblock in the next block.
+if batch messages are normally processed from the endblock, the resulting state is applied, and the messages are removed in the beginning of next block.
 to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
 
 Example:
