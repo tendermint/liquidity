@@ -10,7 +10,7 @@ Delete `{*action}MsgState` messages that have `ToBeDeleted` state and then reset
 
 ## Reinitialize executed pool batch to next liquidity pool batch
 
-Reinitialize executed `PoolBatch` for the next batch. The Reinitialization process includes the following actions:
+Reinitialize executed `PoolBatch` for the next batch. The reinitialization process includes the following actions:
 
 - Increase state `BatchIndex` of the batch
 - Reset state `BeginHeight` as current block height
