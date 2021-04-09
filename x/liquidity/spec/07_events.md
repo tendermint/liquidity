@@ -2,7 +2,7 @@
 
  # Events
 
-The Liquidity Module emits the following events.
+The liquidity module emits the following events.
 
 ## Handlers
 
