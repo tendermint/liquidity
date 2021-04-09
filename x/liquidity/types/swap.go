@@ -608,6 +608,9 @@ func UpdateSwapMsgStates(X, Y sdk.Dec, XtoY, YtoX []*SwapMsgState, matchResultXt
 			sms.ExchangedOfferCoin.Amount = sms.ExchangedOfferCoin.Amount.Add(match.TransactedCoinAmt.TruncateInt())
 			sms.RemainingOfferCoin.Amount = sms.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt.TruncateInt())
 			sms.ReservedOfferCoinFee.Amount = sms.ReservedOfferCoinFee.Amount.Sub(match.OfferCoinFeeAmt.TruncateInt())
+			if sms.ExchangedOfferCoin.IsNegative() || sms.RemainingOfferCoin.IsNegative() || sms.ReservedOfferCoinFee.IsNegative() {
+				panic("negative coin amount after update")
+			}
 			if sms.RemainingOfferCoin.Amount.Equal(sdk.OneInt()) {
 				decimalErrorY = decimalErrorY.Add(sdk.OneDec())
 				sms.RemainingOfferCoin.Amount = sdk.ZeroInt()
@@ -624,6 +627,9 @@ func UpdateSwapMsgStates(X, Y sdk.Dec, XtoY, YtoX []*SwapMsgState, matchResultXt
 			sms.ExchangedOfferCoin.Amount = sms.ExchangedOfferCoin.Amount.Add(match.TransactedCoinAmt.TruncateInt())
 			sms.RemainingOfferCoin.Amount = sms.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt.TruncateInt())
 			sms.ReservedOfferCoinFee.Amount = sms.ReservedOfferCoinFee.Amount.Sub(match.OfferCoinFeeAmt.TruncateInt())
+			if sms.ExchangedOfferCoin.IsNegative() || sms.RemainingOfferCoin.IsNegative() || sms.ReservedOfferCoinFee.IsNegative() {
+				panic("negative coin amount after update")
+			}
 			sms.Succeeded = true
 			sms.ToBeDeleted = false
 		}
