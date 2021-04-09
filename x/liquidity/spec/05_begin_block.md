@@ -2,7 +2,7 @@
 
  # Begin-Block
 
-Begin block operations for the Liquidity Module.
+Begin block operations for the liquidity module.
 
 ## Delete pool batch messages and reset states for pool batch messages
 
