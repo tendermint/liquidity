@@ -40,7 +40,7 @@ Initial mint amount of pool coin upon pool creation
 
 ## MaxReserveCoinAmount
 
-Limit the size of each liquidity pool in the beginning phase of Liquidity Module adoption to minimize risk on error or exploitation deposit transaction will fail if the total reserve coin amount after the deposit is larger than the parameter default value is zero, zero means no limit
+Limit the size of each liquidity pool in the beginning phase of liquidity module adoption to minimize risk on error or exploitation deposit transaction will fail if the total reserve coin amount after the deposit is larger than the parameter default value is zero, zero means no limit
 
 ## PoolCreationFee
 
