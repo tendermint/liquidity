@@ -2,19 +2,23 @@
 
  # Before-End-Block
 
+Operations that occur before the end-block operations for the Liquidity Module.
+
 ## Append messages to LiquidityPoolBatch
 
 After successful message verification and coin `escrow` process, the incoming `MsgDepositWithinBatch`, `MsgWithdrawWithinBatch`, and `MsgSwapWithinBatch` messages are appended to the current `PoolBatch` of the corresponding `Pool`.
 
 # End-Block
 
+End-block operations for the Liquidity Module.
+
 ## Execute LiquidityPoolBatch upon execution heights
 
-If there are `{*action}MsgState` messages that have not yet executed in the`PoolBatch` for each `Pool`, the`PoolBatch`is executed. This batch could contain `DepositLiquidityPool`, `WithdrawLiquidityPool`, and `SwapExecution` process.
+If there are `{*action}MsgState` messages that have not yet executed in the `PoolBatch` for each `Pool`, the `PoolBatch` is executed. This batch contains one or more `DepositLiquidityPool`, `WithdrawLiquidityPool`, and `SwapExecution` processes.
 
 ### Transact and refund for each message
 
-Transactions are made through `escrow`. Refunds are made for cancellations, partial cancellations, expiration, and failed messages.
+Transactions are made through the `escrow` transaction. Refunds are made for cancellations, partial cancellations, expiration, and failed messages.
 
 ### Set states for each message according to the results
 
