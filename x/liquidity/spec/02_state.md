@@ -2,7 +2,7 @@
 
  # State
 
-The Liquidity Module `x/liquidity` keeps track of the Pool and PoolBatch states. The state represents your app at a given moment.
+The liquidity module `x/liquidity` keeps track of the Pool and PoolBatch states. The state represents your app at a given moment.
 
 ## Pool
 
