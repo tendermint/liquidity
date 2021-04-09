@@ -619,9 +619,9 @@ func UpdateSwapMsgStates(X, Y sdk.Dec, XtoY, YtoX []*SwapMsgState, matchResultXt
 				decimalErrorY = decimalErrorY.Add(sdk.OneDec())
 				sms.RemainingOfferCoin.Amount = sdk.ZeroInt()
 			}
-			if sms.RemainingOfferCoin.Amount.Add(sms.ExchangedOfferCoin.Amount).GT(sms.Msg.OfferCoin.Amount) ||
-				!sms.RemainingOfferCoin.IsZero() || sms.ReservedOfferCoinFee.Amount.GTE(sdk.NewInt(2)) {
-				panic("remaining not matched 1")
+			if !sms.RemainingOfferCoin.IsZero() || sms.ExchangedOfferCoin.Amount.GT(sms.Msg.OfferCoin.Amount) ||
+				sms.ReservedOfferCoinFee.Amount.GT(sdk.OneInt()) {
+				panic("invalid state after update")
 			} else {
 				sms.Succeeded = true
 				sms.ToBeDeleted = true
