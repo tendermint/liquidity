@@ -2,7 +2,7 @@
 
  # Before-End-Block
 
-Operations that occur before the end-block operations for the Liquidity Module.
+Operations that occur before the end-block operations for the liquidity module.
 
 ## Append messages to LiquidityPoolBatch
 
@@ -22,7 +22,7 @@ Transactions are made through the `escrow` transaction. Refunds are made for can
 
 ### Set states for each message according to the results
 
-After transact and refund for each message, update the state of each `{*action}MsgState` message according to the results.
+After transact and refund transactions occur for each message, update the state of each `{*action}MsgState` message according to the results.
 
 Even if the message is completed or expired:
 
