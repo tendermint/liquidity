@@ -2,11 +2,11 @@
 
  # State Transitions
 
-Messages (Msg) trigger state transitions.
+These messages (Msg) in the liquidity module trigger state transitions.
 
 ## Coin Escrow for Liquidity Module Messages
 
-Transaction confirmation causes state transition on `Bank` module. Some messages on the Liquidity Module require coin escrow before confirmation.
+Transaction confirmation causes state transition on `Bank` module. Some messages on the liquidity module require coin escrow before confirmation.
 
 The coin escrow processes for each message type are:
 
@@ -43,6 +43,8 @@ After a successful withdraw transaction, escrowed pool coins are burned and a co
 You can see a Python simulation script on the B-Harvest [GitHub repo](https://github.com/b-harvest/Liquidity-Module-For-the-Hub/blob/master/pseudo-batch-execution-logic/batch.py).
 
 ## Swap Price Calculation
+
+Swap execution applies a universal swap ratio for all swap requests.
 
 Swap price calculations are used for these cases.
 
@@ -219,8 +221,8 @@ Variables:
 
 ### Swap Fee Payment
 
-- Swap fees are calculated after above calculation process
-- Swap fees are proportional to the coins received from matched swap orders
+- Swap fees are calculated after the swap price is calculated.
+- Swap fees are proportional to the coins received from matched swap orders.
 
   - `SwapFee` = `ReceivedMatchedCoin` * `SwapFeeRate`
 
@@ -228,8 +230,8 @@ Variables:
 
 ## Cancel unexecuted swap orders with expired CancelHeight
 
-After execution of `PoolBatch` all remaining swap orders with `CancelHeight` equal to or higher than current height are cancelled.
+After execution of `PoolBatch`, all remaining swap orders with `CancelHeight` equal to or higher than current height are cancelled.
 
 ## Refund escrowed coins
 
-Refund escrowed coins for cancelled swap order and failed create pool, deposit, withdraw messages.
+Refunds are issued for escrowed coins for cancelled swap order and failed create pool, deposit, and withdraw messages.
