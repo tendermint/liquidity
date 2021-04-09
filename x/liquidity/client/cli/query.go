@@ -220,8 +220,8 @@ func GetCmdQueryPoolBatchDepositMsgs() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query all deposit messages of the liquidity pool batch on the specified pool
 
-if batch messages are normally processed from the endblock, the resulting state is applied, and the messages are removed in the beginning of next block.
-to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
+If batch messages are normally processed from the endblock, the resulting state is applied and the messages are removed in the beginning of next block.
+To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
 $ %s query liquidity deposits 1
@@ -267,9 +267,9 @@ func GetCmdQueryPoolBatchDepositMsg() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query the deposit messages on the liquidity pool batch for the specified pool-id and msg-index
 
-if the batch message are normally processed and from the endblock,
-the resulting state is applied and removed the messages from the beginblock in the next block.
-to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
+If batch messages are normally processed from the endblock,
+the resulting state is applied and the messages are removed from the beginning of the next block.
+To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
 $ %s query liquidity deposit 1 20
@@ -316,9 +316,9 @@ func GetCmdQueryPoolBatchWithdrawMsgs() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query all withdraw messages on the liquidity pool batch for the specified pool-id
 
-if batch messages are normally processed from the endblock,
-the resulting state is applied and removes the messages from the beginblock in the next block.
-to query for past blocks, you can specify the block height using the REST/gRPC API of a node that is not pruned
+If batch messages are normally processed from the endblock,
+the resulting state is applied and the messages are removed in the beginning of next block.
+To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
 $ %s query liquidity withdraws 1
@@ -365,8 +365,8 @@ func GetCmdQueryPoolBatchWithdrawMsg() *cobra.Command {
 			fmt.Sprintf(`Query the withdraw messages in the liquidity pool batch for the specified pool-id and msg-index
 
 if the batch message are normally processed from the endblock,
-the resulting state is applied and removes the messages from the beginblock in the next block.
-to query for past blocks, specify the block height using the REST/gRPC API of a node that is not pruned
+the resulting state is applied and the messages are removed in the beginning of next block.
+To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
 $ %s query liquidity withdraw 1 20
@@ -413,9 +413,9 @@ func GetCmdQueryPoolBatchSwapMsgs() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query all swap messages in the liquidity pool batch for the specified pool-id
 
-if batch messages are normally processed from the endblock,
-the resulting state is applied and removes the messages from the beginblock in the next block.
-to query for past blocks, specify the block height using the REST/gRPC API of a node that is not pruned
+If batch messages are normally processed from the endblock,
+the resulting state is applied and the messages are removed in the beginning of next block.
+To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
 $ %s query liquidity swaps 1
@@ -461,9 +461,9 @@ func GetCmdQueryPoolBatchSwapMsg() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
 
-if the batch message are normally processed and from the endblock,
-the resulting state is applied and removed the messages from the beginblock in the next block.
-to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
+If the batch message are normally processed and from the endblock,
+the resulting state is applied and the messages are removed in the beginning of next block.
+To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
 $ %s query liquidity swap 1 20
