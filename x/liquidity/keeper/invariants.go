@@ -197,20 +197,20 @@ func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdr
 }
 
 // SwapMatchingInvariants checks swap matching results of both X to Y and Y to X cases.
-func SwapMatchingInvariants(XtoY, YtoX []*types.SwapMsgState, fractionalCntX, fractionalCntY int, matchResultXtoY, matchResultYtoX []types.MatchResult) {
+func SwapMatchingInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult) {
 	beforeMatchingXtoYLen := len(XtoY)
 	beforeMatchingYtoXLen := len(YtoX)
 	afterMatchingXtoYLen := len(matchResultXtoY)
 	afterMatchingYtoXLen := len(matchResultYtoX)
 
-	totalMatchingXtoYLen := beforeMatchingXtoYLen - afterMatchingXtoYLen + fractionalCntX
-	totalMatchingYtoXLen := beforeMatchingYtoXLen - afterMatchingYtoXLen + fractionalCntY
+	notMatchedXtoYLen := beforeMatchingXtoYLen - afterMatchingXtoYLen
+	notMatchedYtoXLen := beforeMatchingYtoXLen - afterMatchingYtoXLen
 
-	if totalMatchingXtoYLen != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
+	if notMatchedXtoYLen != types.CountNotMatchedMsgs(XtoY) {
 		panic("invariant check fails due to invalid XtoY match length")
 	}
 
-	if totalMatchingYtoXLen != types.CountNotMatchedMsgs(YtoX)+types.CountFractionalMatchedMsgs(YtoX) {
+	if notMatchedYtoXLen != types.CountNotMatchedMsgs(YtoX) {
 		panic("invariant check fails due to invalid YtoX match length")
 	}
 }
