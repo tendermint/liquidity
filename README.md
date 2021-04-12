@@ -40,7 +40,7 @@ For detailed Mechanism, you can find on our recent [Paper](doc/LiquidityModuleLi
 | Requirement | Notes            |
 | ----------- | ---------------- |
 | Go version  | Go1.15 or higher |
-| Cosmos-SDK  | v0.42.1          |
+| Cosmos-SDK  | v0.42.4          |
 
 ### Get Liquidity Module source code 
 ```bash 
