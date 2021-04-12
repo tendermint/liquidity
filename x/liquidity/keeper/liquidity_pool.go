@@ -589,6 +589,13 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 	if !found {
 		return types.ErrPoolBatchNotExists
 	}
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
 	for _, sms := range swapMsgStates {
 		if !sms.Executed && sms.Succeeded {
 			return fmt.Errorf("can't refund not executed with succeed msg")
@@ -598,14 +605,9 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 		}
 
 		// Full matched, fractional matched
-		if msgAfter, ok := matchResultMap[sms.MsgIndex]; ok {
-			if sms.MsgIndex != msgAfter.OrderMsgIndex {
-				return fmt.Errorf("broken msg consistency")
-			}
-
-			if *msgAfter.BatchMsg != *sms {
-				return fmt.Errorf("broken msg consistency")
-			}
+		if match, ok := matchResultMap[sms.MsgIndex]; ok {
+			offerCoinDenom := sms.Msg.OfferCoin.Denom
+			demandCoinDenom := sms.Msg.DemandCoinDenom
 
 			// Fractional match, but expired order case
 			if sms.RemainingOfferCoin.IsPositive() {
@@ -615,49 +617,22 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 				} else if !sms.ToBeDeleted && sms.OrderExpiryHeight > ctx.BlockHeight() {
 					// Fractional matched, to be remaining order, not refund, only transact fractional exchange amt
 					// Add transacted coins to multisend
-					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
-					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
-					inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
-					outputs = append(outputs, banktypes.NewOutput(sms.Msg.GetSwapRequester(),
-						sdk.NewCoins(sdk.NewCoin(sms.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
-
+					sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.TransactedCoinAmt.TruncateInt()))
+					sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(
+						demandCoinDenom, match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()))
 					// Add swap offer coin fee to multisend
-					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
-					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
-
+					sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.OfferCoinFeeAmt.TruncateInt()))
 					sms.Succeeded = true
 				} else if sms.ToBeDeleted || sms.OrderExpiryHeight == ctx.BlockHeight() {
 					// Fractional matched, but expired order, transact with refund remaining offer coin
 					// Add transacted coins to multisend
-					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
-					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
-					inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
-					outputs = append(outputs, banktypes.NewOutput(sms.Msg.GetSwapRequester(),
-						sdk.NewCoins(sdk.NewCoin(sms.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
-
+					sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.TransactedCoinAmt.TruncateInt()))
+					sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(
+						demandCoinDenom, match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()))
 					// Add swap offer coin fee to multisend
-					inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
-					outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-						sdk.NewCoins(sdk.NewCoin(sms.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
-
+					sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.OfferCoinFeeAmt.TruncateInt()))
 					// Refund remaining OfferCoin, ReservedOfferCoinFee
-					if input, output, err := k.ReleaseEscrowForMultiSend(sms.Msg.GetSwapRequester(),
-						sdk.NewCoins(sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))); err != nil {
-						return err
-					} else {
-						inputs = append(inputs, input)
-						outputs = append(outputs, output)
-					}
-
+					sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
 					sms.Succeeded = true
 					sms.ToBeDeleted = true
 				} else {
@@ -665,21 +640,11 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 				}
 			} else if sms.RemainingOfferCoin.IsZero() {
 				// Full matched case, Add transacted coins to multisend
-				inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-					sdk.NewCoins(sdk.NewCoin(sms.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
-				outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-					sdk.NewCoins(sdk.NewCoin(sms.ExchangedOfferCoin.Denom, msgAfter.TransactedCoinAmt.TruncateInt()))))
-				inputs = append(inputs, banktypes.NewInput(poolReserveAcc,
-					sdk.NewCoins(sdk.NewCoin(sms.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
-				outputs = append(outputs, banktypes.NewOutput(sms.Msg.GetSwapRequester(),
-					sdk.NewCoins(sdk.NewCoin(sms.Msg.DemandCoinDenom, msgAfter.ExchangedDemandCoinAmt.Sub(msgAfter.ExchangedCoinFeeAmt).TruncateInt()))))
-
+				sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.TransactedCoinAmt.TruncateInt()))
+				sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(
+					demandCoinDenom, match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()))
 				// Add swap offer coin fee to multisend
-				inputs = append(inputs, banktypes.NewInput(batchEscrowAcc,
-					sdk.NewCoins(sdk.NewCoin(sms.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
-				outputs = append(outputs, banktypes.NewOutput(poolReserveAcc,
-					sdk.NewCoins(sdk.NewCoin(sms.ReservedOfferCoinFee.Denom, msgAfter.OfferCoinFeeAmt.TruncateInt()))))
-
+				sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.OfferCoinFeeAmt.TruncateInt()))
 				sms.Succeeded = true
 				sms.ToBeDeleted = true
 			} else {
@@ -691,19 +656,19 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 					types.EventTypeSwapTransacted,
 					sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
 					sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
-					sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msgAfter.BatchMsg.MsgIndex, 10)),
-					sdk.NewAttribute(types.AttributeValueSwapRequester, msgAfter.BatchMsg.Msg.GetSwapRequester().String()),
-					sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(msgAfter.BatchMsg.Msg.SwapTypeId), 10)),
-					sdk.NewAttribute(types.AttributeValueOfferCoinDenom, msgAfter.BatchMsg.Msg.OfferCoin.Denom),
-					sdk.NewAttribute(types.AttributeValueOfferCoinAmount, msgAfter.BatchMsg.Msg.OfferCoin.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueOrderPrice, msgAfter.BatchMsg.Msg.OrderPrice.String()),
+					sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(match.BatchMsg.MsgIndex, 10)),
+					sdk.NewAttribute(types.AttributeValueSwapRequester, match.BatchMsg.Msg.GetSwapRequester().String()),
+					sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(match.BatchMsg.Msg.SwapTypeId), 10)),
+					sdk.NewAttribute(types.AttributeValueOfferCoinDenom, match.BatchMsg.Msg.OfferCoin.Denom),
+					sdk.NewAttribute(types.AttributeValueOfferCoinAmount, match.BatchMsg.Msg.OfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueOrderPrice, match.BatchMsg.Msg.OrderPrice.String()),
 					sdk.NewAttribute(types.AttributeValueSwapPrice, batchResult.SwapPrice.String()),
-					sdk.NewAttribute(types.AttributeValueTransactedCoinAmount, msgAfter.TransactedCoinAmt.String()),
-					sdk.NewAttribute(types.AttributeValueRemainingOfferCoinAmount, msgAfter.BatchMsg.RemainingOfferCoin.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, msgAfter.BatchMsg.ExchangedOfferCoin.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueOfferCoinFeeAmount, msgAfter.OfferCoinFeeAmt.String()),
-					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, msgAfter.BatchMsg.ReservedOfferCoinFee.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(msgAfter.OrderExpiryHeight, 10)),
+					sdk.NewAttribute(types.AttributeValueTransactedCoinAmount, match.TransactedCoinAmt.String()),
+					sdk.NewAttribute(types.AttributeValueRemainingOfferCoinAmount, match.BatchMsg.RemainingOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, match.BatchMsg.ExchangedOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueOfferCoinFeeAmount, match.OfferCoinFeeAmt.String()),
+					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, match.BatchMsg.ReservedOfferCoinFee.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(match.OrderExpiryHeight, 10)),
 					sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
 				))
 		} else {
@@ -711,24 +676,12 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 			if !sms.ToBeDeleted && sms.OrderExpiryHeight > ctx.BlockHeight() {
 				// Have fractional matching history, not matched and expired, remaining refund
 				// Refund remaining coins
-				if input, output, err := k.ReleaseEscrowForMultiSend(sms.Msg.GetSwapRequester(),
-					sdk.NewCoins(sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))); err != nil {
-					return err
-				} else {
-					inputs = append(inputs, input)
-					outputs = append(outputs, output)
-				}
+				sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
 				sms.Succeeded = false
 				sms.ToBeDeleted = true
 			} else if sms.ToBeDeleted && sms.OrderExpiryHeight == ctx.BlockHeight() {
 				// Not matched and expired, Refund remaining coins
-				if input, output, err := k.ReleaseEscrowForMultiSend(sms.Msg.GetSwapRequester(),
-					sdk.NewCoins(sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))); err != nil {
-					return err
-				} else {
-					inputs = append(inputs, input)
-					outputs = append(outputs, output)
-				}
+				sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
 				sms.Succeeded = false
 				sms.ToBeDeleted = true
 			} else {
@@ -736,29 +689,6 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 			}
 		}
 	}
-	// remove zero coins
-	newI := 0
-	for _, i := range inputs {
-		if !i.Coins.IsValid() {
-			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
-		}
-		if !i.Coins.Empty() {
-			inputs[newI] = i
-			newI++
-		}
-	}
-	inputs = inputs[:newI]
-	newI = 0
-	for _, i := range outputs {
-		if !i.Coins.IsValid() {
-			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
-		}
-		if !i.Coins.Empty() {
-			outputs[newI] = i
-			newI++
-		}
-	}
-	outputs = outputs[:newI]
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		return err
 	}
@@ -769,42 +699,20 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 func (k Keeper) RefundSwaps(ctx sdk.Context, pool types.Pool, swapMsgStates []*types.SwapMsgState) error {
 	var inputs []banktypes.Input
 	var outputs []banktypes.Output
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
 	for _, sms := range swapMsgStates {
 		if sms.OrderExpiryHeight == ctx.BlockHeight() {
-			if input, output, err := k.ReleaseEscrowForMultiSend(sms.Msg.GetSwapRequester(),
-				sdk.NewCoins(sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))); err != nil {
-				return err
-			} else {
-				inputs = append(inputs, input)
-				outputs = append(outputs, output)
-			}
+			sendCoin(k.accountKeeper.GetModuleAddress(types.ModuleName), sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
 			sms.Succeeded = false
 			sms.ToBeDeleted = true
 		}
 	}
-	// remove zero coins
-	newI := 0
-	for _, i := range inputs {
-		if !i.Coins.IsValid() {
-			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
-		}
-		if !i.Coins.Empty() {
-			inputs[newI] = i
-			newI++
-		}
-	}
-	inputs = inputs[:newI]
-	newI = 0
-	for _, i := range outputs {
-		if !i.Coins.IsValid() {
-			i.Coins = sdk.NewCoins(i.Coins...) // for sanitizeCoins, remove zero coin
-		}
-		if !i.Coins.Empty() {
-			outputs[newI] = i
-			newI++
-		}
-	}
-	outputs = outputs[:newI]
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		return err
 	}
