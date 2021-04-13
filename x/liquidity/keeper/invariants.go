@@ -274,7 +274,7 @@ func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResul
 	}
 
 	for k, v := range matchResultMap {
-		if k != v.OrderMsgIndex {
+		if k != v.SwapMsgState.MsgIndex {
 			panic("broken map consistency")
 		}
 	}
@@ -301,8 +301,8 @@ func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResul
 		}
 
 		if msgAfter, ok := matchResultMap[sms.MsgIndex]; ok {
-			if sms.MsgIndex == msgAfter.BatchMsg.MsgIndex {
-				if *(sms) != *(msgAfter.BatchMsg) || sms != msgAfter.BatchMsg {
+			if sms.MsgIndex == msgAfter.SwapMsgState.MsgIndex {
+				if *(sms) != *(msgAfter.SwapMsgState) || sms != msgAfter.SwapMsgState {
 					panic("batch message not matched")
 				} else {
 					break
