@@ -597,58 +597,33 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 		}
 	}
 	for _, sms := range swapMsgStates {
-		if !sms.Executed && sms.Succeeded {
-			return fmt.Errorf("can't refund not executed with succeed msg")
-		}
 		if pool.Id != sms.Msg.PoolId {
 			return fmt.Errorf("broken msg pool consistency")
 		}
+		if !sms.Executed && sms.Succeeded {
+			return fmt.Errorf("can't refund not executed with succeed msg")
+		}
+		if sms.RemainingOfferCoin.IsNegative() {
+			return fmt.Errorf("negative RemainingOfferCoin")
+		} else if sms.RemainingOfferCoin.IsPositive() &&
+			((!sms.ToBeDeleted && sms.OrderExpiryHeight <= ctx.BlockHeight()) ||
+				(sms.ToBeDeleted && sms.OrderExpiryHeight != ctx.BlockHeight())) {
+			return fmt.Errorf("consistency of OrderExpiryHeight and ToBeDeleted flag is broken")
+		}
 
-		// Full matched, fractional matched
 		if match, ok := matchResultMap[sms.MsgIndex]; ok {
-			offerCoinDenom := sms.Msg.OfferCoin.Denom
-			demandCoinDenom := sms.Msg.DemandCoinDenom
+			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
+			sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(
+				sms.Msg.DemandCoinDenom, match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()))
+			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, match.OfferCoinFeeAmt.TruncateInt()))
 
-			// Fractional match, but expired order case
-			if sms.RemainingOfferCoin.IsPositive() {
-				// Not to delete, but expired case
-				if !sms.ToBeDeleted && sms.OrderExpiryHeight <= ctx.BlockHeight() {
-					return fmt.Errorf("consistency of OrderExpiryHeight and ToBeDeleted is broken")
-				} else if !sms.ToBeDeleted && sms.OrderExpiryHeight > ctx.BlockHeight() {
-					// Fractional matched, to be remaining order, not refund, only transact fractional exchange amt
-					// Add transacted coins to multisend
-					sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.TransactedCoinAmt.TruncateInt()))
-					sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(
-						demandCoinDenom, match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()))
-					// Add swap offer coin fee to multisend
-					sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.OfferCoinFeeAmt.TruncateInt()))
-					sms.Succeeded = true
-				} else if sms.ToBeDeleted || sms.OrderExpiryHeight == ctx.BlockHeight() {
-					// Fractional matched, but expired order, transact with refund remaining offer coin
-					// Add transacted coins to multisend
-					sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.TransactedCoinAmt.TruncateInt()))
-					sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(
-						demandCoinDenom, match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()))
-					// Add swap offer coin fee to multisend
-					sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.OfferCoinFeeAmt.TruncateInt()))
-					// Refund remaining OfferCoin, ReservedOfferCoinFee
-					sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
-					sms.Succeeded = true
-					sms.ToBeDeleted = true
-				} else {
-					return fmt.Errorf("consistency of OrderExpiryHeight and ToBeDeleted is broken")
-				}
-			} else if sms.RemainingOfferCoin.IsZero() {
-				// Full matched case, Add transacted coins to multisend
-				sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.TransactedCoinAmt.TruncateInt()))
-				sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(
-					demandCoinDenom, match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()))
-				// Add swap offer coin fee to multisend
-				sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(offerCoinDenom, match.OfferCoinFeeAmt.TruncateInt()))
-				sms.Succeeded = true
+			if sms.RemainingOfferCoin.IsPositive() && sms.OrderExpiryHeight == ctx.BlockHeight() {
+				sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
+			}
+
+			sms.Succeeded = true
+			if sms.RemainingOfferCoin.IsZero() {
 				sms.ToBeDeleted = true
-			} else {
-				return fmt.Errorf("negative RemainingOfferCoin")
 			}
 
 			ctx.EventManager().EmitEvent(
@@ -673,20 +648,9 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 				))
 		} else {
 			// Not matched, remaining
-			if !sms.ToBeDeleted && sms.OrderExpiryHeight > ctx.BlockHeight() {
-				// Have fractional matching history, not matched and expired, remaining refund
-				// Refund remaining coins
-				sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
-				sms.Succeeded = false
-				sms.ToBeDeleted = true
-			} else if sms.ToBeDeleted && sms.OrderExpiryHeight == ctx.BlockHeight() {
-				// Not matched and expired, Refund remaining coins
-				sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
-				sms.Succeeded = false
-				sms.ToBeDeleted = true
-			} else {
-				return fmt.Errorf("consistency of OrderExpiryHeight and ToBeDeleted is broken")
-			}
+			sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
+			sms.Succeeded = false
+			sms.ToBeDeleted = true
 		}
 	}
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
