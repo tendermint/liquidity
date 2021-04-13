@@ -8,23 +8,23 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Const value of liquidity module
 const (
+	// CancelOrderLifeSpan is the lifespan of order cancellation.
 	CancelOrderLifeSpan int64 = 0
 
-	// min number of reserveCoins for PoolType only 2 is allowed on this spec
+	// MinReserveCoinNum is the minimum number of reserve coins in each liquidity pool.
 	MinReserveCoinNum uint32 = 2
 
-	// max number of reserveCoins for PoolType only 2 is allowed on this spec
+	// MaxReserveCoinNum is the maximum number of reserve coins in each liquidity pool.
 	MaxReserveCoinNum uint32 = 2
 
-	// Number of blocks in one batch
+	// DefaultUnitBatchHeight is the default number of blocks in one batch. This param is used for scalability.
 	DefaultUnitBatchHeight uint32 = 1
 
-	// index of target pool type, only 1 is allowed on this version.
+	// DefaultPoolTypeId is the default pool type id. The only supported pool type id is 1.
 	DefaultPoolTypeId uint32 = 1
 
-	// swap type index of available swap request, only 1 (InstantSwap) is allowed on this version.
+	// DefaultSwapTypeId is the default swap type id. The only supported swap type (instant swap) id is 1.
 	DefaultSwapTypeId uint32 = 1
 )
 
@@ -133,15 +133,17 @@ func validatePoolTypes(i interface{}) error {
 	}
 
 	if len(v) == 0 {
-		return fmt.Errorf("pool types must be not empty")
+		return fmt.Errorf("pool types must not be empty")
 	}
+
 	for i, p := range v {
 		if int(p.Id) != i+1 {
 			return fmt.Errorf("pool type ids must be sorted")
 		}
 	}
+
 	if len(v) > 1 || !v[0].Equal(DefaultPoolType) {
-		return fmt.Errorf("only default pool type is allowed in this version of liquidity module")
+		return fmt.Errorf("the only supported pool type is 1")
 	}
 
 	return nil
@@ -154,8 +156,9 @@ func validateMinInitDepositAmount(i interface{}) error {
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("minimum initial deposit amount must be not nil")
+		return fmt.Errorf("minimum initial deposit amount must not be nil")
 	}
+
 	if !v.IsPositive() {
 		return fmt.Errorf("minimum initial deposit amount must be positive: %s", v)
 	}
@@ -170,13 +173,15 @@ func validateInitPoolCoinMintAmount(i interface{}) error {
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("initial pool coin mint amount must be not nil")
+		return fmt.Errorf("initial pool coin mint amount must not be nil")
 	}
+
 	if !v.IsPositive() {
 		return fmt.Errorf("initial pool coin mint amount must be positive: %s", v)
 	}
+
 	if v.LT(DefaultInitPoolCoinMintAmount) {
-		return fmt.Errorf("initial pool coin mint amount must be greater or equal than 1000000: %s", v)
+		return fmt.Errorf("initial pool coin mint amount must be greater than or equal to 1000000: %s", v)
 	}
 
 	return nil
@@ -189,10 +194,11 @@ func validateMaxReserveCoinAmount(i interface{}) error {
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("max reserve coin amount must be not nil")
+		return fmt.Errorf("max reserve coin amount must not be nil")
 	}
+
 	if v.IsNegative() {
-		return fmt.Errorf("max reserve coin amount must be not negative: %s", v)
+		return fmt.Errorf("max reserve coin amount must not be negative: %s", v)
 	}
 
 	return nil
@@ -205,11 +211,13 @@ func validateSwapFeeRate(i interface{}) error {
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("swap fee rate must be not nil")
+		return fmt.Errorf("swap fee rate must not be nil")
 	}
+
 	if v.IsNegative() {
-		return fmt.Errorf("swap fee rate must be not negative: %s", v)
+		return fmt.Errorf("swap fee rate must not be negative: %s", v)
 	}
+
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("swap fee rate too large: %s", v)
 	}
@@ -224,11 +232,13 @@ func validateWithdrawFeeRate(i interface{}) error {
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("withdraw fee rate must be not nil")
+		return fmt.Errorf("withdraw fee rate must not be nil")
 	}
+
 	if v.IsNegative() {
-		return fmt.Errorf("withdraw fee rate must be not negative: %s", v)
+		return fmt.Errorf("withdraw fee rate must not be negative: %s", v)
 	}
+
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("withdraw fee rate too large: %s", v)
 	}
@@ -245,9 +255,11 @@ func validateMaxOrderAmountRatio(i interface{}) error {
 	if v.IsNil() {
 		return fmt.Errorf("max order amount ratio must be not nil")
 	}
+
 	if v.IsNegative() {
 		return fmt.Errorf("max order amount ratio must be not negative: %s", v)
 	}
+
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("max order amount ratio too large: %s", v)
 	}
@@ -264,8 +276,9 @@ func validatePoolCreationFee(i interface{}) error {
 	if err := v.Validate(); err != nil {
 		return err
 	}
+
 	if v.Empty() {
-		return fmt.Errorf("pool creation fee must be not empty")
+		return fmt.Errorf("pool creation fee must not be empty")
 	}
 
 	return nil
