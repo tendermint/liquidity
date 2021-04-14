@@ -199,7 +199,7 @@ var xxx_messageInfo_MsgDepositWithinBatchResponse proto.InternalMessageInfo
 // `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a withdraw request to the liquidity pool batch
 // Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
-// processed in the `endblock` at once with other requests.
+// processed in the `endblock` at the same time as other requests.
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 type MsgWithdrawWithinBatch struct {
