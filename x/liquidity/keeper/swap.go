@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"sort"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -67,13 +67,12 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 		poolYDelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
 
-	XtoY, YtoX, X, Y, poolXDelta2, poolYDelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
-		k.UpdateState(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
+	XtoY, YtoX, X, Y, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY := types.UpdateSwapMsgStates(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
 	lastPrice := X.Quo(Y)
 
 	if invariantCheckFlag {
-		SwapMatchingInvariants(XtoY, YtoX, fractionalCntX, fractionalCntY, matchResultXtoY, matchResultYtoX)
+		SwapMatchingInvariants(XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 		SwapPriceInvariants(matchResultXtoY, matchResultYtoX, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
 	}
 
@@ -83,7 +82,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	orderMapExecuted, _, _ := types.MakeOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	if !orderBookExecuted.Validate(lastPrice) {
-		panic(types.ErrOrderBookInvalidity)
+		return executedMsgCount, types.ErrOrderBookInvalidity
 	}
 
 	types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
@@ -91,11 +90,11 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 
 	// make index map for match result
 	matchResultMap := make(map[uint64]types.MatchResult)
-	for _, msg := range append(matchResultXtoY, matchResultYtoX...) {
-		if _, ok := matchResultMap[msg.OrderMsgIndex]; ok {
-			panic("duplicated match order")
+	for _, match := range append(matchResultXtoY, matchResultYtoX...) {
+		if _, ok := matchResultMap[match.SwapMsgState.MsgIndex]; ok {
+			return executedMsgCount, fmt.Errorf("duplicate match order")
 		}
-		matchResultMap[msg.OrderMsgIndex] = msg
+		matchResultMap[match.SwapMsgState.MsgIndex] = match
 	}
 
 	if invariantCheckFlag {
@@ -106,104 +105,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 
 	// execute transact, refund, expire, send coins with escrow, update state by TransactAndRefundSwapLiquidityPool
 	if err := k.TransactAndRefundSwapLiquidityPool(ctx, swapMsgStates, matchResultMap, pool, result); err != nil {
-		panic(err)
+		return executedMsgCount, err
 	}
 
 	return executedMsgCount, nil
-}
-
-// Update Buy, Sell swap batch messages using the result of match.
-func (k Keeper) UpdateState(X, Y sdk.Dec, XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult) (
-	[]*types.SwapMsgState, []*types.SwapMsgState, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec, int, int, sdk.Dec, sdk.Dec) {
-	sort.SliceStable(XtoY, func(i, j int) bool {
-		return XtoY[i].Msg.OrderPrice.GT(XtoY[j].Msg.OrderPrice)
-	})
-	sort.SliceStable(YtoX, func(i, j int) bool {
-		return YtoX[i].Msg.OrderPrice.LT(YtoX[j].Msg.OrderPrice)
-	})
-
-	poolXDelta := sdk.ZeroDec()
-	poolYDelta := sdk.ZeroDec()
-	fractionalCntX := 0
-	fractionalCntY := 0
-
-	// Variables to accumulate and offset the values of int 1 caused by decimal error
-	decimalErrorX := sdk.ZeroDec()
-	decimalErrorY := sdk.ZeroDec()
-
-	for _, match := range matchResultXtoY {
-		poolXDelta = poolXDelta.Add(match.TransactedCoinAmt)
-		poolYDelta = poolYDelta.Sub(match.ExchangedDemandCoinAmt)
-		if match.BatchMsg.Msg.OfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) ||
-			match.BatchMsg.RemainingOfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) {
-			// full match
-			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
-				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
-			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
-			if match.BatchMsg.RemainingOfferCoin.Amount.Equal(sdk.OneInt()) {
-				decimalErrorX = decimalErrorX.Add(sdk.OneDec())
-				match.BatchMsg.RemainingOfferCoin.Amount = sdk.ZeroInt()
-			}
-			if match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
-				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
-				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
-				match.BatchMsg.ReservedOfferCoinFee.IsGTE(sdk.NewCoin(match.BatchMsg.ReservedOfferCoinFee.Denom, sdk.NewInt(2))) {
-				panic("remaining not matched 1")
-			} else {
-				match.BatchMsg.Succeeded = true
-				match.BatchMsg.ToBeDeleted = true
-			}
-		} else {
-			// fractional match
-			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
-			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
-			match.BatchMsg.Succeeded = true
-			match.BatchMsg.ToBeDeleted = false
-			fractionalCntX++
-		}
-	}
-	for _, match := range matchResultYtoX {
-		poolXDelta = poolXDelta.Sub(match.ExchangedDemandCoinAmt)
-		poolYDelta = poolYDelta.Add(match.TransactedCoinAmt)
-		if match.BatchMsg.Msg.OfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) ||
-			match.BatchMsg.RemainingOfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) {
-			// full match
-			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(
-				sdk.NewCoin(match.BatchMsg.RemainingOfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
-			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
-			if match.BatchMsg.RemainingOfferCoin.Amount.Equal(sdk.OneInt()) {
-				decimalErrorY = decimalErrorY.Add(sdk.OneDec())
-				match.BatchMsg.RemainingOfferCoin.Amount = sdk.ZeroInt()
-			}
-			if match.BatchMsg.RemainingOfferCoin.Amount.Add(match.BatchMsg.ExchangedOfferCoin.Amount).
-				GT(match.BatchMsg.Msg.OfferCoin.Amount) ||
-				!match.BatchMsg.RemainingOfferCoin.Equal(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, sdk.ZeroInt())) ||
-				match.BatchMsg.ReservedOfferCoinFee.IsGTE(sdk.NewCoin(match.BatchMsg.ReservedOfferCoinFee.Denom, sdk.NewInt(2))) {
-				panic("remaining not matched 2")
-			} else {
-				match.BatchMsg.Succeeded = true
-				match.BatchMsg.ToBeDeleted = true
-			}
-		} else {
-			// fractional match
-			match.BatchMsg.ExchangedOfferCoin = match.BatchMsg.ExchangedOfferCoin.Add(sdk.NewCoin(match.BatchMsg.Msg.OfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
-			match.BatchMsg.RemainingOfferCoin = types.CoinSafeSubAmount(match.BatchMsg.RemainingOfferCoin, match.TransactedCoinAmt.TruncateInt())
-			match.BatchMsg.ReservedOfferCoinFee = types.CoinSafeSubAmount(match.BatchMsg.ReservedOfferCoinFee, match.OfferCoinFeeAmt.TruncateInt())
-			match.BatchMsg.Succeeded = true
-			match.BatchMsg.ToBeDeleted = false
-			fractionalCntY++
-		}
-	}
-
-	// Offset accumulated decimal error values
-	poolXDelta = poolXDelta.Add(decimalErrorX)
-	poolYDelta = poolYDelta.Add(decimalErrorY)
-
-	X = X.Add(poolXDelta)
-	Y = Y.Add(poolYDelta)
-
-	return XtoY, YtoX, X, Y, poolXDelta, poolYDelta, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY
 }

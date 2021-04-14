@@ -95,8 +95,8 @@ func TestSwapScenario(t *testing.T) {
 	matchResultYtoX, poolXDeltaYtoX, poolYDeltaYtoX := types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
 		result.SwapPrice, ctx.BlockHeight())
 
-	XtoY, YtoX, XDec, YDec, poolXDelta2, poolYDelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
-		simapp.LiquidityKeeper.UpdateState(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)
+	XtoY, YtoX, XDec, YDec, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY :=
+		types.UpdateSwapMsgStates(X.ToDec(), Y.ToDec(), XtoY, YtoX, matchResultXtoY, matchResultYtoX)
 
 	require.Equal(t, 0, types.CountNotMatchedMsgs(XtoY))
 	require.Equal(t, 0, types.CountFractionalMatchedMsgs(XtoY))
@@ -110,7 +110,7 @@ func TestSwapScenario(t *testing.T) {
 	fmt.Println(poolYDeltaXtoY)
 
 	fmt.Println(poolXDeltaYtoX, poolYDeltaYtoX)
-	fmt.Println(poolXDelta2, poolYDelta2, fractionalCntX, fractionalCntY)
+	fmt.Println(poolXDelta2, poolYDelta2)
 	fmt.Println(decimalErrorX, decimalErrorY)
 	fmt.Println(XDec, YDec)
 
