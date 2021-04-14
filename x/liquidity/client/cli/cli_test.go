@@ -3,23 +3,34 @@
 package cli_test
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/server"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	genutiltest "github.com/cosmos/cosmos-sdk/x/genutil/client/testutil"
 
+	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/client/cli"
 	liquiditytestutil "github.com/tendermint/liquidity/x/liquidity/client/testutil"
 	liquiditytypes "github.com/tendermint/liquidity/x/liquidity/types"
 
 	tmcli "github.com/tendermint/tendermint/libs/cli"
+	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 type IntegrationTestSuite struct {
@@ -1215,6 +1226,60 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
 					s.Require().Equal(true, swap.Succeeded)
 					s.Require().Equal(true, swap.ToBeDeleted)
 				}
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestInitGenesis() {
+	testCases := []struct {
+		name      string
+		flags     func(dir string) []string
+		expectErr bool
+		err       error
+	}{
+		{
+			name: "default genesis state",
+			flags: func(dir string) []string {
+				return []string{
+					"liquidity-test",
+				}
+			},
+			expectErr: false,
+			err:       nil,
+		},
+	}
+	for _, tc := range testCases {
+		tc := tc
+		s.Run(tc.name, func() {
+			testMbm := module.NewBasicManager(liquidity.AppModuleBasic{})
+
+			home := s.T().TempDir()
+			logger := tmlog.NewNopLogger()
+			cfg, err := genutiltest.CreateDefaultTendermintConfig(home)
+			s.Require().NoError(err)
+
+			serverCtx := server.NewContext(viper.New(), cfg, logger)
+			interfaceRegistry := types.NewInterfaceRegistry()
+			marshaler := codec.NewProtoCodec(interfaceRegistry)
+			clientCtx := client.Context{}.
+				WithJSONMarshaler(marshaler).
+				WithHomeDir(home)
+
+			ctx := context.Background()
+			ctx = context.WithValue(ctx, client.ClientContextKey, &clientCtx)
+			ctx = context.WithValue(ctx, server.ServerContextKey, serverCtx)
+
+			cmd := genutilcli.InitCmd(testMbm, home)
+			cmd.SetArgs(
+				tc.flags(home),
+			)
+
+			if tc.expectErr {
+				err := cmd.ExecuteContext(ctx)
+				s.Require().EqualError(err, tc.err.Error())
+			} else {
+				s.Require().NoError(cmd.ExecuteContext(ctx))
 			}
 		})
 	}
