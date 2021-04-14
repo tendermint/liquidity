@@ -253,11 +253,11 @@ func validateMaxOrderAmountRatio(i interface{}) error {
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("max order amount ratio must be not nil")
+		return fmt.Errorf("max order amount ratio must not be nil")
 	}
 
 	if v.IsNegative() {
-		return fmt.Errorf("max order amount ratio must be not negative: %s", v)
+		return fmt.Errorf("max order amount ratio must not be negative: %s", v)
 	}
 
 	if v.GT(sdk.OneDec()) {
