@@ -3,24 +3,23 @@
 
 Implemented tx cli
 
-- [x]  `create-pool`   Create Liquidity pool with the specified pool-type, deposit-coins
-- [x]  `deposit`       Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins
-- [x]  `swap`          Swap offer submit to the batch to the Liquidity pool with the specified pool-id with offer-coin, order-price, etc
-- [x]  `withdraw`      Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool 
+- [x]  `create-pool`   Create liquidity pool and deposit coins
+- [x]  `deposit`       Deposit coins to a liquidity pool
+- [x]  `swap`          Swap offer coin with demand coin from the liquidity pool with the given order price
+- [x]  `withdraw`      Withdraw pool coin from the specified liquidity pool 
 
 Implemented query cli 
 
-- [x]    `batch`       Query details of a liquidity pool batch of the pool
-- [x]    `batches`     Query for all liquidity pools batch
-- [x]    `deposit`     Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index
-- [x]    `deposits`    Query for all deposit messages on the batch of the liquidity pool specified pool-id
-- [x]    `params`      Query the current liquidity parameters information
+- [x]    `batch`       Query details of a liquidity pool batch
+- [x]    `deposit`     Query the deposit messages on the liquidity pool batch
+- [x]    `deposits`    Query all deposit messages of the liquidity pool batch
+- [x]    `params`      Query the values set as liquidity parameters
 - [x]    `pool`        Query details of a liquidity pool
 - [x]    `pools`       Query for all liquidity pools
 - [x]    `swap`        Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
-- [x]    `swaps`       Query for all swap messages on the batch of the liquidity pool specified pool-id
-- [x]    `withdraw`    Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index
-- [x]    `withdraws`   Query for all withdraw messages on the batch of the liquidity pool specified pool-id
+- [x]    `swaps`       Query all swap messages in the liquidity pool batch
+- [x]    `withdraw`    Query the withdraw messages in the liquidity pool batch
+- [x]    `withdraws`   Query for all withdraw messages on the liquidity pool batch
 
 Progress REST/API
 
@@ -40,9 +39,9 @@ Usage:
   liquidityd tx liquidity [command]
 
 Available Commands:
-  create-pool Create new liquidity pool with the specified pool type and deposit coins
-  deposit     Deposit coins to the specified liquidity pool
-  swap        Swap offer coin with demand coin from the specified liquidity pool with the given order price
+  create-pool Create liquidity pool and deposit coins
+  deposit     Deposit coins to a liquidity pool
+  swap        Swap offer coin with demand coin from the liquidity pool with the given order price
   withdraw    Withdraw pool coin from the specified liquidity pool
 ```
 
@@ -53,19 +52,19 @@ See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/type
 `$ liquidityd tx liquidity create-pool --help`
 
 ```bash
-Create new liquidity pool with the specified pool type and deposit coins.
+Create liquidity pool and deposit coins.
 
 Example:
 $ liquidity tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
-In this example, user requests to create new liquidity pool with 100000000stake and 100000000token.
-User must create with a combination of coins that are not already exist in the network.
-In this version, pool-type-id 1 is only available, which requires two different coins.
+This example creates a liquidity pool of pool-type 1 (two coins) and deposits 1000000000uatom and 50000000000uusd.
+New liquidity pools can be created only for coin combinations that do not already exist in the network.
 
-{"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
+[pool-type]: The id of the liquidity pool-type. The only supported pool type is 1
+[deposit-coins]: The amount of coins to deposit to the liquidity pool. The number of deposit coins must be 2 in pool type 1.
 
 Usage:
-  liquidityd tx liquidity create-pool [pool-type-id] [deposit-coins] [flags]
+  liquidityd tx liquidity create-pool [pool-type] [deposit-coins] [flags]
 ```
 
 example tx command with result 
@@ -247,21 +246,22 @@ already exist case, when duplicated request for same create pool
 `$ liquidityd tx liquidity deposit --help`
 
 ```bash 
-Deposit coins to the specified liquidity pool.
+Deposit coins a liquidity pool.
 
-This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch.
+This deposit request is not processed immediately since it is accumulated in the liquidity pool batch.
+All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
-$ liquidity tx liquidity deposit 1 100000000stake,100000000token --from mykey
+$ liquidity tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
 
-In this example, user requests to deposit 100000000stake and 100000000token to the specified liquidity pool.
-User must deposit the same coin denoms as the reserve coins.
+This example request deposits 100000000uatom and 5000000000uusd to pool-id 1.
+Deposits must be the same coin denoms as the reserve coins.
+
+[pool-id]: The pool id of the liquidity pool
+[deposit-coins]: The amount of coins to deposit to the liquidity pool
 
 Usage:
   liquidityd tx liquidity deposit [pool-id] [deposit-coins] [flags]
-
-
 ```
 
 example tx command with result 
@@ -394,30 +394,37 @@ result
 `$ liquidityd tx liquidity swap --help`
 
 ```bash  
-Swap offer coin with demand coin from the specified liquidity pool with the given order price.
+Swap offer coin with demand coin from the liquidity pool with the given order price.
 
-This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch. 
-Note that the order of swap requests is ignored since the universal swap price is calculated within every batch to prevent front running.
+This swap request is not processed immediately since it is accumulated in the liquidity pool batch.
+All requests in a batch are treated equally and executed at the same swap price.
+The order of swap requests is ignored since the universal swap price is calculated in every batch to prevent front running.
 
-The requested swap is executed with a swap price calculated from given swap price function of the pool, the current other swap requests and the current liquidity pool coin reserve status.
-Swap orders are executed only when execution swap price is equal or better than submitted order price of the swap order.
+The requested swap is executed with a swap price that is calculated from the given swap price function of the pool, the other swap requests, and the liquidity pool coin reserve status.
+Swap orders are executed only when the execution swap price is equal to or greater than the submitted order price of the swap order.
 
 Example:
 $ liquidity liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from mykey
 
-In this example, we assume there exists a liquidity pool with 1000000000uatom and 50000000000uusd.
-User requests to swap 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
-User must have sufficient balance half of the swap-fee-rate of the offer coin to reserve offer coin fee.
+For this example, imagine that an existing liquidity pool has with 1000000000uatom and 50000000000uusd.
+This example request swaps 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
+A sufficient balance of half of the swap-fee-rate of the offer coin is required to reserve the offer coin fee.
 
-The order price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically. 
-Increasing order price means to decrease the possibility for your request to be processed and end up buying uatom at cheaper price than the pool price.  
+The order price is the exchange ratio of X/Y, where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically.
+Increasing order price reduces the possibility for your request to be processed and results in buying uatom at a lower price than the pool price.
 
-For explicit calculations, you must enter the swap-fee-rate value of the current parameter state.
-In this version, swap-type-id 1 is only available. The detailed swap algorithm can be found at https://github.com/tendermint/liquidity
+For explicit calculations, The swap fee rate must be the value that set as liquidity parameter in the current network.
+The only supported swap-type is 1. For the detailed swap algorithm, see https://github.com/tendermint/liquidity
+
+[pool-id]: The pool id of the liquidity pool
+[swap-type]: The swap type of the swap message. The only supported swap type is 1 (instant swap).
+[offer-coin]: The amount of offer coin to swap
+[demand-coin-denom]: The denomination of the coin to exchange with offer coin
+[order-price]: The limit order price for the swap order. The price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
+[swap-fee-rate]: The swap fee rate to pay for swap that is proportional to swap amount. The swap fee rate must be the value that set as liquidity parameter in the current network.
 
 Usage:
-  liquidityd tx liquidity swap [pool-id] [swap-type-id] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate] [flags]
+  liquidityd tx liquidity swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate] [flags]
 ```
 
 example tx command with result 
@@ -587,14 +594,17 @@ result
 ```bash 
 Withdraw pool coin from the specified liquidity pool.
 
-This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch. 
+This swap request is not processed immediately since it is accumulated in the liquidity pool batch.
+All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
 $ liquidity tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from mykey
 
-In this example, user requests to withdraw 10000 pool coin from the specified liquidity pool. 
-User must request the appropriate pool coin from the specified pool.
+This example request withdraws 10000 pool coin from the specified liquidity pool.
+The appropriate pool coin must be requested from the specified pool.
+
+[pool-id]: The pool id of the liquidity pool
+[pool-coin]: The amount of pool coin to withdraw from the liquidity pool
 
 Usage:
   liquidityd tx liquidity withdraw [pool-id] [pool-coin] [flags]
@@ -774,16 +784,16 @@ Usage:
   liquidityd query liquidity [command]
 
 Available Commands:
-  batch       Query details of a liquidity pool batch of the pool
-  deposit     Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index
-  deposits    Query for all deposit messages on the batch of the liquidity pool specified pool-id
-  params      Query the current liquidity parameters information
+  batch       Query details of a liquidity pool batch
+  deposit     Query the deposit messages on the liquidity pool batch
+  deposits    Query all deposit messages of the liquidity pool batch
+  params      Query the values set as liquidity parameters
   pool        Query details of a liquidity pool
   pools       Query for all liquidity pools
   swap        Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
-  swaps       Query for all swap messages on the batch of the liquidity pool specified pool-id
-  withdraw    Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index
-  withdraws   Query for all withdraw messages on the batch of the liquidity pool specified pool-id
+  swaps       Query all swap messages in the liquidity pool batch
+  withdraw    Query the withdraw messages in the liquidity pool batch
+  withdraws   Query for all withdraw messages on the liquidity pool batch
 ```
 
 See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
@@ -817,11 +827,10 @@ batch:
 ### query deposits
 `$ liquidityd query liquidity deposits --help`
 ```bash
-Query for all deposit messages on the batch of the liquidity pool specified pool-id
+Query all deposit messages of the liquidity pool batch on the specified pool
 
-if batch messages are normally processed and from the endblock,
-the resulting state is applied and removed the messages from the beginblock in the next block.
-to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
+If batch messages are normally processed from the endblock, the resulting state is applied and the messages are removed in the beginning of next block.
+To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
 $ liquidity query liquidity deposits 1
@@ -983,11 +992,11 @@ withdraw_fee_rate: "0.003000000000000000"
 ### query swaps
 `$ liquidityd query liquidity swaps --help`
 ```bash
-Query for all swap messages on the batch of the liquidity pool specified pool-id
+Query all swap messages in the liquidity pool batch for the specified pool-id
 
-if batch messages are normally processed and from the endblock,
-the resulting state is applied and removed the messages from the beginblock in the next block.
-to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
+If batch messages are normally processed from the endblock,
+the resulting state is applied and the messages are removed in the beginning of next block.
+To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
 $ liquidity query liquidity swaps 1
@@ -1047,11 +1056,11 @@ swaps: []
 ### query withdraws
 `$ liquidityd query liquidity withdraws --help`
 ```bash
-Query for all withdraws messages on the batch of the liquidity pool specified pool-id
+Query all withdraw messages on the liquidity pool batch for the specified pool-id
 
-if batch messages are normally processed and from the endblock,
-the resulting state is applied and removed the messages from the beginblock in the next block.
-to query for past blocks, you can obtain by specifying the block height through the REST/gRPC API of a node that is not pruned
+If batch messages are normally processed from the endblock,
+the resulting state is applied and the messages are removed in the beginning of next block.
+To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
 $ liquidity query liquidity withdraws 1

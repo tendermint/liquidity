@@ -255,7 +255,7 @@ A sufficient balance of half of the swap-fee-rate of the offer coin is required 
 The order price is the exchange ratio of X/Y, where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically.
 Increasing order price reduces the possibility for your request to be processed and results in buying uatom at a lower price than the pool price.
 
-For explicit calculations, you must enter the swap-fee-rate value of the current parameter state.
+For explicit calculations, The swap fee rate must be the value that set as liquidity parameter in the current network.
 The only supported swap-type is 1. For the detailed swap algorithm, see https://github.com/tendermint/liquidity
 
 [pool-id]: The pool id of the liquidity pool 

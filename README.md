@@ -76,9 +76,9 @@ Usage:
   liquidityd tx liquidity [command]
 
 Available Commands:
-  create-pool Create new liquidity pool with the specified pool type and deposit coins
-  deposit     Deposit coins to the specified liquidity pool
-  swap        Swap offer coin with demand coin from the specified liquidity pool with the given order price
+  create-pool Create liquidity pool and deposit coins
+  deposit     Deposit coins to a liquidity pool
+  swap        Swap offer coin with demand coin from the liquidity pool with the given order price
   withdraw    Withdraw pool coin from the specified liquidity pool
 ```
 
@@ -96,16 +96,16 @@ Usage:
   liquidityd query liquidity [command]
 
 Available Commands:
-  batch       Query details of a liquidity pool batch of the pool
-  deposit     Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index
-  deposits    Query for all deposit messages on the batch of the liquidity pool specified pool-id
-  params      Query the current liquidity parameters information
+  batch       Query details of a liquidity pool batch
+  deposit     Query the deposit messages on the liquidity pool batch
+  deposits    Query all deposit messages of the liquidity pool batch
+  params      Query the values set as liquidity parameters
   pool        Query details of a liquidity pool
   pools       Query for all liquidity pools
   swap        Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
-  swaps       Query for all swap messages on the batch of the liquidity pool specified pool-id
-  withdraw    Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index
-  withdraws   Query for all withdraw messages on the batch of the liquidity pool specified pool-id
+  swaps       Query all swap messages in the liquidity pool batch
+  withdraw    Query the withdraw messages in the liquidity pool batch
+  withdraws   Query for all withdraw messages on the liquidity pool batch
 ```
 
 #### A detailed document on client can be found here. [client.md](doc/client.md)
