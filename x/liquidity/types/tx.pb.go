@@ -112,7 +112,7 @@ func (m *MsgCreatePoolResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgCreatePoolResponse proto.InternalMessageInfo
 
-// `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting a deposit request to the batch of the liquidity pool
+// `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting a deposit requests to the liquidity pool batch
 // The deposit is submitted with the specified `pool_id` and reserve `deposit_coins`
 // The deposit requests are stacked in the liquidity pool batch and are not immediately processed
 // Batch deposit requests are processed in the `endblock` at the same time as other requests.
@@ -199,7 +199,7 @@ var xxx_messageInfo_MsgDepositWithinBatchResponse proto.InternalMessageInfo
 // `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a withdraw request to the liquidity pool batch
 // Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
 // this requests are stacked in the batch of the liquidity pool, not immediately processed and
-// processed in the `endblock` at the same time as other requests.
+// processed in the `endblock` at once with other requests.
 //
 // See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 type MsgWithdrawWithinBatch struct {
@@ -280,9 +280,9 @@ func (m *MsgWithdrawWithinBatchResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgWithdrawWithinBatchResponse proto.InternalMessageInfo
 
 // `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap offer request to the liquidity pool batch
-// The swap offer is submitted with the specified the `pool_id`, `swap_type_id`,
+// Submit swap offer to the liquidity pool batch with the specified the `pool_id`, `swap_type_id`,
 // `demand_coin_denom` with the coin and the price you're offering
-// The `offer_coin_fee` must be half of offer coin amount * current `params.swap_fee_rate` to qualify for a reservation to pay fees
+// The `offer_coin_fee` must be half of the offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
 // This request is added to the pool and executed at the end of the batch (`endblock`)
 // You must submit the request using the same fields as the pool
 // Only the default `swap_type_id`1 is supported
