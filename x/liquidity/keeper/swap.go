@@ -44,7 +44,14 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
-	result := orderBook.Match(X, Y)
+	result, found := orderBook.Match(X, Y)
+
+	executedMsgCount := uint64(len(swapMsgStates))
+
+	if !found {
+		err := k.RefundSwaps(ctx, pool, swapMsgStates)
+		return executedMsgCount, err
+	}
 
 	// find order match, calculate pool delta with the total x, y amounts for the invariant check
 	var matchResultXtoY, matchResultYtoX []types.MatchResult
@@ -54,16 +61,10 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 
 	if result.MatchType != types.NoMatch {
 		var poolXDeltaXtoY, poolXDeltaYtoX, poolYDeltaYtoX, poolYDeltaXtoY sdk.Dec
-		matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX, result.SwapPrice, currentHeight)
-		matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY, result.SwapPrice, currentHeight)
+		matchResultXtoY, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX, result.SwapPrice, currentHeight)
+		matchResultYtoX, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY, result.SwapPrice, currentHeight)
 		poolXDelta = poolXDeltaXtoY.Add(poolXDeltaYtoX)
 		poolYDelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
-	}
-
-	executedMsgCount := uint64(len(swapMsgStates))
-
-	if result.MatchType == 0 {
-		return executedMsgCount, nil
 	}
 
 	XtoY, YtoX, X, Y, poolXDelta2, poolYDelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
@@ -72,8 +73,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	lastPrice := X.Quo(Y)
 
 	if invariantCheckFlag {
-		SwapPriceInvariants(XtoY, YtoX, matchResultXtoY, matchResultYtoX, fractionalCntX, fractionalCntY,
-			poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
+		SwapMatchingInvariants(XtoY, YtoX, fractionalCntX, fractionalCntY, matchResultXtoY, matchResultYtoX)
+		SwapPriceInvariants(matchResultXtoY, matchResultYtoX, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
 	}
 
 	types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
@@ -98,8 +99,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	}
 
 	if invariantCheckFlag {
-		OrdersWithExecutedAndNotExecutedStateInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates,
-			XtoY, YtoX, result, currentPoolPrice, denomX)
+		SwapPriceDirection(currentPoolPrice, result)
+		SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates, XtoY, YtoX)
+		SwapOrdersExecutionStateInvariants(matchResultMap, swapMsgStates, result, denomX)
 	}
 
 	// execute transact, refund, expire, send coins with escrow, update state by TransactAndRefundSwapLiquidityPool

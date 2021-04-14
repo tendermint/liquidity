@@ -86,12 +86,13 @@ func TestSwapScenario(t *testing.T) {
 
 	// The price and coins of swap messages in orderbook are calculated
 	// to derive match result with the price direction.
-	result := orderBook.Match(X.ToDec(), Y.ToDec())
+	result, found := orderBook.Match(X.ToDec(), Y.ToDec())
+	require.True(t, found)
 	require.NotEqual(t, types.NoMatch, result.MatchType)
 
-	matchResultXtoY, _, poolXDeltaXtoY, poolYDeltaXtoY := types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX,
+	matchResultXtoY, poolXDeltaXtoY, poolYDeltaXtoY := types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX,
 		result.SwapPrice, ctx.BlockHeight())
-	matchResultYtoX, _, poolXDeltaYtoX, poolYDeltaYtoX := types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
+	matchResultYtoX, poolXDeltaYtoX, poolYDeltaYtoX := types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY,
 		result.SwapPrice, ctx.BlockHeight())
 
 	XtoY, YtoX, XDec, YDec, poolXDelta2, poolYDelta2, fractionalCntX, fractionalCntY, decimalErrorX, decimalErrorY :=
@@ -439,8 +440,10 @@ func TestComputePriceDirection(t *testing.T) {
 
 	poolPrice := X.Quo(Y)
 	direction := orderBook.PriceDirection(poolPrice)
-	result := orderBook.Match(X, Y)
-	require.Equal(t, orderBook.CalculateMatch(direction, X, Y), result)
+	result, found := orderBook.Match(X, Y)
+	result2, found2 := orderBook.CalculateMatch(direction, X, Y)
+	require.Equal(t, found2, found)
+	require.Equal(t, result2, result)
 
 	// decrease case
 	orderMap = make(types.OrderMap)
@@ -470,8 +473,10 @@ func TestComputePriceDirection(t *testing.T) {
 
 	poolPrice = X.Quo(Y)
 	direction = orderBook.PriceDirection(poolPrice)
-	result = orderBook.Match(X, Y)
-	require.Equal(t, orderBook.CalculateMatch(direction, X, Y), result)
+	result, found = orderBook.Match(X, Y)
+	result2, found2 = orderBook.CalculateMatch(direction, X, Y)
+	require.Equal(t, found2, found)
+	require.Equal(t, result2, result)
 
 	// stay case
 	orderMap = make(types.OrderMap)
@@ -488,8 +493,9 @@ func TestComputePriceDirection(t *testing.T) {
 	Y = orderMap[a.String()].SellOfferAmt.ToDec()
 	poolPrice = X.Quo(Y)
 
-	result = orderBook.Match(X, Y)
-	require.Equal(t, orderBook.CalculateMatchStay(poolPrice), result)
+	result, _ = orderBook.Match(X, Y)
+	result2 = orderBook.CalculateMatchStay(poolPrice)
+	require.Equal(t, result2, result)
 }
 
 func TestCalculateMatchStay(t *testing.T) {

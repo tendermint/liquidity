@@ -1,1 +1,3 @@
 client/docs/swagger-ui/* linguist-vendored
+*.ts linguist-generated
+*.js linguist-generated

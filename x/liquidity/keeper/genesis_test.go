@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -14,42 +13,39 @@ import (
 )
 
 func TestGenesisState(t *testing.T) {
-	cdc := codec.NewLegacyAmino()
-	types.RegisterLegacyAminoCodec(cdc)
-	simapp := app.Setup(false)
-	ctx := simapp.BaseApp.NewContext(false, tmproto.Header{})
+	simapp, ctx := app.CreateTestInput()
+
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	paramsDefault := simapp.LiquidityKeeper.GetParams(ctx)
 	genesis := types.DefaultGenesisState()
 
 	params.PoolCreationFee = sdk.Coins{sdk.Coin{Denom: "invalid denom---", Amount: sdk.NewInt(0)}}
-	err := params.Validate()
-	require.Error(t, err)
+	require.Error(t, params.Validate())
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
 	params.SwapFeeRate = sdk.NewDec(-1)
 	genesisState := types.NewGenesisState(params, genesis.PoolRecords)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
+	require.Error(t, types.ValidateGenesis(*genesisState))
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
+	X := sdk.NewInt(100_000_000)
+	Y := sdk.NewInt(200_000_000)
 
-	X := sdk.NewInt(100000000)
-	Y := sdk.NewInt(200000000)
-
-	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10_000))
 	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	pool, found := simapp.LiquidityKeeper.GetPool(ctx, poolId)
 	require.True(t, found)
+
 	poolCoins := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
-	app.TestDepositPool(t, simapp, ctx, sdk.NewInt(30000000), sdk.NewInt(20000000), addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, sdk.NewInt(30_000_000), sdk.NewInt(20_000_000), addrs[1:2], poolId, false)
+
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
 	poolCoinBalanceCreator := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.PoolCoinDenom)
 	poolCoinBalance := simapp.BankKeeper.GetBalance(ctx, addrs[1], pool.PoolCoinDenom)
-	require.Equal(t, sdk.NewInt(100000), poolCoinBalance.Amount)
+	require.Equal(t, sdk.NewInt(100_000), poolCoinBalance.Amount)
 	require.Equal(t, poolCoins.QuoRaw(10), poolCoinBalance.Amount)
 
 	balanceXRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomX)
@@ -62,19 +58,17 @@ func TestGenesisState(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
 	// validate pool records
-
 	newGenesis := simapp.LiquidityKeeper.ExportGenesis(ctx)
 	genesisState = types.NewGenesisState(paramsDefault, newGenesis.PoolRecords)
-	err = types.ValidateGenesis(*genesisState)
-	require.NoError(t, err)
+	require.NoError(t, types.ValidateGenesis(*genesisState))
 
 	pool.TypeId = 5
 	simapp.LiquidityKeeper.SetPool(ctx, pool)
 	newGenesisBrokenPool := simapp.LiquidityKeeper.ExportGenesis(ctx)
-	err = types.ValidateGenesis(*newGenesisBrokenPool)
-	require.NoError(t, err)
+	require.NoError(t, types.ValidateGenesis(*newGenesisBrokenPool))
 	require.Equal(t, 1, len(newGenesisBrokenPool.PoolRecords))
-	err = simapp.LiquidityKeeper.ValidatePoolRecord(ctx, newGenesisBrokenPool.PoolRecords[0])
+
+	err := simapp.LiquidityKeeper.ValidatePoolRecord(ctx, newGenesisBrokenPool.PoolRecords[0])
 	require.Error(t, err)
 
 	// not initialized genState of other module (auth, bank, ... ) only liquidity module
@@ -97,5 +91,4 @@ func TestGenesisState(t *testing.T) {
 	require.Panics(t, func() {
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-
 }

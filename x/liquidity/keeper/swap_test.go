@@ -257,3 +257,93 @@ func TestBadSwapExecution(t *testing.T) {
 
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 }
+
+func TestBalancesAfterSwap(t *testing.T) {
+	for price := int64(9800); price < 10000; price++ {
+		simapp, ctx := app.CreateTestInput()
+		params := simapp.LiquidityKeeper.GetParams(ctx)
+		denomX, denomY := types.AlphabeticalDenomPair("denomx", "denomy")
+		X, Y := sdk.NewInt(100_000_000), sdk.NewInt(100_000_000)
+
+		creatorCoins := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
+		creatorAddr := app.AddRandomTestAddr(simapp, ctx, creatorCoins.Add(params.PoolCreationFee...))
+
+		orderPrice := sdk.NewDecWithPrec(price, 4)
+		aliceCoin := sdk.NewCoin(denomY, sdk.NewInt(10_000_000))
+		aliceAddr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(aliceCoin))
+
+		pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, creatorCoins))
+		require.NoError(t, err)
+
+		liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+		offerAmt := aliceCoin.Amount.ToDec().Quo(sdk.MustNewDecFromStr("1.0015")).TruncateInt()
+		offerCoin := sdk.NewCoin(denomY, offerAmt)
+
+		_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, types.NewMsgSwapWithinBatch(
+			aliceAddr, pool.Id, types.DefaultSwapTypeId, offerCoin, denomX, orderPrice, params.SwapFeeRate), 0)
+		require.NoError(t, err)
+
+		liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+		deltaX := simapp.BankKeeper.GetBalance(ctx, aliceAddr, denomX).Amount
+		deltaY := simapp.BankKeeper.GetBalance(ctx, aliceAddr, denomY).Amount.Sub(aliceCoin.Amount)
+		require.Truef(t, !deltaX.IsNegative(), "deltaX should not be negative: %s", deltaX)
+		require.Truef(t, deltaY.IsNegative(), "deltaY should be negative: %s", deltaY)
+
+		deltaXWithoutFee := deltaX.ToDec().Quo(sdk.MustNewDecFromStr("0.9985"))
+		deltaYWithoutFee := deltaY.ToDec().Quo(sdk.MustNewDecFromStr("1.0015"))
+		effectivePrice := deltaXWithoutFee.Quo(deltaYWithoutFee.Neg())
+		priceDiffRatio := orderPrice.Sub(effectivePrice).Abs().Quo(orderPrice)
+		require.Truef(t, priceDiffRatio.LT(sdk.MustNewDecFromStr("0.01")), "effectivePrice differs too much from orderPrice")
+	}
+}
+
+func TestRefundEscrow(t *testing.T) {
+	for seed := int64(0); seed < 100; seed++ {
+		r := rand.New(rand.NewSource(seed))
+
+		X := sdk.NewInt(1_000_000)
+		Y := app.GetRandRange(r, 10_000_000_000_000_000, 1_000_000_000_000_000_000)
+
+		simapp, ctx := createTestInput()
+		params := simapp.LiquidityKeeper.GetParams(ctx)
+
+		addr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins())
+
+		pool, err := createPool(simapp, ctx, X, Y, DenomX, DenomY)
+		require.NoError(t, err)
+
+		for i := 0; i < 100; i++ {
+			poolBalances := simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount())
+			RX := poolBalances.AmountOf(DenomX)
+			RY := poolBalances.AmountOf(DenomY)
+			poolPrice := RX.ToDec().Quo(RY.ToDec())
+
+			offerAmt := RY.ToDec().Mul(sdk.NewDecFromIntWithPrec(app.GetRandRange(r, 1, 100_000_000_000_000_000), sdk.Precision))    // RY * (0, 0.1)
+			offerAmtWithFee := offerAmt.Quo(sdk.OneDec().Add(params.SwapFeeRate.QuoInt64(2))).TruncateInt()                          // offerAmt / (1 + swapFeeRate/2)
+			orderPrice := poolPrice.Mul(sdk.NewDecFromIntWithPrec(app.GetRandRange(r, 1, 1_000_000_000_000_000_000), sdk.Precision)) // poolPrice * (0, 1)
+
+			require.NoError(t, simapp.BankKeeper.SetBalance(ctx, addr, sdk.NewCoin(DenomY, offerAmt.Ceil().TruncateInt())))
+
+			liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+			_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, types.NewMsgSwapWithinBatch(
+				addr, pool.Id, types.DefaultSwapTypeId, sdk.NewCoin(DenomY, offerAmtWithFee), DenomX, orderPrice, params.SwapFeeRate), 0)
+			require.NoError(t, err)
+
+			liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+		}
+
+		require.True(t, simapp.BankKeeper.GetAllBalances(ctx, simapp.AccountKeeper.GetModuleAddress(types.ModuleName)).IsZero(), "there must be no remaining coin escrow")
+	}
+}
+
+func createPool(simapp *app.LiquidityApp, ctx sdk.Context, X, Y sdk.Int, denomX, denomY string) (types.Pool, error) {
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	coins := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
+	addr := app.AddRandomTestAddr(simapp, ctx, coins.Add(params.PoolCreationFee...))
+
+	return simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(addr, types.DefaultPoolTypeId, coins))
+}
