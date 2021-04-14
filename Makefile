@@ -2,7 +2,7 @@
 
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
-PACKAGES_NOSIMULATION=$(shell go list ./...)
+PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 BINDIR ?= $(GOPATH)/bin
 SIMAPP = ./app
 
@@ -131,14 +131,14 @@ update-swagger-docs: statik
 test: test-unit
 test-all: test-unit test-race test-cover
 
-test-unit:
-	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_NOSIMULATION)
+test-unit: 
+	@VERSION=$(VERSION) go test -mod=readonly -tags='norace' $(PACKAGES_NOSIMULATION)
 
 test-race:
 	@VERSION=$(VERSION) go test -mod=readonly -race $(PACKAGES_NOSIMULATION)
 
 test-cover:
-	@go test -mod=readonly -timeout 30m -race -coverprofile=coverage.txt -covermode=atomic -tags='ledger test_ledger_mock' ./...
+	@go test -mod=readonly -timeout 30m -coverprofile=coverage.txt -covermode=atomic -tags='norace ledger test_ledger_mock' ./...
 
 test-build: build
 	@go test -mod=readonly -p 4 `go list ./cli_test/...` -tags=cli_test -v
