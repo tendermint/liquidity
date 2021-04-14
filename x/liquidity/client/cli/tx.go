@@ -40,20 +40,20 @@ func GetTxCmd() *cobra.Command {
 // Create new liquidity pool with the specified pool type and deposit coins.
 func NewCreatePoolCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-pool [pool-type-id] [deposit-coins]",
+		Use:   "create-pool [pool-type] [deposit-coins]",
 		Args:  cobra.ExactArgs(2),
-		Short: "Create new liquidity pool with the specified pool type and deposit coins",
+		Short: "Create liquidity pool and deposit coins",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Create new liquidity pool with the specified pool type and deposit coins.
+			fmt.Sprintf(`Create liquidity pool and deposit coins.
 
 Example:
 $ %s tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
-In this example, user requests to create new liquidity pool with 100000000stake and 100000000token.
-User must create with a combination of coins that are not already exist in the network.
-In this version, pool-type-id 1 is only available, which requires two different coins.
+This example creates a liquidity pool of pool-type 1 (two coins) and deposits 1000000000uatom and 50000000000uusd.
+New liquidity pools can be created only for coin combinations that do not already exist in the network.
 
-{"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
+[pool-type]: The id of the liquidity pool-type. The only supported pool type is 1
+[deposit-coins]: The amount of coins to deposit to the liquidity pool. The number of deposit coins must be 2 in pool type 1.
 `,
 				version.AppName,
 			),
@@ -68,7 +68,7 @@ In this version, pool-type-id 1 is only available, which requires two different 
 			// Get pool type index
 			poolTypeId, err := strconv.ParseUint(args[0], 10, 32)
 			if err != nil {
-				return fmt.Errorf("pool-type-id %s not a valid uint, please input a valid pool-type-id", args[0])
+				return fmt.Errorf("pool-type %s not a valid uint, input a valid unsigned 32-bit integer for pool-type", args[0])
 			}
 
 			// Get deposit coins
@@ -87,7 +87,7 @@ In this version, pool-type-id 1 is only available, which requires two different 
 			}
 
 			if depositCoins.Len() != 2 {
-				return fmt.Errorf("the number of deposit coins must be two in the pool-type-id 1")
+				return fmt.Errorf("the number of deposit coins must be two in pool-type 1")
 			}
 
 			msg := types.NewMsgCreatePool(poolCreator, uint32(poolTypeId), depositCoins)
@@ -108,18 +108,21 @@ func NewDepositWithinBatchCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit [pool-id] [deposit-coins]",
 		Args:  cobra.ExactArgs(2),
-		Short: "Deposit coins to the specified liquidity pool",
+		Short: "Deposit coins to a liquidity pool",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Deposit coins to the specified liquidity pool.
+			fmt.Sprintf(`Deposit coins a liquidity pool.
 
-This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch.
+This deposit request is not processed immediately since it is accumulated in the liquidity pool batch.
+All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
 $ %s tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
 
-In this example, user requests to deposit 100000000uatom and 5000000000uusd to the specified liquidity pool.
-User must deposit the same coin denoms as the reserve coins.
+This example request deposits 100000000uatom and 5000000000uusd to pool-id 1.
+Deposits must be the same coin denoms as the reserve coins.
+
+[pool-id]: The pool id of the liquidity pool
+[deposit-coins]: The amount of coins to deposit to the liquidity pool
 `,
 				version.AppName,
 			),
@@ -134,7 +137,7 @@ User must deposit the same coin denoms as the reserve coins.
 			// Get pool type index
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
 
 			// Get deposit coins
@@ -149,7 +152,7 @@ User must deposit the same coin denoms as the reserve coins.
 			}
 
 			if depositCoins.Len() != 2 {
-				return fmt.Errorf("the number of deposit coins must be two in the pool-type-id 1")
+				return fmt.Errorf("the number of deposit coins must be two in the pool-type 1")
 			}
 
 			msg := types.NewMsgDepositWithinBatch(depositor, poolId, depositCoins)
@@ -174,14 +177,17 @@ func NewWithdrawWithinBatchCmd() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Withdraw pool coin from the specified liquidity pool.
 
-This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch. 
+This swap request is not processed immediately since it is accumulated in the liquidity pool batch.
+All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
 $ %s tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from mykey
 
-In this example, user requests to withdraw 10000 pool coin from the specified liquidity pool. 
-User must request the appropriate pool coin from the specified pool.
+This example request withdraws 10000 pool coin from the specified liquidity pool.
+The appropriate pool coin must be requested from the specified pool.
+
+[pool-id]: The pool id of the liquidity pool
+[pool-coin]: The amount of pool coin to withdraw from the liquidity pool
 `,
 				version.AppName,
 			),
@@ -196,7 +202,7 @@ User must request the appropriate pool coin from the specified pool.
 			// Get pool type index
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
 
 			// Get pool coin of the target pool
@@ -226,31 +232,39 @@ User must request the appropriate pool coin from the specified pool.
 // Swap offer coin with demand coin from the specified liquidity pool with the given order price.
 func NewSwapWithinBatchCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "swap [pool-id] [swap-type-id] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]",
+		Use:   "swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]",
 		Args:  cobra.ExactArgs(6),
-		Short: "Swap offer coin with demand coin from the specified liquidity pool with the given order price",
+		Short: "Swap offer coin with demand coin from the liquidity pool with the given order price",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Swap offer coin with demand coin from the specified liquidity pool with the given order price.
+			fmt.Sprintf(`Swap offer coin with demand coin from the liquidity pool with the given order price.
 
-This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch. 
-Note that the order of swap requests is ignored since the universal swap price is calculated within every batch to prevent front running.
+This swap request is not processed immediately since it is accumulated in the liquidity pool batch.
+All requests in a batch are treated equally and executed at the same swap price.
+The order of swap requests is ignored since the universal swap price is calculated in every batch to prevent front running.
 
-The requested swap is executed with a swap price calculated from given swap price function of the pool, the current other swap requests and the current liquidity pool coin reserve status.
-Swap orders are executed only when execution swap price is equal or better than submitted order price of the swap order.
+The requested swap is executed with a swap price that is calculated from the given swap price function of the pool, the other swap requests, and the liquidity pool coin reserve status.
+Swap orders are executed only when the execution swap price is equal to or greater than the submitted order price of the swap order.
 
 Example:
 $ %s liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from mykey
 
-In this example, we assume there exists a liquidity pool with 1000000000uatom and 50000000000uusd.
-User requests to swap 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
-User must have sufficient balance half of the swap-fee-rate of the offer coin to reserve offer coin fee.
+For this example, imagine that an existing liquidity pool has with 1000000000uatom and 50000000000uusd.
+This example request swaps 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
+A sufficient balance of half of the swap-fee-rate of the offer coin is required to reserve the offer coin fee.
 
-The order price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically. 
-Increasing order price means to decrease the possibility for your request to be processed and end up buying uatom at cheaper price than the pool price.  
+The order price is the exchange ratio of X/Y, where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically.
+Increasing order price reduces the possibility for your request to be processed and results in buying uatom at a lower price than the pool price.
 
-For explicit calculations, you must enter the swap-fee-rate value of the current parameter state.
-In this version, swap-type-id 1 is only available. The detailed swap algorithm can be found at https://github.com/tendermint/liquidity`,
+For explicit calculations, The swap fee rate must be the value that set as liquidity parameter in the current network.
+The only supported swap-type is 1. For the detailed swap algorithm, see https://github.com/tendermint/liquidity
+
+[pool-id]: The pool id of the liquidity pool 
+[swap-type]: The swap type of the swap message. The only supported swap type is 1 (instant swap).
+[offer-coin]: The amount of offer coin to swap 
+[demand-coin-denom]: The denomination of the coin to exchange with offer coin 
+[order-price]: The limit order price for the swap order. The price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically 
+[swap-fee-rate]: The swap fee rate to pay for swap that is proportional to swap amount. The swap fee rate must be the value that set as liquidity parameter in the current network.
+`,
 				version.AppName,
 			),
 		),
@@ -264,13 +278,13 @@ In this version, swap-type-id 1 is only available. The detailed swap algorithm c
 			// Get pool id
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint, please input a valid pool-id", args[0])
+				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
 
 			// Get swap type
 			swapTypeId, err := strconv.ParseUint(args[1], 10, 32)
 			if err != nil {
-				return fmt.Errorf("swap-type-id %s not a valid uint, please input a valid swap-type-id", args[2])
+				return fmt.Errorf("swap-type %s not a valid uint, input a valid unsigned 32-bit integer for swap-type", args[2])
 			}
 
 			if swapTypeId != 1 {
