@@ -25,6 +25,8 @@ import { RedelegationResponse } from "./module/types/cosmos/staking/v1beta1/stak
 import { Pool } from "./module/types/cosmos/staking/v1beta1/staking"
 
 
+export { LastValidatorPower, HistoricalInfo, CommissionRates, Commission, Description, Validator, ValAddresses, DVPair, DVPairs, DVVTriplet, DVVTriplets, Delegation, UnbondingDelegation, UnbondingDelegationEntry, RedelegationEntry, Redelegation, Params, DelegationResponse, RedelegationEntryResponse, RedelegationResponse, Pool };
+
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
 		addr: vuexGetters['common/env/apiTendermint']
@@ -61,44 +63,44 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        Validators: {},
-        Validator: {},
-        ValidatorDelegations: {},
-        ValidatorUnbondingDelegations: {},
-        Delegation: {},
-        UnbondingDelegation: {},
-        DelegatorDelegations: {},
-        DelegatorUnbondingDelegations: {},
-        Redelegations: {},
-        DelegatorValidators: {},
-        DelegatorValidator: {},
-        HistoricalInfo: {},
-        Pool: {},
-        Params: {},
-        
-        _Structure: {
-            LastValidatorPower: getStructure(LastValidatorPower.fromPartial({})),
-            HistoricalInfo: getStructure(HistoricalInfo.fromPartial({})),
-            CommissionRates: getStructure(CommissionRates.fromPartial({})),
-            Commission: getStructure(Commission.fromPartial({})),
-            Description: getStructure(Description.fromPartial({})),
-            Validator: getStructure(Validator.fromPartial({})),
-            ValAddresses: getStructure(ValAddresses.fromPartial({})),
-            DVPair: getStructure(DVPair.fromPartial({})),
-            DVPairs: getStructure(DVPairs.fromPartial({})),
-            DVVTriplet: getStructure(DVVTriplet.fromPartial({})),
-            DVVTriplets: getStructure(DVVTriplets.fromPartial({})),
-            Delegation: getStructure(Delegation.fromPartial({})),
-            UnbondingDelegation: getStructure(UnbondingDelegation.fromPartial({})),
-            UnbondingDelegationEntry: getStructure(UnbondingDelegationEntry.fromPartial({})),
-            RedelegationEntry: getStructure(RedelegationEntry.fromPartial({})),
-            Redelegation: getStructure(Redelegation.fromPartial({})),
-            Params: getStructure(Params.fromPartial({})),
-            DelegationResponse: getStructure(DelegationResponse.fromPartial({})),
-            RedelegationEntryResponse: getStructure(RedelegationEntryResponse.fromPartial({})),
-            RedelegationResponse: getStructure(RedelegationResponse.fromPartial({})),
-            Pool: getStructure(Pool.fromPartial({})),
-            
+				Validators: {},
+				Validator: {},
+				ValidatorDelegations: {},
+				ValidatorUnbondingDelegations: {},
+				Delegation: {},
+				UnbondingDelegation: {},
+				DelegatorDelegations: {},
+				DelegatorUnbondingDelegations: {},
+				Redelegations: {},
+				DelegatorValidators: {},
+				DelegatorValidator: {},
+				HistoricalInfo: {},
+				Pool: {},
+				Params: {},
+				
+				_Structure: {
+						LastValidatorPower: getStructure(LastValidatorPower.fromPartial({})),
+						HistoricalInfo: getStructure(HistoricalInfo.fromPartial({})),
+						CommissionRates: getStructure(CommissionRates.fromPartial({})),
+						Commission: getStructure(Commission.fromPartial({})),
+						Description: getStructure(Description.fromPartial({})),
+						Validator: getStructure(Validator.fromPartial({})),
+						ValAddresses: getStructure(ValAddresses.fromPartial({})),
+						DVPair: getStructure(DVPair.fromPartial({})),
+						DVPairs: getStructure(DVPairs.fromPartial({})),
+						DVVTriplet: getStructure(DVVTriplet.fromPartial({})),
+						DVVTriplets: getStructure(DVVTriplets.fromPartial({})),
+						Delegation: getStructure(Delegation.fromPartial({})),
+						UnbondingDelegation: getStructure(UnbondingDelegation.fromPartial({})),
+						UnbondingDelegationEntry: getStructure(UnbondingDelegationEntry.fromPartial({})),
+						RedelegationEntry: getStructure(RedelegationEntry.fromPartial({})),
+						Redelegation: getStructure(Redelegation.fromPartial({})),
+						Params: getStructure(Params.fromPartial({})),
+						DelegationResponse: getStructure(DelegationResponse.fromPartial({})),
+						RedelegationEntryResponse: getStructure(RedelegationEntryResponse.fromPartial({})),
+						RedelegationResponse: getStructure(RedelegationResponse.fromPartial({})),
+						Pool: getStructure(Pool.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -125,91 +127,91 @@ export default {
 		}
 	},
 	getters: {
-        getValidators: (state) => (params = {}) => {
+				getValidators: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Validators[JSON.stringify(params)] ?? {}
 		},
-        getValidator: (state) => (params = {}) => {
+				getValidator: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Validator[JSON.stringify(params)] ?? {}
 		},
-        getValidatorDelegations: (state) => (params = {}) => {
+				getValidatorDelegations: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ValidatorDelegations[JSON.stringify(params)] ?? {}
 		},
-        getValidatorUnbondingDelegations: (state) => (params = {}) => {
+				getValidatorUnbondingDelegations: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.ValidatorUnbondingDelegations[JSON.stringify(params)] ?? {}
 		},
-        getDelegation: (state) => (params = {}) => {
+				getDelegation: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Delegation[JSON.stringify(params)] ?? {}
 		},
-        getUnbondingDelegation: (state) => (params = {}) => {
+				getUnbondingDelegation: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.UnbondingDelegation[JSON.stringify(params)] ?? {}
 		},
-        getDelegatorDelegations: (state) => (params = {}) => {
+				getDelegatorDelegations: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DelegatorDelegations[JSON.stringify(params)] ?? {}
 		},
-        getDelegatorUnbondingDelegations: (state) => (params = {}) => {
+				getDelegatorUnbondingDelegations: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DelegatorUnbondingDelegations[JSON.stringify(params)] ?? {}
 		},
-        getRedelegations: (state) => (params = {}) => {
+				getRedelegations: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Redelegations[JSON.stringify(params)] ?? {}
 		},
-        getDelegatorValidators: (state) => (params = {}) => {
+				getDelegatorValidators: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DelegatorValidators[JSON.stringify(params)] ?? {}
 		},
-        getDelegatorValidator: (state) => (params = {}) => {
+				getDelegatorValidator: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DelegatorValidator[JSON.stringify(params)] ?? {}
 		},
-        getHistoricalInfo: (state) => (params = {}) => {
+				getHistoricalInfo: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.HistoricalInfo[JSON.stringify(params)] ?? {}
 		},
-        getPool: (state) => (params = {}) => {
+				getPool: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Pool[JSON.stringify(params)] ?? {}
 		},
-        getParams: (state) => (params = {}) => {
+				getParams: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -561,12 +563,27 @@ export default {
 		},
 		
 		
+		async sendMsgUndelegate({ rootGetters }, { value, fee = [], memo = '' }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgUndelegate(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+	gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUndelegate:Send', 'Could not broadcast Tx: '+ e.message)
+				}
+			}
+		},
 		async sendMsgEditValidator({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgEditValidator(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -581,7 +598,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgDelegate(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -591,42 +608,12 @@ export default {
 				}
 			}
 		},
-		async sendMsgUndelegate({ rootGetters }, { value, fee = [], memo = '' }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgUndelegate(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgUndelegate:Send', 'Could not broadcast Tx: '+ e.message)
-				}
-			}
-		},
-		async sendMsgBeginRedelegate({ rootGetters }, { value, fee = [], memo = '' }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgBeginRedelegate(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgBeginRedelegate:Send', 'Could not broadcast Tx: '+ e.message)
-				}
-			}
-		},
 		async sendMsgCreateValidator({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgCreateValidator(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -636,7 +623,36 @@ export default {
 				}
 			}
 		},
+		async sendMsgBeginRedelegate({ rootGetters }, { value, fee = [], memo = '' }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgBeginRedelegate(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+	gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgBeginRedelegate:Send', 'Could not broadcast Tx: '+ e.message)
+				}
+			}
+		},
 		
+		async MsgUndelegate({ rootGetters }, { value }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgUndelegate(value)
+				return msg
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUndelegate:Create', 'Could not create message: ' + e.message)
+					
+				}
+			}
+		},
 		async MsgEditValidator({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
@@ -665,16 +681,16 @@ export default {
 				}
 			}
 		},
-		async MsgUndelegate({ rootGetters }, { value }) {
+		async MsgCreateValidator({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgUndelegate(value)
+				const msg = await txClient.msgCreateValidator(value)
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgUndelegate:Create', 'Could not create message: ' + e.message)
+					throw new SpVuexError('TxClient:MsgCreateValidator:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}
@@ -689,20 +705,6 @@ export default {
 					throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgBeginRedelegate:Create', 'Could not create message: ' + e.message)
-					
-				}
-			}
-		},
-		async MsgCreateValidator({ rootGetters }, { value }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgCreateValidator(value)
-				return msg
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgCreateValidator:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}

@@ -9,6 +9,8 @@ import { ValidatorSigningInfo } from "./module/types/cosmos/slashing/v1beta1/sla
 import { Params } from "./module/types/cosmos/slashing/v1beta1/slashing"
 
 
+export { SigningInfo, ValidatorMissedBlocks, MissedBlock, ValidatorSigningInfo, Params };
+
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
 		addr: vuexGetters['common/env/apiTendermint']
@@ -45,17 +47,17 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        Params: {},
-        SigningInfo: {},
-        SigningInfos: {},
-        
-        _Structure: {
-            SigningInfo: getStructure(SigningInfo.fromPartial({})),
-            ValidatorMissedBlocks: getStructure(ValidatorMissedBlocks.fromPartial({})),
-            MissedBlock: getStructure(MissedBlock.fromPartial({})),
-            ValidatorSigningInfo: getStructure(ValidatorSigningInfo.fromPartial({})),
-            Params: getStructure(Params.fromPartial({})),
-            
+				Params: {},
+				SigningInfo: {},
+				SigningInfos: {},
+				
+				_Structure: {
+						SigningInfo: getStructure(SigningInfo.fromPartial({})),
+						ValidatorMissedBlocks: getStructure(ValidatorMissedBlocks.fromPartial({})),
+						MissedBlock: getStructure(MissedBlock.fromPartial({})),
+						ValidatorSigningInfo: getStructure(ValidatorSigningInfo.fromPartial({})),
+						Params: getStructure(Params.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -82,25 +84,25 @@ export default {
 		}
 	},
 	getters: {
-        getParams: (state) => (params = {}) => {
+				getParams: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
-        getSigningInfo: (state) => (params = {}) => {
+				getSigningInfo: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.SigningInfo[JSON.stringify(params)] ?? {}
 		},
-        getSigningInfos: (state) => (params = {}) => {
+				getSigningInfos: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.SigningInfos[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -202,7 +204,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgUnjail(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

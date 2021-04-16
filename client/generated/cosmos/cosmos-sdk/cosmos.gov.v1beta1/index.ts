@@ -12,6 +12,8 @@ import { VotingParams } from "./module/types/cosmos/gov/v1beta1/gov"
 import { TallyParams } from "./module/types/cosmos/gov/v1beta1/gov"
 
 
+export { TextProposal, Deposit, Proposal, TallyResult, Vote, DepositParams, VotingParams, TallyParams };
+
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
 		addr: vuexGetters['common/env/apiTendermint']
@@ -48,25 +50,25 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        Proposal: {},
-        Proposals: {},
-        Vote: {},
-        Votes: {},
-        Params: {},
-        Deposit: {},
-        Deposits: {},
-        TallyResult: {},
-        
-        _Structure: {
-            TextProposal: getStructure(TextProposal.fromPartial({})),
-            Deposit: getStructure(Deposit.fromPartial({})),
-            Proposal: getStructure(Proposal.fromPartial({})),
-            TallyResult: getStructure(TallyResult.fromPartial({})),
-            Vote: getStructure(Vote.fromPartial({})),
-            DepositParams: getStructure(DepositParams.fromPartial({})),
-            VotingParams: getStructure(VotingParams.fromPartial({})),
-            TallyParams: getStructure(TallyParams.fromPartial({})),
-            
+				Proposal: {},
+				Proposals: {},
+				Vote: {},
+				Votes: {},
+				Params: {},
+				Deposit: {},
+				Deposits: {},
+				TallyResult: {},
+				
+				_Structure: {
+						TextProposal: getStructure(TextProposal.fromPartial({})),
+						Deposit: getStructure(Deposit.fromPartial({})),
+						Proposal: getStructure(Proposal.fromPartial({})),
+						TallyResult: getStructure(TallyResult.fromPartial({})),
+						Vote: getStructure(Vote.fromPartial({})),
+						DepositParams: getStructure(DepositParams.fromPartial({})),
+						VotingParams: getStructure(VotingParams.fromPartial({})),
+						TallyParams: getStructure(TallyParams.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -93,55 +95,55 @@ export default {
 		}
 	},
 	getters: {
-        getProposal: (state) => (params = {}) => {
+				getProposal: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Proposal[JSON.stringify(params)] ?? {}
 		},
-        getProposals: (state) => (params = {}) => {
+				getProposals: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Proposals[JSON.stringify(params)] ?? {}
 		},
-        getVote: (state) => (params = {}) => {
+				getVote: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Vote[JSON.stringify(params)] ?? {}
 		},
-        getVotes: (state) => (params = {}) => {
+				getVotes: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Votes[JSON.stringify(params)] ?? {}
 		},
-        getParams: (state) => (params = {}) => {
+				getParams: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
-        getDeposit: (state) => (params = {}) => {
+				getDeposit: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Deposit[JSON.stringify(params)] ?? {}
 		},
-        getDeposits: (state) => (params = {}) => {
+				getDeposits: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Deposits[JSON.stringify(params)] ?? {}
 		},
-        getTallyResult: (state) => (params = {}) => {
+				getTallyResult: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.TallyResult[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -351,42 +353,12 @@ export default {
 		},
 		
 		
-		async sendMsgSubmitProposal({ rootGetters }, { value, fee = [], memo = '' }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgSubmitProposal(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgSubmitProposal:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgSubmitProposal:Send', 'Could not broadcast Tx: '+ e.message)
-				}
-			}
-		},
-		async sendMsgDeposit({ rootGetters }, { value, fee = [], memo = '' }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgDeposit(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgDeposit:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgDeposit:Send', 'Could not broadcast Tx: '+ e.message)
-				}
-			}
-		},
 		async sendMsgVote({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgVote(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -396,17 +368,47 @@ export default {
 				}
 			}
 		},
-		
-		async MsgSubmitProposal({ rootGetters }, { value }) {
+		async sendMsgDeposit({ rootGetters }, { value, fee = [], memo = '' }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgDeposit(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+	gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgDeposit:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgDeposit:Send', 'Could not broadcast Tx: '+ e.message)
+				}
+			}
+		},
+		async sendMsgSubmitProposal({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgSubmitProposal(value)
-				return msg
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+	gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
 					throw new SpVuexError('TxClient:MsgSubmitProposal:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgSubmitProposal:Create', 'Could not create message: ' + e.message)
+					throw new SpVuexError('TxClient:MsgSubmitProposal:Send', 'Could not broadcast Tx: '+ e.message)
+				}
+			}
+		},
+		
+		async MsgVote({ rootGetters }, { value }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgVote(value)
+				return msg
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgVote:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgVote:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}
@@ -425,16 +427,16 @@ export default {
 				}
 			}
 		},
-		async MsgVote({ rootGetters }, { value }) {
+		async MsgSubmitProposal({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgVote(value)
+				const msg = await txClient.msgSubmitProposal(value)
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgVote:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgSubmitProposal:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgVote:Create', 'Could not create message: ' + e.message)
+					throw new SpVuexError('TxClient:MsgSubmitProposal:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}
