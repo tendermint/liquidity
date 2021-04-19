@@ -29,7 +29,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
-	servergrpc "github.com/cosmos/cosmos-sdk/server/grpc"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/simapp/params"
@@ -59,10 +58,10 @@ var lock = new(sync.Mutex)
 type AppConstructor = func(val Validator) servertypes.Application
 
 // NewAppConstructor returns a new simapp AppConstructor
-func NewAppConstructor(encodingCfg params.EncodingConfig) AppConstructor {
+func NewAppConstructor(encodingCfg params.EncodingConfig, db *dbm.MemDB) AppConstructor {
 	return func(val Validator) servertypes.Application {
 		return liquidityapp.NewLiquidityApp(
-			val.Ctx.Logger, dbm.NewMemDB(), nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
+			val.Ctx.Logger, db, nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
 			liquidityapp.MakeEncodingConfig(),
 			simapp.EmptyAppOptions{},
 			baseapp.SetPruning(storetypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
@@ -102,7 +101,7 @@ type Config struct {
 
 // DefaultConfig returns a sane default configuration suitable for nearly all
 // testing requirements.
-func DefaultConfig() Config {
+func DefaultConfig(tmdb *dbm.MemDB) Config {
 	encCfg := simapp.MakeTestEncodingConfig()
 
 	app, ctx := liquidityapp.CreateTestInput()
@@ -115,7 +114,7 @@ func DefaultConfig() Config {
 		LegacyAmino:       encCfg.Amino,
 		InterfaceRegistry: encCfg.InterfaceRegistry,
 		AccountRetriever:  authtypes.AccountRetriever{},
-		AppConstructor:    NewAppConstructor(encCfg),
+		AppConstructor:    NewAppConstructor(encCfg, tmdb),
 		GenesisState:      liquidityapp.ModuleBasics.DefaultGenesis(encCfg.Marshaler),
 		TimeoutCommit:     2 * time.Second,
 		ChainID:           "chain-" + tmrand.NewRand().Str(6),
@@ -486,59 +485,4 @@ func (n *Network) Cleanup() {
 	}
 
 	n.T.Log("finished cleaning up test network")
-}
-
-func (n *Network) Start(cfg Config, val *Validator) error {
-	n.T.Log("restarting test network...")
-
-	for _, v := range n.Validators {
-		if v.tmNode != nil && v.tmNode.IsRunning() {
-			err := v.tmNode.Start()
-			if err != nil {
-				return err
-			}
-		}
-
-		if v.api != nil {
-			err := v.api.Start(*val.AppConfig)
-			if err != nil {
-				return err
-			}
-		}
-
-		if v.grpc != nil {
-			app := cfg.AppConstructor(*val)
-
-			grpcSrv, err := servergrpc.StartGRPCServer(val.ClientCtx, app, val.AppConfig.GRPC.Address)
-			if err != nil {
-				return err
-			}
-
-			val.grpc = grpcSrv
-		}
-	}
-
-	n.T.Log("finished restarting test network")
-
-	return nil
-}
-
-func (n *Network) Stop() {
-	n.T.Log("stopping test network...")
-
-	for _, v := range n.Validators {
-		if v.tmNode != nil && v.tmNode.IsRunning() {
-			_ = v.tmNode.Stop()
-		}
-
-		if v.api != nil {
-			_ = v.api.Close()
-		}
-
-		if v.grpc != nil {
-			v.grpc.Stop()
-		}
-	}
-
-	n.T.Log("finished stopping test network")
 }
