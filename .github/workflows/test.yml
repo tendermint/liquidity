@@ -27,7 +27,7 @@ jobs:
       - name: Display go version
         run: go version
       - name: test & coverage report creation
-        run: make test-cover
+        run: make test-race test-cover
       - name: filter out DONTCOVER
         run: |
           excludelist="$(find ./ -type f -name '*.go' | xargs grep -l 'DONTCOVER')"
