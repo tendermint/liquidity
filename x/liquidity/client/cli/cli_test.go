@@ -20,13 +20,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
+	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltest "github.com/cosmos/cosmos-sdk/x/genutil/client/testutil"
 
 	lapp "github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/internal/network"
 	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/client/cli"
 	liquiditytestutil "github.com/tendermint/liquidity/x/liquidity/client/testutil"
@@ -42,12 +42,10 @@ import (
 type IntegrationTestSuite struct {
 	suite.Suite
 
-	app     *lapp.LiquidityApp
-	ctx     sdk.Context
 	cfg     network.Config
 	network *network.Network
 
-	db *tmdb.MemDB // in-memory database backend is needed for exporting genesis cli integration test
+	db *tmdb.MemDB // in-memory database is needed for exporting genesis cli integration test
 }
 
 // SetupTest creates a new network for _each_ integration test. We create a new
@@ -59,7 +57,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 
 	db := tmdb.NewMemDB()
 
-	cfg := network.DefaultConfig(db)
+	cfg := liquiditytestutil.NewConfig(db)
 	cfg.NumValidators = 1
 
 	var liquidtyGenesisState liquiditytypes.GenesisState
@@ -74,8 +72,6 @@ func (s *IntegrationTestSuite) SetupTest() {
 
 	s.cfg = cfg
 	s.network = network.New(s.T(), cfg)
-	s.app = cfg.LiquidityApp
-	s.ctx = cfg.AppContext
 	s.db = db
 
 	_, err = s.network.WaitForHeight(1)
