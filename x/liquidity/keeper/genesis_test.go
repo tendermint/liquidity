@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,6 +12,28 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
+
+func TestGenesis(t *testing.T) {
+	simapp, ctx := app.CreateTestInput()
+
+	lk := simapp.LiquidityKeeper
+
+	// default genesis state
+	genState := types.DefaultGenesisState()
+	require.Equal(t, sdk.NewDecWithPrec(3, 3), genState.Params.SwapFeeRate)
+
+	// change swap fee rate
+	params := lk.GetParams(ctx)
+	params.SwapFeeRate = sdk.NewDecWithPrec(5, 3)
+
+	// set params
+	lk.SetParams(ctx, params)
+
+	newGenState := lk.ExportGenesis(ctx)
+	require.Equal(t, sdk.NewDecWithPrec(5, 3), newGenState.Params.SwapFeeRate)
+
+	fmt.Println("newGenState: ", newGenState)
+}
 
 func TestGenesisState(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()

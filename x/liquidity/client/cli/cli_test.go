@@ -3,23 +3,40 @@
 package cli_test
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"strings"
 	"testing"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/server"
+	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/module"
+	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	genutiltest "github.com/cosmos/cosmos-sdk/x/genutil/client/testutil"
 
+	lapp "github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/client/cli"
 	liquiditytestutil "github.com/tendermint/liquidity/x/liquidity/client/testutil"
 	liquiditytypes "github.com/tendermint/liquidity/x/liquidity/types"
 
 	tmcli "github.com/tendermint/tendermint/libs/cli"
+	tmjson "github.com/tendermint/tendermint/libs/json"
+	tmlog "github.com/tendermint/tendermint/libs/log"
+	tmtypes "github.com/tendermint/tendermint/types"
+	tmdb "github.com/tendermint/tm-db"
 )
 
 type IntegrationTestSuite struct {
@@ -27,6 +44,8 @@ type IntegrationTestSuite struct {
 
 	cfg     network.Config
 	network *network.Network
+
+	db *tmdb.MemDB // in-memory database is needed for exporting genesis cli integration test
 }
 
 // SetupTest creates a new network for _each_ integration test. We create a new
@@ -36,7 +55,9 @@ type IntegrationTestSuite struct {
 func (s *IntegrationTestSuite) SetupTest() {
 	s.T().Log("setting up integration test suite")
 
-	cfg := liquiditytestutil.NewConfig()
+	db := tmdb.NewMemDB()
+
+	cfg := liquiditytestutil.NewConfig(db)
 	cfg.NumValidators = 1
 
 	var liquidtyGenesisState liquiditytypes.GenesisState
@@ -51,6 +72,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 
 	s.cfg = cfg
 	s.network = network.New(s.T(), cfg)
+	s.db = db
 
 	_, err = s.network.WaitForHeight(1)
 	s.Require().NoError(err)
@@ -1218,4 +1240,128 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
 			}
 		})
 	}
+}
+
+func (s *IntegrationTestSuite) TestInitGenesis() {
+	testCases := []struct {
+		name      string
+		flags     func(dir string) []string
+		expectErr bool
+		err       error
+	}{
+		{
+			name: "default genesis state",
+			flags: func(dir string) []string {
+				return []string{
+					"liquidity-test",
+				}
+			},
+			expectErr: false,
+			err:       nil,
+		},
+	}
+	for _, tc := range testCases {
+		tc := tc
+		s.Run(tc.name, func() {
+			testMbm := module.NewBasicManager(liquidity.AppModuleBasic{})
+
+			home := s.T().TempDir()
+			logger := tmlog.NewNopLogger()
+			cfg, err := genutiltest.CreateDefaultTendermintConfig(home)
+			s.Require().NoError(err)
+
+			serverCtx := server.NewContext(viper.New(), cfg, logger)
+			interfaceRegistry := types.NewInterfaceRegistry()
+			marshaler := codec.NewProtoCodec(interfaceRegistry)
+			clientCtx := client.Context{}.
+				WithJSONMarshaler(marshaler).
+				WithHomeDir(home)
+
+			ctx := context.Background()
+			ctx = context.WithValue(ctx, client.ClientContextKey, &clientCtx)
+			ctx = context.WithValue(ctx, server.ServerContextKey, serverCtx)
+
+			cmd := genutilcli.InitCmd(testMbm, home)
+			cmd.SetArgs(
+				tc.flags(home),
+			)
+
+			if tc.expectErr {
+				err := cmd.ExecuteContext(ctx)
+				s.Require().EqualError(err, tc.err.Error())
+			} else {
+				s.Require().NoError(cmd.ExecuteContext(ctx))
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestExportGenesis() {
+	clientCtx := s.network.Validators[0].ClientCtx
+	serverCtx := s.network.Validators[0].Ctx
+
+	home := clientCtx.HomeDir
+
+	// verify genesis file saved in temp directory
+	genDocFile := clientCtx.HomeDir + "/config/genesis.json"
+	genDoc, err := tmtypes.GenesisDocFromFile(genDocFile)
+	s.Require().NoError(err)
+	s.Require().NotNil(genDoc)
+
+	val := s.network.Validators[0]
+
+	// use two different tokens that are minted to the test account
+	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
+	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
+	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
+
+	// create liquidity pool
+	_, err = liquiditytestutil.MsgCreatePoolExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeId),
+		sdk.NewCoins(X, Y).String(),
+	)
+	s.Require().NoError(err)
+
+	err = s.network.WaitForNextBlock()
+	s.Require().NoError(err)
+
+	cmd := server.ExportCmd(
+		func(_ tmlog.Logger, _ tmdb.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string,
+			appOpts servertypes.AppOptions) (servertypes.ExportedApp, error) {
+
+			encCfg := lapp.MakeEncodingConfig()
+			encCfg.Marshaler = codec.NewProtoCodec(encCfg.InterfaceRegistry)
+
+			// get logger and in-memory database
+			logger := serverCtx.Logger
+			db := s.db
+
+			var app *lapp.LiquidityApp
+			if height != -1 {
+				app = lapp.NewLiquidityApp(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), encCfg, appOpts)
+
+				if err := app.LoadHeight(height); err != nil {
+					return servertypes.ExportedApp{}, err
+				}
+			} else {
+				app = lapp.NewLiquidityApp(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), encCfg, appOpts)
+			}
+
+			return app.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
+		},
+		home,
+	)
+
+	args := []string{fmt.Sprintf("--%s=%s", flags.FlagHome, home)}
+
+	out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, args)
+	s.Require().NoError(err)
+
+	var exportedGenDoc tmtypes.GenesisDoc
+	err = tmjson.Unmarshal(out.Bytes(), &exportedGenDoc)
+	s.Require().NoError(err)
+
+	s.Require().Equal(clientCtx.ChainID, exportedGenDoc.ChainID)
 }

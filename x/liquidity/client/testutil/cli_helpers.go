@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cosmos/cosmos-sdk/simapp/params"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
@@ -20,28 +21,28 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
-// NewConfig returns config that defines the necessary configuration
+// NewConfig returns config that defines the necessary testing requirements
 // used to bootstrap and start an in-process local testing network.
-func NewConfig() network.Config {
+func NewConfig(dbm *dbm.MemDB) network.Config {
+	encCfg := simapp.MakeTestEncodingConfig()
+
 	cfg := network.DefaultConfig()
-	encCfg := liquidityapp.MakeEncodingConfig()
-	cfg.Codec = encCfg.Marshaler
-	cfg.TxConfig = encCfg.TxConfig
-	cfg.LegacyAmino = encCfg.Amino
-	cfg.InterfaceRegistry = encCfg.InterfaceRegistry
-	cfg.AppConstructor = NewLiquidityAppConstructor                        // the ABCI application constructor
+	cfg.AppConstructor = NewAppConstructor(encCfg, dbm)                    // the ABCI application constructor
 	cfg.GenesisState = liquidityapp.ModuleBasics.DefaultGenesis(cfg.Codec) // liquidity genesis state to provide
 	return cfg
 }
 
-// NewLiquidityAppConstructor returns a new liquidity application.
-func NewLiquidityAppConstructor(val network.Validator) servertypes.Application {
-	return liquidityapp.NewLiquidityApp(
-		val.Ctx.Logger, dbm.NewMemDB(), nil, true, make(map[int64]bool),
-		val.Ctx.Config.RootDir, 0, liquidityapp.MakeEncodingConfig(), simapp.EmptyAppOptions{},
-		baseapp.SetPruning(storetypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
-		baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
-	)
+// NewAppConstructor returns a new network AppConstructor.
+func NewAppConstructor(encodingCfg params.EncodingConfig, db *dbm.MemDB) network.AppConstructor {
+	return func(val network.Validator) servertypes.Application {
+		return liquidityapp.NewLiquidityApp(
+			val.Ctx.Logger, db, nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
+			liquidityapp.MakeEncodingConfig(),
+			simapp.EmptyAppOptions{},
+			baseapp.SetPruning(storetypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),
+			baseapp.SetMinGasPrices(val.AppConfig.MinGasPrices),
+		)
+	}
 }
 
 var commonArgs = []string{
