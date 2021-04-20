@@ -1,5 +1,7 @@
 package network
 
+// DONTCOVER
+
 import (
 	"bufio"
 	"context"

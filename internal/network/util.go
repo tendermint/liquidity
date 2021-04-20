@@ -1,5 +1,7 @@
 package network
 
+// DONTCOVER
+
 import (
 	"encoding/json"
 	"path/filepath"
