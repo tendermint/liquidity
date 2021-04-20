@@ -76,10 +76,10 @@ Usage:
   liquidityd tx liquidity [command]
 
 Available Commands:
-  create-pool Create Liquidity pool with the specified pool-type, deposit-coins
-  deposit     Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins
-  swap        Swap offer submit to the batch to the Liquidity pool with the specified pool-id with offer-coin, order-price, etc
-  withdraw    Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
+  create-pool Create new liquidity pool with the specified pool type and deposit coins
+  deposit     Deposit coins to the specified liquidity pool
+  swap        Swap offer coin with demand coin from the specified liquidity pool with the given order price
+  withdraw    Withdraw pool coin from the specified liquidity pool
 ```
 
 
@@ -97,13 +97,15 @@ Usage:
 
 Available Commands:
   batch       Query details of a liquidity pool batch of the pool
-  batches     Query for all liquidity pools batch
-  deposits    Query for all deposit messages on the batch of the liquidity pool
+  deposit     Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index
+  deposits    Query for all deposit messages on the batch of the liquidity pool specified pool-id
   params      Query the current liquidity parameters information
   pool        Query details of a liquidity pool
   pools       Query for all liquidity pools
-  swaps       Query for all swap messages on the batch of the liquidity pool
-  withdraws   Query for all withdraw messages on the batch of the liquidity pool
+  swap        Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
+  swaps       Query for all swap messages on the batch of the liquidity pool specified pool-id
+  withdraw    Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index
+  withdraws   Query for all withdraw messages on the batch of the liquidity pool specified pool-id
 ```
 
 #### A detailed document on client can be found here. [client.md](doc/client.md)
@@ -130,8 +132,8 @@ make install
 liquidityd init testing --chain-id testing
 liquidityd keys add validator --keyring-backend test
 liquidityd keys add user1 --keyring-backend test
-liquidityd add-genesis-account $(liquidityd keys show validator --keyring-backend test -a) 2000000000stake,1000000000token
-liquidityd add-genesis-account $(liquidityd keys show user1 --keyring-backend test -a) 1000000000stake,1000000000atom
+liquidityd add-genesis-account $(liquidityd keys show validator --keyring-backend test -a) 10000000000stake,10000000000uatom,500000000000uusd
+liquidityd add-genesis-account $(liquidityd keys show user1 --keyring-backend test -a) 10000000000stake,10000000000uatom,500000000000uusd
 liquidityd gentx validator 1000000000stake --chain-id testing --keyring-backend test
 liquidityd collect-gentxs
 liquidityd start
@@ -142,19 +144,19 @@ liquidityd start
 Example of creating test liquidity pool 1 using cli
 
 ```bash
-liquidityd tx liquidity create-pool 1 100000000stake,100000000token --from validator --keyring-backend test --chain-id testing -y
+liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -y
 ```
 
 Example of creating test liquidity pool 2 using cli
 
 ```bash
-liquidityd tx liquidity create-pool 1 100000000stake,100000000atom --from user1 --keyring-backend test --chain-id testing -y
+liquidityd tx liquidity create-pool 1 10000000stake,10000000uusd --from validator --keyring-backend test --chain-id testing -y
 ```
 
 Example of Swap request using cli
 
 ```bash
-liquidityd tx liquidity swap 2 1 1000stake atom 0.9 0.003 --from validator --chain-id testing --keyring-backend test -y
+liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y
 ```
 
 ### Broadcasting Txs with REST
@@ -165,7 +167,7 @@ example of generating unsigned tx
 
 ```bash
 validator=$(liquidityd keys show validator --keyring-backend test -a)
-liquidityd tx liquidity swap 2 1 1000stake atom 0.9 0.003 --from $validator --chain-id testing --generate-only > tx_swap.json
+liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from $validator --chain-id testing --generate-only > tx_swap.json
 cat tx_swap.json
 ```
  
@@ -182,14 +184,14 @@ example of encoding signed tx
 liquidityd tx encode tx_swap_signed.json
 ```
 
-example of the output: `CowBCokBCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJoCi1jb3Ntb3MxOGpreTNlNXowZHc5cTVzcmMyN2xodG5teHI4NmE2bjd5ZDdzOXIQAhgBIg0KBXN0YWtlEgQxMDAwKgRhdG9tMgoKBXN0YWtlEgExOhI5MDAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAjEHv9d3Jp39UOnp8y9UNaWa63fTxcIWz2TpSJKlIRIzEgQKAgh/GAQSBBDAmgwaQB5tHMMkxQBLTHbwytego2knU1mjqBMVRexuTx/5Xx/LTo4OUhOxtYsIf3H1onPCgOPqxU0Hu0yU6SaANfHNBxM=`
+example of the output: `Cp0BCpoBCigvdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcFdpdGhpbkJhdGNoEm4KLWNvc21vczE4cWM2ZGwwNDZ1a3V0MjN3NnF1dndmenBmeWhncDJmeHFkcXAwNhACGAEiEAoEdXVzZBIINTAwMDAwMDAqBXVhdG9tMg0KBHV1c2QSBTc1MDAwOhExOTAwMDAwMDAwMDAwMDAwMBJYClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDsouFptHWGniIBzFrsE26PcfH950qjnf4RaEsd+g2fA0SBAoCCH8YAxIEEMCaDBpAOI3k8fay9TziZbl+eNCqmPEF7tWXua3ad0ldNR6XOgZjKRBP9sQSxCtaRFnqc6Avep9C4Rjt+CHDahRNpZ8u3A==`
 
 
 example of broadcasting txs using the [new REST endpoint (via gRPC-gateway, beta1)](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints)
 need to enable API server for test
 
 ```bash
-curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"CowBCokBCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJoCi1jb3Ntb3MxOGpreTNlNXowZHc5cTVzcmMyN2xodG5teHI4NmE2bjd5ZDdzOXIQAhgBIg0KBXN0YWtlEgQxMDAwKgRhdG9tMgoKBXN0YWtlEgExOhI5MDAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAjEHv9d3Jp39UOnp8y9UNaWa63fTxcIWz2TpSJKlIRIzEgQKAgh/GAQSBBDAmgwaQB5tHMMkxQBLTHbwytego2knU1mjqBMVRexuTx/5Xx/LTo4OUhOxtYsIf3H1onPCgOPqxU0Hu0yU6SaANfHNBxM=","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
+curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"Cp0BCpoBCigvdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcFdpdGhpbkJhdGNoEm4KLWNvc21vczE4cWM2ZGwwNDZ1a3V0MjN3NnF1dndmenBmeWhncDJmeHFkcXAwNhACGAEiEAoEdXVzZBIINTAwMDAwMDAqBXVhdG9tMg0KBHV1c2QSBTc1MDAwOhExOTAwMDAwMDAwMDAwMDAwMBJYClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDsouFptHWGniIBzFrsE26PcfH950qjnf4RaEsd+g2fA0SBAoCCH8YAxIEEMCaDBpAOI3k8fay9TziZbl+eNCqmPEF7tWXua3ad0ldNR6XOgZjKRBP9sQSxCtaRFnqc6Avep9C4Rjt+CHDahRNpZ8u3A==","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
 ```
 
 ## Export, Genesis State
@@ -237,14 +239,15 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
   "liquidity": {
     "params": {
       "init_pool_coin_mint_amount": "1000000",
+      "max_order_amount_ratio": "0.100000000000000000",
+      "max_reserve_coin_amount": "0",
+      "min_init_deposit_amount": "1000000",
       "pool_creation_fee": [
         {
           "amount": "100000000",
           "denom": "stake"
         }
       ],
-      "max_order_amount_ratio": "0.100000000000000000",
-      "min_init_deposit_amount": "1000000",
       "pool_types": [
         {
           "description": "",
@@ -254,7 +257,6 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
           "name": "DefaultPoolType"
         }
       ],
-      "max_reserve_coin_amount": "0",
       "swap_fee_rate": "0.003000000000000000",
       "unit_batch_height": 1,
       "withdraw_fee_rate": "0.003000000000000000"
@@ -264,37 +266,37 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
         "deposit_msg_states": [],
         "pool": {
           "id": "1",
-          "pool_coin_denom": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
-          "reserve_account_address": "cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u",
+          "pool_coin_denom": "pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295",
+          "reserve_account_address": "cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we",
           "reserve_coin_denoms": [
-            "stake",
-            "token"
+            "uatom",
+            "uusd"
           ],
           "type_id": 1
         },
         "pool_batch": {
-          "begin_height": "6849",
-          "deposit_msg_index": "5",
+          "begin_height": "563",
+          "deposit_msg_index": "2",
           "executed": false,
-          "index": "6",
+          "index": "3",
           "pool_id": "1",
-          "swap_msg_index": "1",
-          "withdraw_msg_index": "3"
+          "swap_msg_index": "2",
+          "withdraw_msg_index": "2"
         },
         "pool_metadata": {
           "pool_coin_total_supply": {
-            "amount": "1999625",
-            "denom": "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"
+            "amount": "1089899",
+            "denom": "pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295"
           },
           "pool_id": "1",
           "reserve_coins": [
             {
-              "amount": "200262607",
-              "denom": "stake"
+              "amount": "1088843820",
+              "denom": "uatom"
             },
             {
-              "amount": "200262607",
-              "denom": "token"
+              "amount": "54551075322",
+              "denom": "uusd"
             }
           ]
         },
@@ -305,37 +307,37 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
         "deposit_msg_states": [],
         "pool": {
           "id": "2",
-          "pool_coin_denom": "pool/4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC",
-          "reserve_account_address": "cosmos1guvgyffq53h87etuq5d85x9fazzh6ta5tq2rjn",
+          "pool_coin_denom": "poolA4648A10F8D43B8EE4D915A35CB292618215D9F60CE3E2E29216489CF1FAE049",
+          "reserve_account_address": "cosmos153jg5y8c6sacaexezk34ev5jvxpptk0kscrx0x",
           "reserve_coin_denoms": [
-            "atom",
-            "stake"
+            "stake",
+            "uusd"
           ],
           "type_id": 1
         },
         "pool_batch": {
-          "begin_height": "6830",
+          "begin_height": "0",
           "deposit_msg_index": "1",
           "executed": false,
           "index": "1",
           "pool_id": "2",
-          "swap_msg_index": "2",
+          "swap_msg_index": "1",
           "withdraw_msg_index": "1"
         },
         "pool_metadata": {
           "pool_coin_total_supply": {
             "amount": "1000000",
-            "denom": "pool/4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC"
+            "denom": "poolA4648A10F8D43B8EE4D915A35CB292618215D9F60CE3E2E29216489CF1FAE049"
           },
           "pool_id": "2",
           "reserve_coins": [
             {
-              "amount": "100000000",
-              "denom": "atom"
+              "amount": "10000000",
+              "denom": "stake"
             },
             {
-              "amount": "100000000",
-              "denom": "stake"
+              "amount": "10000000",
+              "denom": "uusd"
             }
           ]
         },

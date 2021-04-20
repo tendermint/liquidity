@@ -15,9 +15,9 @@ var (
 // Messages Type of Liquidity module
 const (
 	TypeMsgCreatePool          = "create_pool"
-	TypeMsgDepositWithinBatch  = "deposit_to_pool"
-	TypeMsgWithdrawWithinBatch = "withdraw_from_pool"
-	TypeMsgSwapWithinBatch     = "swap"
+	TypeMsgDepositWithinBatch  = "deposit_within_batch"
+	TypeMsgWithdrawWithinBatch = "withdraw_within_batch"
+	TypeMsgSwapWithinBatch     = "swap_within_batch"
 )
 
 // ------------------------------------------------------------------------
@@ -230,12 +230,10 @@ func NewMsgSwapWithinBatch(
 	}
 }
 
-//func (msg MsgSwapWithinBatch) GetOfferCoinFee() sdk.Coin {
-//	return GetOfferCoinFee(msg.OfferCoin)
-//}
-
 func GetOfferCoinFee(offerCoin sdk.Coin, swapFeeRate sdk.Dec) sdk.Coin {
-	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(swapFeeRate.Mul(HalfRatio)).TruncateInt())
+	// apply half-ratio swap fee rate
+	// see https://github.com/tendermint/liquidity/issues/41 for details
+	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(swapFeeRate.QuoInt64(2)).TruncateInt()) // offerCoin.Amount * (swapFeeRate/2)
 }
 
 // Route implements Msg.

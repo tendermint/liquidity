@@ -3,112 +3,150 @@ package types_test
 import (
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-func TestGenesisState(t *testing.T) {
-	cdc := codec.NewLegacyAmino()
-	types.RegisterLegacyAminoCodec(cdc)
-	simapp := app.Setup(false)
+func TestValidateGenesis(t *testing.T) {
+	testCases := []struct {
+		name      string
+		configure func(*types.GenesisState)
+		errString string
+	}{
+		{
+			"InvalidParams",
+			func(genState *types.GenesisState) {
+				params := types.DefaultParams()
+				params.SwapFeeRate = sdk.NewDec(-1)
+				genState.Params = params
+			},
+			"swap fee rate must be not negative: -1.000000000000000000",
+		},
+		{
+			"InvalidPoolRecords",
+			func(genState *types.GenesisState) {
+				genState.PoolRecords = []types.PoolRecord{{}}
+			},
+			"bad msg index of the batch",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			genState := types.DefaultGenesisState()
+			tc.configure(genState)
+			err := types.ValidateGenesis(*genState)
+			require.Error(t, err)
+			require.Equal(t, tc.errString, err.Error())
+		})
+	}
+}
 
-	ctx := simapp.BaseApp.NewContext(false, tmproto.Header{})
-	params := simapp.LiquidityKeeper.GetParams(ctx)
-	genesis := types.DefaultGenesisState()
-
-	params.PoolCreationFee = sdk.Coins{sdk.Coin{Denom: "invalid denom---", Amount: sdk.NewInt(0)}}
-	err := params.Validate()
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.SwapFeeRate = sdk.NewDec(-1)
-	genesisState := types.NewGenesisState(params, genesis.PoolRecords)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.SwapFeeRate = sdk.NewDec(2)
-	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.InitPoolCoinMintAmount = sdk.NewInt(0)
-	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.InitPoolCoinMintAmount = sdk.NewInt(-1)
-	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.InitPoolCoinMintAmount = sdk.NewInt(10)
-	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.PoolCreationFee = sdk.Coins{sdk.Coin{Denom: "invalid denom---", Amount: sdk.NewInt(0)}}
-	err = params.Validate()
-	require.Error(t, err)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.MinInitDepositAmount = sdk.NewInt(0)
-	err = params.Validate()
-	require.Error(t, err)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.MinInitDepositAmount = sdk.NewInt(-1)
-	err = params.Validate()
-	require.Error(t, err)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.PoolTypes = []types.PoolType{types.DefaultPoolType, types.DefaultPoolType}
-	err = params.Validate()
-	require.Error(t, err)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	params.PoolTypes = []types.PoolType{}
-	err = params.Validate()
-	require.Error(t, err)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	malformedPoolType := types.DefaultPoolType
-	malformedPoolType.Id = 0
-	params.PoolTypes = []types.PoolType{malformedPoolType, types.DefaultPoolType}
-	err = params.Validate()
-	require.Error(t, err)
-	err = types.ValidateGenesis(*genesisState)
-	require.Error(t, err)
-
-	params = simapp.LiquidityKeeper.GetParams(ctx)
-	genesisState = types.NewGenesisState(params, genesis.PoolRecords)
-	err = types.ValidateGenesis(*genesisState)
-	require.NoError(t, err)
-
-	require.NotNil(t, genesisState)
-	require.Equal(t, params, genesisState.Params)
-
-	genesisState = types.DefaultGenesisState()
-	require.NotNil(t, genesisState)
-
-	err = types.ValidateGenesis(*genesisState)
-	require.NoError(t, err)
+func TestPoolRecord_Validate(t *testing.T) {
+	testCases := []struct {
+		name       string
+		poolRecord types.PoolRecord
+		shouldFail bool
+	}{
+		{
+			"ValidPoolRecord",
+			types.PoolRecord{
+				PoolBatch: types.PoolBatch{
+					DepositMsgIndex:  1,
+					WithdrawMsgIndex: 1,
+					SwapMsgIndex:     1,
+				},
+				DepositMsgStates:  nil,
+				WithdrawMsgStates: nil,
+				SwapMsgStates:     nil,
+			},
+			false,
+		},
+		{
+			"InvalidPoolBatchDepositMsgIndex",
+			types.PoolRecord{
+				PoolBatch: types.PoolBatch{
+					DepositMsgIndex:  0,
+					WithdrawMsgIndex: 1,
+					SwapMsgIndex:     1,
+				},
+			},
+			true,
+		},
+		{
+			"InvalidPoolBatchWithdrawMsgIndex",
+			types.PoolRecord{
+				PoolBatch: types.PoolBatch{
+					DepositMsgIndex:  0,
+					WithdrawMsgIndex: 1,
+					SwapMsgIndex:     0,
+				},
+			},
+			true,
+		},
+		{
+			"InvalidPoolBatchSwapMsgIndex",
+			types.PoolRecord{
+				PoolBatch: types.PoolBatch{
+					DepositMsgIndex:  1,
+					WithdrawMsgIndex: 1,
+					SwapMsgIndex:     0,
+				},
+			},
+			true,
+		},
+		{
+			"MismatchingPoolBatchDepositMsgIndex",
+			types.PoolRecord{
+				PoolBatch: types.PoolBatch{
+					DepositMsgIndex:  10,
+					WithdrawMsgIndex: 1,
+					SwapMsgIndex:     1,
+				},
+				DepositMsgStates:  []types.DepositMsgState{{MsgIndex: 1}},
+				WithdrawMsgStates: nil,
+				SwapMsgStates:     nil,
+			},
+			true,
+		},
+		{
+			"MismatchingPoolBatchWithdrawMsgIndex",
+			types.PoolRecord{
+				PoolBatch: types.PoolBatch{
+					DepositMsgIndex:  1,
+					WithdrawMsgIndex: 10,
+					SwapMsgIndex:     1,
+				},
+				DepositMsgStates:  nil,
+				WithdrawMsgStates: []types.WithdrawMsgState{{MsgIndex: 1}},
+				SwapMsgStates:     nil,
+			},
+			true,
+		},
+		{
+			"MismatchingPoolBatchSwapMsgIndex",
+			types.PoolRecord{
+				PoolBatch: types.PoolBatch{
+					DepositMsgIndex:  1,
+					WithdrawMsgIndex: 1,
+					SwapMsgIndex:     10,
+				},
+				DepositMsgStates:  nil,
+				WithdrawMsgStates: nil,
+				SwapMsgStates:     []types.SwapMsgState{{MsgIndex: 1}},
+			},
+			true,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := tc.poolRecord.Validate()
+			if tc.shouldFail {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
 }

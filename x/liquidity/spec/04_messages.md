@@ -6,6 +6,8 @@ order: 4
 
 ## MsgCreatePool
 
+Create new liquidity pool with the specified pool type and deposit coins.
+
 ```go
 type MsgCreatePool struct {
 	PoolCreatorAddress  string         // account address of the origin of this message
@@ -26,6 +28,8 @@ type MsgCreatePool struct {
 
 ## MsgDepositWithinBatch
 
+Deposit coins to the specified liquidity pool.
+
 ```go
 type MsgDepositWithinBatch struct {
 	DepositorAddress    string         // account address of the origin of this message
@@ -43,6 +47,8 @@ type MsgDepositWithinBatch struct {
   - if the balance of `Depositor` does not have enough amount of coins for `DepositCoins`
 
 ## MsgWithdrawWithinBatch
+
+Withdraw pool coin from the specified liquidity pool.
 
 ```go
 type MsgWithdrawWithinBatch struct {
@@ -62,6 +68,8 @@ type MsgWithdrawWithinBatch struct {
 
 ## MsgSwapWithinBatch
 
+// Swap offer coin with demand coin from the specified liquidity pool with the given order price.
+
 ```go
 type MsgSwapWithinBatch struct {
 	SwapRequesterAddress string     // account address of the origin of this message
@@ -70,7 +78,7 @@ type MsgSwapWithinBatch struct {
 	OfferCoin            sdk.Coin   // offer coin of this swap message
 	DemandCoinDenom      string     // denom of demand coin of this swap message
 	OfferCoinFee         sdk.Coin   // offer coin fee for pay fees in half offer coin
-	OrderPrice           sdk.Dec    // order price of this swap message
+	OrderPrice           sdk.Dec    // limit order price for the order, the price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
 }
 ```
 

@@ -37,16 +37,6 @@ func TestSortDenoms(t *testing.T) {
 	}
 }
 
-func TestStringInSlice(t *testing.T) {
-	denomA := "uCoinA"
-	denomB := "uCoinB"
-	denomC := "uCoinC"
-	denoms := []string{denomA, denomB}
-	require.True(t, types.StringInSlice(denomA, denoms))
-	require.True(t, types.StringInSlice(denomB, denoms))
-	require.False(t, types.StringInSlice(denomC, denoms))
-}
-
 func TestCoinSafeSubAmount(t *testing.T) {
 	denom := "uCoinA"
 	a := sdk.NewCoin(denom, sdk.NewInt(100))
@@ -70,7 +60,7 @@ func TestGetPoolReserveAcc(t *testing.T) {
 	reserveAcc := types.GetPoolReserveAcc(poolName)
 	require.NotNil(t, reserveAcc)
 	require.Equal(t, "cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3", reserveAcc.String())
-	require.Equal(t, "pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4", types.GetPoolCoinDenom(poolName))
+	require.Equal(t, "poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4", types.GetPoolCoinDenom(poolName))
 }
 
 func TestGetPoolReserveAcc2(t *testing.T) {
@@ -79,76 +69,18 @@ func TestGetPoolReserveAcc2(t *testing.T) {
 	reserveAcc := types.GetPoolReserveAcc(poolName)
 	require.NotNil(t, reserveAcc)
 	require.Equal(t, "cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u", reserveAcc.String())
-	require.Equal(t, "pool/E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07", types.GetPoolCoinDenom(poolName))
+	require.Equal(t, "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07", types.GetPoolCoinDenom(poolName))
 }
 
 func TestGetPoolReserveAcc3(t *testing.T) {
-	poolName := types.PoolName([]string{"acoin", "bcoin"}, 1)
-	require.Equal(t, "acoin/bcoin/1", poolName)
+	poolName := types.PoolName([]string{"uusd", "uatom"}, 1)
+	require.Equal(t, "uatom/uusd/1", poolName)
 	reserveAcc := types.GetPoolReserveAcc(poolName)
 	require.NotNil(t, reserveAcc)
-	require.Equal(t, "cosmos19cwhfmgmdwv2tntlr5l30cwv6njjgsyd2528kv", reserveAcc.String())
-	require.Equal(t, "pool/2E1D74ED1B6B98A5CD7F1D3F17E1CCD4E524408D5860FBD5A87CBC07C1BB9967", types.GetPoolCoinDenom(poolName))
+	require.Equal(t, "cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we", reserveAcc.String())
+	require.Equal(t, "pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295", types.GetPoolCoinDenom(poolName))
 }
 
-func TestIsPoolCoinDenom(t *testing.T) {
-	poolName := types.PoolName([]string{"denomX", "denomY"}, 1)
-	require.Equal(t, "denomX/denomY/1", poolName)
-	poolCoinDenom := types.GetPoolCoinDenom(poolName)
-	require.True(t, types.IsPoolCoinDenom(poolCoinDenom))
-	require.False(t, types.IsPoolCoinDenom(""))
-	require.False(t, types.IsPoolCoinDenom("pool"))
-	require.False(t, types.IsPoolCoinDenom("pool/"))
-	require.True(t, types.IsPoolCoinDenom("pool/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
-	require.False(t, types.IsPoolCoinDenom("D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
-	require.False(t, types.IsPoolCoinDenom("ibc/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))
-	require.False(t, types.IsPoolCoinDenom("denomX/denomY/1"))
-}
-
-func TestCheckDecApproxEqual(t *testing.T) {
-	require.True(t, types.CheckDecApproxEqual(sdk.ZeroDec(), sdk.ZeroDec(), types.DecimalErrThreshold3))
-	require.False(t, types.CheckDecApproxEqual(sdk.ZeroDec(), sdk.OneDec(), types.DecimalErrThreshold3))
-
-	a := sdk.NewDecWithPrec(9999999999, 10)
-	b := sdk.NewDecWithPrec(9999999998, 10)
-	res := types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.True(t, res)
-
-	a = sdk.NewDecWithPrec(9999999999, 10)
-	b = sdk.NewDecWithPrec(9999999997, 10)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.False(t, res)
-
-	a = sdk.NewDecWithPrec(99999999999, 10)
-	b = sdk.NewDecWithPrec(99999999998, 10)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.True(t, res)
-
-	a = sdk.NewDecWithPrec(9999999999, 11)
-	b = sdk.NewDecWithPrec(9999999997, 11)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.False(t, res)
-
-	a = sdk.NewDec(9999999999)
-	b = sdk.NewDec(9999999998)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.True(t, res)
-
-	a = sdk.NewDec(9999999999)
-	b = sdk.NewDec(9999999997)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.False(t, res)
-
-	a = sdk.NewDec(1)
-	b = sdk.NewDec(1)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.True(t, res)
-
-	a = sdk.NewDec(1)
-	b = sdk.NewDec(2)
-	res = types.CheckDecApproxEqual(a, b, types.DecimalErrThreshold10)
-	require.False(t, res)
-}
 func TestGetCoinsTotalAmount(t *testing.T) {
 	denomA := "uCoinA"
 	denomB := "uCoinB"

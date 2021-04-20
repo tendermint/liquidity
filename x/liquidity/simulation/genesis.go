@@ -29,8 +29,7 @@ const (
 
 // GenLiquidityPoolTypes return default PoolType temporarily, It will be randomized in the liquidity v2
 func GenLiquidityPoolTypes(r *rand.Rand) (liquidityPoolTypes []types.PoolType) {
-	liquidityPoolTypes = append(liquidityPoolTypes, types.DefaultPoolType)
-	return liquidityPoolTypes
+	return types.DefaultPoolTypes
 }
 
 // GenMinInitDepositAmount randomized MinInitDepositAmount
