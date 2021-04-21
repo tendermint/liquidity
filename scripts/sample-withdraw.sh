@@ -41,7 +41,7 @@ $BINARY q bank balances $USER_2_ADDRESS \
 
 # liquidityd q liquidity batch 1 --home ./data/localnet --chain-id localnet --output json | jq
 echo "-> Querying details of liquidity pool 1 batch..."
-liquidityd q liquidity batch 1  \
+$BINARY q liquidity batch 1  \
 --home $CHAIN_DIR/$CHAIN_ID \
 --chain-id $CHAIN_ID \
 --output json | jq
@@ -50,7 +50,7 @@ liquidityd q liquidity batch 1  \
 # If there is no liquidity pool created then use create-pool script to create liquidity pool.
 # liquidityd tx liquidity withdraw 1 1000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07 --home ./data/localnet --chain-id localnet --from user1 --keyring-backend test --yes
 echo "-> Withdrawing coins from the liquidity pool 1..."
-liquidityd tx liquidity withdraw 1 1000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07 \
+$BINARY tx liquidity withdraw 1 1000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07 \
 --home $CHAIN_DIR/$CHAIN_ID \
 --chain-id $CHAIN_ID \
 --from user1 \
@@ -66,7 +66,7 @@ $BINARY q liquidity withdraws 1 \
 # Check the withdraw_msg_index update
 # liquidityd q liquidity batch 1 --home ./data/localnet --chain-id localnet --output json | jq
 echo "-> Querying details of liquidity pool 1 batch..."
-liquidityd q liquidity batch 1  \
+$BINARY q liquidity batch 1  \
 --home $CHAIN_DIR/$CHAIN_ID \
 --chain-id $CHAIN_ID \
 --output json | jq
@@ -75,7 +75,7 @@ liquidityd q liquidity batch 1  \
 # If there is no liquidity pool created then use create-pool script to create liquidity pool.
 # liquidityd tx liquidity withdraw 1 500pool4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC --home ./data/localnet --chain-id localnet --from user1 --keyring-backend test --yes
 echo "-> Withdrawing coins from the liquidity pool 2..."
-liquidityd tx liquidity withdraw 2 500pool4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC \
+$BINARY tx liquidity withdraw 2 500pool4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC \
 --home $CHAIN_DIR/$CHAIN_ID \
 --chain-id $CHAIN_ID \
 --from user2 \

@@ -41,7 +41,7 @@ $BINARY q bank balances $USER_2_ADDRESS \
 
 # liquidityd q liquidity batch 1 --home ./data/localnet --chain-id localnet --output json | jq
 echo "-> Querying details of liquidity pool 1 batch..."
-liquidityd q liquidity batch 1  \
+$BINARY q liquidity batch 1  \
 --home $CHAIN_DIR/$CHAIN_ID \
 --chain-id $CHAIN_ID \
 --output json | jq
@@ -50,7 +50,7 @@ liquidityd q liquidity batch 1  \
 # If there is no liquidity pool created then use create-pool script to create liquidity pool.
 # liquidityd tx liquidity deposit 1 100000stake,200000token --home ./data/localnet --chain-id localnet --from user1 --keyring-backend test --yes
 echo "-> Depositing coins to the liquidity pool 1..."
-liquidityd tx liquidity deposit 1 100000stake,200000token \
+$BINARY tx liquidity deposit 1 100000stake,200000token \
 --home $CHAIN_DIR/$CHAIN_ID \
 --chain-id $CHAIN_ID \
 --from user1 \
@@ -66,7 +66,7 @@ $BINARY q liquidity deposits 1 \
 # Check the deposit_msg_index update
 # liquidityd q liquidity batch 1 --home ./data/localnet --chain-id localnet --output json | jq
 echo "-> Querying details of liquidity pool 1 batch..."
-liquidityd q liquidity batch 1  \
+$BINARY q liquidity batch 1  \
 --home $CHAIN_DIR/$CHAIN_ID \
 --chain-id $CHAIN_ID \
 --output json | jq
@@ -75,7 +75,7 @@ liquidityd q liquidity batch 1  \
 # If there is no liquidity pool created then use create-pool script to create liquidity pool.
 # liquidityd tx liquidity deposit 2 100000stake,200000token --home ./data/localnet --chain-id localnet --from user2 --keyring-backend test --yes
 echo "-> Depositing coins to the liquidity pool 2..."
-liquidityd tx liquidity deposit 2 100000stake,200000atom \
+$BINARY tx liquidity deposit 2 100000stake,200000atom \
 --home $CHAIN_DIR/$CHAIN_ID \
 --chain-id $CHAIN_ID \
 --from user2 \
