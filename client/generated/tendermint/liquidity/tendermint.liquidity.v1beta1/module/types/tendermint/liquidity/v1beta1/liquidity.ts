@@ -13,8 +13,8 @@ export const protobufPackage = "tendermint.liquidity.v1beta1";
 /** Structure for the pool type to distinguish the characteristics of the reserve pools */
 export interface PoolType {
   /**
-   * This is the id of the pool_type that will be used as pool_type_id for pool creation.
-   * In this version, pool-type-id 1 is only available
+   * The id of the pool_type to use as pool_type_id for pool creation.
+   * Only pool-type-id 1 is supported
    * {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
    */
   id: number;
@@ -38,7 +38,7 @@ export interface Params {
   initPoolCoinMintAmount: string;
   /** Limit the size of each liquidity pool in the beginning phase of Liquidity Module adoption to minimize risk, 0 means no limit */
   maxReserveCoinAmount: string;
-  /** Fee paid for new Liquidity Pool creation to prevent spamming */
+  /** Fee to create a Liquidity Pool. */
   poolCreationFee: Coin[];
   /** Swap fee rate for every executed swap */
   swapFeeRate: string;
@@ -50,7 +50,7 @@ export interface Params {
   unitBatchHeight: number;
 }
 
-/** Pool defines the liquidity pool that contains pool information */
+/** The liquidity pool information */
 export interface Pool {
   /** id of the pool */
   id: number;
@@ -64,7 +64,7 @@ export interface Pool {
   poolCoinDenom: string;
 }
 
-/** Metadata of the state of each pool for invariant checking when genesis export or import */
+/** Metadata for the state of each pool for invariant checking after genesis export or import */
 export interface PoolMetadata {
   /** id of the pool */
   poolId: number;
@@ -74,7 +74,7 @@ export interface PoolMetadata {
   reserveCoins: Coin[];
 }
 
-/** PoolBatch defines the batch(es) of a given liquidity pool that contains indexes of deposit / withdraw / swap messages. Index param increments by 1 if the pool id is same. */
+/** The batch or batches of a given liquidity pool that contains indexes of the deposit, withdraw, and swap messages. The index param increments by 1 if the pool id exists. */
 export interface PoolBatch {
   /** id of the pool */
   poolId: number;
@@ -92,7 +92,7 @@ export interface PoolBatch {
   executed: boolean;
 }
 
-/** DepositMsgState defines the state of deposit message that contains state information as it is processed in the next batch(s) */
+/** DepositMsgState defines the state of the deposit message that contains the state information as it is processed in the next batch or batches */
 export interface DepositMsgState {
   /** height where this message is appended to the batch */
   msgHeight: number;
@@ -108,7 +108,7 @@ export interface DepositMsgState {
   msg: MsgDepositWithinBatch | undefined;
 }
 
-/** WithdrawMsgState defines the state of withdraw message that contains state information as it is processed in the next batch(s) */
+/** WithdrawMsgState defines the state of the withdraw message that contains state information as it is processed in the next batch or batches */
 export interface WithdrawMsgState {
   /** height where this message is appended to the batch */
   msgHeight: number;
@@ -124,7 +124,7 @@ export interface WithdrawMsgState {
   msg: MsgWithdrawWithinBatch | undefined;
 }
 
-/** SwapMsgState defines the state of swap message that contains state information as it is processed in the next batch(s) */
+/** SwapMsgState defines the state of swap message that contains state information as it is processed in the next batch or batches */
 export interface SwapMsgState {
   /** height where this message is appended to the batch */
   msgHeight: number;

@@ -11,6 +11,7 @@ import { SimulationResponse } from "./module/types/cosmos/base/abci/v1beta1/abci
 import { MsgData } from "./module/types/cosmos/base/abci/v1beta1/abci";
 import { TxMsgData } from "./module/types/cosmos/base/abci/v1beta1/abci";
 import { SearchTxsResult } from "./module/types/cosmos/base/abci/v1beta1/abci";
+export { TxResponse, ABCIMessageLog, StringEvent, Attribute, GasInfo, Result, SimulationResponse, MsgData, TxMsgData, SearchTxsResult };
 async function initTxClient(vuexGetters) {
     return await txClient(vuexGetters['common/wallet/signer'], {
         addr: vuexGetters['common/env/apiTendermint']

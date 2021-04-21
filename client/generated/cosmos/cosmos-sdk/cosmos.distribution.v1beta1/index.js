@@ -20,6 +20,7 @@ import { ValidatorHistoricalRewardsRecord } from "./module/types/cosmos/distribu
 import { ValidatorCurrentRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
 import { DelegatorStartingInfoRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
 import { ValidatorSlashEventRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
+export { Params, ValidatorHistoricalRewards, ValidatorCurrentRewards, ValidatorAccumulatedCommission, ValidatorOutstandingRewards, ValidatorSlashEvent, ValidatorSlashEvents, FeePool, CommunityPoolSpendProposal, DelegatorStartingInfo, DelegationDelegatorReward, CommunityPoolSpendProposalWithDeposit, DelegatorWithdrawInfo, ValidatorOutstandingRewardsRecord, ValidatorAccumulatedCommissionRecord, ValidatorHistoricalRewardsRecord, ValidatorCurrentRewardsRecord, DelegatorStartingInfoRecord, ValidatorSlashEventRecord };
 async function initTxClient(vuexGetters) {
     return await txClient(vuexGetters['common/wallet/signer'], {
         addr: vuexGetters['common/env/apiTendermint']
@@ -106,55 +107,55 @@ export default {
         }
     },
     getters: {
-        getParams: (state) => (params = {}) => {
+        getParams: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.Params[JSON.stringify(params)] ?? {};
         },
-        getValidatorOutstandingRewards: (state) => (params = {}) => {
+        getValidatorOutstandingRewards: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.ValidatorOutstandingRewards[JSON.stringify(params)] ?? {};
         },
-        getValidatorCommission: (state) => (params = {}) => {
+        getValidatorCommission: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.ValidatorCommission[JSON.stringify(params)] ?? {};
         },
-        getValidatorSlashes: (state) => (params = {}) => {
+        getValidatorSlashes: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.ValidatorSlashes[JSON.stringify(params)] ?? {};
         },
-        getDelegationRewards: (state) => (params = {}) => {
+        getDelegationRewards: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.DelegationRewards[JSON.stringify(params)] ?? {};
         },
-        getDelegationTotalRewards: (state) => (params = {}) => {
+        getDelegationTotalRewards: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.DelegationTotalRewards[JSON.stringify(params)] ?? {};
         },
-        getDelegatorValidators: (state) => (params = {}) => {
+        getDelegatorValidators: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.DelegatorValidators[JSON.stringify(params)] ?? {};
         },
-        getDelegatorWithdrawAddress: (state) => (params = {}) => {
+        getDelegatorWithdrawAddress: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.DelegatorWithdrawAddress[JSON.stringify(params)] ?? {};
         },
-        getCommunityPool: (state) => (params = {}) => {
+        getCommunityPool: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
@@ -310,23 +311,6 @@ export default {
                 throw new SpVuexError('QueryClient:QueryCommunityPool', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async sendMsgSetWithdrawAddress({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgSetWithdrawAddress(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Send', 'Could not broadcast Tx: ' + e.message);
-                }
-            }
-        },
         async sendMsgWithdrawValidatorCommission({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
                 const txClient = await initTxClient(rootGetters);
@@ -361,6 +345,23 @@ export default {
                 }
             }
         },
+        async sendMsgSetWithdrawAddress({ rootGetters }, { value, fee = [], memo = '' }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgSetWithdrawAddress(value);
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Send', 'Could not broadcast Tx: ' + e.message);
+                }
+            }
+        },
         async sendMsgWithdrawDelegatorReward({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
                 const txClient = await initTxClient(rootGetters);
@@ -375,21 +376,6 @@ export default {
                 }
                 else {
                     throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Send', 'Could not broadcast Tx: ' + e.message);
-                }
-            }
-        },
-        async MsgSetWithdrawAddress({ rootGetters }, { value }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgSetWithdrawAddress(value);
-                return msg;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Create', 'Could not create message: ' + e.message);
                 }
             }
         },
@@ -420,6 +406,21 @@ export default {
                 }
                 else {
                     throw new SpVuexError('TxClient:MsgFundCommunityPool:Create', 'Could not create message: ' + e.message);
+                }
+            }
+        },
+        async MsgSetWithdrawAddress({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgSetWithdrawAddress(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Create', 'Could not create message: ' + e.message);
                 }
             }
         },

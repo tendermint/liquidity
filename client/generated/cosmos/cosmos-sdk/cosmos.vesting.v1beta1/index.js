@@ -6,6 +6,7 @@ import { ContinuousVestingAccount } from "./module/types/cosmos/vesting/v1beta1/
 import { DelayedVestingAccount } from "./module/types/cosmos/vesting/v1beta1/vesting";
 import { Period } from "./module/types/cosmos/vesting/v1beta1/vesting";
 import { PeriodicVestingAccount } from "./module/types/cosmos/vesting/v1beta1/vesting";
+export { BaseVestingAccount, ContinuousVestingAccount, DelayedVestingAccount, Period, PeriodicVestingAccount };
 async function initTxClient(vuexGetters) {
     return await txClient(vuexGetters['common/wallet/signer'], {
         addr: vuexGetters['common/env/apiTendermint']
