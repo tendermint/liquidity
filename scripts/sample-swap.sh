@@ -39,6 +39,13 @@ $BINARY q bank balances $USER_2_ADDRESS \
 --home $CHAIN_DIR/$CHAIN_ID \
 --output json | jq
 
+# liquidityd q liquidity batch 1 --home ./data/localnet --chain-id localnet --output json | jq
+echo "-> Querying details of liquidity pool 1 batch..."
+liquidityd q liquidity batch 1  \
+--home $CHAIN_DIR/$CHAIN_ID \
+--chain-id $CHAIN_ID \
+--output json | jq
+
 # Ensure the existence of the liquidity pool. 
 # If there is no liquidity pool created then use create-pool script to create liquidity pool.
 # liquidityd tx liquidity swap 1 1 79000stake token 0.99 0.003 --home ./data/localnet --chain-id localnet --from user1 --keyring-backend test --yes
@@ -50,6 +57,20 @@ liquidityd tx liquidity swap 1 1 79000stake token 0.99 0.003 \
 --keyring-backend test \
 --yes
 
+# liquidityd q liquidity swaps 1 --home ./data/localnet --output json | jq
+echo "-> Querying liquidity swaps..."
+$BINARY q liquidity swaps 1 \
+--home $CHAIN_DIR/$CHAIN_ID \
+--output json | jq
+
+# Check the swap_msg_index update
+# liquidityd q liquidity batch 1 --home ./data/localnet --chain-id localnet --output json | jq
+echo "-> Querying details of liquidity pool 1 batch..."
+liquidityd q liquidity batch 1  \
+--home $CHAIN_DIR/$CHAIN_ID \
+--chain-id $CHAIN_ID \
+--output json | jq
+
 # Ensure the existence of the liquidity pool. 
 # If there is no liquidity pool created then use create-pool script to create liquidity pool.
 # liquidityd tx liquidity swap 2 100000stake,200000token --home ./data/localnet --chain-id localnet --from user2 --keyring-backend test --yes
@@ -59,7 +80,7 @@ liquidityd tx liquidity swap 2 1 79000stake atom 0.99 0.003 \
 --chain-id $CHAIN_ID \
 --from user2 \
 --keyring-backend test \
---ye
+--yes
 
 # liquidityd q bank balances cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu --home ./data/localnet --output json | jq
 echo "-> Checking user1 account balances after..."

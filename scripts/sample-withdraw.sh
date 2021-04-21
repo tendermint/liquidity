@@ -39,6 +39,13 @@ $BINARY q bank balances $USER_2_ADDRESS \
 --home $CHAIN_DIR/$CHAIN_ID \
 --output json | jq
 
+# liquidityd q liquidity batch 1 --home ./data/localnet --chain-id localnet --output json | jq
+echo "-> Querying details of liquidity pool 1 batch..."
+liquidityd q liquidity batch 1  \
+--home $CHAIN_DIR/$CHAIN_ID \
+--chain-id $CHAIN_ID \
+--output json | jq
+
 # Ensure the existence of the liquidity pool. 
 # If there is no liquidity pool created then use create-pool script to create liquidity pool.
 # liquidityd tx liquidity withdraw 1 1000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07 --home ./data/localnet --chain-id localnet --from user1 --keyring-backend test --yes
@@ -50,6 +57,20 @@ liquidityd tx liquidity withdraw 1 1000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA
 --keyring-backend test \
 --yes
 
+# liquidityd q liquidity withdraw 1 --home ./data/localnet --output json | jq
+echo "-> Querying liquidity withdrawals..."
+$BINARY q liquidity withdraws 1 \
+--home $CHAIN_DIR/$CHAIN_ID \
+--output json | jq
+
+# Check the withdraw_msg_index update
+# liquidityd q liquidity batch 1 --home ./data/localnet --chain-id localnet --output json | jq
+echo "-> Querying details of liquidity pool 1 batch..."
+liquidityd q liquidity batch 1  \
+--home $CHAIN_DIR/$CHAIN_ID \
+--chain-id $CHAIN_ID \
+--output json | jq
+
 # Ensure the existence of the liquidity pool. 
 # If there is no liquidity pool created then use create-pool script to create liquidity pool.
 # liquidityd tx liquidity withdraw 1 500pool4718822520A46E7F657C051A7A18A9E8857D2FB47466C9AD81CE2F5F80C61BCC --home ./data/localnet --chain-id localnet --from user1 --keyring-backend test --yes
@@ -60,3 +81,21 @@ liquidityd tx liquidity withdraw 2 500pool4718822520A46E7F657C051A7A18A9E8857D2F
 --from user2 \
 --keyring-backend test \
 --yes
+
+# liquidityd q liquidity withdraws 1 --home ./data/localnet --output json | jq
+echo "-> Querying liquidity withdrawals..."
+$BINARY q liquidity pools \
+--home $CHAIN_DIR/$CHAIN_ID \
+--output json | jq
+
+# liquidityd q bank balances cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu --home ./data/localnet --output json | jq
+echo "-> Checking user1 account balances after..."
+$BINARY q bank balances $USER_1_ADDRESS \
+--home $CHAIN_DIR/$CHAIN_ID \
+--output json | jq
+
+# liquidityd q bank balances cosmos185fflsvwrz0cx46w6qada7mdy92m6kx4gqx0ny --home ./data/localnet --output json | jq
+echo "-> Checking user2 account balances after..."
+$BINARY q bank balances $USER_2_ADDRESS \
+--home $CHAIN_DIR/$CHAIN_ID \
+--output json | jq
