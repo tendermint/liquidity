@@ -57,6 +57,8 @@ $BINARY tx liquidity withdraw 1 1000poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E
 --keyring-backend test \
 --yes
 
+sleep 2
+
 # liquidityd q liquidity withdraw 1 --home ./data/localnet --output json | jq
 echo "-> Querying liquidity withdrawals..."
 $BINARY q liquidity withdraws 1 \
@@ -81,6 +83,8 @@ $BINARY tx liquidity withdraw 2 500pool4718822520A46E7F657C051A7A18A9E8857D2FB47
 --from user2 \
 --keyring-backend test \
 --yes
+
+sleep 2
 
 # liquidityd q liquidity withdraws 1 --home ./data/localnet --output json | jq
 echo "-> Querying liquidity withdrawals..."

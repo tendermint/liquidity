@@ -57,6 +57,8 @@ $BINARY tx liquidity swap 1 1 79000stake token 0.99 0.003 \
 --keyring-backend test \
 --yes
 
+sleep 2
+
 # liquidityd q liquidity swaps 1 --home ./data/localnet --output json | jq
 echo "-> Querying liquidity swaps..."
 $BINARY q liquidity swaps 1 \
@@ -81,6 +83,8 @@ $BINARY tx liquidity swap 2 1 79000stake atom 0.99 0.003 \
 --from user2 \
 --keyring-backend test \
 --yes
+
+sleep 2
 
 # liquidityd q bank balances cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu --home ./data/localnet --output json | jq
 echo "-> Checking user1 account balances after..."

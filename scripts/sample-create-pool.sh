@@ -48,6 +48,8 @@ $BINARY tx liquidity create-pool 1 100000000stake,100000000token \
 --keyring-backend test \
 --yes
 
+sleep 2
+
 # liquidityd tx liquidity create-pool 1 100000000stake,100000000atom --home ./data/localnet --chain-id localnet --from user2 --keyring-backend test --yes
 echo "-> Creating liquidity pool 2..."
 $BINARY tx liquidity create-pool 1 100000000stake,100000000atom \
@@ -56,6 +58,8 @@ $BINARY tx liquidity create-pool 1 100000000stake,100000000atom \
 --from user2 \
 --keyring-backend test \
 --yes
+
+sleep 2
 
 # liquidityd q bank balances cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu --home ./data/localnet --output json | jq
 echo "-> Checking user1 account balances after..."

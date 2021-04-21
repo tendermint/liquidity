@@ -57,6 +57,8 @@ $BINARY tx liquidity deposit 1 100000stake,200000token \
 --keyring-backend test \
 --yes
 
+sleep 2
+
 # liquidityd q liquidity deposits 1 --home ./data/localnet --output json | jq
 echo "-> Querying liquidity deposits..."
 $BINARY q liquidity deposits 1 \
@@ -81,6 +83,8 @@ $BINARY tx liquidity deposit 2 100000stake,200000atom \
 --from user2 \
 --keyring-backend test \
 --yes
+
+sleep 2
 
 # liquidityd q liquidity deposits 2 --home ./data/localnet --output json | jq
 echo "-> Querying liquidity deposits..."
