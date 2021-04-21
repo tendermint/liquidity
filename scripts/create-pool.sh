@@ -16,6 +16,7 @@ fi
 # Ensure localnet is running
 if [[ "$(pgrep $BINARY)" == "" ]];then
     echo "Error: localnet is not running. Try running localnet by 'make localnet" 
+    exit 1
 fi
 
 # Create liquidity pool
