@@ -52,7 +52,7 @@ func TestParams_Validate(t *testing.T) {
 			func(params *types.Params) {
 				params.PoolTypes = []types.PoolType{}
 			},
-			"pool types must be not empty",
+			"pool types must not be empty",
 		},
 		{
 			"TooManyPoolTypes",
@@ -68,14 +68,14 @@ func TestParams_Validate(t *testing.T) {
 				poolType.Name = "CustomPoolType"
 				params.PoolTypes = []types.PoolType{poolType}
 			},
-			"only default pool type is allowed in this version of liquidity module",
+			"the only supported pool type is 1",
 		},
 		{
 			"NilMinInitDepositAmount",
 			func(params *types.Params) {
 				params.MinInitDepositAmount = sdk.Int{}
 			},
-			"minimum initial deposit amount must be not nil",
+			"minimum initial deposit amount must not be nil",
 		},
 		{
 			"NonPositiveMinInitDepositAmount",
@@ -89,7 +89,7 @@ func TestParams_Validate(t *testing.T) {
 			func(params *types.Params) {
 				params.InitPoolCoinMintAmount = sdk.Int{}
 			},
-			"initial pool coin mint amount must be not nil",
+			"initial pool coin mint amount must not be nil",
 		},
 		{
 			"NonPositiveInitPoolCoinMintAmount",
@@ -103,35 +103,35 @@ func TestParams_Validate(t *testing.T) {
 			func(params *types.Params) {
 				params.InitPoolCoinMintAmount = sdk.NewInt(10)
 			},
-			"initial pool coin mint amount must be greater or equal than 1000000: 10",
+			"initial pool coin mint amount must be greater than or equal to 1000000: 10",
 		},
 		{
 			"NilMaxReserveCoinAmount",
 			func(params *types.Params) {
 				params.MaxReserveCoinAmount = sdk.Int{}
 			},
-			"max reserve coin amount must be not nil",
+			"max reserve coin amount must not be nil",
 		},
 		{
 			"NegativeMaxReserveCoinAmount",
 			func(params *types.Params) {
 				params.MaxReserveCoinAmount = sdk.NewInt(-1)
 			},
-			"max reserve coin amount must be not negative: -1",
+			"max reserve coin amount must not be negative: -1",
 		},
 		{
 			"NilSwapFeeRate",
 			func(params *types.Params) {
 				params.SwapFeeRate = sdk.Dec{}
 			},
-			"swap fee rate must be not nil",
+			"swap fee rate must not be nil",
 		},
 		{
 			"NegativeSwapFeeRate",
 			func(params *types.Params) {
 				params.SwapFeeRate = sdk.NewDec(-1)
 			},
-			"swap fee rate must be not negative: -1.000000000000000000",
+			"swap fee rate must not be negative: -1.000000000000000000",
 		},
 		{
 			"TooLargeSwapFeeRate",
@@ -145,14 +145,14 @@ func TestParams_Validate(t *testing.T) {
 			func(params *types.Params) {
 				params.WithdrawFeeRate = sdk.Dec{}
 			},
-			"withdraw fee rate must be not nil",
+			"withdraw fee rate must not be nil",
 		},
 		{
 			"NegativeWithdrawFeeRate",
 			func(params *types.Params) {
 				params.WithdrawFeeRate = sdk.NewDec(-1)
 			},
-			"withdraw fee rate must be not negative: -1.000000000000000000",
+			"withdraw fee rate must not be negative: -1.000000000000000000",
 		},
 		{
 			"TooLargeWithdrawFeeRate",
@@ -166,14 +166,14 @@ func TestParams_Validate(t *testing.T) {
 			func(params *types.Params) {
 				params.MaxOrderAmountRatio = sdk.Dec{}
 			},
-			"max order amount ratio must be not nil",
+			"max order amount ratio must not be nil",
 		},
 		{
 			"NegativeMaxOrderAmountRatio",
 			func(params *types.Params) {
 				params.MaxOrderAmountRatio = sdk.NewDec(-1)
 			},
-			"max order amount ratio must be not negative: -1.000000000000000000",
+			"max order amount ratio must not be negative: -1.000000000000000000",
 		},
 		{
 			"TooLargeMaxOrderAmountRatio",
@@ -187,7 +187,7 @@ func TestParams_Validate(t *testing.T) {
 			func(params *types.Params) {
 				params.PoolCreationFee = sdk.NewCoins()
 			},
-			"pool creation fee must be not empty",
+			"pool creation fee must not be empty",
 		},
 		{
 			"InvalidPoolCreationFeeDenom",
