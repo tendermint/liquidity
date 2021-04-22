@@ -15,6 +15,8 @@ type Pool struct {
 	ReserveCoinDenoms      []string       // list of reserve coin denoms for this liquidity pool
 	ReserveAccountAddress  string         // reserve account address for this liquidity pool to store reserve coins
 	PoolCoinDenom          string         // denom of pool coin for this liquidity pool
+	SwapFeeRate            string         // pool swap fee rate set by pool governor
+	PoolGovernorAddress    string         // pool governor address
 }
 ```
 

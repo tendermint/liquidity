@@ -12,7 +12,8 @@ Create new liquidity pool with the specified pool type and deposit coins.
 type MsgCreatePool struct {
 	PoolCreatorAddress  string         // account address of the origin of this message
 	PoolTypeId          uint32         // id of the liquidity pool type of this new liquidity pool
-	DepositCoins 	    sdk.Coins      // deposit coins for initial pool deposit into this new liquidity pool
+	DepositCoins        sdk.Coins      // deposit coins for initial pool deposit into this new liquidity pool
+	SwapFeeRate         *sdk.Dec       // pool swap fee rate e.g. "0.003000000000000000" if swap fee rate is not provided on pool fixed rate from params will be used
 }
 ```
 
@@ -25,6 +26,7 @@ type MsgCreatePool struct {
   - if one or more coins in ReserveCoinDenoms do not exist in `bank` module
   - if the balance of `PoolCreator` does not have enough amount of coins for `DepositCoins`
   - if the balance of `PoolCreator` does not have enough amount of coins for paying `PoolCreationFee`
+  - if `SwapFeeRate` excedes maximum allowed rate
 
 ## MsgDepositWithinBatch
 
@@ -93,3 +95,22 @@ type MsgSwapWithinBatch struct {
   - if `OrderPrice` <= zero
   - if `OfferCoinFee` Equal `OfferCoin` _ `params.SwapFeeRate` _ `0.5` with truncating Int
   - if has sufficient balance `OfferCoinFee` to reserve offer coin fee.
+## MsgSetPoolSwapFeeRate
+
+// Sets new swap fee rate on the pool.
+
+```go
+type MsgSetPoolSwapFeeRate struct {
+  PoolId        uint64  // id of the liquidity pool where this message is belong to
+  SetterAddress string 	// swap fee rate setter address. Must be the address of pool governor.
+  SwapFeeRate   sdk.Dec // new swap fee rate for the pool
+}
+```
+
+**Validity check**
+
+- `MsgSetPoolSwapFeeRate` failes if
+  - `SwapRequester` address does not exist
+  - `PoolId` does not exist
+  - `SwapFeeRate` excedes maximum allowed rate
+  - `SetterAddress` does not belong to the pool governor

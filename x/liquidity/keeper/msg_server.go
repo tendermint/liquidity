@@ -54,6 +54,31 @@ func (k msgServer) CreatePool(goCtx context.Context, msg *types.MsgCreatePool) (
 	return &types.MsgCreatePoolResponse{}, nil
 }
 
+func (k msgServer) SetPoolSwapFeeRate(goCtx context.Context, msg *types.MsgSetPoolSwapFeeRate) (*types.MsgSetPoolSwapFeeRateResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	pool, err := k.Keeper.SetPoolSwapFeeRate(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+		),
+	)
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeSetPoolSwapFeeRate,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+			sdk.NewAttribute(types.AttributeValuePoolName, pool.Name()),
+			sdk.NewAttribute(types.AttributeValueSwapFeeRate, pool.SwapFeeRate.String()),
+		),
+	)
+
+	return &types.MsgSetPoolSwapFeeRateResponse{}, nil
+}
+
 // Message server, handler for MsgDepositWithinBatch
 func (k msgServer) DepositWithinBatch(goCtx context.Context, msg *types.MsgDepositWithinBatch) (*types.MsgDepositWithinBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -120,7 +145,15 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.GetParams(ctx)
 	if msg.OfferCoinFee.IsZero() {
-		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
+		pool, found := k.GetPool(ctx, msg.PoolId)
+		if !found {
+			return nil, types.ErrPoolNotExists
+		}
+		swapFeeRate := params.SwapFeeRate
+		if pool.SwapFeeRate != nil {
+			swapFeeRate = *pool.SwapFeeRate
+		}
+		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, swapFeeRate)
 	}
 	// TODO: remove redundant GetPoolBatch
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)

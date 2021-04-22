@@ -6,10 +6,13 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
+
+var maxSwapFeeRate = sdk.MustNewDecFromStr("0.2")
 
 func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool) error {
 	if err := msg.ValidateBasic(); err != nil {
@@ -61,6 +64,10 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 	if found {
 		return types.ErrPoolAlreadyExists
 	}
+
+	if msg.SwapFeeRate != nil && msg.SwapFeeRate.GT(maxSwapFeeRate) {
+		return types.ErrMaxSwapFeeRateExceeded
+	}
 	return nil
 }
 
@@ -103,6 +110,8 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 		ReserveCoinDenoms:     reserveCoinDenoms,
 		ReserveAccountAddress: reserveAcc.String(),
 		PoolCoinDenom:         PoolCoinDenom,
+		SwapFeeRate:           msg.SwapFeeRate,
+		PoolGovernorAddress:   msg.PoolCreatorAddress,
 	}
 
 	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
@@ -142,6 +151,36 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	return pool, nil
 }
 
+func (k Keeper) ValidateMsgSetPoolSwapFeeRate(ctx sdk.Context, msg *types.MsgSetPoolSwapFeeRate, pool types.Pool) error {
+	if pool.PoolGovernorAddress != msg.SetterAddress {
+		return types.ErrNotPoolGovernor
+	}
+	if msg.SwapFeeRate.GT(maxSwapFeeRate) {
+		return types.ErrMaxSwapFeeRateExceeded
+	}
+
+	return nil
+}
+
+func (k Keeper) SetPoolSwapFeeRate(ctx sdk.Context, msg *types.MsgSetPoolSwapFeeRate) (types.Pool, error) {
+	pool, found := k.GetPool(ctx, msg.PoolId)
+	if !found {
+		return types.Pool{}, types.ErrPoolNotExists
+	}
+	if err := k.ValidateMsgSetPoolSwapFeeRate(ctx, msg, pool); err != nil {
+		return types.Pool{}, err
+	}
+
+	oldSwapFeeRate := pool.SwapFeeRate
+	pool.SwapFeeRate = msg.SwapFeeRate
+	k.SetPool(ctx, pool)
+
+	logger := k.Logger(ctx)
+	logger.Debug("setPoolSwapFeeRate", msg, "pool", pool, "newSwapFeeRate", pool.SwapFeeRate, "oldSwapFeeRate", oldSwapFeeRate)
+
+	return pool, nil
+}
+
 func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState, batch types.PoolBatch) error {
 	if msg.Executed || msg.ToBeDeleted || msg.Succeeded {
 		return fmt.Errorf("cannot process already executed batch msg")
@@ -162,6 +201,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 
 	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	reserveAcc := pool.GetReserveAccount()
+	governorAcc := pool.GetGovernorAccount()
 	depositor := msg.Msg.GetDepositor()
 
 	params := k.GetParams(ctx)
@@ -195,6 +235,10 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 			return err
 		}
+
+		// Set new pool governor address
+		pool.PoolGovernorAddress = msg.Msg.DepositorAddress
+		k.SetPool(ctx, pool)
 
 		// set deposit msg state of the pool batch complete
 		msg.Succeeded = true
@@ -308,6 +352,14 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	msg.ToBeDeleted = true
 	k.SetPoolBatchDepositMsgState(ctx, msg.Msg.PoolId, msg)
 
+	depositorBalance := k.bankKeeper.GetBalance(ctx, depositor, pool.PoolCoinDenom)
+	governorBalance := k.bankKeeper.GetBalance(ctx, governorAcc, pool.PoolCoinDenom)
+	if depositorBalance.Amount.GT(governorBalance.Amount) {
+		// Set new pool governor to new depositor
+		pool.PoolGovernorAddress = msg.Msg.DepositorAddress
+		k.SetPool(ctx, pool)
+	}
+
 	if invariantCheckFlag {
 		afterReserveCoins := k.GetReserveCoins(ctx, pool)
 		afterReserveCoinA := sdk.NewDecFromInt(afterReserveCoins[0].Amount)
@@ -378,6 +430,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	var outputs []banktypes.Output
 
 	reserveAcc := pool.GetReserveAccount()
+	governorAcc := pool.GetGovernorAccount()
 	withdrawer := msg.Msg.GetWithdrawer()
 
 	params := k.GetParams(ctx)
@@ -417,6 +470,33 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	msg.Succeeded = true
 	msg.ToBeDeleted = true
 	k.SetPoolBatchWithdrawMsgState(ctx, msg.Msg.PoolId, msg)
+
+	// Check if current governor still has the most funds in the pool and
+	// find new governor if current one has less funds
+	// TODO: Create improvement for this case so that performance is not affected by the number of accounts!
+	if withdrawer.Equals(governorAcc) {
+		governorBalance := k.bankKeeper.GetBalance(ctx, governorAcc, pool.PoolCoinDenom)
+		newGovernor := governorAcc
+		// Verify if current governor still has largest deposit
+		k.accountKeeper.IterateAccounts(ctx, func(account authtypes.AccountI) bool {
+			// skip current governor
+			if account.GetAddress().Equals(governorAcc) {
+				return false
+			}
+			balance := k.bankKeeper.GetBalance(ctx, account.GetAddress(), pool.PoolCoinDenom)
+			if balance.Amount.GT(governorBalance.Amount) {
+				governorBalance = balance
+				newGovernor = account.GetAddress()
+			}
+
+			return false
+		})
+		// Promote new governor if it was fould
+		if pool.PoolGovernorAddress != newGovernor.String() {
+			pool.PoolGovernorAddress = newGovernor.String()
+			k.SetPool(ctx, pool)
+		}
+	}
 
 	if invariantCheckFlag {
 		afterPoolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
@@ -501,6 +581,8 @@ func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.Pool) types.PoolMeta
 		PoolId:              pool.Id,
 		PoolCoinTotalSupply: k.GetPoolCoinTotal(ctx, pool),
 		ReserveCoins:        k.GetReserveCoins(ctx, pool),
+		SwapFeeRate:         pool.SwapFeeRate,
+		PoolGovernorAddress: pool.PoolGovernorAddress,
 	}
 }
 
@@ -783,7 +865,11 @@ func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWit
 		return types.ErrBadOfferCoinFee
 	}
 
-	if !msg.OfferCoinFee.Equal(types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)) {
+	swapFeeRate := params.SwapFeeRate
+	if pool.SwapFeeRate != nil {
+		swapFeeRate = *pool.SwapFeeRate
+	}
+	if !msg.OfferCoinFee.Equal(types.GetOfferCoinFee(msg.OfferCoin, swapFeeRate)) {
 		return types.ErrBadOfferCoinFee
 	}
 

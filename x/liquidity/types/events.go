@@ -7,6 +7,7 @@ const (
 	EventTypeDepositWithinBatch  = TypeMsgDepositWithinBatch
 	EventTypeWithdrawWithinBatch = TypeMsgWithdrawWithinBatch
 	EventTypeSwapWithinBatch     = TypeMsgSwapWithinBatch
+	EventTypeSetPoolSwapFeeRate  = TypeMsgSetPoolSwapFeeRate
 	EventTypeDepositToPool       = "deposit_to_pool"
 	EventTypeWithdrawFromPool    = "withdraw_from_pool"
 	EventTypeSwapTransacted      = "swap_transacted"
@@ -19,6 +20,8 @@ const (
 	AttributeValuePoolCoinAmount = "pool_coin_amount"
 	AttributeValueBatchIndex     = "batch_index"
 	AttributeValueMsgIndex       = "msg_index"
+
+	AttributeValueSwapFeeRate = "swap_fee_rate"
 
 	AttributeValueDepositCoins = "deposit_coins"
 

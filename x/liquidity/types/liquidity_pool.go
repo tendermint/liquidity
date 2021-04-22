@@ -97,6 +97,15 @@ func (pool Pool) GetReserveAccount() sdk.AccAddress {
 	return addr
 }
 
+// GetGovernorAccount returns sdk.AccAddress of the pool's governor account.
+func (pool Pool) GetGovernorAccount() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(pool.PoolGovernorAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
+
 // GetPoolCoinDenom returns the pool coin's denom.
 func (pool Pool) GetPoolCoinDenom() string { return pool.PoolCoinDenom }
 

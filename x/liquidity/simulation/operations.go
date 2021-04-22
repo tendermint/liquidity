@@ -159,7 +159,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "can not exceed reserve coin limit amount"), nil, nil
 		}
 
-		msg := types.NewMsgCreatePool(poolCreator, types.DefaultPoolTypeId, depositCoins)
+		msg := types.NewMsgCreatePool(poolCreator, types.DefaultPoolTypeId, depositCoins, nil)
 
 		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(

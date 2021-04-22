@@ -149,7 +149,7 @@ func createTestPool(X, Y sdk.Coin) (*app.LiquidityApp, sdk.Context, types.Pool, 
 	depositCoins := sdk.NewCoins(X, Y)
 	creatorAddr := app.AddRandomTestAddr(simapp, ctx, depositCoins.Add(params.PoolCreationFee...))
 
-	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, depositCoins))
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, depositCoins, nil))
 	if err != nil {
 		return nil, sdk.Context{}, types.Pool{}, sdk.AccAddress{}, err
 	}

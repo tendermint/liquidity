@@ -243,7 +243,7 @@ func setupLiquidityPools(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx
 		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
-		createPoolMsg := types.NewMsgCreatePool(account.GetAddress(), types.DefaultPoolTypeId, depositCoins)
+		createPoolMsg := types.NewMsgCreatePool(account.GetAddress(), types.DefaultPoolTypeId, depositCoins, nil)
 
 		_, err = app.LiquidityKeeper.CreatePool(ctx, createPoolMsg)
 		require.NoError(t, err)

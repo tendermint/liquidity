@@ -10,11 +10,13 @@ var (
 	_ sdk.Msg = &MsgDepositWithinBatch{}
 	_ sdk.Msg = &MsgWithdrawWithinBatch{}
 	_ sdk.Msg = &MsgSwapWithinBatch{}
+	_ sdk.Msg = &MsgSetPoolSwapFeeRate{}
 )
 
 // Messages Type of Liquidity module
 const (
 	TypeMsgCreatePool          = "create_pool"
+	TypeMsgSetPoolSwapFeeRate  = "set_pool_swap_fee_rate"
 	TypeMsgDepositWithinBatch  = "deposit_within_batch"
 	TypeMsgWithdrawWithinBatch = "withdraw_within_batch"
 	TypeMsgSwapWithinBatch     = "swap_within_batch"
@@ -29,11 +31,13 @@ func NewMsgCreatePool(
 	poolCreator sdk.AccAddress,
 	poolTypeId uint32,
 	depositCoins sdk.Coins,
+	swapFeeRate *sdk.Dec,
 ) *MsgCreatePool {
 	return &MsgCreatePool{
 		PoolCreatorAddress: poolCreator.String(),
 		PoolTypeId:         poolTypeId,
 		DepositCoins:       depositCoins,
+		SwapFeeRate:        swapFeeRate,
 	}
 }
 
@@ -81,6 +85,51 @@ func (msg MsgCreatePool) GetPoolCreator() sdk.AccAddress {
 		panic(err)
 	}
 	return addr
+}
+
+// ------------------------------------------------------------------------
+// MsgSetPoolSwapFeeRate
+// ------------------------------------------------------------------------
+
+// NewMsgSetPoolSwapFeeRate creates a new MsgSetPoolSwapFeeRate object.
+func NewMsgSetPoolSwapFeeRate(
+	poolID uint64,
+	setterAddress sdk.AccAddress,
+	newSwapFeeRate sdk.Dec,
+) *MsgSetPoolSwapFeeRate {
+	return &MsgSetPoolSwapFeeRate{
+		SetterAddress: setterAddress.String(),
+		PoolId:        poolID,
+		SwapFeeRate:   &newSwapFeeRate,
+	}
+}
+
+// Route implements Msg.
+func (msg MsgSetPoolSwapFeeRate) Route() string { return RouterKey }
+
+// Type implements Msg.
+func (msg MsgSetPoolSwapFeeRate) Type() string { return TypeMsgSetPoolSwapFeeRate }
+
+// ValidateBasic implements Msg.
+func (msg MsgSetPoolSwapFeeRate) ValidateBasic() error {
+	if msg.SetterAddress == "" {
+		return ErrEmptyFeeRateSetterAddress
+	}
+	return nil
+}
+
+// GetSignBytes implements Msg.
+func (msg MsgSetPoolSwapFeeRate) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
+}
+
+// GetSigners implements Msg.
+func (msg MsgSetPoolSwapFeeRate) GetSigners() []sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(msg.SetterAddress)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{addr}
 }
 
 // ------------------------------------------------------------------------
