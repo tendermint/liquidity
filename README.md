@@ -116,16 +116,20 @@ Available Commands:
 $ make test-all
 ```
 
-### 1. Setup local testnet (./data directory)
+### 1. Setup local testnet using script
 
 ```bash
-# This localnet target will bootstrap a single testnet locally.
-# Note that there are config, data, and keys in ./data folder.
-# Some sample scripts are available in scripts folder, which will help you to test out the liquidity module interface.
+# This will bootstrap a single testnet locally.
+# Note that config, data, and keys are created inside 
+# ./data/localnet folder and RPC, GRPC, REST ports are all open.
 $ make localnet
 ```
 
-### 2. Setup local testnet (default directory)
+### 1.1 Broadcast transactions using CLI commands
+
+Some sample scripts are available in [scripts](https://github.com/tendermint/liquidity/tree/develop/scripts) folder, which will help you to test out the liquidity module interface.
+
+### 2. Setup local testnet manually
 
 ```bash
 # Build 
@@ -148,7 +152,7 @@ liquidityd collect-gentxs
 liquidityd start
 ```
 
-### Broadcast transactions using CLI commands
+### 2.1 Broadcast transactions using CLI commands
 
 ```bash
 # An example of creating liquidity pool 1
@@ -172,7 +176,7 @@ cat tx_swap_signed.json
 # Encode the signed tx
 liquidityd tx encode tx_swap_signed.json
 ```
-### Broadcaste transactions using REST APIs
+### 2.2 Broadcaste transactions using REST APIs
 
 An example of broadcasting transactions using REST API (via gRPC-gateway) can be found in this [link](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints). Note that API server should be enabled in `$HOME/.liquidityapp/config/app.toml` to test this.
 
@@ -180,7 +184,7 @@ An example of broadcasting transactions using REST API (via gRPC-gateway) can be
 curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"Cp0BCpoBCigvdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcFdpdGhpbkJhdGNoEm4KLWNvc21vczE4cWM2ZGwwNDZ1a3V0MjN3NnF1dndmenBmeWhncDJmeHFkcXAwNhACGAEiEAoEdXVzZBIINTAwMDAwMDAqBXVhdG9tMg0KBHV1c2QSBTc1MDAwOhExOTAwMDAwMDAwMDAwMDAwMBJYClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDsouFptHWGniIBzFrsE26PcfH950qjnf4RaEsd+g2fA0SBAoCCH8YAxIEEMCaDBpAOI3k8fay9TziZbl+eNCqmPEF7tWXua3ad0ldNR6XOgZjKRBP9sQSxCtaRFnqc6Avep9C4Rjt+CHDahRNpZ8u3A==","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
 ```
 
-## Export Genesis State
+### 2.3 Export Genesis State
 
 `$ liquidityd export`
 
