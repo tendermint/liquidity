@@ -421,6 +421,91 @@ func TestReinitializePool(t *testing.T) {
 	require.True(t, reserveCoins.IsEqual(deposit))
 }
 
+func TestReserveAccManipulation(t *testing.T) {
+	simapp, ctx := createTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	poolTypeId := types.DefaultPoolTypeId
+	addrs := lapp.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
+
+	denomA := "uETH"
+	denomB := "uUSD"
+	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+
+	// depositor, withdrawer
+	lapp.SaveAccount(simapp, ctx, addrs[0], deposit)
+	// reserveAccount manipulator
+	lapp.SaveAccount(simapp, ctx, addrs[1], deposit)
+
+	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
+	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	depositBalance := sdk.NewCoins(depositA, depositB)
+
+	// reserveAcc manipulation coinA
+	manipulationReserveA1 := sdk.NewCoin(denomA, sdk.NewInt(30*1000000))
+	manipulationReserveA2 := sdk.NewCoin(denomA, sdk.NewInt(70*1000000))
+	// reserveAcc manipulation coin other than reserve coins
+	manipulationReserveOther := sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100*1000000))
+	// manipulated reserve coinA
+	addedDepositA := depositA.Add(manipulationReserveA1).Add(manipulationReserveA2)
+
+	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createMsg)
+	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
+	pool := pools[0]
+
+	reserveAcc := pool.GetReserveAccount()
+	reserveAccBalances := simapp.BankKeeper.GetAllBalances(ctx, reserveAcc)
+	require.Equal(t, reserveAccBalances, sdk.NewCoins(depositA, depositB))
+
+	// send coin to manipulate reserve account
+	simapp.BankKeeper.SendCoins(ctx, addrs[1], reserveAcc, sdk.NewCoins(manipulationReserveA1))
+	metadata := simapp.LiquidityKeeper.GetPoolMetaData(ctx, pool)
+	require.Equal(t, depositA.Add(manipulationReserveA1).Amount, metadata.ReserveCoins.AmountOf(denomA))
+
+	poolCoinBefore := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+	withdrawerPoolCoinBefore := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.PoolCoinDenom)
+	withdrawMsg := types.NewMsgWithdrawWithinBatch(addrs[0], pool.Id, sdk.NewCoin(pool.PoolCoinDenom, withdrawerPoolCoinBefore.Amount.QuoRaw(2)))
+	simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
+
+	poolBatch, _ := simapp.LiquidityKeeper.GetPoolBatch(ctx, withdrawMsg.PoolId)
+	msgs := simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, poolBatch)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	// send coin to manipulate reserve account
+	simapp.BankKeeper.SendCoins(ctx, addrs[1], reserveAcc, sdk.NewCoins(manipulationReserveA2))
+	simapp.BankKeeper.SendCoins(ctx, addrs[1], reserveAcc, sdk.NewCoins(manipulationReserveOther))
+	reserveAccBalances = simapp.BankKeeper.GetAllBalances(ctx, reserveAcc)
+	metadata = simapp.LiquidityKeeper.GetPoolMetaData(ctx, pool)
+	require.NotEqual(t, manipulationReserveOther, metadata.ReserveCoins.AmountOf(sdk.DefaultBondDenom))
+
+	// Case for withdrawing all reserve coins after manipulation
+	poolCoinBefore = simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+	withdrawerPoolCoinBefore = simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.PoolCoinDenom)
+	withdrawMsg = types.NewMsgWithdrawWithinBatch(addrs[0], pool.Id, sdk.NewCoin(pool.PoolCoinDenom, poolCoinBefore))
+
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, withdrawMsg)
+	require.NoError(t, err)
+
+	poolBatch, _ = simapp.LiquidityKeeper.GetPoolBatch(ctx, withdrawMsg.PoolId)
+	msgs = simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, poolBatch)
+
+	err = simapp.LiquidityKeeper.WithdrawLiquidityPool(ctx, msgs[0], poolBatch)
+	require.NoError(t, err)
+
+	withdrawerDenomABalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[0])
+	withdrawerDenomBBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[1])
+	withdrawerDenomOtherBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], sdk.DefaultBondDenom)
+	require.Equal(t, addedDepositA, withdrawerDenomABalance)
+	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[1]), withdrawerDenomBBalance.Amount)
+	require.NotEqual(t, manipulationReserveOther, withdrawerDenomOtherBalance)
+}
+
 func TestGetLiquidityPoolMetadata(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
