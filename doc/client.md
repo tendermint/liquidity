@@ -1,3 +1,8 @@
+---
+title: Liquidityd
+---
+
+The liquidityd app for the liquidity pool module.
 
 # Liquidityd
 
@@ -6,9 +11,9 @@ Implemented tx cli
 - [x]  `create-pool`   Create Liquidity pool with the specified pool-type, deposit-coins
 - [x]  `deposit`       Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins
 - [x]  `swap`          Swap offer submit to the batch to the Liquidity pool with the specified pool-id with offer-coin, order-price, etc
-- [x]  `withdraw`      Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool 
+- [x]  `withdraw`      Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
 
-Implemented query cli 
+Implemented query cli
 
 - [x]    `batch`       Query details of a liquidity pool batch of the pool
 - [x]    `batches`     Query for all liquidity pools batch
@@ -68,7 +73,7 @@ Usage:
   liquidityd tx liquidity create-pool [pool-type-id] [deposit-coins] [flags]
 ```
 
-example tx command with result 
+example tx command with result
 
 `$ liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -y`
 
@@ -246,7 +251,7 @@ already exist case, when duplicated request for same create pool
 
 `$ liquidityd tx liquidity deposit --help`
 
-```bash 
+```bash
 Deposit coins to the specified liquidity pool.
 
 This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
@@ -264,7 +269,7 @@ Usage:
 
 ```
 
-example tx command with result 
+example tx command with result
 
 
 `$ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from validator --keyring-backend test --chain-id testing -y`
@@ -307,7 +312,7 @@ example tx command with result
 }
 ```
 
-result 
+result
 
 ```
 {
@@ -397,7 +402,7 @@ result
 Swap offer coin with demand coin from the specified liquidity pool with the given order price.
 
 This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch. 
+This will be processed with other requests at once in every end of batch.
 Note that the order of swap requests is ignored since the universal swap price is calculated within every batch to prevent front running.
 
 The requested swap is executed with a swap price calculated from given swap price function of the pool, the current other swap requests and the current liquidity pool coin reserve status.
@@ -410,7 +415,7 @@ In this example, we assume there exists a liquidity pool with 1000000000uatom an
 User requests to swap 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
 User must have sufficient balance half of the swap-fee-rate of the offer coin to reserve offer coin fee.
 
-The order price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically. 
+The order price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically.
 Increasing order price means to decrease the possibility for your request to be processed and end up buying uatom at cheaper price than the pool price.  
 
 For explicit calculations, you must enter the swap-fee-rate value of the current parameter state.
@@ -420,7 +425,7 @@ Usage:
   liquidityd tx liquidity swap [pool-id] [swap-type-id] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate] [flags]
 ```
 
-example tx command with result 
+example tx command with result
 
 `$ liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y`
 
@@ -463,7 +468,7 @@ example tx command with result
 }
 ```
 
-result 
+result
 
 ```
 {
@@ -584,16 +589,16 @@ result
 
 `$ liquidityd tx liquidity withdraw --help`
 
-```bash 
+```bash
 Withdraw pool coin from the specified liquidity pool.
 
 This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
-This will be processed with other requests at once in every end of batch. 
+This will be processed with other requests at once in every end of batch.
 
 Example:
 $ liquidity tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from mykey
 
-In this example, user requests to withdraw 10000 pool coin from the specified liquidity pool. 
+In this example, user requests to withdraw 10000 pool coin from the specified liquidity pool.
 User must request the appropriate pool coin from the specified pool.
 
 Usage:
@@ -657,7 +662,7 @@ example tx command with result
 }
 ```
 
-result 
+result
 
 ```
 {
@@ -858,7 +863,7 @@ empty case
 
 `$ liquidityd query liquidity deposits 1`
 
-```bash 
+```bash
 deposits: []
 pagination:
   next_key: null
@@ -878,10 +883,10 @@ Usage:
   liquidityd query liquidity pool [pool-id] [flags]
 ```
 
-example query command with result 
+example query command with result
 
 `$ liquidityd query liquidity pool 1`
- 
+
 ```bash
 pool:
   id: "1"
@@ -929,10 +934,10 @@ Usage:
   liquidityd query liquidity pools [flags]
 ```
 
-example query command with result 
+example query command with result
 
 `$ liquidityd query liquidity pools`
- 
+
 ```bash
 pagination:
   next_key: null
@@ -956,7 +961,7 @@ pools:
 
 ### query params
 
-example query command with result 
+example query command with result
 
 `$ liquidityd query liquidity params`
 
@@ -1036,7 +1041,7 @@ swaps:
 empty case
 
 `$ liquidityd query liquidity swaps 1`
-```bash 
+```bash
 pagination:
   next_key: null
   total: "0"
@@ -1084,7 +1089,7 @@ withdraws:
 
 empty case
 `$ liquidityd query liquidity withdraws 1`
-```bash 
+```bash
 pagination:
   next_key: null
   total: "0"
