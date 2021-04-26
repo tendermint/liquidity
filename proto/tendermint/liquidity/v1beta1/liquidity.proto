@@ -13,8 +13,8 @@ option (gogoproto.goproto_getters_all) = false;
 message PoolType {
     option (gogoproto.equal) = true;
 
-    // This is the id of the pool_type that will be used as pool_type_id for pool creation.
-    // In this version, pool-type-id 1 is only available
+    // The id of the pool_type to use as pool_type_id for pool creation.
+    // Only pool-type-id 1 is supported
     // {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
     uint32 id = 1 [(gogoproto.moretags) = "yaml:\"id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -87,7 +87,7 @@ message Params {
             format: "sdk.Int"
         }];
 
-    // Fee paid for new Liquidity Pool creation to prevent spamming
+    // Fee to create a Liquidity Pool. 
     repeated cosmos.base.v1beta1.Coin pool_creation_fee = 5 [
         (gogoproto.moretags)   = "yaml:\"pool_creation_fee\"",
         (gogoproto.nullable)   = false,
@@ -135,19 +135,9 @@ message Params {
             example: "\"1\"",
             format: "uint32"
         }];
-
-    //    // fees paid for each batch messages, to be added v2
-    //    repeated cosmos.base.v1beta1.Coin liquidity_msg_fee = 5 [
-    //        (gogoproto.moretags)   = "yaml:\"liquidity_msg_fee\"",
-    //        (gogoproto.nullable)   = false,
-    //        (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-    //        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-    //            example: "[{\"denom\": \"uatom\", \"amount\": \"50000\"}]",
-    //            format: "sdk.Coins"
-    //        }];
 }
 
-// Pool defines the liquidity pool that contains pool information
+// The liquidity pool information
 message Pool {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
@@ -186,7 +176,7 @@ message Pool {
         }];
 }
 
-// Metadata of the state of each pool for invariant checking when genesis export or import
+// Metadata for the state of each pool for invariant checking after genesis export or import
 message PoolMetadata {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
@@ -218,7 +208,7 @@ message PoolMetadata {
         }];
 }
 
-// PoolBatch defines the batch(es) of a given liquidity pool that contains indexes of deposit / withdraw / swap messages. Index param increments by 1 if the pool id is same.
+// The batch or batches of a given liquidity pool that contains indexes of the deposit, withdraw, and swap messages. The index param increments by 1 if the pool id exists.
 message PoolBatch {
     option (gogoproto.equal) = true;
     option (gogoproto.goproto_stringer) = true;
@@ -272,7 +262,7 @@ message PoolBatch {
         }];
 }
 
-// DepositMsgState defines the state of deposit message that contains state information as it is processed in the next batch(s)
+// DepositMsgState defines the state of the deposit message that contains the state information as it is processed in the next batch or batches
 message DepositMsgState {
 
     // height where this message is appended to the batch
@@ -311,7 +301,7 @@ message DepositMsgState {
     MsgDepositWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
-// WithdrawMsgState defines the state of withdraw message that contains state information as it is processed in the next batch(s)
+// WithdrawMsgState defines the state of the withdraw message that contains state information as it is processed in the next batch or batches 
 message WithdrawMsgState {
 
     // height where this message is appended to the batch
@@ -350,7 +340,7 @@ message WithdrawMsgState {
     MsgWithdrawWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
-// SwapMsgState defines the state of swap message that contains state information as it is processed in the next batch(s)
+// SwapMsgState defines the state of swap message that contains state information as it is processed in the next batch or batches
 message SwapMsgState {
 
     // height where this message is appended to the batch
