@@ -8,30 +8,29 @@ The liquidityd app for the liquidity pool module.
 
 Implemented tx cli
 
-- [x]  `create-pool`   Create Liquidity pool with the specified pool-type, deposit-coins
-- [x]  `deposit`       Deposit submit to the batch of the Liquidity pool with the specified pool-id, deposit-coins
-- [x]  `swap`          Swap offer submit to the batch to the Liquidity pool with the specified pool-id with offer-coin, order-price, etc
-- [x]  `withdraw`      Withdraw submit to the batch from the Liquidity pool with the specified pool-id, pool-coin of the pool
+- [x] `create-pool` Create liquidity pool
+- [x] `deposit` Deposit to the liquidity pool batch
+- [x] `swap` Submit swap offer to the liquidity pool batch
+- [x] `withdraw` Submit withdraw to the liquidity pool batch
 
 Implemented query cli
 
-- [x]    `batch`       Query details of a liquidity pool batch of the pool
-- [x]    `batches`     Query for all liquidity pools batch
-- [x]    `deposit`     Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index
-- [x]    `deposits`    Query for all deposit messages on the batch of the liquidity pool specified pool-id
-- [x]    `params`      Query the current liquidity parameters information
-- [x]    `pool`        Query details of a liquidity pool
-- [x]    `pools`       Query for all liquidity pools
-- [x]    `swap`        Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
-- [x]    `swaps`       Query for all swap messages on the batch of the liquidity pool specified pool-id
-- [x]    `withdraw`    Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index
-- [x]    `withdraws`   Query for all withdraw messages on the batch of the liquidity pool specified pool-id
+- [x] `batch` Query details of a liquidity pool batch of the pool
+- [x] `batches` Query for all liquidity pools batch
+- [x] `deposit` Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index
+- [x] `deposits` Query for all deposit messages on the batch of the liquidity pool specified pool-id
+- [x] `params` Query the current liquidity parameters information
+- [x] `pool` Query details of a liquidity pool
+- [x] `pools` Query for all liquidity pools
+- [x] `swap` Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
+- [x] `swaps` Query for all swap messages on the batch of the liquidity pool specified pool-id
+- [x] `withdraw` Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index
+- [x] `withdraws` Query for all withdraw messages on the batch of the liquidity pool specified pool-id
 
 Progress REST/API
 
 - [x] liquidity query endpoints of REST api using grpc model
 - [x] broadcast txs using the new REST endpoint (via gRPC-gateway, beta1)
-
 
 ## Tx
 
