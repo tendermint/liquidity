@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -108,14 +107,16 @@ func createIncrementalAccounts(accNum int) []sdk.AccAddress {
 
 // setTotalSupply provides the total supply based on accAmt * totalAccounts.
 func setTotalSupply(app *LiquidityApp, ctx sdk.Context, accAmt sdk.Int, totalAccounts int) {
-	totalSupply := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts))))
-	prevSupply := app.BankKeeper.GetSupply(ctx)
-	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))
+	//totalSupply := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts))))
+	//prevSupply := app.BankKeeper.GetSupply(ctx)
+	//app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))
 }
 
 func addTotalSupply(app *LiquidityApp, ctx sdk.Context, coins sdk.Coins) {
-	prevSupply := app.BankKeeper.GetSupply(ctx)
-	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(coins...)))
+	//prevSupply := app.BankKeeper.GetSupply(ctx)
+	//for _, coin:= range coins {
+	//	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(coins...)))
+	//}
 }
 
 // AddRandomTestAddr creates new account with random address.
@@ -161,21 +162,20 @@ func addTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Int
 func SaveAccount(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins) {
 	acc := app.AccountKeeper.NewAccountWithAddress(ctx, addr)
 	app.AccountKeeper.SetAccount(ctx, acc)
-	err := app.BankKeeper.AddCoins(ctx, addr, initCoins)
-	if err != nil {
-		panic(err)
-	}
+	//err := app.BankKeeper.AddCoins(ctx, addr, initCoins)
+	//if err != nil {
+	//	panic(err)
+	//}
 }
 
 func SaveAccountWithFee(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins, offerCoin sdk.Coin) {
 	SaveAccount(app, ctx, addr, initCoins)
-	//acc := app.AccountKeeper.GetAccount(ctx, addr)
-	params := app.LiquidityKeeper.GetParams(ctx)
-	offerCoinFee := types.GetOfferCoinFee(offerCoin, params.SwapFeeRate)
-	err := app.BankKeeper.AddCoins(ctx, addr, sdk.NewCoins(offerCoinFee))
-	if err != nil {
-		panic(err)
-	}
+	//params := app.LiquidityKeeper.GetParams(ctx)
+	//offerCoinFee := types.GetOfferCoinFee(offerCoin, params.SwapFeeRate)
+	//err := app.BankKeeper.AddCoins(ctx, addr, sdk.NewCoins(offerCoinFee))
+	//if err != nil {
+	//	panic(err)
+	//}
 }
 
 func TestAddr(addr string, bech string) (sdk.AccAddress, error) {

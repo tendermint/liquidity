@@ -14,6 +14,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -108,6 +109,7 @@ type AppModule struct {
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	distrKeeper   types.DistributionKeeper
+	registry      cdctypes.InterfaceRegistry
 }
 
 // NewAppModule creates a new AppModule object
@@ -208,3 +210,10 @@ func (am AppModule) WeightedOperations(simState module.SimulationState) []simtyp
 		am.accountKeeper, am.bankKeeper, am.keeper,
 	)
 }
+
+// TODO: temporary function for porting sdk v0.43
+func (am AppModule) ProtoCodec() *codec.ProtoCodec {
+	return codec.NewProtoCodec(am.registry)
+}
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return 1 }  // TODO: fix for porting sdk v0.43

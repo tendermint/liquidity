@@ -463,9 +463,8 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 
 // GetPoolCoinTotalSupply returns total supply of pool coin of the pool in form of sdk.Int
 func (k Keeper) GetPoolCoinTotalSupply(ctx sdk.Context, pool types.Pool) sdk.Int {
-	supply := k.bankKeeper.GetSupply(ctx)
-	total := supply.GetTotal()
-	return total.AmountOf(pool.PoolCoinDenom)
+	supply := k.bankKeeper.GetSupply(ctx, pool.PoolCoinDenom)
+	return supply.Amount
 }
 
 // GetPoolCoinTotal returns total supply of pool coin of the pool in form of sdk.Coin
