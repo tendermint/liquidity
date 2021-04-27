@@ -7,3 +7,6 @@ accounts:
 validator:
   name: alice
   staked: "100000000stake"
+client:
+  vuex:
+    path: "client"

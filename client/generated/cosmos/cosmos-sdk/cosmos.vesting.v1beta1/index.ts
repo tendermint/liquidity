@@ -9,6 +9,8 @@ import { Period } from "./module/types/cosmos/vesting/v1beta1/vesting"
 import { PeriodicVestingAccount } from "./module/types/cosmos/vesting/v1beta1/vesting"
 
 
+export { BaseVestingAccount, ContinuousVestingAccount, DelayedVestingAccount, Period, PeriodicVestingAccount };
+
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
 		addr: vuexGetters['common/env/apiTendermint']
@@ -45,14 +47,14 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        
-        _Structure: {
-            BaseVestingAccount: getStructure(BaseVestingAccount.fromPartial({})),
-            ContinuousVestingAccount: getStructure(ContinuousVestingAccount.fromPartial({})),
-            DelayedVestingAccount: getStructure(DelayedVestingAccount.fromPartial({})),
-            Period: getStructure(Period.fromPartial({})),
-            PeriodicVestingAccount: getStructure(PeriodicVestingAccount.fromPartial({})),
-            
+				
+				_Structure: {
+						BaseVestingAccount: getStructure(BaseVestingAccount.fromPartial({})),
+						ContinuousVestingAccount: getStructure(ContinuousVestingAccount.fromPartial({})),
+						DelayedVestingAccount: getStructure(DelayedVestingAccount.fromPartial({})),
+						Period: getStructure(Period.fromPartial({})),
+						PeriodicVestingAccount: getStructure(PeriodicVestingAccount.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -79,7 +81,7 @@ export default {
 		}
 	},
 	getters: {
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -114,7 +116,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgCreateVestingAccount(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

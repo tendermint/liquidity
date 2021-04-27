@@ -12,6 +12,8 @@ import { Metadata } from "./module/types/cosmos/bank/v1beta1/bank"
 import { Balance } from "./module/types/cosmos/bank/v1beta1/genesis"
 
 
+export { Params, SendEnabled, Input, Output, Supply, DenomUnit, Metadata, Balance };
+
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
 		addr: vuexGetters['common/env/apiTendermint']
@@ -48,24 +50,24 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        Balance: {},
-        AllBalances: {},
-        TotalSupply: {},
-        SupplyOf: {},
-        Params: {},
-        DenomMetadata: {},
-        DenomsMetadata: {},
-        
-        _Structure: {
-            Params: getStructure(Params.fromPartial({})),
-            SendEnabled: getStructure(SendEnabled.fromPartial({})),
-            Input: getStructure(Input.fromPartial({})),
-            Output: getStructure(Output.fromPartial({})),
-            Supply: getStructure(Supply.fromPartial({})),
-            DenomUnit: getStructure(DenomUnit.fromPartial({})),
-            Metadata: getStructure(Metadata.fromPartial({})),
-            Balance: getStructure(Balance.fromPartial({})),
-            
+				Balance: {},
+				AllBalances: {},
+				TotalSupply: {},
+				SupplyOf: {},
+				Params: {},
+				DenomMetadata: {},
+				DenomsMetadata: {},
+				
+				_Structure: {
+						Params: getStructure(Params.fromPartial({})),
+						SendEnabled: getStructure(SendEnabled.fromPartial({})),
+						Input: getStructure(Input.fromPartial({})),
+						Output: getStructure(Output.fromPartial({})),
+						Supply: getStructure(Supply.fromPartial({})),
+						DenomUnit: getStructure(DenomUnit.fromPartial({})),
+						Metadata: getStructure(Metadata.fromPartial({})),
+						Balance: getStructure(Balance.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -92,49 +94,49 @@ export default {
 		}
 	},
 	getters: {
-        getBalance: (state) => (params = {}) => {
+				getBalance: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Balance[JSON.stringify(params)] ?? {}
 		},
-        getAllBalances: (state) => (params = {}) => {
+				getAllBalances: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.AllBalances[JSON.stringify(params)] ?? {}
 		},
-        getTotalSupply: (state) => (params = {}) => {
+				getTotalSupply: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.TotalSupply[JSON.stringify(params)] ?? {}
 		},
-        getSupplyOf: (state) => (params = {}) => {
+				getSupplyOf: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.SupplyOf[JSON.stringify(params)] ?? {}
 		},
-        getParams: (state) => (params = {}) => {
+				getParams: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
-        getDenomMetadata: (state) => (params = {}) => {
+				getDenomMetadata: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DenomMetadata[JSON.stringify(params)] ?? {}
 		},
-        getDenomsMetadata: (state) => (params = {}) => {
+				getDenomsMetadata: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.DenomsMetadata[JSON.stringify(params)] ?? {}
 		},
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -324,7 +326,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgSend(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
@@ -339,7 +341,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgMultiSend(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

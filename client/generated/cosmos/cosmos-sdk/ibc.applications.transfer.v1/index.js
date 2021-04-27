@@ -4,6 +4,7 @@ import { SpVuexError } from '@starport/vuex';
 import { FungibleTokenPacketData } from "./module/types/ibc/applications/transfer/v1/transfer";
 import { DenomTrace } from "./module/types/ibc/applications/transfer/v1/transfer";
 import { Params } from "./module/types/ibc/applications/transfer/v1/transfer";
+export { FungibleTokenPacketData, DenomTrace, Params };
 async function initTxClient(vuexGetters) {
     return await txClient(vuexGetters['common/wallet/signer'], {
         addr: vuexGetters['common/env/apiTendermint']
@@ -68,19 +69,19 @@ export default {
         }
     },
     getters: {
-        getDenomTrace: (state) => (params = {}) => {
+        getDenomTrace: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.DenomTrace[JSON.stringify(params)] ?? {};
         },
-        getDenomTraces: (state) => (params = {}) => {
+        getDenomTraces: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.DenomTraces[JSON.stringify(params)] ?? {};
         },
-        getParams: (state) => (params = {}) => {
+        getParams: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }

@@ -9,6 +9,7 @@ import { Supply } from "./module/types/cosmos/bank/v1beta1/bank";
 import { DenomUnit } from "./module/types/cosmos/bank/v1beta1/bank";
 import { Metadata } from "./module/types/cosmos/bank/v1beta1/bank";
 import { Balance } from "./module/types/cosmos/bank/v1beta1/genesis";
+export { Params, SendEnabled, Input, Output, Supply, DenomUnit, Metadata, Balance };
 async function initTxClient(vuexGetters) {
     return await txClient(vuexGetters['common/wallet/signer'], {
         addr: vuexGetters['common/env/apiTendermint']
@@ -82,43 +83,43 @@ export default {
         }
     },
     getters: {
-        getBalance: (state) => (params = {}) => {
+        getBalance: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.Balance[JSON.stringify(params)] ?? {};
         },
-        getAllBalances: (state) => (params = {}) => {
+        getAllBalances: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.AllBalances[JSON.stringify(params)] ?? {};
         },
-        getTotalSupply: (state) => (params = {}) => {
+        getTotalSupply: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.TotalSupply[JSON.stringify(params)] ?? {};
         },
-        getSupplyOf: (state) => (params = {}) => {
+        getSupplyOf: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.SupplyOf[JSON.stringify(params)] ?? {};
         },
-        getParams: (state) => (params = {}) => {
+        getParams: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.Params[JSON.stringify(params)] ?? {};
         },
-        getDenomMetadata: (state) => (params = {}) => {
+        getDenomMetadata: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.DenomMetadata[JSON.stringify(params)] ?? {};
         },
-        getDenomsMetadata: (state) => (params = {}) => {
+        getDenomsMetadata: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }

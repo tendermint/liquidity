@@ -8,6 +8,8 @@ import { IntProto } from "./module/types/cosmos/base/v1beta1/coin"
 import { DecProto } from "./module/types/cosmos/base/v1beta1/coin"
 
 
+export { Coin, DecCoin, IntProto, DecProto };
+
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
 		addr: vuexGetters['common/env/apiTendermint']
@@ -44,13 +46,13 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        
-        _Structure: {
-            Coin: getStructure(Coin.fromPartial({})),
-            DecCoin: getStructure(DecCoin.fromPartial({})),
-            IntProto: getStructure(IntProto.fromPartial({})),
-            DecProto: getStructure(DecProto.fromPartial({})),
-            
+				
+				_Structure: {
+						Coin: getStructure(Coin.fromPartial({})),
+						DecCoin: getStructure(DecCoin.fromPartial({})),
+						IntProto: getStructure(IntProto.fromPartial({})),
+						DecProto: getStructure(DecProto.fromPartial({})),
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -77,7 +79,7 @@ export default {
 		}
 	},
 	getters: {
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}

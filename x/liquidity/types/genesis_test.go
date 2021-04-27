@@ -22,7 +22,7 @@ func TestValidateGenesis(t *testing.T) {
 				params.SwapFeeRate = sdk.NewDec(-1)
 				genState.Params = params
 			},
-			"swap fee rate must be not negative: -1.000000000000000000",
+			"swap fee rate must not be negative: -1.000000000000000000",
 		},
 		{
 			"InvalidPoolRecords",
