@@ -20,7 +20,7 @@ Query commands `query`
 - [x] `withdraw` Query for a withdraw message of a liquidity pool
 - [x] `withdraws` Query for all withdraw messages of a liquidity pool
 
-Progress REST/API
+REST/API
 
 - [x] Liquidity query endpoints of REST API using gRPC model
 - [x] Broadcast tx with the REST endpoint by using gRPC-gateway, beta1
@@ -55,8 +55,7 @@ Create liquidity pool and deposit initial coins
 Example:
 $ liquidity tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
-This example creates a liquidity pool of pool-type 1 (two coins) and deposits 1000000000uatom and 50000000000uusd.
-New liquidity pools can be created only for coin combinations that do not already exist in the network.
+This example creates a liquidity pool of pool-type 1 (two coins) and deposits 1000000000uatom and 50000000000uusd. New liquidity pools can be created only for coin combinations that do not already exist in the network.
 
 Usage:
   liquidityd tx liquidity create-pool [pool-type] [deposit-coins] [flags]
@@ -245,7 +244,7 @@ Unsuccessful create-pool tx if specified pool already exists:
 `$ liquidityd tx liquidity deposit --help`
 
 ```bash
-Deposit coins a liquidity pool.
+Deposit coins to a liquidity pool.
 
 The deposit request is not processed immediately since it is accumulated in the liquidity pool batch. All requests in a batch are treated equally and executed at the same swap price.
 
@@ -259,11 +258,11 @@ Usage:
   liquidityd tx liquidity deposit [pool-id] [deposit-coins] [flags]
 
 Required arguments:  
-  pool-id: The pool id of the liquidity pool
-  deposit-coins: The amount of coins to deposit to the liquidity pool
+- pool-id: The pool id of the liquidity pool
+- deposit-coins: The comma-separated coins to deposit to the liquidity pool in amountdenom format. For example, `100000000uatom,5000000000uusd`. The number of coins must be two in pool type 1.
 ```
 
-Example tx command with result:
+Example tx deposit command:
 
 `$ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from validator --keyring-backend test --chain-id testing -y`
 
@@ -305,7 +304,7 @@ Example tx command with result:
 }
 ```
 
-result
+Result:
 
 ```
 {
@@ -391,40 +390,41 @@ result
 `$ liquidityd tx liquidity swap --help`
 
 ```bash
-Swap offer coin with demand coin from the liquidity pool with the given order price.
+Swap offer coin with demand coin.
 
-The swap request is not processed immediately since it is accumulated in the liquidity pool batch.
-All requests in a batch are treated equally and executed at the same swap price.
+The swap request is not processed immediately since it is accumulated in the liquidity pool batch. All requests in a batch are treated equally and executed at the same swap price.
+
 The order of swap requests is ignored since the universal swap price is calculated in every batch to prevent front running.
 
-The requested swap is executed with a swap price that is calculated from the given swap price function of the pool, the other swap requests, and the liquidity pool coin reserve status.
-Swap orders are executed only when the execution swap price is equal to or greater than the submitted order price of the swap order.
+The requested swap is executed with a swap price that is calculated from the given swap price function of the pool, the other swap requests, and the liquidity pool coin reserve status. Swap orders are executed only when the execution swap price is equal to or greater than the submitted order price of the swap order.
 
 Example:
 $ liquidity liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from mykey
 
-For this example, imagine that an existing liquidity pool has with 1000000000uatom and 50000000000uusd.
-This example request swaps 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
+For this example, imagine that an existing liquidity pool has this coin pair:  1000000000uatom and 50000000000uusd.
+This example command swaps 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
 A sufficient balance of half of the swap-fee-rate of the offer coin is required to reserve the offer coin fee.
 
 The order price is the exchange ratio of X/Y, where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically.
 Increasing order price reduces the possibility for your request to be processed and results in buying uatom at a lower price than the pool price.
 
 For explicit calculations, The swap fee rate must be the value that set as liquidity parameter in the current network.
-The only supported swap-type is 1\. For the detailed swap algorithm, see https://github.com/tendermint/liquidity
-
-[pool-id]: The pool id of the liquidity pool
-[swap-type]: The swap type of the swap message. The only supported swap type is 1 (instant swap).
-[offer-coin]: The amount of offer coin to swap
-[demand-coin-denom]: The denomination of the coin to exchange with offer coin
-[order-price]: The limit order price for the swap order. The price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
-[swap-fee-rate]: The swap fee rate to pay for swap that is proportional to swap amount. The swap fee rate must be the value that set as liquidity parameter in the current network.
+The only supported swap-type is 1\. For swap algorithm details, see the [light paper](https://github.com/tendermint/liquidity/blob/develop/doc/LiquidityModuleLightPaper_EN.pdf).
 
 Usage:
   liquidityd tx liquidity swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate] [flags]
+
+Required arguments:
+
+- pool-id: The pool id of the liquidity pool
+- swap-type: The swap type of the swap message. The only supported swap type is 1 (instant swap).
+- offer-coin: The amount of offer coin to swap in amountdenom format, like `50000000uusd`
+- demand-coin-denom: The denomination of the coin to exchange with offer coin in denom format like `uatom`
+- order-price: The limit order price for the swap order. The price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically
+- swap-fee-rate: The swap fee rate to pay for swap that is proportional to swap amount. The swap fee rate must be the value that is set as the liquidity parameter in the current network.
 ```
 
-example tx command with result
+Example tx swap command:
 
 `$ liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y`
 
@@ -605,7 +605,7 @@ Usage:
 
 Required arguments:
 - pool-id: The pool id of the liquidity pool
-- pool-coin: The amount of pool coin to withdraw from the liquidity pool
+- pool-coin: The amount of pool coin for this transaction
 ```
 
 Example to check the balance before withdraw
@@ -890,7 +890,7 @@ Usage:
   liquidityd query liquidity pool [pool-id] [flags]
 ```
 
-Example query for details command with result
+Example query for details command with result:
 
 `$ liquidityd query liquidity pool 1`
 
@@ -942,7 +942,7 @@ Usage:
   liquidityd query liquidity pools [flags]
 ```
 
-example query command with result
+Example query command with result:
 
 `$ liquidityd query liquidity pools`
 
@@ -969,7 +969,7 @@ pools:
 
 ### query params
 
-example query command with result
+Example query params command:
 
 `$ liquidityd query liquidity params`
 
@@ -1009,7 +1009,7 @@ Usage:
   liquidityd query liquidity swaps [pool-id] [flags]
 ```
 
-example query command with result
+Example query swaps command:
 
 `$ liquidityd query liquidity swaps 1`
 
@@ -1047,7 +1047,7 @@ swaps:
   to_be_deleted: true
 ```
 
-empty case
+Example query swaps command with no results:
 
 `$ liquidityd query liquidity swaps 1`
 
@@ -1075,7 +1075,7 @@ Usage:
   liquidityd query liquidity withdraws [pool-id] [flags]
 ```
 
-example query command with result
+Example query withdraws command:
 
 `$ liquidityd query liquidity withdraws 1`
 
