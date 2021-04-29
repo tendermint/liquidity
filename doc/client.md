@@ -1,31 +1,31 @@
 # Liquidityd
 
-Transaction (tx) commands
+Transaction commands `tx`
 
-- [x] `create-pool` Create liquidity pool and deposit coins
-- [x] `deposit` Deposit coins to a liquidity pool
+- [x] `create-pool` Create liquidity pool and deposit initial coins
+- [x] `deposit` Deposit coins
 - [x] `swap` Swap offer coin with demand coin
-- [x] `withdraw` Withdraw pool coin from the specified liquidity pool
+- [x] `withdraw` Withdraw pool coin
 
-Implemented query cli
+Query commands `query`
 
-- [x] `batch` Query details of a liquidity pool batch
-- [x] `deposit` Query the deposit messages on the liquidity pool batch
-- [x] `deposits` Query all deposit messages of the liquidity pool batch
-- [x] `params` Query the values set as liquidity parameters
-- [x] `pool` Query details of a liquidity pool
-- [x] `pools` Query for all liquidity pools
-- [x] `swap` Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
-- [x] `swaps` Query all swap messages in the liquidity pool batch
-- [x] `withdraw` Query the withdraw messages in the liquidity pool batch
-- [x] `withdraws` Query for all withdraw messages on the liquidity pool batch
+- [x] `batch` Query for details of a liquidity pool batch
+- [x] `deposit` Query for a deposit message of a liquidity pool
+- [x] `deposits` Query for all deposit messages of a liquidity pool
+- [x] `params` Query for the values set as liquidity parameters
+- [x] `pool` Query for details of a liquidity pool
+- [x] `pools` Query for details of all liquidity pools
+- [x] `swap` Query for a swap message of a liquidity pool
+- [x] `swaps` Query for all swap messages of a liquidity pool
+- [x] `withdraw` Query for a withdraw message of a liquidity pool
+- [x] `withdraws` Query for all withdraw messages of a liquidity pool
 
 Progress REST/API
 
-- [x] liquidity query endpoints of REST api using grpc model
-- [x] broadcast txs using the new REST endpoint (via gRPC-gateway, beta1)
+- [x] Liquidity query endpoints of REST API using gRPC model
+- [x] Broadcast tx with the REST endpoint by using gRPC-gateway, beta1
 
-## Tx
+## tx commands
 
 `$ liquidityd tx liquidity --help`
 
@@ -37,20 +37,20 @@ Usage:
   liquidityd tx liquidity [command]
 
 Available Commands:
-  create-pool Create liquidity pool and deposit coins
-  deposit     Deposit coins to a liquidity pool
-  swap        Swap offer coin with demand coin from the liquidity pool with the given order price
-  withdraw    Withdraw pool coin from the specified liquidity pool
+  create-pool Create liquidity pool and deposit initial coins
+  deposit     Deposit coins in a liquidity pool
+  swap        Swap offer coin with demand coin
+  withdraw    Withdraw pool coins from a liquidity pool
 ```
 
-See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
+See [error codes](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) and descriptions.
 
 ### tx create-pool
 
 `$ liquidityd tx liquidity create-pool --help`
 
 ```bash
-Create liquidity pool and deposit coins.
+Create liquidity pool and deposit initial coins
 
 Example:
 $ liquidity tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
@@ -58,14 +58,15 @@ $ liquidity tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from my
 This example creates a liquidity pool of pool-type 1 (two coins) and deposits 1000000000uatom and 50000000000uusd.
 New liquidity pools can be created only for coin combinations that do not already exist in the network.
 
-[pool-type]: The id of the liquidity pool-type. The only supported pool type is 1
-[deposit-coins]: The amount of coins to deposit to the liquidity pool. The number of deposit coins must be 2 in pool type 1.
-
 Usage:
   liquidityd tx liquidity create-pool [pool-type] [deposit-coins] [flags]
+
+Required arguments:  
+- pool-type: The id of the liquidity pool-type. The only supported pool type is 1.
+- deposit-coins: The amount of coins to deposit to the liquidity pool. The number of deposit coins must be two in pool type 1.
 ```
 
-example tx command with result
+Example tx create-pool command
 
 `$ liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -y`
 
@@ -107,7 +108,7 @@ example tx command with result
 }
 ```
 
-result
+Successful create-pool result:
 
 ```json
 {
@@ -220,7 +221,7 @@ result
 }
 ```
 
-already exist case, when duplicated request for same create pool
+Unsuccessful create-pool tx if specified pool already exists:
 
 ```json
 {
@@ -246,8 +247,7 @@ already exist case, when duplicated request for same create pool
 ```bash
 Deposit coins a liquidity pool.
 
-This deposit request is not processed immediately since it is accumulated in the liquidity pool batch.
-All requests in a batch are treated equally and executed at the same swap price.
+The deposit request is not processed immediately since it is accumulated in the liquidity pool batch. All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
 $ liquidity tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
@@ -255,14 +255,15 @@ $ liquidity tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
 This example request deposits 100000000uatom and 5000000000uusd to pool-id 1.
 Deposits must be the same coin denoms as the reserve coins.
 
-[pool-id]: The pool id of the liquidity pool
-[deposit-coins]: The amount of coins to deposit to the liquidity pool
-
 Usage:
   liquidityd tx liquidity deposit [pool-id] [deposit-coins] [flags]
+
+Required arguments:  
+  pool-id: The pool id of the liquidity pool
+  deposit-coins: The amount of coins to deposit to the liquidity pool
 ```
 
-example tx command with result
+Example tx command with result:
 
 `$ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from validator --keyring-backend test --chain-id testing -y`
 
@@ -392,7 +393,7 @@ result
 ```bash
 Swap offer coin with demand coin from the liquidity pool with the given order price.
 
-This swap request is not processed immediately since it is accumulated in the liquidity pool batch.
+The swap request is not processed immediately since it is accumulated in the liquidity pool batch.
 All requests in a batch are treated equally and executed at the same swap price.
 The order of swap requests is ignored since the universal swap price is calculated in every batch to prevent front running.
 
@@ -588,7 +589,7 @@ result
 `$ liquidityd tx liquidity withdraw --help`
 
 ```bash
-Withdraw pool coin from the specified liquidity pool.
+Withdraw pool coins from a pool.
 
 This swap request is not processed immediately since it is accumulated in the liquidity pool batch.
 All requests in a batch are treated equally and executed at the same swap price.
@@ -599,14 +600,15 @@ $ liquidity tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A81805
 This example request withdraws 10000 pool coin from the specified liquidity pool.
 The appropriate pool coin must be requested from the specified pool.
 
-[pool-id]: The pool id of the liquidity pool
-[pool-coin]: The amount of pool coin to withdraw from the liquidity pool
-
 Usage:
   liquidityd tx liquidity withdraw [pool-id] [pool-coin] [flags]
+
+Required arguments:
+- pool-id: The pool id of the liquidity pool
+- pool-coin: The amount of pool coin to withdraw from the liquidity pool
 ```
 
-check the balance before withdraw
+Example to check the balance before withdraw
 
 `$ liquidityd query bank balances cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3`
 
@@ -748,7 +750,7 @@ result
 }
 ```
 
-balances after withdraw
+Query balances after withdraw
 
 `$ liquidityd query bank balances cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3`
 
@@ -769,7 +771,7 @@ pagination:
   total: "0"
 ```
 
-## Query
+## query commands
 
 `$ liquidityd query liquidity --help`
 
@@ -781,26 +783,26 @@ Usage:
   liquidityd query liquidity [command]
 
 Available Commands:
-  batch       Query details of a liquidity pool batch
-  deposit     Query the deposit messages on the liquidity pool batch
-  deposits    Query all deposit messages of the liquidity pool batch
-  params      Query the values set as liquidity parameters
-  pool        Query details of a liquidity pool
-  pools       Query for all liquidity pools
-  swap        Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
-  swaps       Query all swap messages in the liquidity pool batch
-  withdraw    Query the withdraw messages in the liquidity pool batch
-  withdraws   Query for all withdraw messages on the liquidity pool batch
+  batch       Query for details of a liquidity pool batch
+  deposit     Query for a deposit message of a liquidity pool
+  deposits    Query for all deposit messages of a liquidity pool
+  params      Query for the values set as liquidity parameters
+  pool        Query for details of a liquidity pool
+  pools       Query for details of all liquidity pools
+  swap        Query for a swap message of a liquidity pool
+  swaps       Query for all swap messages of a liquidity pool
+  withdraw    Query for a withdraw message of a liquidity pool
+  withdraws   Query for all withdraw messages of a liquidity pool
 ```
 
-See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
+See [error codes](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) and descriptions.
 
 ### query batch
 
 `$ liquidityd query liquidity batch --help`
 
 ```bash
-Query details of a liquidity pool batch
+Query for details of a liquidity pool batch
 Example:
 $ liquidity query liquidity batch 1
 
@@ -808,7 +810,7 @@ Usage:
   liquidityd query liquidity batch [pool-id] [flags]
 ```
 
-example query command with result
+Example query liquidity batch command
 
 `$ liquidityd query liquidity batch 1`
 
@@ -823,12 +825,12 @@ batch:
   withdraw_msg_index: "2"
 ```
 
-### query deposits
+### Query deposits
 
 `$ liquidityd query liquidity deposits --help`
 
 ```bash
-Query all deposit messages of the liquidity pool batch on the specified pool
+Query for all deposit messages of a liquidity pool
 
 If batch messages are normally processed from the endblock, the resulting state is applied and the messages are removed in the beginning of next block.
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
@@ -840,7 +842,7 @@ Usage:
   liquidityd query liquidity deposits [pool-id] [flags]
 ```
 
-example query command with result
+Example query command with result
 
 `$ liquidityd query liquidity deposits 1`
 
@@ -864,7 +866,7 @@ pagination:
   total: "1"
 ```
 
-empty case
+Example query command with no results
 
 `$ liquidityd query liquidity deposits 1`
 
@@ -875,12 +877,12 @@ pagination:
   total: "0"
 ```
 
-### query pool
+### Query a specified pool
 
 `$ liquidityd query liquidity pool --help`
 
 ```
-Query details of a liquidity pool
+Query for details of a liquidity pool
 Example:
 $ liquidity query liquidity pool 1
 
@@ -888,7 +890,7 @@ Usage:
   liquidityd query liquidity pool [pool-id] [flags]
 ```
 
-example query command with result
+Example query for details command with result
 
 `$ liquidityd query liquidity pool 1`
 
@@ -903,7 +905,7 @@ pool:
   type_id: 1
 ```
 
-example query reserve coins of the pool
+Example query for reserve coins of the pool using the bank module
 
 `$ liquidityd query bank balances cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we`
 
@@ -918,7 +920,7 @@ pagination:
   total: "0"
 ```
 
-example query total supply the pool coin
+Example query for the total supply of the pool coin using the bank module
 
 `$ liquidityd query bank total --denom=pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295`
 
@@ -927,12 +929,12 @@ amount: "1000000"
 denom: pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
 ```
 
-### query pools
+### Query pools
 
 `$ liquidityd query liquidity pools --help`
 
 ```
-Query details about all liquidity pools on a network.
+Query for details of all liquidity pools
 Example:
 $ liquidity query liquidity pools
 
@@ -995,10 +997,9 @@ withdraw_fee_rate: "0.003000000000000000"
 `$ liquidityd query liquidity swaps --help`
 
 ```bash
-Query all swap messages in the liquidity pool batch for the specified pool-id
+Query for all swap messages of a liquidity pool
 
-If batch messages are normally processed from the endblock,
-the resulting state is applied and the messages are removed in the beginning of next block.
+If batch messages are normally processed from the endblock, the resulting state is applied and the messages are removed in the beginning of next block.
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
@@ -1062,10 +1063,9 @@ swaps: []
 `$ liquidityd query liquidity withdraws --help`
 
 ```bash
-Query all withdraw messages on the liquidity pool batch for the specified pool-id
+Query for all withdraw messages of a liquidity pool
 
-If batch messages are normally processed from the endblock,
-the resulting state is applied and the messages are removed in the beginning of next block.
+If batch messages are normally processed from the endblock, the resulting state is applied and the messages are removed in the beginning of next block.
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
@@ -1097,7 +1097,9 @@ withdraws:
   to_be_deleted: true
 ```
 
-empty case `$ liquidityd query liquidity withdraws 1`
+empty case
+
+`$ liquidityd query liquidity withdraws 1`
 
 ```bash
 pagination:
