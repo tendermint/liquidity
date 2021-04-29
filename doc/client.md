@@ -264,12 +264,9 @@ User must deposit the same coin denoms as the reserve coins.
 
 Usage:
   liquidityd tx liquidity deposit [pool-id] [deposit-coins] [flags]
-
-
 ```
 
 example tx command with result
-
 
 `$ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from validator --keyring-backend test --chain-id testing -y`
 
@@ -392,12 +389,11 @@ result
 }
 ```
 
-
 ### tx swap
 
 `$ liquidityd tx liquidity swap --help`
 
-```bash  
+```bash
 Swap offer coin with demand coin from the specified liquidity pool with the given order price.
 
 This swap request may not be processed immediately since it will be accumulated in the batch of the liquidity pool.
@@ -770,6 +766,7 @@ pagination:
 ## Query
 
 `$ liquidityd query liquidity --help`
+
 ```bash
 Querying commands for the liquidity module
 
@@ -793,7 +790,9 @@ Available Commands:
 See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
 
 ### query batch
+
 `$ liquidityd query liquidity batch --help`
+
 ```bash
 Query details of a liquidity pool batch
 Example:
@@ -819,7 +818,9 @@ batch:
 ```
 
 ### query deposits
+
 `$ liquidityd query liquidity deposits --help`
+
 ```bash
 Query for all deposit messages on the batch of the liquidity pool specified pool-id
 
@@ -871,9 +872,9 @@ pagination:
 
 ### query pool
 
-`$ liquidityd query liquidity pool  --help`
+`$ liquidityd query liquidity pool --help`
 
-```   
+```
 Query details of a liquidity pool
 Example:
 $ liquidity query liquidity pool 1
@@ -912,7 +913,6 @@ pagination:
   total: "0"
 ```
 
-
 example query total supply the pool coin
 
 `$ liquidityd query bank total --denom=pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295`
@@ -923,8 +923,10 @@ denom: pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
 ```
 
 ### query pools
-`$ liquidityd query liquidity pools  --help`
-```   
+
+`$ liquidityd query liquidity pools --help`
+
+```
 Query details about all liquidity pools on a network.
 Example:
 $ liquidity query liquidity pools
@@ -983,9 +985,10 @@ unit_batch_height: 1
 withdraw_fee_rate: "0.003000000000000000"
 ```
 
-
 ### query swaps
+
 `$ liquidityd query liquidity swaps --help`
+
 ```bash
 Query for all swap messages on the batch of the liquidity pool specified pool-id
 
@@ -1003,6 +1006,7 @@ Usage:
 example query command with result
 
 `$ liquidityd query liquidity swaps 1`
+
 ```bash
 pagination:
   next_key: null
@@ -1040,6 +1044,7 @@ swaps:
 empty case
 
 `$ liquidityd query liquidity swaps 1`
+
 ```bash
 pagination:
   next_key: null
@@ -1047,9 +1052,10 @@ pagination:
 swaps: []
 ```
 
-
 ### query withdraws
+
 `$ liquidityd query liquidity withdraws --help`
+
 ```bash
 Query for all withdraws messages on the batch of the liquidity pool specified pool-id
 
@@ -1086,8 +1092,8 @@ withdraws:
   to_be_deleted: true
 ```
 
-empty case
-`$ liquidityd query liquidity withdraws 1`
+empty case `$ liquidityd query liquidity withdraws 1`
+
 ```bash
 pagination:
   next_key: null
@@ -1097,8 +1103,7 @@ withdraws: []
 
 ## REST/API
 
-You can check local swagger doc page on `YOUR_API_SERVER(ex:127.0.0.1:1317)/swagger-liquidity/` if set `swagger = true` from `app.toml`
-or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
+You can check local swagger doc page on `YOUR_API_SERVER(ex:127.0.0.1:1317)/swagger-liquidity/` if set `swagger = true` from `app.toml` or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
 
 According to [migrating-to-new-rest-endpoints](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints), the POST endpoints of the New gGPC-gateway REST are N/A and guided directly to use Protobuf, need to use `cli` or `localhost:1317/cosmos/tx/v1beta1/txs` for broadcast txs temporarily
 
