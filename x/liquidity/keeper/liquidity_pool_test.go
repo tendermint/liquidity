@@ -714,7 +714,6 @@ func TestWithdrawEdgecase(t *testing.T) {
 	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, creatorAddr))
 	fmt.Println(simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount()))
 
-
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, sdk.NewCoin(pool.PoolCoinDenom, sdk.OneInt())))
 	require.NoError(t, err)
