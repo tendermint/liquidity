@@ -426,7 +426,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 			lastPoolTotalSupply, withdrawProportion)
 		WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
 			afterReserveCoinA, afterReserveCoinB, afterPoolTotalSupply, lastPoolCoinSupply, burnedPoolCoin)
-		WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB)
+		WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, burnedPoolCoin, lastPoolCoinSupply, params.WithdrawFeeRate)
 		ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB)
 	}
 

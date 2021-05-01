@@ -58,7 +58,7 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 
 var (
 	invariantCheckFlag = true                     // TODO: better way to handle below invariant checks?
-	diffThreshold      = sdk.NewDecWithPrec(2, 1) // 20%
+	diffThreshold      = sdk.NewDecWithPrec(5, 2) // 5%
 )
 
 func diff(a, b sdk.Dec) sdk.Dec {
@@ -166,14 +166,20 @@ func WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, r
 	}
 }
 
-// WithdrawRatioInvariant checks the correct ratio of withdraw coin amounts.
-func WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB sdk.Dec) {
-	withdrawCoinRatio := withdrawCoinA.Quo(withdrawCoinB)
-	reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
-
-	// WithdrawCoinA / WithdrawCoinB = LastReserveCoinA / LastReserveCoinB
-	if diff(withdrawCoinRatio, reserveCoinRatio).GT(diffThreshold) {
-		panic("invariant check fails due to incorrect ratio of withdraw coin amounts")
+// WithdrawAmountInvariant checks the correct ratio of withdraw coin amounts.
+func WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, burnedPoolCoin, poolCoinSupply, withdrawFeeRate sdk.Dec) {
+	ratio := burnedPoolCoin.Quo(poolCoinSupply).Mul(sdk.OneDec().Sub(withdrawFeeRate))
+	idealWithdrawCoinA := reserveCoinA.Mul(ratio)
+	idealWithdrawCoinB := reserveCoinB.Mul(ratio)
+	diffA := idealWithdrawCoinA.Sub(withdrawCoinA).Abs()
+	diffB := idealWithdrawCoinB.Sub(withdrawCoinB).Abs()
+	if !burnedPoolCoin.Equal(poolCoinSupply) {
+		if diffA.GTE(sdk.OneDec()) {
+			panic(fmt.Sprintf("withdraw coin amount %v differs too much from %v", withdrawCoinA, idealWithdrawCoinA))
+		}
+		if diffB.GTE(sdk.OneDec()) {
+			panic(fmt.Sprintf("withdraw coin amount %v differs too much from %v", withdrawCoinB, idealWithdrawCoinB))
+		}
 	}
 }
 
