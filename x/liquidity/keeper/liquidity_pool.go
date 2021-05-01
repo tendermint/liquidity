@@ -379,9 +379,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 		for _, reserveCoin := range reserveCoins {
 			// WithdrawAmount = ReserveAmount * PoolCoinAmount * WithdrawFeeProportion / TotalSupply
 			withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().MulTruncate(withdrawProportion).TruncateInt().Quo(poolCoinTotalSupply)
-			if withdrawAmt.IsPositive() {
-				withdrawCoins = withdrawCoins.Add(sdk.NewCoin(reserveCoin.Denom, withdrawAmt))
-			}
+			withdrawCoins = append(withdrawCoins, sdk.NewCoin(reserveCoin.Denom, withdrawAmt))
 		}
 	}
 
