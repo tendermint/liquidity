@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -107,24 +108,9 @@ func createIncrementalAccounts(accNum int) []sdk.AccAddress {
 
 // setTotalSupply provides the total supply based on accAmt * totalAccounts.
 func setTotalSupply(app *LiquidityApp, ctx sdk.Context, accAmt sdk.Int, totalAccounts int) {
-	//totalSupply := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts))))
-	//prevSupply := app.BankKeeper.GetSupply(ctx)
-	//app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))
-}
-
-func addTotalSupply(app *LiquidityApp, ctx sdk.Context, coins sdk.Coins) {
-	//prevSupply := app.BankKeeper.GetSupply(ctx)
-	//for _, coin:= range coins {
-	//	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(coins...)))
-	//}
-}
-
-// AddRandomTestAddr creates new account with random address.
-func AddRandomTestAddr(app *LiquidityApp, ctx sdk.Context, initCoins sdk.Coins) sdk.AccAddress {
-	addr := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
-	addTotalSupply(app, ctx, initCoins)
-	SaveAccount(app, ctx, addr, initCoins)
-	return addr
+	prevSupply := app.BankKeeper.GetSupply(ctx, app.StakingKeeper.BondDenom(ctx))
+	diff := accAmt.MulRaw(int64(totalAccounts)).Sub(prevSupply.Amount)
+	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), diff)))
 }
 
 // AddTestAddrs constructs and returns accNum amount of accounts with an
@@ -132,8 +118,7 @@ func AddRandomTestAddr(app *LiquidityApp, ctx sdk.Context, initCoins sdk.Coins) 
 func AddTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, initCoins sdk.Coins) []sdk.AccAddress {
 	testAddrs := createIncrementalAccounts(accNum)
 	for _, addr := range testAddrs {
-		addTotalSupply(app, ctx, initCoins)
-		SaveAccount(app, ctx, addr, initCoins)
+		FundAccount(app, ctx, addr, initCoins)
 	}
 	return testAddrs
 }
@@ -144,11 +129,14 @@ func AddTestAddrsIncremental(app *LiquidityApp, ctx sdk.Context, accNum int, acc
 	return addTestAddrs(app, ctx, accNum, accAmt, createIncrementalAccounts)
 }
 
+// TODO: porting 43 fundAcc,
 func addTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Int, strategy GenerateAccountStrategy) []sdk.AccAddress {
 	testAddrs := strategy(accNum)
 
 	initCoins := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt))
 	setTotalSupply(app, ctx, accAmt, accNum)
+
+	//FundAccount()
 
 	// fill all the addresses with some coins, set the loose pool tokens simultaneously
 	for _, addr := range testAddrs {
@@ -158,24 +146,48 @@ func addTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Int
 	return testAddrs
 }
 
+// AddRandomTestAddr creates new account with random address.
+func AddRandomTestAddr(app *LiquidityApp, ctx sdk.Context, initCoins sdk.Coins) sdk.AccAddress {
+	addr := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
+	SaveAccount(app, ctx, addr, initCoins)
+	return addr
+}
+
 // SaveAccount saves the provided account into the simapp with balance based on initCoins.
 func SaveAccount(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins) {
 	acc := app.AccountKeeper.NewAccountWithAddress(ctx, addr)
 	app.AccountKeeper.SetAccount(ctx, acc)
-	//err := app.BankKeeper.AddCoins(ctx, addr, initCoins)
-	//if err != nil {
-	//	panic(err)
-	//}
+	err := AddCoins(app, ctx, addr, initCoins)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// permission of minting, create a "faucet" account. (@fdymylja)
+func FundAccount(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
+	balances := app.BankKeeper.GetAllBalances(ctx, addr)
+	target := balances.Sub(amounts)
+	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, target); err != nil {
+		return err
+	}
+	return app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
+}
+
+func AddCoins(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
+	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
+		return err
+	}
+	return app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
 }
 
 func SaveAccountWithFee(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins, offerCoin sdk.Coin) {
 	SaveAccount(app, ctx, addr, initCoins)
-	//params := app.LiquidityKeeper.GetParams(ctx)
-	//offerCoinFee := types.GetOfferCoinFee(offerCoin, params.SwapFeeRate)
-	//err := app.BankKeeper.AddCoins(ctx, addr, sdk.NewCoins(offerCoinFee))
-	//if err != nil {
-	//	panic(err)
-	//}
+	params := app.LiquidityKeeper.GetParams(ctx)
+	offerCoinFee := types.GetOfferCoinFee(offerCoin, params.SwapFeeRate)
+	err := AddCoins(app, ctx, addr, sdk.NewCoins(offerCoinFee))
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TestAddr(addr string, bech string) (sdk.AccAddress, error) {

@@ -135,7 +135,7 @@ func TestBadSwap(t *testing.T) {
 	require.Error(t, err)
 
 	// when swap fails, user's balance should never change
-	require.NoError(t, simapp.BankKeeper.SetBalance(ctx, depositorAddr, offerCoin))
+	app.SaveAccount(simapp, ctx, depositorAddr, sdk.NewCoins(offerCoin))
 	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, &types.MsgSwapWithinBatch{
 		SwapRequesterAddress: depositorAddr.String(),
 		PoolId:               pool.Id,

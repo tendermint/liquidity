@@ -5,9 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 
@@ -36,18 +34,25 @@ func createRandomAccounts(accNum int) []sdk.AccAddress {
 	return testAddrs
 }
 
+func AddCoins(app *lapp.LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
+	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
+		return err
+	}
+	return app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
+}
+
 // setTotalSupply provides the total supply based on accAmt * totalAccounts.
 func setTotalSupply(app *lapp.LiquidityApp, ctx sdk.Context, accAmt sdk.Int, totalAccounts int) {
-	totalSupply := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts))))
-	prevSupply := app.BankKeeper.GetSupply(ctx)
-	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))
+	prevSupply := app.BankKeeper.GetSupply(ctx, app.StakingKeeper.BondDenom(ctx))
+	diff := accAmt.MulRaw(int64(totalAccounts)).Sub(prevSupply.Amount)
+	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), diff)))
 }
 
 // saveAccount saves the provided account into the simapp with balance based on initCoins.
 func saveAccount(app *lapp.LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins) {
 	acc := app.AccountKeeper.NewAccountWithAddress(ctx, addr)
 	app.AccountKeeper.SetAccount(ctx, acc)
-	err := app.BankKeeper.AddCoins(ctx, addr, initCoins)
+	err := AddCoins(app, ctx, addr, initCoins)
 	if err != nil {
 		panic(err)
 	}
@@ -87,49 +92,49 @@ func generateAddresses(app *simapp.SimApp, ctx sdk.Context, numAddrs int) ([]sdk
 }
 
 var (
-	valTokens = sdk.TokensFromConsensusPower(42)
+	valTokens = sdk.TokensFromConsensusPower(42, sdk.DefaultPowerReduction)
 	//TestProposal        = types.NewTextProposal("Test", "description")
 	TestDescription     = stakingtypes.NewDescription("T", "E", "S", "T", "Z")
 	TestCommissionRates = stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
 )
 
-func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, powers []int64) ([]sdk.AccAddress, []sdk.ValAddress, []stakingtypes.Validator) {
-	addrs := lapp.AddTestAddrsIncremental(app, ctx, 5, sdk.NewInt(30000000))
-	valAddrs := simapp.ConvertAddrsToValAddrs(addrs)
-	pks := simapp.CreateTestPubKeys(5)
-
-	appCodec, _ := simapp.MakeCodecs()
-	app.StakingKeeper = stakingkeeper.NewKeeper(
-		appCodec,
-		app.GetKey(stakingtypes.StoreKey),
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.GetSubspace(stakingtypes.ModuleName),
-	)
-
-	val1, _ := stakingtypes.NewValidator(valAddrs[0], pks[0], stakingtypes.Description{})
-	val2, _ := stakingtypes.NewValidator(valAddrs[1], pks[1], stakingtypes.Description{})
-	val3, _ := stakingtypes.NewValidator(valAddrs[2], pks[2], stakingtypes.Description{})
-	validators := []stakingtypes.Validator{val1, val2, val3}
-
-	app.StakingKeeper.SetValidator(ctx, val1)
-	app.StakingKeeper.SetValidator(ctx, val2)
-	app.StakingKeeper.SetValidator(ctx, val3)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, val1)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, val2)
-	app.StakingKeeper.SetValidatorByConsAddr(ctx, val3)
-	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val1)
-	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val2)
-	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val3)
-
-	_, _ = app.StakingKeeper.Delegate(ctx, addrs[0], sdk.TokensFromConsensusPower(powers[0]), stakingtypes.Unbonded, val1, true)
-	_, _ = app.StakingKeeper.Delegate(ctx, addrs[1], sdk.TokensFromConsensusPower(powers[1]), stakingtypes.Unbonded, val2, true)
-	_, _ = app.StakingKeeper.Delegate(ctx, addrs[2], sdk.TokensFromConsensusPower(powers[2]), stakingtypes.Unbonded, val3, true)
-
-	_ = staking.EndBlocker(ctx, app.StakingKeeper)
-
-	return addrs, valAddrs, validators
-}
+//func createValidators(t *testing.T, ctx sdk.Context, app *lapp.LiquidityApp, powers []int64) ([]sdk.AccAddress, []sdk.ValAddress, []stakingtypes.Validator) {
+//	addrs := lapp.AddTestAddrsIncremental(app, ctx, 5, sdk.NewInt(30000000))
+//	valAddrs := simapp.ConvertAddrsToValAddrs(addrs)
+//	pks := simapp.CreateTestPubKeys(5)
+//
+//	appCodec := simapp.MakeTestEncodingConfig().Amino
+//	app.StakingKeeper = stakingkeeper.NewKeeper(
+//		appCodec,
+//		app.GetKey(stakingtypes.StoreKey),
+//		app.AccountKeeper,
+//		app.BankKeeper,
+//		app.GetSubspace(stakingtypes.ModuleName),
+//	)
+//
+//	val1, _ := stakingtypes.NewValidator(valAddrs[0], pks[0], stakingtypes.Description{})
+//	val2, _ := stakingtypes.NewValidator(valAddrs[1], pks[1], stakingtypes.Description{})
+//	val3, _ := stakingtypes.NewValidator(valAddrs[2], pks[2], stakingtypes.Description{})
+//	validators := []stakingtypes.Validator{val1, val2, val3}
+//
+//	app.StakingKeeper.SetValidator(ctx, val1)
+//	app.StakingKeeper.SetValidator(ctx, val2)
+//	app.StakingKeeper.SetValidator(ctx, val3)
+//	app.StakingKeeper.SetValidatorByConsAddr(ctx, val1)
+//	app.StakingKeeper.SetValidatorByConsAddr(ctx, val2)
+//	app.StakingKeeper.SetValidatorByConsAddr(ctx, val3)
+//	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val1)
+//	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val2)
+//	app.StakingKeeper.SetNewValidatorByPowerIndex(ctx, val3)
+//
+//	_, _ = app.StakingKeeper.Delegate(ctx, addrs[0], sdk.TokensFromConsensusPower(powers[0]), stakingtypes.Unbonded, val1, true)
+//	_, _ = app.StakingKeeper.Delegate(ctx, addrs[1], sdk.TokensFromConsensusPower(powers[1]), stakingtypes.Unbonded, val2, true)
+//	_, _ = app.StakingKeeper.Delegate(ctx, addrs[2], sdk.TokensFromConsensusPower(powers[2]), stakingtypes.Unbonded, val3, true)
+//
+//	_ = staking.EndBlocker(ctx, app.StakingKeeper)
+//
+//	return addrs, valAddrs, validators
+//}
 
 func createLiquidity(t *testing.T, ctx sdk.Context, simapp *lapp.LiquidityApp) (
 	[]sdk.AccAddress, []types.Pool, []types.PoolBatch,

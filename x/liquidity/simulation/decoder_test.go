@@ -13,7 +13,7 @@ import (
 )
 
 func TestDecodeLiquidityStore(t *testing.T) {
-	cdc, _ := simapp.MakeCodecs()
+	cdc := simapp.MakeTestEncodingConfig().Amino
 	dec := simulation.NewDecodeStore(cdc)
 
 	liquidityPool := types.Pool{}

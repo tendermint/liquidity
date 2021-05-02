@@ -140,7 +140,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		//ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		liquiditytypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
+		liquiditytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
 	}
 )
 
@@ -176,16 +176,16 @@ type LiquidityApp struct {
 	UpgradeKeeper    upgradekeeper.Keeper
 	ParamsKeeper     paramskeeper.Keeper
 	//IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
-	AuthzKeeper      authzkeeper.Keeper
-	EvidenceKeeper   evidencekeeper.Keeper
-	LiquidityKeeper  liquiditykeeper.Keeper
+	AuthzKeeper     authzkeeper.Keeper
+	EvidenceKeeper  evidencekeeper.Keeper
+	LiquidityKeeper liquiditykeeper.Keeper
 	//TransferKeeper   ibctransferkeeper.Keeper
 	//
 	//// make scoped keepers public for test purposes
 	//ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	//ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	//ScopedIBCMockKeeper  capabilitykeeper.ScopedKeeper
-	FeeGrantKeeper      feegrantkeeper.Keeper
+	FeeGrantKeeper feegrantkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -310,7 +310,7 @@ func NewLiquidityApp(
 
 	app.GovKeeper = *govKeeper.SetHooks(
 		govtypes.NewMultiGovHooks(
-			// register the governance hooks
+		// register the governance hooks
 		),
 	)
 
@@ -395,7 +395,7 @@ func NewLiquidityApp(
 	app.mm.SetOrderInitGenesis(
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, stakingtypes.ModuleName,
 		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
-		genutiltypes.ModuleName, evidencetypes.ModuleName, authztypes.ModuleName, liquiditytypes.ModuleName,  // TODO: fix ordering for liquidity module
+		genutiltypes.ModuleName, evidencetypes.ModuleName, authztypes.ModuleName, liquiditytypes.ModuleName, // TODO: fix ordering for liquidity module
 		feegranttypes.ModuleName,
 	)
 
