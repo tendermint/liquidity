@@ -117,7 +117,7 @@ func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCo
 	depositCoinRatio := depositCoinA.Quo(depositCoinB)
 
 	// AfterRefundedDepositCoinA / AfterRefundedDepositCoinA = LastReserveCoinA / LastReserveCoinB
-	if diff(depositCoinRatio, lastReserveCoinRatio).GT(diffThreshold) {
+	if depositCoinA.GTE(sdk.NewDec(1000)) && depositCoinB.GTE(sdk.NewDec(1000)) && diff(depositCoinRatio, lastReserveCoinRatio).GT(diffThreshold) {
 		panic("invariant check fails due to incorrect deposit ratio")
 	}
 }
@@ -196,7 +196,9 @@ func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdr
 		afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
 
 		// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
-		if diff(reserveCoinRatio, afterReserveCoinRatio).GT(diffThreshold) {
+		if reserveCoinA.GTE(sdk.NewDec(1000)) && reserveCoinB.GTE(sdk.NewDec(1000)) &&
+			withdrawCoinA.GTE(sdk.NewDec(1000)) && withdrawCoinB.GTE(sdk.NewDec(1000)) &&
+			diff(reserveCoinRatio, afterReserveCoinRatio).GT(diffThreshold) {
 			panic("invariant check fails due to incorrect pool price ratio")
 		}
 	}
