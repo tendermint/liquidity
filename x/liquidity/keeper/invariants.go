@@ -58,7 +58,7 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 
 var (
 	invariantCheckFlag = true                     // TODO: better way to handle below invariant checks?
-	diffThreshold      = sdk.NewDecWithPrec(5, 2) // 5%
+	diffThreshold      = sdk.NewDecWithPrec(2, 1) // 20%
 )
 
 func diff(a, b sdk.Dec) sdk.Dec {
@@ -105,7 +105,7 @@ func DepositReserveCoinsInvariant(lastReserveCoinA, lastReserveCoinB, depositCoi
 }
 
 // DepositRatioInvariant checks the correct ratio of deposit coin amounts.
-func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCoinB, lastReserveCoinRatio sdk.Dec) {
+func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCoinB, lastReserveCoinA, lastReserveCoinB sdk.Dec) {
 	if !refundedCoinA.IsZero() {
 		depositCoinA = depositCoinA.Sub(refundedCoinA)
 	}
@@ -115,9 +115,12 @@ func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCo
 	}
 
 	depositCoinRatio := depositCoinA.Quo(depositCoinB)
+	lastReserveCoinRatio := lastReserveCoinA.Quo(lastReserveCoinB)
 
 	// AfterRefundedDepositCoinA / AfterRefundedDepositCoinA = LastReserveCoinA / LastReserveCoinB
-	if diff(depositCoinRatio, lastReserveCoinRatio).GT(diffThreshold) {
+	if depositCoinA.GTE(sdk.NewDec(1000)) && depositCoinB.GTE(sdk.NewDec(1000)) &&
+		lastReserveCoinA.GTE(sdk.NewDec(1000)) && lastReserveCoinB.GTE(sdk.NewDec(1000)) &&
+		diff(depositCoinRatio, lastReserveCoinRatio).GT(diffThreshold) {
 		panic("invariant check fails due to incorrect deposit ratio")
 	}
 }
@@ -196,7 +199,9 @@ func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdr
 		afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
 
 		// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
-		if diff(reserveCoinRatio, afterReserveCoinRatio).GT(diffThreshold) {
+		if reserveCoinA.GTE(sdk.NewDec(1000)) && reserveCoinB.GTE(sdk.NewDec(1000)) &&
+			withdrawCoinA.GTE(sdk.NewDec(1000)) && withdrawCoinB.GTE(sdk.NewDec(1000)) &&
+			diff(reserveCoinRatio, afterReserveCoinRatio).GT(diffThreshold) {
 			panic("invariant check fails due to incorrect pool price ratio")
 		}
 	}

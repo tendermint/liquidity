@@ -325,7 +325,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 			lastReserveCoinA, lastReserveCoinB, refundedCoinADec, refundedCoinBDec)
 		DepositReserveCoinsInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinADec, depositCoinBDec,
 			afterReserveCoinA, afterReserveCoinB, refundedCoinADec, refundedCoinBDec)
-		DepositRatioInvariant(depositCoinADec, depositCoinBDec, refundedCoinADec, refundedCoinBDec, lastReserveRatio)
+		DepositRatioInvariant(depositCoinADec, depositCoinBDec, refundedCoinADec, refundedCoinBDec, lastReserveCoinA, lastReserveCoinB)
 		ImmutablePoolPriceAfterDepositInvariant(lastReserveRatio, afterReserveRatio)
 	}
 
