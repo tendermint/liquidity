@@ -205,7 +205,6 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		lastReserveCoinA := sdk.NewDecFromInt(reserveCoins[0].Amount)
 		lastReserveCoinB := sdk.NewDecFromInt(reserveCoins[1].Amount)
 		lastReserveRatio := lastReserveCoinA.QuoTruncate(lastReserveCoinB)
-
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeDepositToPool,
@@ -214,7 +213,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 				sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msg.MsgIndex, 10)),
 				sdk.NewAttribute(types.AttributeValueDepositor, depositor.String()),
 				sdk.NewAttribute(types.AttributeValueAcceptedCoins, msg.Msg.DepositCoins.String()),
-				sdk.NewAttribute(types.AttributeValueRefundedCoins, sdk.NewCoins().String()),
+				sdk.NewAttribute(types.AttributeValueRefundedCoins, ""),
 				sdk.NewAttribute(types.AttributeValuePoolCoinDenom, mintPoolCoin.Denom),
 				sdk.NewAttribute(types.AttributeValuePoolCoinAmount, mintPoolCoin.Amount.String()),
 				sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
