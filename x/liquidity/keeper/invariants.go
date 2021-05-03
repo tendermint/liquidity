@@ -105,7 +105,7 @@ func DepositReserveCoinsInvariant(lastReserveCoinA, lastReserveCoinB, depositCoi
 }
 
 // DepositRatioInvariant checks the correct ratio of deposit coin amounts.
-func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCoinB, lastReserveCoinRatio sdk.Dec) {
+func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCoinB, lastReserveCoinA, lastReserveCoinB sdk.Dec) {
 	if !refundedCoinA.IsZero() {
 		depositCoinA = depositCoinA.Sub(refundedCoinA)
 	}
@@ -115,9 +115,12 @@ func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCo
 	}
 
 	depositCoinRatio := depositCoinA.Quo(depositCoinB)
+	lastReserveCoinRatio := lastReserveCoinA.Quo(lastReserveCoinB)
 
 	// AfterRefundedDepositCoinA / AfterRefundedDepositCoinA = LastReserveCoinA / LastReserveCoinB
-	if depositCoinA.GTE(sdk.NewDec(1000)) && depositCoinB.GTE(sdk.NewDec(1000)) && diff(depositCoinRatio, lastReserveCoinRatio).GT(diffThreshold) {
+	if depositCoinA.GTE(sdk.NewDec(1000)) && depositCoinB.GTE(sdk.NewDec(1000)) &&
+		lastReserveCoinA.GTE(sdk.NewDec(1000)) && lastReserveCoinB.GTE(sdk.NewDec(1000)) &&
+		diff(depositCoinRatio, lastReserveCoinRatio).GT(diffThreshold) {
 		panic("invariant check fails due to incorrect deposit ratio")
 	}
 }
