@@ -337,8 +337,10 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 
 ### Protobuf and Swagger
 
-The API documentation for the liquidity module can be found on `http://localhost:1317/swagger-liquidity/` when you successfully boostrap your testnet in your local computer. Note that `swagger` config should be `true` in `$HOME/.liquidityapp/config/app.toml`. 
-You can also reference our [public swagger API documentation](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs). 
+The API documentation for the liquidity module is available on `http://localhost:1317/swagger-liquidity/` after you successfully boostrap a testnet in your local computer. 
+
+Note that `swagger` config must be `true` in `$HOME/.liquidityapp/config/app.toml`. 
+The public Swagger API docs are also available on [Cosmos SDK Liquidity Module - REST and gRPC Gateway docs](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs). 
 
 ```bash
 # Generate `*.pb.go`, `*.pb.gw.go` files from `proto/*.proto`
