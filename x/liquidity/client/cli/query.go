@@ -48,9 +48,9 @@ func GetCmdQueryParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
 		Args:  cobra.NoArgs,
-		Short: "Query the values set as liquidity parameters",
+		Short: "Query for the values set as liquidity parameters",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query values set as liquidity parameters.
+			fmt.Sprintf(`Query for the values set as liquidity parameters.
 
 Example:
 $ liquidityd query liquidity params
