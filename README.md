@@ -48,7 +48,7 @@ $ go mod tidy
 ### Build
 
 ```bash 
-# You can find the liquidityd binary inside build directory
+# The `liquidityd` binary is in the build directory.
 $ make build 
 ```
 
@@ -58,6 +58,8 @@ $ make install
 ```
 
 ## Usage of CLI Commands
+
+With the exception of creating the liquidity pool, all commands are implemented to execute on the batch.
 
 ### Transactions
 
@@ -73,8 +75,8 @@ Usage:
 Available Commands:
   create-pool Create liquidity pool and deposit coins
   deposit     Deposit coins to a liquidity pool
-  swap        Swap offer coin with demand coin from the liquidity pool with the given order price
-  withdraw    Withdraw pool coin from the specified liquidity pool
+  swap        Swap offer coin with demand coin
+  withdraw    Withdraw pool coin 
 ```
 
 ### Queries
