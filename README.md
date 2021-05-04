@@ -3,7 +3,7 @@
 
 # Liquidity Module
 
-The liquidity module serves AMM (Automated Market Makers) style decentralized liquidity providing and coin swap functions.
+The liquidity module serves Automated Market Maker (AMM)-style decentralized liquidity by providing liquidity activities and coin swap functions.
 
 The module enables users to create a liquidity pool, make deposits and withdrawals, and request coin swaps from the liquidity pool.
 
