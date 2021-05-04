@@ -65,7 +65,7 @@ Required arguments:
 - deposit-coins: The amount of coins to deposit to the liquidity pool. The number of deposit coins must be two in pool type 1.
 ```
 
-Example tx create-pool command
+Example tx liquidity create-pool command:
 
 `$ liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -y`
 
@@ -262,7 +262,7 @@ Required arguments:
 - deposit-coins: The comma-separated coins to deposit to the liquidity pool in amountdenom format. For example, `100000000uatom,5000000000uusd`. The number of coins must be two in pool type 1.
 ```
 
-Example tx deposit command:
+Example tx liquidity deposit command:
 
 `$ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from validator --keyring-backend test --chain-id testing -y`
 
@@ -408,7 +408,7 @@ A sufficient balance of half of the swap-fee-rate of the offer coin is required 
 The order price is the exchange ratio of X/Y, where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically.
 Increasing order price reduces the possibility for your request to be processed and results in buying uatom at a lower price than the pool price.
 
-For explicit calculations, The swap fee rate must be the value that set as liquidity parameter in the current network.
+For explicit calculations, the swap fee rate must be the value that set as liquidity parameter in the current network.
 The only supported swap-type is 1\. For swap algorithm details, see the [light paper](https://github.com/tendermint/liquidity/blob/develop/doc/LiquidityModuleLightPaper_EN.pdf).
 
 Usage:
@@ -424,7 +424,7 @@ Required arguments:
 - swap-fee-rate: The swap fee rate to pay for swap that is proportional to swap amount. The swap fee rate must be the value that is set as the liquidity parameter in the current network.
 ```
 
-Example tx swap command:
+Example tx liquidity swap command:
 
 `$ liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y`
 
@@ -467,7 +467,7 @@ Example tx swap command:
 }
 ```
 
-result
+Result of tx liquidity swap command:
 
 ```
 {
@@ -629,7 +629,7 @@ pagination:
   total: "0"
 ```
 
-example tx command with result
+Example tx liquidity withdraw command:
 
 `$ liquidityd tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from validator --chain-id testing --keyring-backend test -y`
 
@@ -665,7 +665,7 @@ example tx command with result
 }
 ```
 
-result
+Result of tx liquidity withdraw command:
 
 ```
 {
@@ -810,7 +810,7 @@ Usage:
   liquidityd query liquidity batch [pool-id] [flags]
 ```
 
-Example query liquidity batch command
+Example query liquidity batch command:
 
 `$ liquidityd query liquidity batch 1`
 
@@ -842,7 +842,7 @@ Usage:
   liquidityd query liquidity deposits [pool-id] [flags]
 ```
 
-Example query command with result
+Example query command with result:
 
 `$ liquidityd query liquidity deposits 1`
 
@@ -866,7 +866,7 @@ pagination:
   total: "1"
 ```
 
-Example query command with no results
+Example query command with no results:
 
 `$ liquidityd query liquidity deposits 1`
 
@@ -894,6 +894,8 @@ Example query for details command with result:
 
 `$ liquidityd query liquidity pool 1`
 
+Result:
+
 ```bash
 pool:
   id: "1"
@@ -905,9 +907,11 @@ pool:
   type_id: 1
 ```
 
-Example query for reserve coins of the pool using the bank module
+Example query for reserve coins of the pool using the bank module:
 
 `$ liquidityd query bank balances cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we`
+
+Result:
 
 ```bash
 balances:
@@ -920,9 +924,11 @@ pagination:
   total: "0"
 ```
 
-Example query for the total supply of the pool coin using the bank module
+Example query for the total supply of the pool coin using the bank module:
 
 `$ liquidityd query bank total --denom=pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295`
+
+Result:
 
 ```bash
 amount: "1000000"
@@ -942,9 +948,11 @@ Usage:
   liquidityd query liquidity pools [flags]
 ```
 
-Example query command with result:
+Example query liquidity command:
 
 `$ liquidityd query liquidity pools`
+
+Result of query liquidity pools:
 
 ```bash
 pagination:
@@ -969,9 +977,11 @@ pools:
 
 ### query params
 
-Example query params command:
+Example query liquidity params command:
 
 `$ liquidityd query liquidity params`
+
+Result:
 
 ```bash
 init_pool_coin_mint_amount: "1000000"
@@ -1009,9 +1019,11 @@ Usage:
   liquidityd query liquidity swaps [pool-id] [flags]
 ```
 
-Example query swaps command:
+Example query liquidity swaps command:
 
 `$ liquidityd query liquidity swaps 1`
+
+Result:
 
 ```bash
 pagination:
@@ -1047,9 +1059,11 @@ swaps:
   to_be_deleted: true
 ```
 
-Example query swaps command with no results:
+Example query liquidity swaps command with no results:
 
 `$ liquidityd query liquidity swaps 1`
+
+Result:
 
 ```bash
 pagination:
@@ -1075,9 +1089,11 @@ Usage:
   liquidityd query liquidity withdraws [pool-id] [flags]
 ```
 
-Example query withdraws command:
+Example query liquidity withdraws command:
 
 `$ liquidityd query liquidity withdraws 1`
+
+Result:
 
 ```bash
 pagination:
@@ -1097,9 +1113,11 @@ withdraws:
   to_be_deleted: true
 ```
 
-empty case
+Example query liquidity withdraws command when empty:
 
 `$ liquidityd query liquidity withdraws 1`
+
+Results when empty:
 
 ```bash
 pagination:
