@@ -175,7 +175,7 @@ func NewWithdrawWithinBatchCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		Short: "Withdraw pool coin",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Withdraw pool coin from the specified liquidity pool.
+			fmt.Sprintf(`Withdraw specified amount of pool coin from the specified liquidity pool.
 
 
 Required arguments:
