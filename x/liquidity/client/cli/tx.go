@@ -258,7 +258,7 @@ Increasing order price reduces the possibility for your request to be processed 
 For explicit calculations, The swap fee rate must be the value that set as liquidity parameter in the current network.
 The only supported swap-type is 1. For the detailed swap algorithm, see https://github.com/tendermint/liquidity
 
-[pool-id]: The pool id of the liquidity pool 
+- pool-id: The pool id of the liquidity pool
 [swap-type]: The swap type of the swap message. The only supported swap type is 1 (instant swap).
 [offer-coin]: The amount of offer coin to swap 
 [demand-coin-denom]: The denomination of the coin to exchange with offer coin 
