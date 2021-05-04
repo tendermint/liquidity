@@ -239,7 +239,7 @@ Unsuccessful create-pool tx if specified pool already exists:
 }
 ```
 
-### tx deposit
+## tx deposit
 
 `$ liquidityd tx liquidity deposit --help`
 
@@ -251,18 +251,14 @@ The deposit request is not processed immediately since it is accumulated in the 
 Example:
 $ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
 
-This example request deposits 100000000uatom and 5000000000uusd to pool-id 1.
-Deposits must be the same coin denoms as the reserve coins.
-
 Usage:
   liquidityd tx liquidity deposit [pool-id] [deposit-coins] [flags]
 
 Required arguments:  
 - pool-id: The pool id of the liquidity pool
 - deposit-coins: The comma-separated coins to deposit to the liquidity pool in amountdenom format. For example, `100000000uatom,5000000000uusd`. The number of coins must be two in pool type 1.
+`
 ```
-
-Example tx liquidity deposit command:
 
 `$ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from validator --keyring-backend test --chain-id testing -y`
 
@@ -302,6 +298,7 @@ Example tx liquidity deposit command:
   },
   "signatures": []
 }
+`
 ```
 
 Result:
@@ -424,8 +421,6 @@ Required arguments:
 - swap-fee-rate: The swap fee rate to pay for swap that is proportional to swap amount. The swap fee rate must be the value that is set as the liquidity parameter in the current network.
 ```
 
-Example tx liquidity swap command:
-
 `$ liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y`
 
 ```json
@@ -465,9 +460,10 @@ Example tx liquidity swap command:
   },
   "signatures": []
 }
+`
 ```
 
-Result of tx liquidity swap command:
+# Result of tx liquidity swap command:
 
 ```
 {
@@ -584,7 +580,7 @@ Result of tx liquidity swap command:
 }
 ```
 
-### tx withdraw
+## tx withdraw
 
 `$ liquidityd tx liquidity withdraw --help`
 
@@ -608,28 +604,18 @@ Required arguments:
 - pool-coin: The amount of pool coin for this transaction
 ```
 
-Example to check the balance before withdraw
-
 `$ liquidityd query bank balances cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3`
 
 ```
-balances:
-- amount: "99899"
-  denom: pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
-- amount: "1000000"
-  denom: poolA4648A10F8D43B8EE4D915A35CB292618215D9F60CE3E2E29216489CF1FAE049
-- amount: "8890000000"
-  denom: stake
-- amount: "9901196107"
-  denom: uatom
-- amount: "494939925000"
-  denom: uusd
-pagination:
-  next_key: null
-  total: "0"
-```
 
-Example tx liquidity withdraw command:
+balances:
+
+- amount: "99899" denom: pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
+- amount: "1000000" denom: poolA4648A10F8D43B8EE4D915A35CB292618215D9F60CE3E2E29216489CF1FAE049
+- amount: "8890000000" denom: stake
+- amount: "9901196107" denom: uatom
+- amount: "494939925000" denom: uusd pagination: next_key: null total: "0"
+```
 
 `$ liquidityd tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from validator --chain-id testing --keyring-backend test -y`
 
@@ -665,7 +651,7 @@ Example tx liquidity withdraw command:
 }
 ```
 
-Result of tx liquidity withdraw command:
+# Result of tx liquidity withdraw command:
 
 ```
 {
@@ -750,7 +736,7 @@ Result of tx liquidity withdraw command:
 }
 ```
 
-Query balances after withdraw
+# Query balances after withdraw
 
 `$ liquidityd query bank balances cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3`
 
@@ -775,36 +761,22 @@ pagination:
 
 `$ liquidityd query liquidity --help`
 
-```bash
 Querying commands for the liquidity module
 
-Usage:
-  liquidityd query liquidity [flags]
-  liquidityd query liquidity [command]
+batch Query details of a liquidity pool batch deposit Query the deposit messages on the liquidity pool batch deposits Query all deposit messages of the liquidity pool batch params Query the values set as liquidity parameters pool Query details of a liquidity pool pools Query for all liquidity pools swap Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index swaps Query all swap messages in the liquidity pool batch withdraw Query the withdraw messages in the liquidity pool batch withdraws Query for all withdraw messages on the liquidity pool batch
 
-Available Commands:
-  batch       Query for details of a liquidity pool batch
-  deposit     Query for a deposit message of a liquidity pool
-  deposits    Query for all deposit messages of a liquidity pool
-  params      Query for the values set as liquidity parameters
-  pool        Query for details of a liquidity pool
-  pools       Query for details of all liquidity pools
-  swap        Query for a swap message of a liquidity pool
-  swaps       Query for all swap messages of a liquidity pool
-  withdraw    Query for a withdraw message of a liquidity pool
-  withdraws   Query for all withdraw messages of a liquidity pool
-```
+````` `
 
-See [error codes](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) and descriptions.
+See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) error codes with descriptions
 
 ### query batch
 
 `$ liquidityd query liquidity batch --help`
 
 ```bash
-Query for details of a liquidity pool batch
+Query details of a liquidity pool batch
 Example:
-$ liquidityd query liquidity batch 1
+$ liquidity query liquidity batch 1
 
 Usage:
   liquidityd query liquidity batch [pool-id] [flags]
@@ -825,11 +797,12 @@ batch:
   withdraw_msg_index: "2"
 ```
 
-### Query deposits
+
+## Query deposits
 
 `$ liquidityd query liquidity deposits --help`
 
-```bash
+````bash
 Query for all deposit messages of a liquidity pool
 
 If batch messages are normally processed from the endblock, the resulting state is applied and the messages are removed in the beginning of next block.
@@ -842,7 +815,7 @@ Usage:
   liquidityd query liquidity deposits [pool-id] [flags]
 ```
 
-Example query command with result:
+# Example query command with result:
 
 `$ liquidityd query liquidity deposits 1`
 
@@ -866,18 +839,18 @@ pagination:
   total: "1"
 ```
 
-Example query command with no results:
+Example query liquidity command with no results:
 
 `$ liquidityd query liquidity deposits 1`
 
-```bash
+````bash
 deposits: []
 pagination:
   next_key: null
   total: "0"
-```
+`````
 
-### Query a specified pool
+## Query a specified pool
 
 `$ liquidityd query liquidity pool --help`
 
@@ -886,8 +859,8 @@ Query for details of a liquidity pool
 Example:
 $ liquidityd query liquidity pool 1
 
-Usage:
-  liquidityd query liquidity pool [pool-id] [flags]
+Usage: liquidityd query liquidity pool [pool-id] [flags]
+`
 ```
 
 Example query for details command with result:
@@ -905,6 +878,7 @@ pool:
   - uatom
   - uusd
   type_id: 1
+`
 ```
 
 Example query for reserve coins of the pool using the bank module:
@@ -973,9 +947,10 @@ pools:
   - stake
   - uusd
   type_id: 1
+`
 ```
 
-### query params
+## query params
 
 Example query liquidity params command:
 
@@ -1002,7 +977,7 @@ unit_batch_height: 1
 withdraw_fee_rate: "0.003000000000000000"
 ```
 
-### query swaps
+## query swaps
 
 `$ liquidityd query liquidity swaps --help`
 
@@ -1018,8 +993,6 @@ $ liquidityd query liquidity swaps 1
 Usage:
   liquidityd query liquidity swaps [pool-id] [flags]
 ```
-
-Example query liquidity swaps command:
 
 `$ liquidityd query liquidity swaps 1`
 
@@ -1072,7 +1045,7 @@ pagination:
 swaps: []
 ```
 
-### query withdraws
+## query withdraws
 
 `$ liquidityd query liquidity withdraws --help`
 
@@ -1093,7 +1066,7 @@ Example query liquidity withdraws command:
 
 `$ liquidityd query liquidity withdraws 1`
 
-Result:
+Result: Result:
 
 ```bash
 pagination:
@@ -1128,11 +1101,20 @@ withdraws: []
 
 ## REST/API
 
-You can check local swagger doc page on `YOUR_API_SERVER(ex:127.0.0.1:1317)/swagger-liquidity/` if set `swagger = true` from `app.toml` or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
+The API documentation for the liquidity module is available on <http://localhost:1317/swagger-liquidity/> after you successfully boostrap a testnet in your local computer.
 
-According to [migrating-to-new-rest-endpoints](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints), the POST endpoints of the New gGPC-gateway REST are N/A and guided directly to use Protobuf, need to use `cli` or `localhost:1317/cosmos/tx/v1beta1/txs` for broadcast txs temporarily
+Note that `swagger` config must be true in `$HOME/.liquidityapp/config/app.toml`. The public Swagger API docs are also available on [Cosmos SDK Liquidity Module - REST and gRPC Gateway docs](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs).
 
-example of broadcasting txs using the [new REST endpoint (via gRPC-gateway, beta1)](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints)
+```bash
+# Generate `*.pb.go`, `*.pb.gw.go` files from `proto/*.proto`
+$ make proto-gen
+# Generate `swagger.yaml` from `proto/*.proto`
+$ make proto-swagger-gen
+```
+
+According to [Migrating to New REST Endpoints](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints), the POST endpoints of the New gGPC-gateway REST are N/A and guided directly to use Protobuf, you must use `cli` or `localhost:1317/cosmos/tx/v1beta1/txs` for broadcast txs temporarily.
+
+Example of broadcasting txs using the [new REST endpoint (via gRPC-gateway, beta1)](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints)
 
 ```bash
 curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"CoMBCoABCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJfCi1jb3Ntb3MxN3dncHpyNGd2YzN1aHBmcnUyNmVhYTJsc203NzJlMnEydjBtZXgQAhgBIAEqDQoFc3Rha2USBDEwMDAyBGF0b206EzExNTAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAqzfoAEi0cFg0zqwBuGNvHml4XJNS3EQuVti8/yGH88NEgQKAgh/GAgSBBDAmgwaQGTRN67x2WYF/L5DsRD3ZY1Kt9cVpg3rW+YbXtihxcB6bJWhMxuFr0u9SnGkCuAgOuLH9YU8ROFUo1gGS1RpTz0=","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs

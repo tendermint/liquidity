@@ -87,8 +87,9 @@ func GetCmdQueryLiquidityPool() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query for details of a liquidity pool
 Example:
-$ liquidityd query liquidity pool 1
+$ %s query liquidity pool 1
 `,
+
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -131,12 +132,13 @@ func GetCmdQueryLiquidityPools() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pools",
 		Args:  cobra.NoArgs,
-		Short: "Query for details of all liquidity pools",
+		Short: "Query for all liquidity pools",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query for details of all liquidity pools.
+			fmt.Sprintf(`Query for details about all liquidity pools on a network.
 Example:
-$ liquidityd query liquidity pools
+$ %s query liquidity pools
 `,
+
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -170,8 +172,9 @@ func GetCmdQueryLiquidityPoolBatch() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query for details of a liquidity pool batch
 Example:
-$ liquidityd query liquidity batch 1
+$ %s query liquidity batch 1
 `,
+
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -212,16 +215,17 @@ func GetCmdQueryPoolBatchDepositMsgs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposits [pool-id]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Query for all deposit messages of a liquidity pool batch",
+		Short: "Query for all deposit messages of the liquidity pool",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query for all deposit messages of a liquidity pool batch on the specified pool
+			fmt.Sprintf(`Query for all deposit messages of a liquidity pool
 
 If batch messages are normally processed from the endblock, the resulting state is applied and the messages are removed in the beginning of next block.
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity deposits 1
+$ %s query liquidity deposits 1
 `,
+
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -258,17 +262,18 @@ func GetCmdQueryPoolBatchDepositMsg() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deposit [pool-id] [msg-index]",
 		Args:  cobra.ExactArgs(2),
-		Short: "Query for all deposit messages on a liquidity pool batch",
+		Short: "Query for all deposit messages",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query for all deposit messages on a liquidity pool batch for the specified pool-id and msg-index
+			fmt.Sprintf(`Query for all deposit messages
 
 If batch messages are normally processed from the endblock,
 the resulting state is applied and the messages are removed from the beginning of the next block.
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity deposit 1 20
+$ %s query liquidity deposit 1 20
 `,
+
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -306,17 +311,18 @@ func GetCmdQueryPoolBatchWithdrawMsgs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "withdraws [pool-id]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Query for all withdraw messages on a liquidity pool batch",
+		Short: "Query for all withdraw messages",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query all withdraw messages on a liquidity pool batch for the specified pool-id
+			fmt.Sprintf(`Query for all withdraw messages
 
 If batch messages are normally processed from the endblock,
 the resulting state is applied and the messages are removed in the beginning of next block.
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity withdraws 1
+$ %s query liquidity withdraws 1
 `,
+
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -353,17 +359,18 @@ func GetCmdQueryPoolBatchWithdrawMsg() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "withdraw [pool-id] [msg-index]",
 		Args:  cobra.ExactArgs(2),
-		Short: "Query for all withdraw messages in a liquidity pool batch",
+		Short: "Query for all withdraw messages",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query for all withdraw messages in the liquidity pool batch for the specified pool-id and msg-index
+			fmt.Sprintf(`Query for all withdraw messages of the liquidity pool batch for the specified pool-id
 
-If batch messages are normally processed from the endblock,
+if the batch message are normally processed from the endblock,
 the resulting state is applied and the messages are removed in the beginning of next block.
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity withdraw 1 20
+$ %s query liquidity withdraw 1 20
 `,
+
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -401,7 +408,7 @@ func GetCmdQueryPoolBatchSwapMsgs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "swaps [pool-id]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Query for all swap messages of the liquidity pool batch",
+		Short: "Query for all swap messages",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query for all swap messages of the liquidity pool batch for the specified pool-id
 
@@ -410,8 +417,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity swaps 1
+$ %s query liquidity swaps 1
 `,
+
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -457,8 +465,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity swap 1 20
+$ %s query liquidity swap 1 20
 `,
+
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
