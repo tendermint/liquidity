@@ -5,7 +5,6 @@ package cli
 
 import (
 	"fmt"
-<<<<<<< HEAD
 	"strconv"
 	"strings"
 
@@ -15,18 +14,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
-
-=======
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/spf13/cobra"
-	"strconv"
-	"strings"
-
-	"github.com/cosmos/cosmos-sdk/client"
->>>>>>> 58d95974ed0d6c4318cf8ba265ab4a4de98c3a87
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
@@ -60,26 +47,15 @@ func NewCreatePoolCmd() *cobra.Command {
 			fmt.Sprintf(`Create liquidity pool and deposit coins.
 
 Example:
-<<<<<<< HEAD
 $ liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
-=======
-$ %s tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
->>>>>>> 58d95974ed0d6c4318cf8ba265ab4a4de98c3a87
 
 This example creates a liquidity pool of pool-type 1 (two coins) and deposits 1000000000uatom and 50000000000uusd.
 New liquidity pools can be created only for coin combinations that do not already exist in the network.
 
-<<<<<<< HEAD
 Required arguments:
 - pool-type: The id of the liquidity pool-type. The only supported pool type is 1.
 - deposit-coins: The amount of coins to deposit to the liquidity pool. The number of deposit coins must be two in pool type 1.
 `,
-=======
-[pool-type]: The id of the liquidity pool-type. The only supported pool type is 1
-[deposit-coins]: The amount of coins to deposit to the liquidity pool. The number of deposit coins must be 2 in pool type 1.
-`,
-				version.AppName,
->>>>>>> 58d95974ed0d6c4318cf8ba265ab4a4de98c3a87
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -136,34 +112,19 @@ func NewDepositWithinBatchCmd() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Deposit coins a liquidity pool.
 
-<<<<<<< HEAD
 Required arguments:
 - pool-id: The pool id of the liquidity pool
 - deposit-coins: The amount of coins to deposit to the liquidity pool. The number of deposit coins must be two in pool type 1.
 
-=======
->>>>>>> 58d95974ed0d6c4318cf8ba265ab4a4de98c3a87
 This deposit request is not processed immediately since it is accumulated in the liquidity pool batch.
 All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
-<<<<<<< HEAD
 $ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
-=======
-$ %s tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
->>>>>>> 58d95974ed0d6c4318cf8ba265ab4a4de98c3a87
 
 This example request deposits 100000000uatom and 5000000000uusd to pool-id 1.
 Deposits must be the same coin denoms as the reserve coins.
-
-<<<<<<< HEAD
 `,
-=======
-[pool-id]: The pool id of the liquidity pool
-[deposit-coins]: The amount of coins to deposit to the liquidity pool
-`,
-				version.AppName,
->>>>>>> 58d95974ed0d6c4318cf8ba265ab4a4de98c3a87
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -191,11 +152,7 @@ Deposits must be the same coin denoms as the reserve coins.
 			}
 
 			if depositCoins.Len() != 2 {
-<<<<<<< HEAD
-				return fmt.Errorf("the number of deposit coins must be two in pool-type 1")
-=======
 				return fmt.Errorf("the number of deposit coins must be two in the pool-type 1")
->>>>>>> 58d95974ed0d6c4318cf8ba265ab4a4de98c3a87
 			}
 
 			msg := types.NewMsgDepositWithinBatch(depositor, poolId, depositCoins)
