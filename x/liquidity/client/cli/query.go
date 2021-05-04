@@ -83,9 +83,9 @@ func GetCmdQueryLiquidityPool() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pool [pool-id]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Query details of a liquidity pool",
+		Short: "Query for details of a liquidity pool",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query details of a liquidity pool
+			fmt.Sprintf(`Query for details of a liquidity pool
 Example:
 $ liquidityd query liquidity pool 1
 `,
