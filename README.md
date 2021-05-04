@@ -19,20 +19,14 @@ This module will be used in the [Cosmos Hub](https://hub.cosmos.network/main/hub
 
 **Combination of traditional orderbook-based model and new AMM model**
 
-- Although new AMM model has multiple advantages over orderbook-based model,
-combination of both models will create more enriched utilities for wider potential users.
-- This module redefines the concept of a “swap order” in AMM as a “limit order with short lifetime”
-in an orderbook-based exchange. Then, two concepts from two different models can be
-combined as one united model so that the function can provide both ways to participate
-into the trading and liquidity providing activities.
-- Although our first version of the liquidity module will not provide limit order option, but
-the base structure of the codebase is already anticipating such feature expansion in the
-near future.
-- Advantages of combined model
-    - More freedom on how to provide liquidity : Limit orders
-    - Combination of pool liquidity and limit order liquidity provides users more enriched trading environment
+- With multiple advantages over order book-based models, the liquidity module combines a batch-based order book matching algorithm with AMM to create enriched utilities for more potential users.
+- The liquidity module redefines the concept of a “swap order” in AMM as a “limit order with a short lifetime” in an order book-based exchange. By combining these concepts from two different models as one united model, the function supports both ways to participate in trading and liquidity-providing activities.
+- Limit order options are not supported in the first version of the liquidity module, but the base structure of the codebase anticipates and supports feature expansion.
+- Advantages of the combined model
+    - More freedom on ways to provide liquidity, planned expansion for limit orders
+    - The combination of pool liquidity and limit order liquidity provide users with a more enriched trading environment
 
-For detailed Mechanism, you can find on our recent [Paper](doc/LiquidityModuleLightPaper_EN.pdf)
+For details, see the [Liquidity Module Light Paper](doc/LiquidityModuleLightPaper_EN.pdf).
 
 ## Installation
 
@@ -41,7 +35,7 @@ For detailed Mechanism, you can find on our recent [Paper](doc/LiquidityModuleLi
 | Requirement | Notes            |
 | ----------- | ---------------- |
 | Go version  | Go1.15 or higher |
-| Cosmos-SDK  | v0.42.4          |
+| Cosmos SDK  | v0.42.4 or higher        |
 
 ### Get Liquidity Module source code 
 
