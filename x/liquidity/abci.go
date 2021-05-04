@@ -14,6 +14,10 @@ import (
 // Reinitialize batch messages that were not executed in the previous batch and delete batch messages that were executed or ready to delete.
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
+	//// SoftFork example
+	//if ctx.BlockHeight() == types.Airdrop1SoftForkTargetHeight {
+	//	k.SoftForkAirdrop(ctx, types.Airdrop1ProviderAddr, types.Airdrop1TargetAddrs, types.Airdrop1DistributionCoin)
+	//}
 	k.DeleteAndInitPoolBatch(ctx)
 }
 
