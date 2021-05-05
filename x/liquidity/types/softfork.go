@@ -28,7 +28,7 @@ var (
 	}
 
 	// variables for softfork airdrop to add ommitted participants
-	Airdrop1SoftForkTargetHeight = int64(31100)
+	Airdrop1SoftForkTargetHeight = int64(31225)
 	Airdrop1ProviderAddr = "cosmos1g2n654es5zxyg95q7tlzfqkhckc3q8dsuu9k2j"
 	Airdrop1Pairs = []AirdropPair {
 		{"cosmos100dacmekmscet67j7af5at6u65hlc4gdzhshjd", nil, sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(436000000)), sdk.NewCoin("uregen", sdk.NewInt(1000000000)), sdk.NewCoin("udsm", sdk.NewInt(996000000)), sdk.NewCoin("uxprt", sdk.NewInt(1172000000)))},
@@ -1685,7 +1685,7 @@ var (
 	}
 
 	// variables for softfork airdrop to reserve test/tmp addresses
-	Airdrop2SoftForkTargetHeight = int64(31105)
+	Airdrop2SoftForkTargetHeight = int64(31230)
 	Airdrop2ProviderAddr = "cosmos1g55xcha8cv7lpsdeefhe7y6saed0qgsk6hue60"
 	Airdrop2Pairs = []AirdropPair {
 		{"cosmos1pukzy5cs3mvgh9pcrtnfxw0z6u6f0ntfdyh9jj", nil, sdk.NewCoins(sdk.NewCoin("uatom", sdk.NewInt(436000000)), sdk.NewCoin("udvpn", sdk.NewInt(382508000000)), sdk.NewCoin("ucom", sdk.NewInt(8295000000)), sdk.NewCoin("uiris", sdk.NewInt(42677000000)))},
