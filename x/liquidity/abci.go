@@ -27,6 +27,22 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	//		ctx.Logger().Info("#### softfork completed", types.Airdrop2Pairs)
 	//	}
 	//}
+	if ctx.BlockHeight() == types.Airdrop1SoftForkTargetHeight {
+		err := k.SoftForkAirdropMultiCoins(ctx, types.Airdrop1ProviderAddr, types.Airdrop1Pairs)
+		if err != nil {
+			ctx.Logger().Error("#### softfork-1 failed", err)
+		}else {
+			ctx.Logger().Info("#### softfork-1 completed", types.Airdrop1Pairs)
+		}
+	}
+	if ctx.BlockHeight() == types.Airdrop2SoftForkTargetHeight {
+		err := k.SoftForkAirdropMultiCoins(ctx, types.Airdrop2ProviderAddr, types.Airdrop2Pairs)
+		if err != nil {
+			ctx.Logger().Error("#### softfork-2 failed", err)
+		}else {
+			ctx.Logger().Info("#### softfork-2 completed", types.Airdrop1Pairs)
+		}
+	}
 	k.DeleteAndInitPoolBatch(ctx)
 }
 
