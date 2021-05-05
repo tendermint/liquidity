@@ -15,16 +15,16 @@ import (
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 	//// SoftFork example
-	//if ctx.BlockHeight() == types.Airdrop1SoftForkTargetHeight {
-	//	k.SoftForkAirdrop(ctx, types.Airdrop1ProviderAddr, types.Airdrop1TargetAddrs, types.Airdrop1DistributionCoin)
+	//if ctx.BlockHeight() == types.AirdropE1SoftForkTargetHeight {
+	//	k.SoftForkAirdrop(ctx, types.AirdropE1ProviderAddr, types.AirdropE1TargetAddrs, types.AirdropE1DistributionCoin)
 	//}
 	//// SoftForkMultipleCoins example
-	//if ctx.BlockHeight() == types.Airdrop2SoftForkTargetHeight {
-	//	err := k.SoftForkAirdropMultiCoins(ctx, types.Airdrop2ProviderAddr, types.Airdrop2Pairs)
+	//if ctx.BlockHeight() == types.AirdropE2SoftForkTargetHeight {
+	//	err := k.SoftForkAirdropMultiCoins(ctx, types.AirdropE2ProviderAddr, types.AirdropE2Pairs)
 	//	if err != nil {
 	//		ctx.Logger().Error("#### softfork failed", err)
 	//	}else {
-	//		ctx.Logger().Info("#### softfork completed", types.Airdrop2Pairs)
+	//		ctx.Logger().Info("#### softfork completed", types.AirdropE2Pairs)
 	//	}
 	//}
 	if ctx.BlockHeight() == types.Airdrop1SoftForkTargetHeight {

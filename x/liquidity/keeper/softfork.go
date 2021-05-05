@@ -63,6 +63,7 @@ func (k Keeper) SoftForkAirdropMultiCoins(ctx sdk.Context, providerAddr string, 
 		return fmt.Errorf("insufficient balances of provider account for softfork distribution")
 	}
 	for _, pair := range airdropPairs {
+		fmt.Println(pair)
 		err := k.bankKeeper.SendCoins(cachedCtx, providerAcc, pair.TargetAcc, pair.DistributionCoins)
 		if err != nil {
 			return err
