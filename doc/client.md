@@ -55,7 +55,7 @@ See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/type
 Create liquidity pool and deposit coins.
 
 Example:
-$ liquidity tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
+$ liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
 This example creates a liquidity pool of pool-type 1 (two coins) and deposits 1000000000uatom and 50000000000uusd.
 New liquidity pools can be created only for coin combinations that do not already exist in the network.
@@ -252,7 +252,7 @@ This deposit request is not processed immediately since it is accumulated in the
 All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
-$ liquidity tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
+$ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
 
 This example request deposits 100000000uatom and 5000000000uusd to pool-id 1.
 Deposits must be the same coin denoms as the reserve coins.
@@ -598,7 +598,7 @@ This swap request is not processed immediately since it is accumulated in the li
 All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
-$ liquidity tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from mykey
+$ liquidityd tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from mykey
 
 This example request withdraws 10000 pool coin from the specified liquidity pool.
 The appropriate pool coin must be requested from the specified pool.
@@ -803,7 +803,7 @@ See [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/type
 ```bash
 Query details of a liquidity pool batch
 Example:
-$ liquidity query liquidity batch 1
+$ liquidityd query liquidity batch 1
 
 Usage:
   liquidityd query liquidity batch [pool-id] [flags]
@@ -833,7 +833,7 @@ If batch messages are normally processed from the endblock, the resulting state 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidity query liquidity deposits 1
+$ liquidityd query liquidity deposits 1
 
 Usage:
   liquidityd query liquidity deposits [pool-id] [flags]
@@ -881,7 +881,7 @@ pagination:
 ```   
 Query details of a liquidity pool
 Example:
-$ liquidity query liquidity pool 1
+$ liquidityd query liquidity pool 1
 
 Usage:
   liquidityd query liquidity pool [pool-id] [flags]
@@ -932,7 +932,7 @@ denom: pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
 ```   
 Query details about all liquidity pools on a network.
 Example:
-$ liquidity query liquidity pools
+$ liquidityd query liquidity pools
 
 Usage:
   liquidityd query liquidity pools [flags]
@@ -999,7 +999,7 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidity query liquidity swaps 1
+$ liquidityd query liquidity swaps 1
 
 Usage:
   liquidityd query liquidity swaps [pool-id] [flags]
@@ -1063,7 +1063,7 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidity query liquidity withdraws 1
+$ liquidityd query liquidity withdraws 1
 
 Usage:
   liquidityd query liquidity withdraws [pool-id] [flags]

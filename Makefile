@@ -4,6 +4,8 @@ VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 BINDIR ?= $(GOPATH)/bin
+DOCKER := $(shell which docker)
+BUILDDIR ?= $(CURDIR)/build
 SIMAPP = ./app
 
 export GO111MODULE = on
@@ -83,6 +85,17 @@ build-linux: go.sum
 
 install: go.sum
 	go install $(BUILD_FLAGS) ./cmd/liquidityd
+
+build-reproducible: go.sum
+	$(DOCKER) rm latest-build || true
+	$(DOCKER) run --volume=$(CURDIR):/sources:ro \
+        --env TARGET_PLATFORMS='linux/amd64 darwin/amd64 linux/arm64' \
+        --env APP=liquidityd \
+        --env VERSION=$(VERSION) \
+        --env COMMIT=$(COMMIT) \
+        --env LEDGER_ENABLED=$(LEDGER_ENABLED) \
+        --name latest-build cosmossdk/rbuilder:latest
+	$(DOCKER) cp -a latest-build:/home/builder/artifacts/ $(CURDIR)/
 
 ###############################################################################
 ###                          Tools & Dependencies                           ###
