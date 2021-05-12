@@ -26,7 +26,7 @@ const (
 
 // WeightedOperations returns all the operations from the module with their respective weights
 func WeightedOperations( // TODO: to module.go for porting sdk v0.43
-	appParams simtypes.AppParams, cdc codec.JSONMarshaler, ak types.AccountKeeper,
+	appParams simtypes.AppParams, cdc codec.JSONCodec, ak types.AccountKeeper,
 	bk types.BankKeeper, k keeper.Keeper,
 ) simulation.WeightedOperations {
 

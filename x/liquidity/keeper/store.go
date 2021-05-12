@@ -66,7 +66,7 @@ func (k Keeper) GetAllPools(ctx sdk.Context) (pools []types.Pool) {
 func (k Keeper) GetNextPoolIdWithUpdate(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
 	poolId := k.GetNextPoolId(ctx)
-	bz := k.cdc.MustMarshalBinaryBare(&gogotypes.UInt64Value{Value: poolId + 1})
+	bz := k.cdc.MustMarshal(&gogotypes.UInt64Value{Value: poolId + 1})
 	store.Set(types.GlobalLiquidityPoolIdKey, bz)
 	return poolId
 }
@@ -83,7 +83,7 @@ func (k Keeper) GetNextPoolId(ctx sdk.Context) uint64 {
 	} else {
 		val := gogotypes.UInt64Value{}
 
-		err := k.cdc.UnmarshalBinaryBare(bz, &val)
+		err := k.cdc.Unmarshal(bz, &val)
 		if err != nil {
 			panic(err)
 		}
