@@ -120,11 +120,9 @@ var (
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
-		//ibc.AppModuleBasic{},
 		feegrantmodule.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
-		//transfer.AppModuleBasic{},
 		authz_m.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		liquidity.AppModuleBasic{},
@@ -138,20 +136,22 @@ var (
 		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
-		//ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		liquiditytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
 	}
 )
 
 // Verify app interface at compile time
-var _ simapp.App = (*LiquidityApp)(nil)
+var (
+	_ simapp.App = (*LiquidityApp)(nil)
+	_ servertypes.Application = (*LiquidityApp)(nil)
+)
 
 // LiquidityApp extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
 // capabilities aren't needed for testing.
 type LiquidityApp struct {
 	*baseapp.BaseApp
-	cdc               *codec.LegacyAmino
+	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	interfaceRegistry types.InterfaceRegistry
 
@@ -174,17 +174,10 @@ type LiquidityApp struct {
 	CrisisKeeper     crisiskeeper.Keeper
 	UpgradeKeeper    upgradekeeper.Keeper
 	ParamsKeeper     paramskeeper.Keeper
-	//IBCKeeper        *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	AuthzKeeper     authzkeeper.Keeper
 	EvidenceKeeper  evidencekeeper.Keeper
-	LiquidityKeeper liquiditykeeper.Keeper
-	//TransferKeeper   ibctransferkeeper.Keeper
-	//
-	//// make scoped keepers public for test purposes
-	//ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
-	//ScopedTransferKeeper capabilitykeeper.ScopedKeeper
-	//ScopedIBCMockKeeper  capabilitykeeper.ScopedKeeper
 	FeeGrantKeeper feegrantkeeper.Keeper
+	LiquidityKeeper liquiditykeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -208,11 +201,12 @@ func init() {
 // NewLiquidityApp returns a reference to an initialized LiquidityApp.
 func NewLiquidityApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
-	homePath string, invCheckPeriod uint, encodingConfig liquidityparams.EncodingConfig, appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
+	homePath string, invCheckPeriod uint, encodingConfig liquidityparams.EncodingConfig,
+	appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
 ) *LiquidityApp {
 
 	appCodec := encodingConfig.Marshaler
-	cdc := encodingConfig.Amino
+	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
 	bApp := baseapp.NewBaseApp(appName, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
@@ -233,7 +227,7 @@ func NewLiquidityApp(
 
 	app := &LiquidityApp{
 		BaseApp:           bApp,
-		cdc:               cdc,
+		legacyAmino:       legacyAmino,
 		appCodec:          appCodec,
 		interfaceRegistry: interfaceRegistry,
 		invCheckPeriod:    invCheckPeriod,
@@ -242,18 +236,13 @@ func NewLiquidityApp(
 		memKeys:           memKeys,
 	}
 
-	app.ParamsKeeper = initParamsKeeper(appCodec, cdc, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
+	app.ParamsKeeper = initParamsKeeper(appCodec, legacyAmino, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
 
 	// set the BaseApp's parameter store
 	bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()))
 
 	// add capability keeper and ScopeToModule for ibc module
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(appCodec, keys[capabilitytypes.StoreKey], memKeys[capabilitytypes.MemStoreKey])
-	//scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
-	//scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	//// NOTE: the IBC mock keeper and application module is used only for testing core IBC. Do
-	//// note replicate if you do not need to test core IBC or light clients.
-	//scopedIBCMockKeeper := app.CapabilityKeeper.ScopeToModule(ibcmock.ModuleName)
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -279,7 +268,6 @@ func NewLiquidityApp(
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		app.GetSubspace(crisistypes.ModuleName), invCheckPeriod, app.BankKeeper, authtypes.FeeCollectorName,
 	)
-	//app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath)
 
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp)
@@ -290,10 +278,6 @@ func NewLiquidityApp(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
 
-	//// Create IBC Keeper
-	//app.IBCKeeper = ibckeeper.NewKeeper(
-	//	appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.StakingKeeper, scopedIBCKeeper,
-	//)
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.BaseApp.MsgServiceRouter())
 
 	// register the proposal types
@@ -312,24 +296,6 @@ func NewLiquidityApp(
 		// register the governance hooks
 		),
 	)
-
-	//// Create Transfer Keepers
-	//app.TransferKeeper = ibctransferkeeper.NewKeeper(
-	//	appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
-	//	app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
-	//	app.AccountKeeper, app.BankKeeper, scopedTransferKeeper,
-	//)
-	//transferModule := transfer.NewAppModule(app.TransferKeeper)
-
-	//// NOTE: the IBC mock keeper and application module is used only for testing core IBC. Do
-	//// note replicate if you do not need to test core IBC or light clients.
-	//mockModule := ibcmock.NewAppModule(scopedIBCMockKeeper)
-	//
-	//// Create static IBC router, add transfer route, then set and seal it
-	//ibcRouter := porttypes.NewRouter()
-	//ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
-	//ibcRouter.AddRoute(ibcmock.ModuleName, mockModule)
-	//app.IBCKeeper.SetRouter(ibcRouter)
 
 	// create evidence keeper with router
 	evidenceKeeper := evidencekeeper.NewKeeper(
@@ -365,9 +331,7 @@ func NewLiquidityApp(
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		upgrade.NewAppModule(app.UpgradeKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
-		//ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
-		//transferModule,
 		authz_m.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		liquidity.NewAppModule(appCodec, app.LiquidityKeeper, app.AccountKeeper, app.BankKeeper, app.DistrKeeper),
 	)
@@ -377,8 +341,8 @@ func NewLiquidityApp(
 	// CanWithdrawInvariant invariant.
 	// NOTE: staking module is required if HistoricalEntries param > 0
 	app.mm.SetOrderBeginBlockers(
-		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName,
-		slashingtypes.ModuleName, evidencetypes.ModuleName, stakingtypes.ModuleName,
+		upgradetypes.ModuleName, minttypes.ModuleName, distrtypes.ModuleName, slashingtypes.ModuleName,
+		evidencetypes.ModuleName, stakingtypes.ModuleName,
 		liquiditytypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
@@ -394,8 +358,9 @@ func NewLiquidityApp(
 	app.mm.SetOrderInitGenesis(
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName, distrtypes.ModuleName, stakingtypes.ModuleName,
 		slashingtypes.ModuleName, govtypes.ModuleName, minttypes.ModuleName, crisistypes.ModuleName,
-		genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName, liquiditytypes.ModuleName, // TODO: fix ordering for liquidity module
+		genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName,
 		feegrant.ModuleName,
+		liquiditytypes.ModuleName, // TODO: fix ordering for liquidity module
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -422,11 +387,9 @@ func NewLiquidityApp(
 		slashing.NewAppModule(appCodec, app.SlashingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
-		liquidity.NewAppModule(appCodec, app.LiquidityKeeper, app.AccountKeeper, app.BankKeeper, app.DistrKeeper),
-		// TODO: fix liquidity module ordering
 		authz_m.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
-		//ibc.NewAppModule(app.IBCKeeper),
-		//transferModule,
+		// TODO: fix liquidity module ordering
+		liquidity.NewAppModule(appCodec, app.LiquidityKeeper, app.AccountKeeper, app.BankKeeper, app.DistrKeeper),
 	)
 
 	// register the store decoders for simulation tests
@@ -474,13 +437,6 @@ func NewLiquidityApp(
 		app.CapabilityKeeper.InitializeAndSeal(ctx)
 	}
 
-	//app.ScopedIBCKeeper = scopedIBCKeeper
-	//app.ScopedTransferKeeper = scopedTransferKeeper
-	//
-	//// NOTE: the IBC mock keeper and application module is used only for testing core IBC. Do
-	//// note replicate if you do not need to test core IBC or light clients.
-	//app.ScopedIBCMockKeeper = scopedIBCMockKeeper
-
 	return app
 }
 
@@ -527,7 +483,7 @@ func (app *LiquidityApp) ModuleAccountAddrs() map[string]bool {
 // NOTE: This is solely to be used for testing purposes as it may be desirable
 // for modules to register their own custom testing types.
 func (app *LiquidityApp) LegacyAmino() *codec.LegacyAmino {
-	return app.cdc
+	return app.legacyAmino
 }
 
 // AppCodec returns LiquidityApp's app codec.
@@ -641,8 +597,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(slashingtypes.ModuleName)
 	paramsKeeper.Subspace(govtypes.ModuleName).WithKeyTable(govtypes.ParamKeyTable())
 	paramsKeeper.Subspace(crisistypes.ModuleName)
-	//paramsKeeper.Subspace(ibctransfertypes.ModuleName)
-	//paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(liquiditytypes.ModuleName)
 
 	return paramsKeeper
