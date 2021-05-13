@@ -51,7 +51,7 @@ func setup(withGenesis bool, invCheckPeriod uint) (*LiquidityApp, GenesisState) 
 	encCdc := MakeEncodingConfig()
 	app := NewLiquidityApp(log.NewNopLogger(), db, nil, true, map[int64]bool{}, DefaultNodeHome, invCheckPeriod, encCdc, EmptyAppOptions{})
 	if withGenesis {
-		return app, NewDefaultGenesisState(encCdc.Marshaler)
+		return app, NewDefaultGenesisState()
 	}
 	return app, GenesisState{}
 }
