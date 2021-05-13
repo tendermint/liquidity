@@ -2,31 +2,32 @@
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/tendermint/liquidity)](https://pkg.go.dev/github.com/tendermint/liquidity)
 
 # Liquidity Module
-the Liquidity module of the Cosmos-SDK, which serves AMM(Automated Market Makers) style decentralized liquidity providing and coin swap functions.
 
-The module enable anyone to create a liquidity pool, deposit or withdraw coins from the liquidity pool, and request coin swap to the liquidity pool.
+The liquidity module serves AMM (Automated Market Makers) style decentralized liquidity providing and coin swap functions.
 
-This module will be used in the Cosmos Hub, and any other blockchain based on Cosmos-SDK.
+The module enables users to create a liquidity pool, make deposits and withdrawals, and request coin swaps from the liquidity pool.
 
-- The Cosmos Hub AMM should have strong philosophy of inclusiveness of users from different blockchains because its prime utility is inter-blockchain communication
-- To possess such characteristics, the Liquidity module should provide most convenient ways for external users to come in and use the services provided by the Cosmos Hub
-- The Liquidity module should not anticipate specific assets, such as Atom, into the process of user-flow in a forced manner. It is repeatedly proved that unnatural anticipation of native coin at unavoidable parts of process resulting in poor user attraction
+This module will be used in the [Cosmos Hub](https://hub.cosmos.network/main/hub-overview/overview.html), and it can be used in any other [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) based blockchain projects.
+
+- The Cosmos Hub AMM should have strong philosophy of inclusiveness of users from different blockchains because its prime utility is inter-blockchain communication.
+- To possess such characteristics, the liquidity module should provide most convenient ways for external users to come in and use the services provided by the Cosmos Hub.
+- The liquidity module should not anticipate specific assets, such as Atom, into the process of user-flow in a forced manner. It is repeatedly proved that unnatural anticipation of native coin at unavoidable parts of process resulting in poor user attraction.
 
 ## Key features
 
 ![new-amm-model](doc/img/new-amm-model.png)
 
-**Combination of Traditional Orderbook-based Model and New AMM Model**
+**Combination of traditional orderbook-based model and new AMM model**
 
 - Although new AMM model has multiple advantages over orderbook-based model,
-combination of both models will create more enriched utilities for wider potential users
-- We re-define the concept of a “swap order” in AMM as a “limit order with short lifetime”
+combination of both models will create more enriched utilities for wider potential users.
+- This module redefines the concept of a “swap order” in AMM as a “limit order with short lifetime”
 in an orderbook-based exchange. Then, two concepts from two different models can be
 combined as one united model so that the function can provide both ways to participate
-into the trading and liquidity providing activities
-- Although our first version of the Liquidity module will not provide limit order option, but
-the base structure of the codebase is already anticipating such feature expansion in
-near future
+into the trading and liquidity providing activities.
+- Although our first version of the liquidity module will not provide limit order option, but
+the base structure of the codebase is already anticipating such feature expansion in the
+near future.
 - Advantages of combined model
     - More freedom on how to provide liquidity : Limit orders
     - Combination of pool liquidity and limit order liquidity provides users more enriched trading environment
@@ -40,9 +41,10 @@ For detailed Mechanism, you can find on our recent [Paper](doc/LiquidityModuleLi
 | Requirement | Notes            |
 | ----------- | ---------------- |
 | Go version  | Go1.15 or higher |
-| Cosmos-SDK  | v0.42.1          |
+| Cosmos-SDK  | v0.42.4          |
 
 ### Get Liquidity Module source code 
+
 ```bash 
 $ git clone https://github.com/tendermint/liquidity.git
 $ cd liquidity
@@ -52,19 +54,18 @@ $ go mod tidy
 ### Build
 
 ```bash 
+# You can find the liquidityd binary inside build directory
 $ make build 
 ```
-You can find the `liquidityd` binary on `build/`
 
 ### Install
 ```bash 
 $ make install 
 ```
 
-## liquidityd
+## Usage of CLI Commands
 
-### Tx
-
+### Transactions
 
 `$ liquidityd tx liquidity --help`     
 
@@ -76,15 +77,13 @@ Usage:
   liquidityd tx liquidity [command]
 
 Available Commands:
-  create-pool Create new liquidity pool with the specified pool type and deposit coins
-  deposit     Deposit coins to the specified liquidity pool
-  swap        Swap offer coin with demand coin from the specified liquidity pool with the given order price
+  create-pool Create liquidity pool and deposit coins
+  deposit     Deposit coins to a liquidity pool
+  swap        Swap offer coin with demand coin from the liquidity pool with the given order price
   withdraw    Withdraw pool coin from the specified liquidity pool
 ```
 
-
-
-### Query
+### Queries
 
 `$ liquidityd query liquidity --help`
 
@@ -96,16 +95,16 @@ Usage:
   liquidityd query liquidity [command]
 
 Available Commands:
-  batch       Query details of a liquidity pool batch of the pool
-  deposit     Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index
-  deposits    Query for all deposit messages on the batch of the liquidity pool specified pool-id
-  params      Query the current liquidity parameters information
+  batch       Query details of a liquidity pool batch
+  deposit     Query the deposit messages on the liquidity pool batch
+  deposits    Query all deposit messages of the liquidity pool batch
+  params      Query the values set as liquidity parameters
   pool        Query details of a liquidity pool
   pools       Query for all liquidity pools
   swap        Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
-  swaps       Query for all swap messages on the batch of the liquidity pool specified pool-id
-  withdraw    Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index
-  withdraws   Query for all withdraw messages on the batch of the liquidity pool specified pool-id
+  swaps       Query all swap messages in the liquidity pool batch
+  withdraw    Query the withdraw messages in the liquidity pool batch
+  withdraws   Query for all withdraw messages on the liquidity pool batch
 ```
 
 #### A detailed document on client can be found here. [client.md](doc/client.md)
@@ -114,89 +113,80 @@ Available Commands:
 
 ### Test
 ```bash 
-$ make test
+$ make test-all
 ```
 
-### Setup local testnet
+### 1. Setup local testnet using script
 
 ```bash
-# This will execute ./scripts/localnet.sh script to set up a single testnet locally
-# Note that ./data folder will contain all config, data, and keys
+# This will bootstrap a single testnet locally.
+# Note that config, data, and keys are created inside 
+# ./data/localnet folder and RPC, GRPC, REST ports are all open.
 $ make localnet
 ```
 
-Example of setup local testnet with test validator, user account
+### 1.1 Broadcast transactions using CLI commands
+
+Some sample scripts are available in [scripts](https://github.com/tendermint/liquidity/tree/develop/scripts) folder, which will help you to test out the liquidity module interface.
+
+### 2. Setup local testnet manually
 
 ```bash
+# Build 
 make install
+
+# Initialize and add keys
 liquidityd init testing --chain-id testing
 liquidityd keys add validator --keyring-backend test
 liquidityd keys add user1 --keyring-backend test
+
+# Add genesis accounts and provide coins to the accounts
 liquidityd add-genesis-account $(liquidityd keys show validator --keyring-backend test -a) 10000000000stake,10000000000uatom,500000000000uusd
 liquidityd add-genesis-account $(liquidityd keys show user1 --keyring-backend test -a) 10000000000stake,10000000000uatom,500000000000uusd
+
+# Create gentx and collect
 liquidityd gentx validator 1000000000stake --chain-id testing --keyring-backend test
 liquidityd collect-gentxs
+
+# Start
 liquidityd start
 ```
 
-### Broadcasting Txs with cli
-
-Example of creating test liquidity pool 1 using cli
+### 2.1 Broadcast transactions using CLI commands
 
 ```bash
+# An example of creating liquidity pool 1
 liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -y
-```
 
-Example of creating test liquidity pool 2 using cli
-
-```bash
+# An example of creating liquidity pool 2 
 liquidityd tx liquidity create-pool 1 10000000stake,10000000uusd --from validator --keyring-backend test --chain-id testing -y
-```
 
-Example of Swap request using cli
-
-```bash
+# An example of requesting swap 
 liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y
-```
 
-### Broadcasting Txs with REST
-
-Example of broadcast txs the new REST endpoint (via gRPC-gateway),
-
-example of generating unsigned tx 
-
-```bash
+# An example of generating unsigned tx
 validator=$(liquidityd keys show validator --keyring-backend test -a)
 liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from $validator --chain-id testing --generate-only > tx_swap.json
 cat tx_swap.json
-```
- 
-example of signing unsigned tx
 
-```bash
+# Sign the unsigned tx
 liquidityd tx sign tx_swap.json --from validator --chain-id testing --keyring-backend test -y > tx_swap_signed.json
 cat tx_swap_signed.json
-```
 
-example of encoding signed tx
-
-```bash
+# Encode the signed tx
 liquidityd tx encode tx_swap_signed.json
 ```
+### 2.2 Broadcaste transactions using REST APIs
 
-example of the output: `Cp0BCpoBCigvdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcFdpdGhpbkJhdGNoEm4KLWNvc21vczE4cWM2ZGwwNDZ1a3V0MjN3NnF1dndmenBmeWhncDJmeHFkcXAwNhACGAEiEAoEdXVzZBIINTAwMDAwMDAqBXVhdG9tMg0KBHV1c2QSBTc1MDAwOhExOTAwMDAwMDAwMDAwMDAwMBJYClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDsouFptHWGniIBzFrsE26PcfH950qjnf4RaEsd+g2fA0SBAoCCH8YAxIEEMCaDBpAOI3k8fay9TziZbl+eNCqmPEF7tWXua3ad0ldNR6XOgZjKRBP9sQSxCtaRFnqc6Avep9C4Rjt+CHDahRNpZ8u3A==`
-
-
-example of broadcasting txs using the [new REST endpoint (via gRPC-gateway, beta1)](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints)
-need to enable API server for test
+An example of broadcasting transactions using REST API (via gRPC-gateway) can be found in this [link](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints). Note that API server should be enabled in `$HOME/.liquidityapp/config/app.toml` to test this.
 
 ```bash
 curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"Cp0BCpoBCigvdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcFdpdGhpbkJhdGNoEm4KLWNvc21vczE4cWM2ZGwwNDZ1a3V0MjN3NnF1dndmenBmeWhncDJmeHFkcXAwNhACGAEiEAoEdXVzZBIINTAwMDAwMDAqBXVhdG9tMg0KBHV1c2QSBTc1MDAwOhExOTAwMDAwMDAwMDAwMDAwMBJYClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDsouFptHWGniIBzFrsE26PcfH950qjnf4RaEsd+g2fA0SBAoCCH8YAxIEEMCaDBpAOI3k8fay9TziZbl+eNCqmPEF7tWXua3ad0ldNR6XOgZjKRBP9sQSxCtaRFnqc6Avep9C4Rjt+CHDahRNpZ8u3A==","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
 ```
 
-## Export, Genesis State
+### 2.3 Export Genesis State
 
-`liquidityd export`
+`$ liquidityd export`
 
 ### export empty state case
 
@@ -232,7 +222,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 }
 ```
 
-### export case states exists
+### export when some states exist
 
 ```json
 {
@@ -349,24 +339,23 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 }
 ```
 
-### Protobuf, Swagger
+### Protobuf and Swagger
 
-you can check local swagger doc page on `YOUR_API_SERVER(ex:127.0.0.1:1317)/swagger-liquidity/` if set `swagger = true` from `app.toml`
-or see on [public swagger api doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
-
-generate `*.pb.go`, `*.pb.gw.go` files from `proto/*.proto`
+The API documentation for the liquidity module can be found on `http://localhost:1317/swagger-liquidity/` when you successfully boostrap your testnet in your local computer. Note that `swagger` config should be `true` in `$HOME/.liquidityapp/config/app.toml`. 
+You can also reference our [public swagger API documentation](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs). 
 
 ```bash
+# Generate `*.pb.go`, `*.pb.gw.go` files from `proto/*.proto`
 $ make proto-gen
-```
- 
-generate `swagger.yaml` from `proto/*.proto`
 
-```bash
+# Generate `swagger.yaml` from `proto/*.proto`
 $ make proto-swagger-gen
 ```
  
 ## Resources
+
+To dive into more about the liquidity module, check out the following resources.
+
  - [Liquidity Module Spec](x/liquidity/spec)
  - [Liquidity Module Lite Paper (English)](doc/LiquidityModuleLightPaper_EN.pdf)
  - [Liquidity Module Lite Paper (Korean)](doc/LiquidityModuleLightPaper_KO.pdf)

@@ -105,7 +105,7 @@ func DepositReserveCoinsInvariant(lastReserveCoinA, lastReserveCoinB, depositCoi
 }
 
 // DepositRatioInvariant checks the correct ratio of deposit coin amounts.
-func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCoinB, lastReserveCoinRatio sdk.Dec) {
+func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCoinB, lastReserveCoinA, lastReserveCoinB sdk.Dec) {
 	if !refundedCoinA.IsZero() {
 		depositCoinA = depositCoinA.Sub(refundedCoinA)
 	}
@@ -115,9 +115,12 @@ func DepositRatioInvariant(depositCoinA, depositCoinB, refundedCoinA, refundedCo
 	}
 
 	depositCoinRatio := depositCoinA.Quo(depositCoinB)
+	lastReserveCoinRatio := lastReserveCoinA.Quo(lastReserveCoinB)
 
 	// AfterRefundedDepositCoinA / AfterRefundedDepositCoinA = LastReserveCoinA / LastReserveCoinB
-	if diff(depositCoinRatio, lastReserveCoinRatio).GT(diffThreshold) {
+	if depositCoinA.GTE(sdk.NewDec(1000)) && depositCoinB.GTE(sdk.NewDec(1000)) &&
+		lastReserveCoinA.GTE(sdk.NewDec(1000)) && lastReserveCoinB.GTE(sdk.NewDec(1000)) &&
+		diff(depositCoinRatio, lastReserveCoinRatio).GT(diffThreshold) {
 		panic("invariant check fails due to incorrect deposit ratio")
 	}
 }
@@ -166,14 +169,20 @@ func WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, r
 	}
 }
 
-// WithdrawRatioInvariant checks the correct ratio of withdraw coin amounts.
-func WithdrawRatioInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB sdk.Dec) {
-	withdrawCoinRatio := withdrawCoinA.Quo(withdrawCoinB)
-	reserveCoinRatio := reserveCoinA.Quo(reserveCoinB)
-
-	// WithdrawCoinA / WithdrawCoinB = LastReserveCoinA / LastReserveCoinB
-	if diff(withdrawCoinRatio, reserveCoinRatio).GT(diffThreshold) {
-		panic("invariant check fails due to incorrect ratio of withdraw coin amounts")
+// WithdrawAmountInvariant checks the correct ratio of withdraw coin amounts.
+func WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, burnedPoolCoin, poolCoinSupply, withdrawFeeRate sdk.Dec) {
+	ratio := burnedPoolCoin.Quo(poolCoinSupply).Mul(sdk.OneDec().Sub(withdrawFeeRate))
+	idealWithdrawCoinA := reserveCoinA.Mul(ratio)
+	idealWithdrawCoinB := reserveCoinB.Mul(ratio)
+	diffA := idealWithdrawCoinA.Sub(withdrawCoinA).Abs()
+	diffB := idealWithdrawCoinB.Sub(withdrawCoinB).Abs()
+	if !burnedPoolCoin.Equal(poolCoinSupply) {
+		if diffA.GTE(sdk.OneDec()) {
+			panic(fmt.Sprintf("withdraw coin amount %v differs too much from %v", withdrawCoinA, idealWithdrawCoinA))
+		}
+		if diffB.GTE(sdk.OneDec()) {
+			panic(fmt.Sprintf("withdraw coin amount %v differs too much from %v", withdrawCoinB, idealWithdrawCoinB))
+		}
 	}
 }
 
@@ -190,27 +199,29 @@ func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdr
 		afterReserveCoinRatio := afterReserveCoinA.Quo(afterReserveCoinB)
 
 		// LastReserveCoinA / LastReserveCoinB = AfterWithdrawReserveCoinA / AfterWithdrawReserveCoinB
-		if diff(reserveCoinRatio, afterReserveCoinRatio).GT(diffThreshold) {
+		if reserveCoinA.GTE(sdk.NewDec(1000)) && reserveCoinB.GTE(sdk.NewDec(1000)) &&
+			withdrawCoinA.GTE(sdk.NewDec(1000)) && withdrawCoinB.GTE(sdk.NewDec(1000)) &&
+			diff(reserveCoinRatio, afterReserveCoinRatio).GT(diffThreshold) {
 			panic("invariant check fails due to incorrect pool price ratio")
 		}
 	}
 }
 
 // SwapMatchingInvariants checks swap matching results of both X to Y and Y to X cases.
-func SwapMatchingInvariants(XtoY, YtoX []*types.SwapMsgState, fractionalCntX, fractionalCntY int, matchResultXtoY, matchResultYtoX []types.MatchResult) {
+func SwapMatchingInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult) {
 	beforeMatchingXtoYLen := len(XtoY)
 	beforeMatchingYtoXLen := len(YtoX)
 	afterMatchingXtoYLen := len(matchResultXtoY)
 	afterMatchingYtoXLen := len(matchResultYtoX)
 
-	totalMatchingXtoYLen := beforeMatchingXtoYLen - afterMatchingXtoYLen + fractionalCntX
-	totalMatchingYtoXLen := beforeMatchingYtoXLen - afterMatchingYtoXLen + fractionalCntY
+	notMatchedXtoYLen := beforeMatchingXtoYLen - afterMatchingXtoYLen
+	notMatchedYtoXLen := beforeMatchingYtoXLen - afterMatchingYtoXLen
 
-	if totalMatchingXtoYLen != types.CountNotMatchedMsgs(XtoY)+types.CountFractionalMatchedMsgs(XtoY) {
+	if notMatchedXtoYLen != types.CountNotMatchedMsgs(XtoY) {
 		panic("invariant check fails due to invalid XtoY match length")
 	}
 
-	if totalMatchingYtoXLen != types.CountNotMatchedMsgs(YtoX)+types.CountFractionalMatchedMsgs(YtoX) {
+	if notMatchedYtoXLen != types.CountNotMatchedMsgs(YtoX) {
 		panic("invariant check fails due to invalid YtoX match length")
 	}
 }
@@ -274,7 +285,7 @@ func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResul
 	}
 
 	for k, v := range matchResultMap {
-		if k != v.OrderMsgIndex {
+		if k != v.SwapMsgState.MsgIndex {
 			panic("broken map consistency")
 		}
 	}
@@ -301,8 +312,8 @@ func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResul
 		}
 
 		if msgAfter, ok := matchResultMap[sms.MsgIndex]; ok {
-			if sms.MsgIndex == msgAfter.BatchMsg.MsgIndex {
-				if *(sms) != *(msgAfter.BatchMsg) || sms != msgAfter.BatchMsg {
+			if sms.MsgIndex == msgAfter.SwapMsgState.MsgIndex {
+				if *(sms) != *(msgAfter.SwapMsgState) || sms != msgAfter.SwapMsgState {
 					panic("batch message not matched")
 				} else {
 					break

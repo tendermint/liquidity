@@ -37,23 +37,6 @@ func TestSortDenoms(t *testing.T) {
 	}
 }
 
-func TestCoinSafeSubAmount(t *testing.T) {
-	denom := "uCoinA"
-	a := sdk.NewCoin(denom, sdk.NewInt(100))
-	b := sdk.NewCoin(denom, sdk.NewInt(100))
-	res := types.CoinSafeSubAmount(a, b.Amount)
-	require.Equal(t, sdk.NewCoin(denom, sdk.NewInt(0)), res)
-
-	a = sdk.NewCoin(denom, sdk.NewInt(100))
-	b = sdk.NewCoin(denom, sdk.NewInt(50))
-	res = types.CoinSafeSubAmount(a, b.Amount)
-	require.Equal(t, sdk.NewCoin(denom, sdk.NewInt(50)), res)
-
-	require.Panics(t, func() {
-		res = types.CoinSafeSubAmount(b, a.Amount)
-	})
-}
-
 func TestGetPoolReserveAcc(t *testing.T) {
 	poolName := types.PoolName([]string{"denomX", "denomY"}, 1)
 	require.Equal(t, "denomX/denomY/1", poolName)

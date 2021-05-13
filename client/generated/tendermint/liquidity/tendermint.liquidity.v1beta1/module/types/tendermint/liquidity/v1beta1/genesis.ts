@@ -12,7 +12,7 @@ import { Writer, Reader } from "protobufjs/minimal";
 
 export const protobufPackage = "tendermint.liquidity.v1beta1";
 
-/** record of the state of each pool for variable checking when genesis export or import */
+/** record of the state of each pool after genesis export or import, used to check variables */
 export interface PoolRecord {
   pool: Pool | undefined;
   poolMetadata: PoolMetadata | undefined;

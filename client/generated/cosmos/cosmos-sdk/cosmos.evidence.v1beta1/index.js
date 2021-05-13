@@ -2,6 +2,7 @@ import { txClient, queryClient, MissingWalletError } from './module';
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex';
 import { Equivocation } from "./module/types/cosmos/evidence/v1beta1/evidence";
+export { Equivocation };
 async function initTxClient(vuexGetters) {
     return await txClient(vuexGetters['common/wallet/signer'], {
         addr: vuexGetters['common/env/apiTendermint']
@@ -63,13 +64,13 @@ export default {
         }
     },
     getters: {
-        getEvidence: (state) => (params = {}) => {
+        getEvidence: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }
             return state.Evidence[JSON.stringify(params)] ?? {};
         },
-        getAllEvidence: (state) => (params = {}) => {
+        getAllEvidence: (state) => (params = { params: {} }) => {
             if (!params.query) {
                 params.query = null;
             }

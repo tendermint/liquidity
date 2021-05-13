@@ -4,6 +4,8 @@ import { SpVuexError } from '@starport/vuex'
 
 
 
+export {  };
+
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
 		addr: vuexGetters['common/env/apiTendermint']
@@ -40,9 +42,9 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        
-        _Structure: {
-            
+				
+				_Structure: {
+						
 		},
 		_Subscriptions: new Set(),
 	}
@@ -69,7 +71,7 @@ export default {
 		}
 	},
 	getters: {
-        
+				
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -104,7 +106,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.msgVerifyInvariant(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

@@ -57,10 +57,10 @@ export interface V1Beta1DepositMsgState {
   toBeDeleted?: boolean;
 
   /**
-   * `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
-   * Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, `deposit_coins` for reserve
-   * this requests are stacked in the batch of the liquidity pool, not immediately processed and
-   * processed in the `endblock` at once with other requests.
+   * `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting a deposit requests to the liquidity pool batch
+   * The deposit is submitted with the specified `pool_id` and reserve `deposit_coins`
+   * The deposit requests are stacked in the liquidity pool batch and are not immediately processed
+   * Batch deposit requests are processed in the `endblock` at the same time as other requests.
    *
    * See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
    */
@@ -73,10 +73,10 @@ export interface V1Beta1DepositMsgState {
 export type V1Beta1MsgCreatePoolResponse = object;
 
 /**
-* `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting deposit request to the batch of the liquidity pool
-Deposit submit to the batch of the Liquidity pool with the specified `pool_id`, `deposit_coins` for reserve
-this requests are stacked in the batch of the liquidity pool, not immediately processed and
-processed in the `endblock` at once with other requests.
+* `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting a deposit requests to the liquidity pool batch
+The deposit is submitted with the specified `pool_id` and reserve `deposit_coins`
+The deposit requests are stacked in the liquidity pool batch and are not immediately processed
+Batch deposit requests are processed in the `endblock` at the same time as other requests.
 
 See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 */
@@ -107,15 +107,14 @@ export interface V1Beta1MsgDepositWithinBatch {
 export type V1Beta1MsgDepositWithinBatchResponse = object;
 
 /**
-* `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
-Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
+* `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap offer request to the liquidity pool batch
+Submit swap offer to the liquidity pool batch with the specified the `pool_id`, `swap_type_id`,
 `demand_coin_denom` with the coin and the price you're offering
-and `offer_coin_fee` must half of offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
-this requests are stacked in the batch of the liquidity pool, not immediately processed and
-processed in the `endblock` at once with other requests
-You should request the same each field as the pool
-Currently, only the default `swap_type_id`1 is available on this version
-The detailed swap algorithm can be found here.
+The `offer_coin_fee` must be half of the offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
+This request is added to the pool and executed at the end of the batch (`endblock`)
+You must submit the request using the same fields as the pool
+Only the default `swap_type_id`1 is supported
+The detailed swap algorithm is shown here.
 
 See: https://github.com/tendermint/liquidity/tree/develop/doc
 https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
@@ -135,21 +134,21 @@ export interface V1Beta1MsgSwapWithinBatch {
   poolId?: string;
 
   /**
-   * id of swap type, only 1 is allowed on this version, Must match the value in the pool.
+   * id of swap type. Must match the value in the pool.
    * @format uint32
    * @example 1
    */
   swapTypeId?: number;
 
   /**
-   * offer sdk.coin for the swap request, Must match the denom in the pool.
+   * offer sdk.coin for the swap request, must match the denom in the pool.
    * @format sdk.Coin
    * @example {"denom":"denomX","amount":"1000000"}
    */
   offerCoin?: V1Beta1Coin;
 
   /**
-   * denom of demand coin to be exchanged on the swap request, Must match the denom in the pool.
+   * denom of demand coin to be exchanged on the swap request, must match the denom in the pool.
    * @example denomB
    */
   demandCoinDenom?: string;
@@ -177,7 +176,7 @@ export interface V1Beta1MsgSwapWithinBatch {
 export type V1Beta1MsgSwapWithinBatchResponse = object;
 
 /**
-* `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
+* `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a withdraw request to the liquidity pool batch
 Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
 this requests are stacked in the batch of the liquidity pool, not immediately processed and
 processed in the `endblock` at once with other requests.
@@ -295,6 +294,7 @@ export interface V1Beta1Params {
   maxReserveCoinAmount?: string;
 
   /**
+   * Fee to create a Liquidity Pool.
    * @format sdk.Coins
    * @example [{"denom":"uatom","amount":"100000000"}]
    */
@@ -352,7 +352,7 @@ export interface V1Beta1Pool {
 }
 
 /**
- * PoolBatch defines the batch(es) of a given liquidity pool that contains indexes of deposit / withdraw / swap messages. Index param increments by 1 if the pool id is same.
+ * The batch or batches of a given liquidity pool that contains indexes of the deposit, withdraw, and swap messages. The index param increments by 1 if the pool id exists.
  */
 export interface V1Beta1PoolBatch {
   /**
@@ -423,7 +423,7 @@ export interface V1Beta1PoolType {
  * the response type for the QueryLiquidityPoolBatchResponse RPC method. It returns the liquidity pool batch corresponding to the requested pool_id.
  */
 export interface V1Beta1QueryLiquidityPoolBatchResponse {
-  /** PoolBatch defines the batch(es) of a given liquidity pool that contains indexes of deposit / withdraw / swap messages. Index param increments by 1 if the pool id is same. */
+  /** The batch or batches of a given liquidity pool that contains indexes of the deposit, withdraw, and swap messages. The index param increments by 1 if the pool id exists. */
   batch?: V1Beta1PoolBatch;
 }
 
@@ -553,15 +553,14 @@ export interface V1Beta1SwapMsgState {
   reservedOfferCoinFee?: V1Beta1Coin;
 
   /**
-   * `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting swap offer request to the batch of the liquidity pool
-   * Swap offer submit to the batch to the Liquidity pool with the specified the `pool_id`, `swap_type_id`,
+   * `MsgSwapWithinBatch` defines an sdk.Msg type that submits a swap offer request to the liquidity pool batch
+   * Submit swap offer to the liquidity pool batch with the specified the `pool_id`, `swap_type_id`,
    * `demand_coin_denom` with the coin and the price you're offering
-   * and `offer_coin_fee` must half of offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
-   * this requests are stacked in the batch of the liquidity pool, not immediately processed and
-   * processed in the `endblock` at once with other requests
-   * You should request the same each field as the pool
-   * Currently, only the default `swap_type_id`1 is available on this version
-   * The detailed swap algorithm can be found here.
+   * The `offer_coin_fee` must be half of the offer coin amount * current `params.swap_fee_rate` for reservation to pay fees
+   * This request is added to the pool and executed at the end of the batch (`endblock`)
+   * You must submit the request using the same fields as the pool
+   * Only the default `swap_type_id`1 is supported
+   * The detailed swap algorithm is shown here.
    *
    * See: https://github.com/tendermint/liquidity/tree/develop/doc
    * https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
@@ -592,7 +591,7 @@ export interface V1Beta1WithdrawMsgState {
   toBeDeleted?: boolean;
 
   /**
-   * `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports submitting withdraw request to the batch of the liquidity pool
+   * `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a withdraw request to the liquidity pool batch
    * Withdraw submit to the batch from the Liquidity pool with the specified `pool_id`, `pool_coin` of the pool
    * this requests are stacked in the batch of the liquidity pool, not immediately processed and
    * processed in the `endblock` at once with other requests.
