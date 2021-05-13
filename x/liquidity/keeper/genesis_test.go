@@ -102,16 +102,16 @@ func TestGenesisState(t *testing.T) {
 	require.Panics(t, func() {
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-	app.SaveAccount(simapp2, ctx, pool.GetReserveAccount(), reserveCoins)
 	require.Panics(t, func() {
+		app.SaveAccount(simapp2, ctx, pool.GetReserveAccount(), reserveCoins)
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-	app.SaveAccount(simapp2, ctx, addrs[0], sdk.Coins{poolCoinBalanceCreator})
 	require.Panics(t, func() {
+		app.SaveAccount(simapp2, ctx, addrs[0], sdk.Coins{poolCoinBalanceCreator})
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-	app.SaveAccount(simapp2, ctx2, addrs[1], sdk.Coins{poolCoinBalance})
 	require.Panics(t, func() {
+		app.SaveAccount(simapp2, ctx2, addrs[1], sdk.Coins{poolCoinBalance})
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
 }

@@ -140,17 +140,15 @@ func AddTestAddrsIncremental(app *LiquidityApp, ctx sdk.Context, accNum int, acc
 // TODO: porting 43 fundAcc,
 func addTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Int, strategy GenerateAccountStrategy) []sdk.AccAddress {
 	testAddrs := strategy(accNum)
-
-	initCoins := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt))
-	setTotalSupply(app, ctx, accAmt, accNum)
-
-	//FundAccount()
-
+	initCoins := sdk.NewCoins()
+	if accAmt.IsPositive() {
+		initCoins = sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt))
+		setTotalSupply(app, ctx, accAmt, accNum)
+	}
 	// fill all the addresses with some coins, set the loose pool tokens simultaneously
 	for _, addr := range testAddrs {
 		SaveAccount(app, ctx, addr, initCoins)
 	}
-
 	return testAddrs
 }
 
@@ -165,17 +163,17 @@ func AddRandomTestAddr(app *LiquidityApp, ctx sdk.Context, initCoins sdk.Coins) 
 func SaveAccount(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins) {
 	acc := app.AccountKeeper.NewAccountWithAddress(ctx, addr)
 	app.AccountKeeper.SetAccount(ctx, acc)
-	err := AddCoins(app, ctx, addr, initCoins)
-	if err != nil {
-		panic(err)
+	if initCoins.IsAllPositive() {
+		err := AddCoins(app, ctx, addr, initCoins)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
 // permission of minting, create a "faucet" account. (@fdymylja)
 func FundAccount(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
-	balances := app.BankKeeper.GetAllBalances(ctx, addr)
-	target := balances.Sub(amounts)
-	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, target); err != nil {
+	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
 		return err
 	}
 	return app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)

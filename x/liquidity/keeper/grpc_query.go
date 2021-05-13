@@ -15,15 +15,15 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper.
-type Querier struct {
-	Keeper
-}
+//// Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper.
+//type Querier struct {
+//	Keeper
+//}
 
-var _ types.QueryServer = Querier{}
+var _ types.QueryServer = Keeper{}
 
 // LiquidityPool queries a liquidity pool with the given pool id.
-func (k Querier) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRequest) (*types.QueryLiquidityPoolResponse, error) {
+func (k Keeper) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRequest) (*types.QueryLiquidityPoolResponse, error) {
 	empty := &types.QueryLiquidityPoolRequest{}
 	if req == nil || req == empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
@@ -40,7 +40,7 @@ func (k Querier) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolR
 }
 
 // LiquidityPoolBatch queries a liquidity pool batch with the given pool id.
-func (k Querier) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
+func (k Keeper) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
 	empty := &types.QueryLiquidityPoolBatchRequest{}
 	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
@@ -59,7 +59,7 @@ func (k Querier) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidity
 }
 
 // Pools queries all liquidity pools currently existed with each liquidity pool with batch and metadata.
-func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPoolsRequest) (*types.QueryLiquidityPoolsResponse, error) {
+func (k Keeper) LiquidityPools(c context.Context, req *types.QueryLiquidityPoolsRequest) (*types.QueryLiquidityPoolsResponse, error) {
 	empty := &types.QueryLiquidityPoolsRequest{}
 	if req == nil || req == empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
@@ -96,7 +96,7 @@ func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPool
 }
 
 // PoolBatchSwapMsg queries the pool batch swap message with the message index of the liquidity pool.
-func (k Querier) PoolBatchSwapMsg(c context.Context, req *types.QueryPoolBatchSwapMsgRequest) (*types.QueryPoolBatchSwapMsgResponse, error) {
+func (k Keeper) PoolBatchSwapMsg(c context.Context, req *types.QueryPoolBatchSwapMsgRequest) (*types.QueryPoolBatchSwapMsgResponse, error) {
 	empty := &types.QueryPoolBatchSwapMsgRequest{}
 	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
@@ -115,7 +115,7 @@ func (k Querier) PoolBatchSwapMsg(c context.Context, req *types.QueryPoolBatchSw
 }
 
 // PoolBatchSwapMsgs queries all pool batch swap messages of the liquidity pool.
-func (k Querier) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSwapMsgsRequest) (*types.QueryPoolBatchSwapMsgsResponse, error) {
+func (k Keeper) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchSwapMsgsRequest) (*types.QueryPoolBatchSwapMsgsResponse, error) {
 	empty := &types.QueryPoolBatchSwapMsgsRequest{}
 	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
@@ -155,7 +155,7 @@ func (k Querier) PoolBatchSwapMsgs(c context.Context, req *types.QueryPoolBatchS
 }
 
 // PoolBatchDepositMsg queries the pool batch deposit message with the msg_index of the liquidity pool.
-func (k Querier) PoolBatchDepositMsg(c context.Context, req *types.QueryPoolBatchDepositMsgRequest) (*types.QueryPoolBatchDepositMsgResponse, error) {
+func (k Keeper) PoolBatchDepositMsg(c context.Context, req *types.QueryPoolBatchDepositMsgRequest) (*types.QueryPoolBatchDepositMsgResponse, error) {
 	empty := &types.QueryPoolBatchDepositMsgRequest{}
 	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
@@ -174,7 +174,7 @@ func (k Querier) PoolBatchDepositMsg(c context.Context, req *types.QueryPoolBatc
 }
 
 // PoolBatchDepositMsgs queries all pool batch deposit messages of the liquidity pool.
-func (k Querier) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatchDepositMsgsRequest) (*types.QueryPoolBatchDepositMsgsResponse, error) {
+func (k Keeper) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBatchDepositMsgsRequest) (*types.QueryPoolBatchDepositMsgsResponse, error) {
 	empty := &types.QueryPoolBatchDepositMsgsRequest{}
 	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
@@ -213,7 +213,7 @@ func (k Querier) PoolBatchDepositMsgs(c context.Context, req *types.QueryPoolBat
 }
 
 // PoolBatchWithdrawMsg queries the pool batch withdraw message with the msg_index of the liquidity pool.
-func (k Querier) PoolBatchWithdrawMsg(c context.Context, req *types.QueryPoolBatchWithdrawMsgRequest) (*types.QueryPoolBatchWithdrawMsgResponse, error) {
+func (k Keeper) PoolBatchWithdrawMsg(c context.Context, req *types.QueryPoolBatchWithdrawMsgRequest) (*types.QueryPoolBatchWithdrawMsgResponse, error) {
 	empty := &types.QueryPoolBatchWithdrawMsgRequest{}
 	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
@@ -232,7 +232,7 @@ func (k Querier) PoolBatchWithdrawMsg(c context.Context, req *types.QueryPoolBat
 }
 
 // PoolBatchWithdrawMsgs queries all pool batch withdraw messages of the liquidity pool.
-func (k Querier) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBatchWithdrawMsgsRequest) (*types.QueryPoolBatchWithdrawMsgsResponse, error) {
+func (k Keeper) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBatchWithdrawMsgsRequest) (*types.QueryPoolBatchWithdrawMsgsResponse, error) {
 	empty := &types.QueryPoolBatchWithdrawMsgsRequest{}
 	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
@@ -271,7 +271,7 @@ func (k Querier) PoolBatchWithdrawMsgs(c context.Context, req *types.QueryPoolBa
 }
 
 // Params queries params of liquidity module.
-func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+func (k Keeper) Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	params := k.GetParams(ctx)
 
@@ -281,14 +281,14 @@ func (k Querier) Params(c context.Context, req *types.QueryParamsRequest) (*type
 }
 
 // MakeQueryLiquidityPoolResponse wraps MakeQueryLiquidityPoolResponse.
-func (k Querier) MakeQueryLiquidityPoolResponse(pool types.Pool) (*types.QueryLiquidityPoolResponse, error) {
+func (k Keeper) MakeQueryLiquidityPoolResponse(pool types.Pool) (*types.QueryLiquidityPoolResponse, error) {
 	return &types.QueryLiquidityPoolResponse{
 		Pool: pool,
 	}, nil
 }
 
 // MakeQueryLiquidityPoolsResponse wraps a list of QueryLiquidityPoolResponses.
-func (k Querier) MakeQueryLiquidityPoolsResponse(pools types.Pools) (*[]types.QueryLiquidityPoolResponse, error) {
+func (k Keeper) MakeQueryLiquidityPoolsResponse(pools types.Pools) (*[]types.QueryLiquidityPoolResponse, error) {
 	resp := make([]types.QueryLiquidityPoolResponse, len(pools))
 	for i, pool := range pools {
 		res := types.QueryLiquidityPoolResponse{

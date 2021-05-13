@@ -1,9 +1,10 @@
-go 1.15
+go 1.16
 
 module github.com/tendermint/liquidity
 
 require (
 	github.com/cosmos/cosmos-sdk v0.43.0-beta1
+	github.com/cosmos/ibc-go v1.0.0-alpha2
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0
