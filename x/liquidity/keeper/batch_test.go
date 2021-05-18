@@ -925,10 +925,11 @@ func TestLiquidityScenario8(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 }
 
-// TODO: fix testcode
 // Test UnitBatchHeight when over 1
 func TestLiquidityUnitBatchHeight(t *testing.T) {
 	simapp, ctx := createTestInput()
+	ctx = ctx.WithBlockHeight(1)
+
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	params.UnitBatchHeight = 2
 	simapp.LiquidityKeeper.SetParams(ctx, params)
@@ -950,6 +951,7 @@ func TestLiquidityUnitBatchHeight(t *testing.T) {
 	require.Equal(t, sdk.NewInt(1000000), poolCoinBalance.Amount)
 	app.TestWithdrawPool(t, simapp, ctx, poolCoins.QuoRaw(10), addrs[0:1], poolId, false)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 
 	// batch not executed, 1 >= 2(UnitBatchHeight)
 	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
@@ -964,11 +966,11 @@ func TestLiquidityUnitBatchHeight(t *testing.T) {
 	require.Equal(t, sdk.NewInt(900000), poolCoinBalance.Amount)
 
 	// next block
-	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 	batchWithdrawMsgs = simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, batch)
 	require.Equal(t, 1, len(batchWithdrawMsgs))
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 
 	// batch executed, 2 >= 2(UnitBatchHeight)
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
@@ -983,7 +985,6 @@ func TestLiquidityUnitBatchHeight(t *testing.T) {
 	require.Equal(t, sdk.NewInt(900000), poolCoinBalance.Amount)
 
 	// next block
-	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
 	// batch msg deleted after batch execution
@@ -1063,6 +1064,7 @@ func TestDeleteAndInitPoolBatchDeposit(t *testing.T) {
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 }
+
 func TestDeleteAndInitPoolBatchWithdraw(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
