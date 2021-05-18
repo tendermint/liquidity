@@ -925,6 +925,7 @@ func TestLiquidityScenario8(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 }
 
+// TODO: fix testcode
 // Test UnitBatchHeight when over 1
 func TestLiquidityUnitBatchHeight(t *testing.T) {
 	simapp, ctx := createTestInput()

@@ -84,7 +84,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		params := k.GetParams(ctx)
 
-		if !poolBatch.Executed && ctx.BlockHeight()-poolBatch.BeginHeight+1 >= int64(params.UnitBatchHeight) {
+		if !poolBatch.Executed && ctx.BlockHeight()%int64(params.UnitBatchHeight) == 0 {
 			executedMsgCount, err := k.SwapExecution(ctx, poolBatch)
 			if err != nil {
 				panic(err)
@@ -227,7 +227,6 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWith
 	if err := k.ValidateMsgSwapWithinBatch(ctx, *msg); err != nil {
 		return nil, err
 	}
-	params := k.GetParams(ctx)
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
@@ -249,13 +248,7 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWith
 		Msg:                  msg,
 	}
 
-	//if !poolBatch.Executed && ctx.BlockHeight()-poolBatch.BeginHeight+1 >= int64(params.UnitBatchHeight) {
-	nextBatchHeight := poolBatch.BeginHeight + int64(params.UnitBatchHeight)
-	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + OrderExpirySpanHeight  // TODO: consider UnitBatchHeight
-	if nextBatchHeight > batchPoolMsg.OrderExpiryHeight {
-		batchPoolMsg.OrderExpiryHeight = nextBatchHeight-1
-	}
-
+	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + OrderExpirySpanHeight
 	if err := k.HoldEscrow(ctx, msg.GetSwapRequester(), sdk.NewCoins(msg.OfferCoin.Add(msg.OfferCoinFee))); err != nil {
 		return nil, err
 	}
