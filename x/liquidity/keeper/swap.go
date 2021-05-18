@@ -24,6 +24,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	// set executed states of all messages to true
 	for _, sms := range swapMsgStates {
 		sms.Executed = true
+		if ctx.BlockHeight() > sms.OrderExpiryHeight {
+			sms.ToBeDeleted = true
+		}
 	}
 	k.SetPoolBatchSwapMsgStatesByPointer(ctx, pool.Id, swapMsgStates)
 
