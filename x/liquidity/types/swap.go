@@ -4,7 +4,6 @@ import (
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/k0kubun/pp"
 )
 
 // Type of match
@@ -426,10 +425,6 @@ func ValidateStateAndExpireOrders(swapMsgStates []*SwapMsgState, currentHeight i
 		// set toDelete, expired msgs
 		if currentHeight > order.OrderExpiryHeight {
 			if order.Succeeded || !order.ToBeDeleted {
-				pp.Print(swapMsgStates)
-				pp.Print(order)
-				pp.Print(currentHeight)
-				pp.Print(order.OrderExpiryHeight)
 				panic("broken state consistency for fractional matched order")
 			}
 			continue
