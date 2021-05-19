@@ -1117,3 +1117,50 @@ func TestDeleteAndInitPoolBatchWithdraw(t *testing.T) {
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 }
+
+func TestUnitBatchHeight(t *testing.T) {
+	for _, unitBatchHeight := range []uint32{1, 2, 3, 5, 9} {
+		simapp, ctx := createTestInput()
+		ctx = ctx.WithBlockHeight(1)
+		params := simapp.LiquidityKeeper.GetParams(ctx)
+		params.UnitBatchHeight = unitBatchHeight
+		simapp.LiquidityKeeper.SetParams(ctx, params)
+
+		X, Y := sdk.NewInt(1000000), sdk.NewInt(1000000)
+		pool, err := createPool(simapp, ctx, X, Y, DenomX, DenomY)
+		require.NoError(t, err)
+
+		johnCoins := sdk.NewCoins(
+			sdk.NewInt64Coin(DenomX, 100000000), sdk.NewInt64Coin(DenomY, 100000000))
+		johnAddr := app.AddRandomTestAddr(simapp, ctx, johnCoins)
+
+		for ; ctx.BlockHeight() <= 100; ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1) {
+			liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+			batch, ok := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
+			require.True(t, ok)
+			require.False(t, batch.Executed, "batch should not be executed")
+			require.Equal(
+				t, (ctx.BlockHeight()-1)/int64(unitBatchHeight)*int64(unitBatchHeight)+1, batch.BeginHeight)
+
+			_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(
+				ctx, types.NewMsgSwapWithinBatch(
+					johnAddr, pool.Id, types.DefaultSwapTypeId,
+					sdk.NewInt64Coin(DenomX, 1000), DenomY, sdk.MustNewDecFromStr("1.1"),
+					params.SwapFeeRate), 0)
+			require.NoError(t, err)
+
+			liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+			batch, ok = simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
+			require.True(t, ok)
+			if ctx.BlockHeight()%int64(unitBatchHeight) == 0 {
+				require.True(t, batch.Executed, "batch should be executed")
+			} else {
+				require.False(t, batch.Executed, "batch should not be executed")
+			}
+			require.Equal(
+				t, (ctx.BlockHeight()-1)/int64(unitBatchHeight)*int64(unitBatchHeight)+1, batch.BeginHeight)
+		}
+	}
+}
