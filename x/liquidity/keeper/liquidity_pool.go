@@ -132,6 +132,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 
 	pool = k.SetPoolAtomic(ctx, pool)
 	batch := types.NewPoolBatch(pool.Id, 1)
+	batch.BeginHeight = ctx.BlockHeight()
 
 	k.SetPoolBatch(ctx, batch)
 
