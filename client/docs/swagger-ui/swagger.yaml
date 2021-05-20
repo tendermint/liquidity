@@ -3015,7 +3015,7 @@ definitions:
             format: int64
             example: '1000'
             title: >-
-              swap orders are cancelled when current height is equal or higher
+              swap orders are cancelled when current height is equal to or higher
               than ExpiryHeight
           exchanged_offer_coin:
             type: object
@@ -3222,7 +3222,7 @@ definitions:
               format: int64
               example: '1000'
               title: >-
-                swap orders are cancelled when current height is equal or higher
+                swap orders are cancelled when current height is equal to or higher
                 than ExpiryHeight
             exchanged_offer_coin:
               type: object
@@ -3640,7 +3640,7 @@ definitions:
         format: int64
         example: '1000'
         title: >-
-          swap orders are cancelled when current height is equal or higher than
+          swap orders are cancelled when current height is equal to or higher than
           ExpiryHeight
       exchanged_offer_coin:
         type: object
