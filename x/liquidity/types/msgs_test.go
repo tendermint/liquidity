@@ -133,21 +133,49 @@ func TestMsgWithdrawWithinBatch(t *testing.T) {
 }
 
 func TestMsgSwapWithinBatch(t *testing.T) {
-	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	coin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
+	swapRequester := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	denomX := "denomX"
+	denomY := "denomY"
+	poolId := uint64(1)
+	swapTypeId := uint32(1)
+	offerCoin := sdk.NewCoin(denomX, sdk.NewInt(1000))
 	orderPrice, err := sdk.NewDecFromStr("0.1")
 	require.NoError(t, err)
-	msg := types.NewMsgSwapWithinBatch(addr, DefaultPoolId, DefaultSwapTypeId, coin, DenomY, orderPrice, types.DefaultSwapFeeRate)
-	require.IsType(t, &types.MsgSwapWithinBatch{}, msg)
-	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgSwapWithinBatch, msg.Type())
 
-	err = msg.ValidateBasic()
-	require.NoError(t, err)
-	signers := msg.GetSigners()
-	require.Len(t, signers, 1)
-	require.Equal(t, msg.GetSwapRequester(), signers[0])
-	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+	cases := []struct {
+		expectedErr string // empty means no error expected
+		msg         *types.MsgSwapWithinBatch
+	}{
+		{
+			"",
+			types.NewMsgSwapWithinBatch(swapRequester, poolId, swapTypeId, offerCoin, denomY, orderPrice, types.DefaultSwapFeeRate),
+		},
+		{
+			"empty pool swap requester address",
+			types.NewMsgSwapWithinBatch(sdk.AccAddress{}, poolId, swapTypeId, offerCoin, denomY, orderPrice, types.DefaultSwapFeeRate),
+		},
+		{
+			"invalid offer coin amount",
+			types.NewMsgSwapWithinBatch(swapRequester, poolId, swapTypeId, sdk.NewCoin(denomX, sdk.NewInt(0)), denomY, orderPrice, types.DefaultSwapFeeRate),
+		},
+		{
+			"invalid order price",
+			types.NewMsgSwapWithinBatch(swapRequester, poolId, swapTypeId, offerCoin, denomY, sdk.ZeroDec(), types.DefaultSwapFeeRate),
+		},
+		{
+			"offer amount should be over 100 micro",
+			types.NewMsgSwapWithinBatch(swapRequester, poolId, swapTypeId, sdk.NewCoin(denomX, sdk.NewInt(1)), denomY, orderPrice, types.DefaultSwapFeeRate),
+		},
+	}
+
+	for _, tc := range cases {
+		err := tc.msg.ValidateBasic()
+		if tc.expectedErr == "" {
+			require.Nil(t, err)
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+	}
 }
 
 func TestMsgPanics(t *testing.T) {
