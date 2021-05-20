@@ -21,13 +21,21 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 		return 0, types.ErrPoolNotExists
 	}
 
+	currentHeight := ctx.BlockHeight()
 	// set executed states of all messages to true
+	var swapMsgStatesNotToBeDeleted []*types.SwapMsgState
 	for _, sms := range swapMsgStates {
 		sms.Executed = true
+		if currentHeight > sms.OrderExpiryHeight {
+			sms.ToBeDeleted = true
+		}
+		if !sms.ToBeDeleted {
+			swapMsgStatesNotToBeDeleted = append(swapMsgStatesNotToBeDeleted, sms)
+		}
 	}
 	k.SetPoolBatchSwapMsgStatesByPointer(ctx, pool.Id, swapMsgStates)
+	swapMsgStates = swapMsgStatesNotToBeDeleted
 
-	currentHeight := ctx.BlockHeight()
 	types.ValidateStateAndExpireOrders(swapMsgStates, currentHeight, false)
 
 	// get reserve coins from the liquidity pool and calculate the current pool price (p = x / y)

@@ -12,6 +12,15 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
+func TestWithdrawRatioInvariant(t *testing.T) {
+	require.NotPanics(t, func() {
+		keeper.WithdrawAmountInvariant(sdk.NewDec(1), sdk.NewDec(1), sdk.NewDec(2), sdk.NewDec(3), sdk.NewDec(1), sdk.NewDec(2), types.DefaultParams().WithdrawFeeRate)
+	})
+	require.Panics(t, func() {
+		keeper.WithdrawAmountInvariant(sdk.NewDec(1), sdk.NewDec(1), sdk.NewDec(2), sdk.NewDec(5), sdk.NewDec(1), sdk.NewDec(2), types.DefaultParams().WithdrawFeeRate)
+	})
+}
+
 func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
