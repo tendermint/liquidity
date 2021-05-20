@@ -3,8 +3,9 @@ package types_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -65,43 +66,72 @@ func TestGetPoolReserveAcc3(t *testing.T) {
 }
 
 func TestGetCoinsTotalAmount(t *testing.T) {
-	denomA := "uCoinA"
-	denomB := "uCoinB"
-	a := sdk.NewCoin(denomA, sdk.NewInt(100))
-	b := sdk.NewCoin(denomB, sdk.NewInt(100))
-	sum := types.GetCoinsTotalAmount(sdk.NewCoins(a, b))
-	require.Equal(t, sdk.NewInt(200), sum)
+	testCases := []struct {
+		coins        sdk.Coins
+		expectResult sdk.Int
+	}{
+		{
+			coins:        sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(100)), sdk.NewCoin("uCoinB", sdk.NewInt(100))),
+			expectResult: sdk.NewInt(200),
+		},
+		{
+			coins:        sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(100)), sdk.NewCoin("uCoinB", sdk.NewInt(300))),
+			expectResult: sdk.NewInt(400),
+		},
+		{
+			coins:        sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(500))),
+			expectResult: sdk.NewInt(500),
+		},
+	}
 
-	a = sdk.NewCoin(denomA, sdk.NewInt(100))
-	b = sdk.NewCoin(denomB, sdk.NewInt(300))
-	sum = types.GetCoinsTotalAmount(sdk.NewCoins(a, b))
-	require.Equal(t, sdk.NewInt(400), sum)
-
-	a = sdk.NewCoin(denomA, sdk.NewInt(500))
-	sum = types.GetCoinsTotalAmount(sdk.NewCoins(a))
-	require.Equal(t, sdk.NewInt(500), sum)
+	for _, tc := range testCases {
+		totalAmount := types.GetCoinsTotalAmount(tc.coins)
+		require.Equal(t, tc.expectResult, totalAmount)
+	}
 }
 
 func TestValidateReserveCoinLimit(t *testing.T) {
-	denomA := "uCoinA"
-	denomB := "uCoinB"
+	testCases := []struct {
+		name                 string
+		maxReserveCoinAmount sdk.Int
+		depositCoins         sdk.Coins
+		expectErr            bool
+	}{
+		{
+			name:                 "valid case",
+			maxReserveCoinAmount: sdk.ZeroInt(), // 0 means unlimited amount
+			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(100_000_000_000)), sdk.NewCoin("uCoinB", sdk.NewInt(100))),
+			expectErr:            false,
+		},
+		{
+			name:                 "valid case",
+			maxReserveCoinAmount: sdk.NewInt(1_000_000_000_000),
+			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(500_000_000_000)), sdk.NewCoin("uCoinB", sdk.NewInt(500_000_000_000))),
+			expectErr:            false,
+		},
+		{
+			name:                 "negative value of max reserve coin amount",
+			maxReserveCoinAmount: sdk.NewInt(-100),
+			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(100_000_000_000)), sdk.NewCoin("uCoinB", sdk.NewInt(100))),
+			expectErr:            true,
+		},
+		{
+			name:                 "cannot exceed reserve coin limit amount",
+			maxReserveCoinAmount: sdk.NewInt(1_000_000_000_000),
+			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(1_000_000_000_000)), sdk.NewCoin("uCoinB", sdk.NewInt(100))),
+			expectErr:            true,
+		},
+	}
 
-	a := sdk.NewCoin(denomA, sdk.NewInt(1000000000000))
-	b := sdk.NewCoin(denomB, sdk.NewInt(100))
-
-	err := types.ValidateReserveCoinLimit(sdk.ZeroInt(), sdk.NewCoins(a, b))
-	require.NoError(t, err)
-
-	err = types.ValidateReserveCoinLimit(sdk.NewInt(1000000000000), sdk.NewCoins(a, b))
-	require.Equal(t, types.ErrExceededReserveCoinLimit, err)
-
-	a = sdk.NewCoin(denomA, sdk.NewInt(500000000000))
-	b = sdk.NewCoin(denomB, sdk.NewInt(500000000000))
-	err = types.ValidateReserveCoinLimit(sdk.NewInt(1000000000000), sdk.NewCoins(a, b))
-	require.NoError(t, err)
-
-	a = sdk.NewCoin(denomA, sdk.NewInt(500000000001))
-	b = sdk.NewCoin(denomB, sdk.NewInt(500000000000))
-	err = types.ValidateReserveCoinLimit(sdk.NewInt(1000000000000), sdk.NewCoins(a, b))
-	require.Equal(t, types.ErrExceededReserveCoinLimit, err)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.expectErr {
+				err := types.ValidateReserveCoinLimit(tc.maxReserveCoinAmount, tc.depositCoins)
+				require.Equal(t, types.ErrExceededReserveCoinLimit, err)
+			} else {
+				err := types.ValidateReserveCoinLimit(tc.maxReserveCoinAmount, tc.depositCoins)
+				require.NoError(t, err)
+			}
+		})
+	}
 }
