@@ -2,7 +2,7 @@
 
  # Before-End-Block
 
-Operations that occur before the end-block operations for the liquidity module.
+These operations occur before the end-block operations for the liquidity module.
 
 ## Append messages to LiquidityPoolBatch
 
@@ -18,7 +18,7 @@ If there are `{*action}MsgState` messages that have not yet executed in the `Poo
 
 ### Transact and refund for each message
 
-Transactions are made through the `escrow` transaction. Refunds are made for cancellations, partial cancellations, expiration, and failed messages.
+A liquidity module escrow account holds coins temporarily and releases them when state changes. Refunds from the escrow account are made for cancellations, partial cancellations, expiration, and failed messages.
 
 ### Set states for each message according to the results
 
