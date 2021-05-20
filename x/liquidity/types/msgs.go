@@ -4,15 +4,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Messages Type of Liquidity module
 var (
-	_ sdk.Msg = &MsgCreatePool{}
-	_ sdk.Msg = &MsgDepositWithinBatch{}
-	_ sdk.Msg = &MsgWithdrawWithinBatch{}
-	_ sdk.Msg = &MsgSwapWithinBatch{}
+	_ sdk.Msg = (*MsgCreatePool)(nil)
+	_ sdk.Msg = (*MsgDepositWithinBatch)(nil)
+	_ sdk.Msg = (*MsgWithdrawWithinBatch)(nil)
+	_ sdk.Msg = (*MsgSwapWithinBatch)(nil)
 )
 
-// Messages Type of Liquidity module
+// Message types for the liquidity module
 const (
 	TypeMsgCreatePool          = "create_pool"
 	TypeMsgDepositWithinBatch  = "deposit_within_batch"
@@ -20,16 +19,8 @@ const (
 	TypeMsgSwapWithinBatch     = "swap_within_batch"
 )
 
-// ------------------------------------------------------------------------
-// MsgCreatePool
-// ------------------------------------------------------------------------
-
-// NewMsgSwapWithinBatch creates a new MsgSwapWithinBatch object.
-func NewMsgCreatePool(
-	poolCreator sdk.AccAddress,
-	poolTypeId uint32,
-	depositCoins sdk.Coins,
-) *MsgCreatePool {
+// NewMsgCreatePool creates a new MsgCreatePool.
+func NewMsgCreatePool(poolCreator sdk.AccAddress, poolTypeId uint32, depositCoins sdk.Coins) *MsgCreatePool {
 	return &MsgCreatePool{
 		PoolCreatorAddress: poolCreator.String(),
 		PoolTypeId:         poolTypeId,
@@ -37,13 +28,10 @@ func NewMsgCreatePool(
 	}
 }
 
-// Route implements Msg.
 func (msg MsgCreatePool) Route() string { return RouterKey }
 
-// Type implements Msg.
 func (msg MsgCreatePool) Type() string { return TypeMsgCreatePool }
 
-// ValidateBasic implements Msg.
 func (msg MsgCreatePool) ValidateBasic() error {
 	if 1 > msg.PoolTypeId {
 		return ErrBadPoolTypeId
@@ -54,19 +42,16 @@ func (msg MsgCreatePool) ValidateBasic() error {
 	if err := msg.DepositCoins.Validate(); err != nil {
 		return err
 	}
-	if uint32(msg.DepositCoins.Len()) > MaxReserveCoinNum ||
-		MinReserveCoinNum > uint32(msg.DepositCoins.Len()) {
+	if n := uint32(len(msg.DepositCoins)); n > MaxReserveCoinNum || n < MinReserveCoinNum {
 		return ErrNumOfReserveCoin
 	}
 	return nil
 }
 
-// GetSignBytes implements Msg.
 func (msg MsgCreatePool) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }
 
-// GetSigners implements Msg.
 func (msg MsgCreatePool) GetSigners() []sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.PoolCreatorAddress)
 	if err != nil {
@@ -83,16 +68,8 @@ func (msg MsgCreatePool) GetPoolCreator() sdk.AccAddress {
 	return addr
 }
 
-// ------------------------------------------------------------------------
-// MsgDepositWithinBatch
-// ------------------------------------------------------------------------
-
-// NewMsgSwapWithinBatch creates a new MsgSwapWithinBatch object.
-func NewMsgDepositWithinBatch(
-	depositor sdk.AccAddress,
-	poolId uint64,
-	depositCoins sdk.Coins,
-) *MsgDepositWithinBatch {
+// NewMsgDepositWithinBatch creates a new MsgDepositWithinBatch.
+func NewMsgDepositWithinBatch(depositor sdk.AccAddress, poolId uint64, depositCoins sdk.Coins) *MsgDepositWithinBatch {
 	return &MsgDepositWithinBatch{
 		DepositorAddress: depositor.String(),
 		PoolId:           poolId,
@@ -100,13 +77,10 @@ func NewMsgDepositWithinBatch(
 	}
 }
 
-// Route implements Msg.
 func (msg MsgDepositWithinBatch) Route() string { return RouterKey }
 
-// Type implements Msg.
 func (msg MsgDepositWithinBatch) Type() string { return TypeMsgDepositWithinBatch }
 
-// ValidateBasic implements Msg.
 func (msg MsgDepositWithinBatch) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.DepositorAddress); err != nil {
 		return ErrInvalidDepositorAddr
@@ -117,19 +91,16 @@ func (msg MsgDepositWithinBatch) ValidateBasic() error {
 	if !msg.DepositCoins.IsAllPositive() {
 		return ErrBadDepositCoinsAmount
 	}
-	if uint32(msg.DepositCoins.Len()) > MaxReserveCoinNum ||
-		MinReserveCoinNum > uint32(msg.DepositCoins.Len()) {
+	if n := uint32(len(msg.DepositCoins)); n > MaxReserveCoinNum || n < MinReserveCoinNum {
 		return ErrNumOfReserveCoin
 	}
 	return nil
 }
 
-// GetSignBytes implements Msg.
 func (msg MsgDepositWithinBatch) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }
 
-// GetSigners implements Msg.
 func (msg MsgDepositWithinBatch) GetSigners() []sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.DepositorAddress)
 	if err != nil {
@@ -146,16 +117,8 @@ func (msg MsgDepositWithinBatch) GetDepositor() sdk.AccAddress {
 	return addr
 }
 
-// ------------------------------------------------------------------------
-// MsgWithdrawWithinBatch
-// ------------------------------------------------------------------------
-
-// NewMsgWithdraw creates a new MsgWithdraw object.
-func NewMsgWithdrawWithinBatch(
-	withdrawer sdk.AccAddress,
-	poolId uint64,
-	poolCoin sdk.Coin,
-) *MsgWithdrawWithinBatch {
+// NewMsgWithdrawWithinBatch creates a new MsgWithdrawWithinBatch.
+func NewMsgWithdrawWithinBatch(withdrawer sdk.AccAddress, poolId uint64, poolCoin sdk.Coin) *MsgWithdrawWithinBatch {
 	return &MsgWithdrawWithinBatch{
 		WithdrawerAddress: withdrawer.String(),
 		PoolId:            poolId,
@@ -163,13 +126,10 @@ func NewMsgWithdrawWithinBatch(
 	}
 }
 
-// Route implements Msg.
 func (msg MsgWithdrawWithinBatch) Route() string { return RouterKey }
 
-// Type implements Msg.
 func (msg MsgWithdrawWithinBatch) Type() string { return TypeMsgWithdrawWithinBatch }
 
-// ValidateBasic implements Msg.
 func (msg MsgWithdrawWithinBatch) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress); err != nil {
 		return ErrInvalidWithdrawerAddr
@@ -183,12 +143,10 @@ func (msg MsgWithdrawWithinBatch) ValidateBasic() error {
 	return nil
 }
 
-// GetSignBytes implements Msg.
 func (msg MsgWithdrawWithinBatch) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }
 
-// GetSigners implements Msg.
 func (msg MsgWithdrawWithinBatch) GetSigners() []sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress)
 	if err != nil {
@@ -205,11 +163,7 @@ func (msg MsgWithdrawWithinBatch) GetWithdrawer() sdk.AccAddress {
 	return addr
 }
 
-// ------------------------------------------------------------------------
-// MsgSwapWithinBatch
-// ------------------------------------------------------------------------
-
-// NewMsgSwapWithinBatch creates a new MsgSwapWithinBatch object.
+// NewMsgSwapWithinBatch creates a new MsgSwapWithinBatch.
 func NewMsgSwapWithinBatch(
 	swapRequester sdk.AccAddress,
 	poolId uint64,
@@ -230,19 +184,10 @@ func NewMsgSwapWithinBatch(
 	}
 }
 
-func GetOfferCoinFee(offerCoin sdk.Coin, swapFeeRate sdk.Dec) sdk.Coin {
-	// apply half-ratio swap fee rate
-	// see https://github.com/tendermint/liquidity/issues/41 for details
-	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(swapFeeRate.QuoInt64(2)).TruncateInt()) // offerCoin.Amount * (swapFeeRate/2)
-}
-
-// Route implements Msg.
 func (msg MsgSwapWithinBatch) Route() string { return RouterKey }
 
-// Type implements Msg.
 func (msg MsgSwapWithinBatch) Type() string { return TypeMsgSwapWithinBatch }
 
-// ValidateBasic implements Msg.
 func (msg MsgSwapWithinBatch) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.SwapRequesterAddress); err != nil {
 		return ErrInvalidSwapRequesterAddr
@@ -262,12 +207,10 @@ func (msg MsgSwapWithinBatch) ValidateBasic() error {
 	return nil
 }
 
-// GetSignBytes implements Msg.
 func (msg MsgSwapWithinBatch) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }
 
-// GetSigners implements Msg.
 func (msg MsgSwapWithinBatch) GetSigners() []sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.SwapRequesterAddress)
 	if err != nil {

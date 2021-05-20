@@ -80,6 +80,7 @@ func TestMsgDepositWithinBatch(t *testing.T) {
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
+
 func TestMsgWithdrawWithinBatch(t *testing.T) {
 	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
 	coin := sdk.NewCoin(DenomPoolCoin, sdk.NewInt(1000))
