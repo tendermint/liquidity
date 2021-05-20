@@ -16,7 +16,7 @@ type MsgCreatePool struct {
 }
 ```
 
-### Validity checks
+### Validity Checks
 
 Validity checks are performed for MsgCreatePool messages. The transaction that is triggered with `MsgCreatePool` fails if:
 
@@ -39,7 +39,7 @@ type MsgDepositWithinBatch struct {
 }
 ```
 
-## Validity checks
+## Validity Checks
 
 The MsgDepositWithinBatch message performs validity checks. The transaction that is triggered with the `MsgDepositWithinBatch` message fails if:
 
@@ -60,7 +60,7 @@ type MsgWithdrawWithinBatch struct {
 }
 ```
 
-## Validity checks
+## Validity Checks
 
 The MsgWithdrawWithinBatch message performs validity checks. The transaction that is triggered with the `MsgWithdrawWithinBatch` message fails if:
 
