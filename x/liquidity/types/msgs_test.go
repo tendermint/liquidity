@@ -62,33 +62,43 @@ func TestMsgCreatePool(t *testing.T) {
 }
 
 func TestMsgDepositWithinBatch(t *testing.T) {
-	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg := types.NewMsgDepositWithinBatch(addr, DefaultPoolId, coins)
-	require.IsType(t, &types.MsgDepositWithinBatch{}, msg)
-	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgDepositWithinBatch, msg.Type())
+	depositor := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	poolId := uint64(1)
+	denomX := "denomX"
+	denomY := "denomY"
 
-	err := msg.ValidateBasic()
-	require.NoError(t, err)
-	signers := msg.GetSigners()
-	require.Len(t, signers, 1)
-	require.Equal(t, msg.GetDepositor(), signers[0])
-	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+	cases := []struct {
+		expectedErr string // empty means no error expected
+		msg         *types.MsgDepositWithinBatch
+	}{
+		{
+			"",
+			types.NewMsgDepositWithinBatch(depositor, poolId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+		},
+		{
+			"",
+			types.NewMsgDepositWithinBatch(depositor, 0, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+		},
+		{
+			"empty pool depositor address",
+			types.NewMsgDepositWithinBatch(sdk.AccAddress{}, poolId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid number of reserve coin",
+			types.NewMsgDepositWithinBatch(depositor, poolId, sdk.NewCoins(sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+		},
+	}
 
-	// Fail case
-	coinsFail := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("Denomfail", sdk.NewInt(1000)))
-	msg = types.NewMsgDepositWithinBatch(addr, DefaultPoolId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(0)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgDepositWithinBatch(addr, DefaultPoolId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	msg = types.NewMsgDepositWithinBatch(sdk.AccAddress{}, DefaultPoolId, coins)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
+	for _, tc := range cases {
+		err := tc.msg.ValidateBasic()
+		if tc.expectedErr == "" {
+			require.Nil(t, err)
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+	}
 }
+
 func TestMsgWithdrawWithinBatch(t *testing.T) {
 	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
 	coin := sdk.NewCoin(DenomPoolCoin, sdk.NewInt(1000))
