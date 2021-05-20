@@ -20,36 +20,45 @@ const (
 )
 
 func TestMsgCreatePool(t *testing.T) {
-	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg := types.NewMsgCreatePool(addr, DefaultPoolTypeId, coins)
-	require.IsType(t, &types.MsgCreatePool{}, msg)
-	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgCreatePool, msg.Type())
+	poolCreator := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	poolTypeId := uint32(1)
+	denomX := "denomX"
+	denomY := "denomY"
 
-	err := msg.ValidateBasic()
-	require.NoError(t, err)
-	signers := msg.GetSigners()
-	require.Len(t, signers, 1)
-	require.Equal(t, msg.GetPoolCreator(), signers[0])
-	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+	cases := []struct {
+		expectedErr string // empty means no error expected
+		msg         *types.MsgCreatePool
+	}{
+		{
+			"",
+			types.NewMsgCreatePool(poolCreator, poolTypeId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid index of the pool type",
+			types.NewMsgCreatePool(poolCreator, 0, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+		},
+		{
+			"empty pool creator address",
+			types.NewMsgCreatePool(sdk.AccAddress{}, poolTypeId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid number of reserve coin",
+			types.NewMsgCreatePool(poolCreator, poolTypeId, sdk.NewCoins(sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid number of reserve coin",
+			types.NewMsgCreatePool(poolCreator, poolTypeId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)), sdk.NewCoin("denomZ", sdk.NewInt(1000)))),
+		},
+	}
 
-	// Fail cases
-	msg = types.NewMsgCreatePool(sdk.AccAddress{}, DefaultPoolTypeId, coins)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	coinsFail := sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreatePool(addr, DefaultPoolTypeId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("Denomfail", sdk.NewInt(1000)))
-	msg = types.NewMsgCreatePool(addr, DefaultPoolTypeId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(0)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreatePool(addr, DefaultPoolTypeId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
+	for _, tc := range cases {
+		err := tc.msg.ValidateBasic()
+		if tc.expectedErr == "" {
+			require.Nil(t, err)
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+	}
 }
 
 func TestMsgDepositWithinBatch(t *testing.T) {
