@@ -6,7 +6,7 @@ These messages (Msg) in the liquidity module trigger state transitions.
 
 ## Coin Escrow for Liquidity Module Messages
 
-Transaction confirmation causes state transition on `Bank` module. Some messages on the liquidity module require coin escrow before confirmation.
+Transaction confirmation causes state transition on the [Bank](https://docs.cosmos.network/master/modules/bank/) module. Some messages on the liquidity module require coin escrow before confirmation.
 
 The coin escrow processes for each message type are:
 
@@ -40,7 +40,7 @@ After a successful withdraw transaction, escrowed pool coins are burned and a co
 
 ## Pseudo Algorithm for LiquidityPoolBatch Execution
 
-You can see a Python simulation script on the B-Harvest [GitHub repo](https://github.com/b-harvest/Liquidity-Module-For-the-Hub/blob/master/pseudo-batch-execution-logic/batch.py).
+If you are curious, you can see a Python simulation script on the B-Harvest [GitHub repo](https://github.com/b-harvest/Liquidity-Module-For-the-Hub/blob/master/pseudo-batch-execution-logic/batch.py).
 
 ## Swap Price Calculation
 
