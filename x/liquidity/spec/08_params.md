@@ -32,35 +32,44 @@ type PoolType struct {
 
 ## MinInitDepositAmount
 
-Minimum number of coins to be deposited to the liquidity pool upon pool creation
+Minimum number of coins to be deposited to the liquidity pool upon pool creation.
 
 ## InitPoolCoinMintAmount
 
-Initial mint amount of pool coin upon pool creation
+Initial mint amount of pool coin on pool creation.
 
 ## MaxReserveCoinAmount
 
-Limit the size of each liquidity pool in the beginning phase of liquidity module adoption to minimize risk on error or exploitation deposit transaction will fail if the total reserve coin amount after the deposit is larger than the parameter default value is zero, zero means no limit
+Limit the size of each liquidity pool. The deposit transaction fails if the total reserve coin amount after the deposit is larger than the reserve coin amount. 
+
+The default value of zero means no limit. 
+
+**Note:** Especially in the early phases of liquidity module adoption, set `MaxReserveCoinAmount` to a non-zero value to minimize risk on error or exploitation.
 
 ## PoolCreationFee
 
-Fee paid for new LiquidityPool creation to prevent spamming, It collected in community pool of distribution module
+Fee paid for to create a LiquidityPool creation. This fee prevents spamming and is collected in in the community pool of the distribution module. 
 
 ## SwapFeeRate
 
-Swap fee rate for every executed swap, when Swap request Reserved half of Swap fee as OfferCoinFee and remaining half of fee as `ExchangedCoinFee` is collected when batch is executed,
+Swap fee rate for every executed swap. When a swap is requested, the swap fee is reserved: 
+
+- Half reserved as `OfferCoinFee`
+- Half reserved as `ExchangedCoinFee`
+
+The swap fee is collected when a batch is executed. 
 
 ## WithdrawFeeRate
 
-Reserve coin withdrawal with less proportion by `WithdrawFeeRate` to prevent attack vectors from repeated deposit/withdraw
+Reserve coin withdrawal with less proportion by `WithdrawFeeRate`. This fee prevents attack vectors from repeated deposit/withdraw transactions. 
 
 ## MaxOrderAmountRatio
 
-Maximum ratio of reserve coins that can be ordered at a swap order
+Maximum ratio of reserve coins that can be ordered at a swap order.
 
 ## UnitBatchHeight
 
-The smallest unit batch size for every liquidity pool
+The smallest unit batch size for every liquidity pool.
 
 # Constant Variables
 
@@ -72,8 +81,8 @@ MaxReserveCoinNum   | uint32 | 2
 
 ## CancelOrderLifeSpan
 
-The life span of swap orders in block heights
+The life span of swap orders in block heights.
 
 ## MinReserveCoinNum, MaxReserveCoinNum
 
-min, max number of reserveCoins for `PoolType` on this spec
+The mininum and maximum number of reserveCoins for `PoolType`.
