@@ -50,7 +50,7 @@ type PoolBatch struct {
 
 ```go
 type DepositMsgState struct {
-	MsgHeight  uint64 // height where this message is appended to the batch
+	MsgHeight  int64  // height where this message is appended to the batch
 	MsgIndex   uint64 // index of this deposit message in this liquidity pool
 	Executed   bool   // true if executed on this batch, false if not executed yet
 	Succeeded  bool   // true if executed successfully on this batch, false if failed
@@ -63,7 +63,7 @@ type DepositMsgState struct {
 
 ```go
 type WithdrawMsgState struct {
-	MsgHeight  uint64 // height where this message is appended to the batch
+	MsgHeight  int64  // height where this message is appended to the batch
 	MsgIndex   uint64 // index of this withdraw message in this liquidity pool
 	Executed   bool   // true if executed on this batch, false if not executed yet
 	Succeeded  bool   // true if executed successfully on this batch, false if failed
@@ -76,7 +76,7 @@ type WithdrawMsgState struct {
 
 ```go
 type SwapMsgState struct {
-	MsgHeight          uint64 // height where this message is appended to the batch
+	MsgHeight          int64  // height where this message is appended to the batch
 	MsgIndex           uint64 // index of this swap message in this liquidity pool
 	Executed           bool   // true if executed on this batch, false if not executed yet
 	Succeeded          bool   // true if executed successfully on this batch, false if failed
