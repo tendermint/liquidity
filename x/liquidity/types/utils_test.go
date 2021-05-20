@@ -38,31 +38,47 @@ func TestSortDenoms(t *testing.T) {
 	}
 }
 
-func TestGetPoolReserveAcc(t *testing.T) {
-	poolName := types.PoolName([]string{"denomX", "denomY"}, 1)
-	require.Equal(t, "denomX/denomY/1", poolName)
-	reserveAcc := types.GetPoolReserveAcc(poolName)
-	require.NotNil(t, reserveAcc)
-	require.Equal(t, "cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3", reserveAcc.String())
-	require.Equal(t, "poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4", types.GetPoolCoinDenom(poolName))
-}
+func TestGetPoolInformation(t *testing.T) {
+	testCases := []struct {
+		reserveCoinDenoms     []string
+		poolTypeId            uint32
+		expectedPoolName      string
+		expectedReserveAcc    string
+		expectedPoolCoinDenom string
+	}{
+		{
+			reserveCoinDenoms:     []string{"denomX", "denomY"},
+			poolTypeId:            uint32(1),
+			expectedPoolName:      "denomX/denomY/1",
+			expectedReserveAcc:    "cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3",
+			expectedPoolCoinDenom: "poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4",
+		},
+		{
+			reserveCoinDenoms:     []string{"stake", "token"},
+			poolTypeId:            uint32(1),
+			expectedPoolName:      "stake/token/1",
+			expectedReserveAcc:    "cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u",
+			expectedPoolCoinDenom: "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
+		},
+		{
+			reserveCoinDenoms:     []string{"uatom", "uusd"},
+			poolTypeId:            uint32(2),
+			expectedPoolName:      "uatom/uusd/2",
+			expectedReserveAcc:    "cosmos1xqm0g09czvdp5c7jk0fmz85u7maz52m040eh8g",
+			expectedPoolCoinDenom: "pool3036F43CB8131A1A63D2B3D3B11E9CF6FA2A2B6FEC17D5AD283C25C939614A8C",
+		},
+	}
 
-func TestGetPoolReserveAcc2(t *testing.T) {
-	poolName := types.PoolName([]string{"stake", "token"}, 1)
-	require.Equal(t, "stake/token/1", poolName)
-	reserveAcc := types.GetPoolReserveAcc(poolName)
-	require.NotNil(t, reserveAcc)
-	require.Equal(t, "cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u", reserveAcc.String())
-	require.Equal(t, "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07", types.GetPoolCoinDenom(poolName))
-}
+	for _, tc := range testCases {
+		poolName := types.PoolName(tc.reserveCoinDenoms, tc.poolTypeId)
+		require.Equal(t, tc.expectedPoolName, poolName)
 
-func TestGetPoolReserveAcc3(t *testing.T) {
-	poolName := types.PoolName([]string{"uusd", "uatom"}, 1)
-	require.Equal(t, "uatom/uusd/1", poolName)
-	reserveAcc := types.GetPoolReserveAcc(poolName)
-	require.NotNil(t, reserveAcc)
-	require.Equal(t, "cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we", reserveAcc.String())
-	require.Equal(t, "pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295", types.GetPoolCoinDenom(poolName))
+		reserveAcc := types.GetPoolReserveAcc(poolName)
+		require.Equal(t, tc.expectedReserveAcc, reserveAcc.String())
+
+		poolCoinDenom := types.GetPoolCoinDenom(poolName)
+		require.Equal(t, tc.expectedPoolCoinDenom, poolCoinDenom)
+	}
 }
 
 func TestGetCoinsTotalAmount(t *testing.T) {
