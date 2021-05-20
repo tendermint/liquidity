@@ -1,10 +1,12 @@
 ---
 title: Liquidityd 
+description: A high-level overview of how the command line (CLI) and REST API interfaces work for the liquidity module.
 ---
 # Liquidityd 
 
-This document describes how command-line (CLI) and REST API interfaces work on a high-level for the liquidity module.
-## Transaction Command-line Interface
+This document provides a high-level overview of how the command line (CLI) and REST API interfaces work for the liquidity module.
+
+## Transaction Command Line Interface
 
 - [MsgCreatePool](#msgcreatepool)
   - Create liquidity pool
@@ -15,8 +17,9 @@ This document describes how command-line (CLI) and REST API interfaces work on a
 - [MsgSwapWithinBatch](#msgswapwithinbatch)
   - Swap offer coin with demand coin from the liquidity pool with the given order price
 
-Error codes with the description can be found in [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) .
-## Query Command-line Interface
+For error codes with the description, see [errors.go](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go).
+
+## Query Command Line Interface
 
 - [Params](#params)
   - Query the current liquidity parameters information
@@ -25,41 +28,43 @@ Error codes with the description can be found in [here](https://github.com/tende
 - [Pools](#pools)
   - Query for all liquidity pools
 - [Batch](#batch)
-  - Query details of a liquidity pool batch of the pool
+  - Query details of a liquidity pool batch
 - [Deposit](#deposit)
-  - Query for the deposit message on the batch of the liquidity pool specified pool-id and msg-index
+  - Query for the deposit message on the batch of the liquidity pool
 - [Deposits](#deposits)
-  - Query for all deposit messages on the batch of the liquidity pool specified pool-id
+  - Query for all deposit messages on the batch of the liquidity pool
 - [Withdraw](#withdraw)
-  - Query for the withdraw message on the batch of the liquidity pool specified pool-id and msg-index
+  - Query for the withdraw message on the batch of the liquidity pool
 - [Withdraws](#withdraws)
-  - Query for all withdraw messages on the batch of the liquidity pool specified pool-id
+  - Query for all withdraw messages on the batch of the liquidity pool
 - [Swap](#swap)
-  - Query for the swap message on the batch of the liquidity pool specified pool-id and msg-index
+  - Query for the swap message on the batch of the liquidity pool
 - [Swaps](#swaps)
-  - Query for all swap messages on the batch of the liquidity pool specified pool-id
+  - Query for all swap messages on the batch of the liquidity pool
 
-Error codes with the description can be found in [here](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go) .
+For error codes with the description, see [errors.go](https://github.com/tendermint/liquidity/blob/develop/x/liquidity/types/errors.go).
+
 ## REST
 
-A node exposes the REST server default port of `1317` and it can be configured in `[api]` section of the `$HOME/.liquidityd/config/app.toml` file. When `swagger` param is set to `true`, you can check the swagger documentation in your browser http://localhost:1317/swagger-liquidity/. You can also reference the swagger documentation in this [docs](https://app.swaggerhub.com/apis-docs/bharvest/).
+A node exposes the REST server default port of `1317`. Configure the port in `[api]` section of the `$HOME/.liquidityd/config/app.toml` file. When `swagger` param is set to `true`, you can check the Swagger documentation in your browser <http://localhost:1317/swagger-liquidity/>. You can also reference the Swagger documentation in the SwaggerHub [api-docs](https://app.swaggerhub.com/apis-docs/bharvest/).
 
-From this [Migrating to New REST Endpoints](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints) guide, the POST endpoints of the new gGPC-gateway REST are not available and they are suggested to use Protobuf directly. This can be achieved by using either command-line interface or temporarily available REST API `localhost:1317/cosmos/tx/v1beta1/txs`.
+The POST endpoints of the new gGPC-gateway REST are not available. The [Migrating to New REST Endpoints](https://docs.cosmos.network/master/migrations/rest.html#migrating-to-new-rest-endpoints) Cosmos SDK guide suggests to use Protobuf directly. You can use the command line interface or use the temporarily available REST API at `localhost:1317/cosmos/tx/v1beta1/txs`.
 
-An example of broadcasting a transaction by using the [New gRPC-gateway REST Endpoint](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints).
+For example, to broadcast a transaction by using the [New gRPC-gateway REST Endpoint](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints): 
 
 ```bash
 curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"CoMBCoABCh0vdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcBJfCi1jb3Ntb3MxN3dncHpyNGd2YzN1aHBmcnUyNmVhYTJsc203NzJlMnEydjBtZXgQAhgBIAEqDQoFc3Rha2USBDEwMDAyBGF0b206EzExNTAwMDAwMDAwMDAwMDAwMDASWApQCkYKHy9jb3Ntb3MuY3J5cHRvLnNlY3AyNTZrMS5QdWJLZXkSIwohAqzfoAEi0cFg0zqwBuGNvHml4XJNS3EQuVti8/yGH88NEgQKAgh/GAgSBBDAmgwaQGTRN67x2WYF/L5DsRD3ZY1Kt9cVpg3rW+YbXtihxcB6bJWhMxuFr0u9SnGkCuAgOuLH9YU8ROFUo1gGS1RpTz0=","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
 ```
 
 ## MsgCreatePool
-An example of `create-pool` tx command
+
+Example `create-pool` tx command:
 
 ```bash
 liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -y
 ```
 
-JSON Structure
+JSON Structure:
 
 ```json
 {
@@ -213,13 +218,14 @@ Result
 ```
 
 ## MsgDepositWithinBatch
-An example of `deposit` tx command 
+
+Example `deposit` tx command: 
 
 ```bash
 liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from validator --keyring-backend test --chain-id testing -y
 ```
 
-JSON Structure
+JSON Structure:
 
 ```json
 {
@@ -259,7 +265,7 @@ JSON Structure
 }
 ```
 
-Result
+Result:
 
 ```json
 {
@@ -341,7 +347,8 @@ Result
 ```
 
 ## MsgWithdrawWithinBatch
-An example of `withdraw` tx command
+
+Example `withdraw` tx command:
 
 ```bash
 liquidityd tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from validator --chain-id testing --keyring-backend test -y
@@ -381,7 +388,7 @@ JSON Structure
 }
 ```
 
-Result
+Result:
 
 ```json
 {
@@ -466,13 +473,14 @@ Result
 }
 ```
 ## MsgSwapWithinBatch
-An example of `swap` tx command
+
+Example `swap` tx command:
 
 ```bash
 liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y
 ```
 
-JSON Structure
+JSON Structure:
 
 ```json
 {
@@ -513,7 +521,7 @@ JSON Structure
 }
 ```
 
-Result
+Result:
 
 ```json
 {
@@ -630,11 +638,16 @@ Result
 }
 ```
 ## Params
-An example of `params` query command
+
+Example `params` query command:
 
 ```bash
 $ liquidityd query liquidity params
+```
 
+Result:
+
+```json
 init_pool_coin_mint_amount: "1000000"
 max_order_amount_ratio: "0.100000000000000000"
 max_reserve_coin_amount: "0"
@@ -652,12 +665,18 @@ swap_fee_rate: "0.003000000000000000"
 unit_batch_height: 1
 withdraw_fee_rate: "0.003000000000000000"
 ```
+
 ## Pool
-An example of `pool` query command 
+
+Example `pool` query command:
 
 ```bash
 $ liquidityd query liquidity pool 1
+```
 
+Result:
+
+```json
 pool:
   id: "1"
   pool_coin_denom: pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
@@ -668,11 +687,15 @@ pool:
   type_id: 1
 ```
 
-Query reserve coins of the pool
+Query reserve coins of the pool:
 
 ```bash
 $ liquidityd query bank balances cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we
+```
 
+Result:
+
+```json
 balances:
 - amount: "999003494"
   denom: uatom
@@ -687,16 +710,24 @@ Query total supply of the pool coin
 
 `$ liquidityd query bank total --denom=pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295`
 
-```bash
+Result:
+
+```json
 amount: "1000000"
 denom: pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
 ```
+
 ## Pools
-An example of `pools` query command 
+
+Example `pools` query command:
 
 ```bash
 $ liquidityd query liquidity pools
+```
 
+Result:
+
+```json
 pagination:
   next_key: null
   total: "2"
@@ -716,12 +747,18 @@ pools:
   - uusd
   type_id: 1
 ```
+
 ## Batch
-An example of `batch` query command
+
+Example `batch` query command:
 
 ```bash
 $ liquidityd query liquidity batch 1
+```
 
+Result:
+
+```json
 batch:
   begin_height: "563"
   deposit_msg_index: "2"
@@ -731,12 +768,18 @@ batch:
   swap_msg_index: "2"
   withdraw_msg_index: "2"
 ```
+
 ## Deposit
-An example of `deposit` query command
+
+Example `deposit` query command:
 
 ```bash
 $ liquidityd query liquidity deposit 1 1
+```
 
+Result:
+
+```json
 deposit:
   executed: true
   msg:
@@ -752,12 +795,18 @@ deposit:
   succeeded: true
   to_be_deleted: true
 ```
+
 ## Deposits
-An example of `deposits` query command
+
+Example `deposits` query command:
 
 ```bash
 $ liquidityd query liquidity deposits 1
+```
 
+Result:
+
+```json
 deposits:
 - executed: true
   msg:
@@ -778,11 +827,16 @@ pagination:
 ```
 
 ## Withdraw
-An example `withdraw` query command 
+
+Example `withdraw` query command:
 
 ```bash
 $ liquidityd query liquidity withdraws 1 2
+```
 
+Result:
+
+```json
 pagination:
   next_key: null
   total: "1"
@@ -799,12 +853,18 @@ withdraws:
   succeeded: true
   to_be_deleted: true
 ```
+
 ## Withdraws
-An example `withdraws` query command 
+
+Example `withdraws` query command 
 
 ```bash
 $ liquidityd query liquidity withdraws 1
+```
 
+Result:
+
+```json
 pagination:
   next_key: null
   total: "1"
@@ -822,11 +882,16 @@ withdraws:
   to_be_deleted: true
 ```
 ## Swap
-An example `swap` query command 
+
+Example `swap` query command:
 
 ```bash
 $ liquidityd query liquidity swaps 1 2
+```
 
+Result:
+
+```json
 pagination:
   next_key: null
   total: "1"
@@ -860,11 +925,16 @@ swaps:
   to_be_deleted: true
 ```
 ## Swaps
-An example `swaps` query command
+
+Example `swaps` query command:
 
 ```bash
 $ liquidityd query liquidity swaps 1
+```
 
+Result:
+
+```json
 pagination:
   next_key: null
   total: "1"
