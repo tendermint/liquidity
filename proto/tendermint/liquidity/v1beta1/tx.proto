@@ -21,6 +21,9 @@ service Msg {
 
   // Submit swap to the liquidity pool batch.
   rpc Swap(MsgSwapWithinBatch) returns (MsgSwapWithinBatchResponse);
+
+  // Change swap fee rate for pool.
+  rpc SetPoolSwapFeeRate(MsgSetPoolSwapFeeRate) returns (MsgSetPoolSwapFeeRateResponse);
 }
 
 // MsgCreatePool defines an sdk.Msg type that creates a liquidity pool
@@ -51,6 +54,16 @@ message MsgCreatePool {
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       example: "[{\"denom\": \"denomX\", \"amount\": \"1000000\"}, {\"denom\": \"denomY\", \"amount\": \"2000000\"}]",
       format: "sdk.Coins"
+    }];
+
+  // Swap fee rate for every executed swap
+  string swap_fee_rate = 10 [
+    (gogoproto.moretags)   = "yaml:\"swap_fee_rate\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = true,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        example: "\"0.003\"",
+        format: "sdk.Dec"
     }];
 }
 
@@ -204,3 +217,38 @@ message MsgSwapWithinBatch {
 
 // MsgSwapWithinBatchResponse defines the Msg/Swap response type.
 message MsgSwapWithinBatchResponse {}
+
+// `MsgSetPoolSwapFeeRate` defines an sdk.Msg type that submits request for setting pool swap fee rate.
+// This message will be accepted only if it is sent from the address of the current pool governor.
+message MsgSetPoolSwapFeeRate {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // Swap fee rate setter address. Must match the governor's address in the pool.
+  string setter_address = 1 [(gogoproto.moretags) = "yaml:\"setter_address\"",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "account address of the origin of this message",
+      example: "\"cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun\"",
+      format: "sdk.AccAddress"
+    }];
+
+  // id of the target pool
+  uint64 pool_id = 2 [(gogoproto.moretags) = "yaml:\"pool_id\"", (gogoproto.jsontag) = "pool_id",
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "\"1\"",
+      format: "uint64"
+    }];
+
+  // New swap fee rate that will be set for the specific pool.
+  string swap_fee_rate = 3 [
+    (gogoproto.moretags)   = "yaml:\"swap_fee_rate\"",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = true,
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+        example: "\"0.003\"",
+        format: "sdk.Dec"
+    }];
+}
+
+// MsgSetPoolSwapFeeRateResponse defines the Msg/SetSwapFeeRate response type.
+message MsgSetPoolSwapFeeRateResponse {}

@@ -20,6 +20,16 @@ order: 7
 | message     | action          | create_pool              |
 | message     | sender          | {senderAddress}          |
 
+### MsgSetPoolSwapFeeRate
+
+| Type                   | Attribute Key | Attribute Value          |
+| ---------------------- | ------------- | ------------------------ |
+| set_pool_swap_fee_rate | pool_id       | {poolId}                 |
+| set_pool_swap_fee_rate | pool_name     | {AttributeValuePoolName} |
+| set_pool_swap_fee_rate | swap_fee_rate | {newSwapFeeRate}         |
+| message                | module        | liquidity                |
+| message                | action        | set_pool_swap_fee_rate   |
+
 ### MsgDepositWithinBatch
 
 | Type                 | Attribute Key | Attribute Value      |

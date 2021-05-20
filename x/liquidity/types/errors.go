@@ -45,4 +45,7 @@ var (
 	ErrBadPoolTypeId                = sdkerrors.Register(ModuleName, 37, "invalid index of the pool type")
 	ErrExceededReserveCoinLimit     = sdkerrors.Register(ModuleName, 38, "can not exceed reserve coin limit amount")
 	ErrDepletedPool                 = sdkerrors.Register(ModuleName, 39, "the pool is depleted of reserve coin, reinitializing is required by deposit")
+	ErrMaxSwapFeeRateExceeded       = sdkerrors.Register(ModuleName, 99, "the pool max swap fee rate exceeded")
+	ErrNotPoolGovernor              = sdkerrors.Register(ModuleName, 100, "requestor is not pool governor")
+	ErrEmptyFeeRateSetterAddress    = sdkerrors.Register(ModuleName, 101, "empty swap fee rate setter address")
 )

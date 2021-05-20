@@ -33,6 +33,7 @@ func GetTxCmd() *cobra.Command {
 		NewDepositWithinBatchCmd(),
 		NewWithdrawWithinBatchCmd(),
 		NewSwapWithinBatchCmd(),
+		NewSetPoolSwapFeeRateCmd(),
 	)
 
 	return liquidityTxCmd
@@ -41,14 +42,14 @@ func GetTxCmd() *cobra.Command {
 // Create new liquidity pool with the specified pool type and deposit coins.
 func NewCreatePoolCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-pool [pool-type] [deposit-coins]",
-		Args:  cobra.ExactArgs(2),
+		Use:   "create-pool [pool-type-index] [deposit-coins] [swap-fee-rate]",
+		Args:  cobra.RangeArgs(2, 3),
 		Short: "Create liquidity pool and deposit coins",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Create liquidity pool and deposit coins.
 
 Example:
-$ liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
+$ liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd 0.003 --from mykey
 
 This example creates a liquidity pool of pool-type 1 (two coins) and deposits 1000000000uatom and 50000000000uusd.
 New liquidity pools can be created only for coin combinations that do not already exist in the network.
@@ -90,7 +91,67 @@ New liquidity pools can be created only for coin combinations that do not alread
 				return fmt.Errorf("the number of deposit coins must be two in pool-type 1")
 			}
 
-			msg := types.NewMsgCreatePool(poolCreator, uint32(poolTypeId), depositCoins)
+			var swapFeeRate *sdk.Dec
+			if len(args) > 2 {
+				rate, err := sdk.NewDecFromStr(args[2])
+				if err != nil {
+					return err
+				}
+				swapFeeRate = &rate
+			}
+
+			msg := types.NewMsgCreatePool(poolCreator, uint32(poolTypeId), depositCoins, swapFeeRate)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// Change swap fee rate of the existing pool.
+func NewSetPoolSwapFeeRateCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-swap-fee-rate [pool-id] [swap-fee-rate]",
+		Args:  cobra.ExactArgs(2),
+		Short: "Set liquidity pool swap fee rate",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Set liquidity pool swap fee rate.
+
+Example:
+$ liquidityd tx liquidity set-swap-fee-rate 1 0.006 --from pool_governor_address
+
+This example sets swap fee rate of liquidity pool with id 1 to to 0.006.
+This action can be only taken if the pool governor address is passed as from address.
+
+[pool-id]: The id of the liquidity pool.
+[swap-fee-rate]: New swap fee rate for the pool.
+`,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+			requestor := clientCtx.GetFromAddress()
+
+			// Get pool id
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return fmt.Errorf("pool-type %s not a valid uint, input a valid unsigned 32-bit integer for pool-type", args[0])
+			}
+
+			newSwapFeeRate, err := sdk.NewDecFromStr(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgSetPoolSwapFeeRate(poolID, requestor, newSwapFeeRate)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

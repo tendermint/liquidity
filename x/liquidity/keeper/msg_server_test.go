@@ -35,7 +35,7 @@ func TestMsgCreatePool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance, nil)
 
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
@@ -83,7 +83,7 @@ func TestMsgDepositLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance, nil)
 
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createMsg)
 	require.NoError(t, err)
@@ -131,7 +131,7 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance, nil)
 
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createMsg)
 	require.NoError(t, err)
@@ -189,7 +189,7 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance, &testSwapFeeRate)
 
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
@@ -200,6 +200,8 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextPoolId(ctx)-1)
 	require.Equal(t, denomA, pools[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomB, pools[0].ReserveCoinDenoms[1])
+	require.Equal(t, testSwapFeeRate, *pools[0].SwapFeeRate)
+	require.Equal(t, addrs[0].String(), pools[0].PoolGovernorAddress)
 
 	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pools[0])
 	creatorBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pools[0].PoolCoinDenom)
@@ -210,6 +212,8 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 
 	metaData := simapp.LiquidityKeeper.GetPoolMetaData(ctx, pools[0])
 	require.Equal(t, pools[0].Id, metaData.PoolId)
+	require.Equal(t, testSwapFeeRate, *metaData.SwapFeeRate)
+	require.Equal(t, addrs[0].String(), metaData.PoolGovernorAddress)
 
 	reserveCoin := simapp.LiquidityKeeper.GetReserveCoins(ctx, pools[0])
 	require.Equal(t, reserveCoin, metaData.ReserveCoins)

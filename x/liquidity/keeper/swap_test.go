@@ -39,7 +39,7 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 
 		// create Liquidity pool
 		poolTypeId := types.DefaultPoolTypeId
-		msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+		msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance, nil)
 		_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 		require.NoError(t, err)
 
@@ -78,7 +78,7 @@ func TestSwapExecution(t *testing.T) {
 
 		// create Liquidity pool
 		poolTypeId := types.DefaultPoolTypeId
-		msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+		msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance, nil)
 		_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 		require.NoError(t, err)
 
@@ -240,7 +240,7 @@ func TestBadSwapExecution(t *testing.T) {
 	require.Equal(t, deposit, creatorBalance)
 
 	// create pool
-	createPoolMsg := types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, creatorBalance)
+	createPoolMsg := types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, creatorBalance, nil)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createPoolMsg)
 	require.NoError(t, err)
 
@@ -272,7 +272,7 @@ func TestBalancesAfterSwap(t *testing.T) {
 		aliceCoin := sdk.NewCoin(denomY, sdk.NewInt(10_000_000))
 		aliceAddr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(aliceCoin))
 
-		pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, creatorCoins))
+		pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creatorAddr, types.DefaultPoolTypeId, creatorCoins, nil))
 		require.NoError(t, err)
 
 		liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
@@ -345,5 +345,5 @@ func createPool(simapp *app.LiquidityApp, ctx sdk.Context, X, Y sdk.Int, denomX,
 	coins := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
 	addr := app.AddRandomTestAddr(simapp, ctx, coins.Add(params.PoolCreationFee...))
 
-	return simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(addr, types.DefaultPoolTypeId, coins))
+	return simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(addr, types.DefaultPoolTypeId, coins, nil))
 }

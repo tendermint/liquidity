@@ -303,7 +303,7 @@ func TestCreatePool(t *testing.T, simapp *LiquidityApp, ctx sdk.Context, X, Y sd
 	// create Liquidity pool
 	poolTypeId := types.DefaultPoolTypeId
 	poolId := simapp.LiquidityKeeper.GetNextPoolId(ctx)
-	msg := types.NewMsgCreatePool(addr, poolTypeId, depositBalance)
+	msg := types.NewMsgCreatePool(addr, poolTypeId, depositBalance, nil)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 

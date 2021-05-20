@@ -39,7 +39,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 
 		// create Liquidity pool
 		poolTypeId := types.DefaultPoolTypeId
-		msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+		msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance, nil)
 		_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 		require.NoError(t, err)
 
