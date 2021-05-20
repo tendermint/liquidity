@@ -100,28 +100,36 @@ func TestMsgDepositWithinBatch(t *testing.T) {
 }
 
 func TestMsgWithdrawWithinBatch(t *testing.T) {
-	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	coin := sdk.NewCoin(DenomPoolCoin, sdk.NewInt(1000))
-	msg := types.NewMsgWithdrawWithinBatch(addr, DefaultPoolId, coin)
-	require.IsType(t, &types.MsgWithdrawWithinBatch{}, msg)
-	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgWithdrawWithinBatch, msg.Type())
+	withdrawer := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	poolId := uint64(1)
+	poolCoinDenom := "poolCoinDenom"
 
-	err := msg.ValidateBasic()
-	require.NoError(t, err)
-	signers := msg.GetSigners()
-	require.Len(t, signers, 1)
-	require.Equal(t, msg.GetWithdrawer(), signers[0])
-	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+	cases := []struct {
+		expectedErr string // empty means no error expected
+		msg         *types.MsgWithdrawWithinBatch
+	}{
+		{
+			"",
+			types.NewMsgWithdrawWithinBatch(withdrawer, poolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
+		},
+		{
+			"empty pool withdrawer address",
+			types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, poolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
+		},
+		{
+			"invalid pool coin amount",
+			types.NewMsgWithdrawWithinBatch(withdrawer, poolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(0))),
+		},
+	}
 
-	// Fail case
-	coinFail := sdk.NewCoin("testPoolCoin", sdk.NewInt(0))
-	msg = types.NewMsgWithdrawWithinBatch(addr, DefaultPoolId, coinFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	msg = types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, DefaultPoolId, coin)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
+	for _, tc := range cases {
+		err := tc.msg.ValidateBasic()
+		if tc.expectedErr == "" {
+			require.Nil(t, err)
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+	}
 }
 
 func TestMsgSwapWithinBatch(t *testing.T) {
