@@ -48,8 +48,8 @@ func (msg MsgCreatePool) ValidateBasic() error {
 	if 1 > msg.PoolTypeId {
 		return ErrBadPoolTypeId
 	}
-	if msg.PoolCreatorAddress == "" {
-		return ErrEmptyPoolCreatorAddr
+	if _, err := sdk.AccAddressFromBech32(msg.PoolCreatorAddress); err != nil {
+		return ErrInvalidPoolCreatorAddr
 	}
 	if err := msg.DepositCoins.Validate(); err != nil {
 		return err
@@ -108,8 +108,8 @@ func (msg MsgDepositWithinBatch) Type() string { return TypeMsgDepositWithinBatc
 
 // ValidateBasic implements Msg.
 func (msg MsgDepositWithinBatch) ValidateBasic() error {
-	if msg.DepositorAddress == "" {
-		return ErrEmptyDepositorAddr
+	if _, err := sdk.AccAddressFromBech32(msg.DepositorAddress); err != nil {
+		return ErrInvalidDepositorAddr
 	}
 	if err := msg.DepositCoins.Validate(); err != nil {
 		return err
@@ -171,8 +171,8 @@ func (msg MsgWithdrawWithinBatch) Type() string { return TypeMsgWithdrawWithinBa
 
 // ValidateBasic implements Msg.
 func (msg MsgWithdrawWithinBatch) ValidateBasic() error {
-	if msg.WithdrawerAddress == "" {
-		return ErrEmptyWithdrawerAddr
+	if _, err := sdk.AccAddressFromBech32(msg.WithdrawerAddress); err != nil {
+		return ErrInvalidWithdrawerAddr
 	}
 	if err := msg.PoolCoin.Validate(); err != nil {
 		return err
@@ -244,8 +244,8 @@ func (msg MsgSwapWithinBatch) Type() string { return TypeMsgSwapWithinBatch }
 
 // ValidateBasic implements Msg.
 func (msg MsgSwapWithinBatch) ValidateBasic() error {
-	if msg.SwapRequesterAddress == "" {
-		return ErrEmptySwapRequesterAddr
+	if _, err := sdk.AccAddressFromBech32(msg.SwapRequesterAddress); err != nil {
+		return ErrInvalidSwapRequesterAddr
 	}
 	if err := msg.OfferCoin.Validate(); err != nil {
 		return err
