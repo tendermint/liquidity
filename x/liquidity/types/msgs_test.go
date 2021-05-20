@@ -16,14 +16,10 @@ const (
 	DefaultSwapTypeId = uint32(1)
 	DenomX            = "denomX"
 	DenomY            = "denomY"
-	DenomPoolCoin     = "denomPoolCoin"
 )
 
 func TestMsgCreatePool(t *testing.T) {
 	poolCreator := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	poolTypeId := uint32(1)
-	denomX := "denomX"
-	denomY := "denomY"
 
 	cases := []struct {
 		expectedErr string // empty means no error expected
@@ -31,23 +27,23 @@ func TestMsgCreatePool(t *testing.T) {
 	}{
 		{
 			"",
-			types.NewMsgCreatePool(poolCreator, poolTypeId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
 			"invalid index of the pool type",
-			types.NewMsgCreatePool(poolCreator, 0, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(poolCreator, 0, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
 			"empty pool creator address",
-			types.NewMsgCreatePool(sdk.AccAddress{}, poolTypeId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(sdk.AccAddress{}, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
 			"invalid number of reserve coin",
-			types.NewMsgCreatePool(poolCreator, poolTypeId, sdk.NewCoins(sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
 			"invalid number of reserve coin",
-			types.NewMsgCreatePool(poolCreator, poolTypeId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)), sdk.NewCoin("denomZ", sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("denomZ", sdk.NewInt(1000)))),
 		},
 	}
 
@@ -63,9 +59,6 @@ func TestMsgCreatePool(t *testing.T) {
 
 func TestMsgDepositWithinBatch(t *testing.T) {
 	depositor := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	poolId := uint64(1)
-	denomX := "denomX"
-	denomY := "denomY"
 
 	cases := []struct {
 		expectedErr string // empty means no error expected
@@ -73,19 +66,19 @@ func TestMsgDepositWithinBatch(t *testing.T) {
 	}{
 		{
 			"",
-			types.NewMsgDepositWithinBatch(depositor, poolId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+			types.NewMsgDepositWithinBatch(depositor, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
 			"",
-			types.NewMsgDepositWithinBatch(depositor, 0, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+			types.NewMsgDepositWithinBatch(depositor, 0, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
 			"empty pool depositor address",
-			types.NewMsgDepositWithinBatch(sdk.AccAddress{}, poolId, sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1000)), sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+			types.NewMsgDepositWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
 			"invalid number of reserve coin",
-			types.NewMsgDepositWithinBatch(depositor, poolId, sdk.NewCoins(sdk.NewCoin(denomY, sdk.NewInt(1000)))),
+			types.NewMsgDepositWithinBatch(depositor, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 	}
 
@@ -101,7 +94,6 @@ func TestMsgDepositWithinBatch(t *testing.T) {
 
 func TestMsgWithdrawWithinBatch(t *testing.T) {
 	withdrawer := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	poolId := uint64(1)
 	poolCoinDenom := "poolCoinDenom"
 
 	cases := []struct {
@@ -110,15 +102,15 @@ func TestMsgWithdrawWithinBatch(t *testing.T) {
 	}{
 		{
 			"",
-			types.NewMsgWithdrawWithinBatch(withdrawer, poolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
+			types.NewMsgWithdrawWithinBatch(withdrawer, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
 		},
 		{
 			"empty pool withdrawer address",
-			types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, poolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
+			types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
 		},
 		{
 			"invalid pool coin amount",
-			types.NewMsgWithdrawWithinBatch(withdrawer, poolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(0))),
+			types.NewMsgWithdrawWithinBatch(withdrawer, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(0))),
 		},
 	}
 
@@ -134,11 +126,7 @@ func TestMsgWithdrawWithinBatch(t *testing.T) {
 
 func TestMsgSwapWithinBatch(t *testing.T) {
 	swapRequester := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	denomX := "denomX"
-	denomY := "denomY"
-	poolId := uint64(1)
-	swapTypeId := uint32(1)
-	offerCoin := sdk.NewCoin(denomX, sdk.NewInt(1000))
+	offerCoin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
 	orderPrice, err := sdk.NewDecFromStr("0.1")
 	require.NoError(t, err)
 
@@ -148,23 +136,23 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 	}{
 		{
 			"",
-			types.NewMsgSwapWithinBatch(swapRequester, poolId, swapTypeId, offerCoin, denomY, orderPrice, types.DefaultSwapFeeRate),
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, orderPrice, types.DefaultSwapFeeRate),
 		},
 		{
 			"empty pool swap requester address",
-			types.NewMsgSwapWithinBatch(sdk.AccAddress{}, poolId, swapTypeId, offerCoin, denomY, orderPrice, types.DefaultSwapFeeRate),
+			types.NewMsgSwapWithinBatch(sdk.AccAddress{}, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, orderPrice, types.DefaultSwapFeeRate),
 		},
 		{
 			"invalid offer coin amount",
-			types.NewMsgSwapWithinBatch(swapRequester, poolId, swapTypeId, sdk.NewCoin(denomX, sdk.NewInt(0)), denomY, orderPrice, types.DefaultSwapFeeRate),
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, sdk.NewCoin(DenomX, sdk.NewInt(0)), DenomY, orderPrice, types.DefaultSwapFeeRate),
 		},
 		{
 			"invalid order price",
-			types.NewMsgSwapWithinBatch(swapRequester, poolId, swapTypeId, offerCoin, denomY, sdk.ZeroDec(), types.DefaultSwapFeeRate),
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, sdk.ZeroDec(), types.DefaultSwapFeeRate),
 		},
 		{
 			"offer amount should be over 100 micro",
-			types.NewMsgSwapWithinBatch(swapRequester, poolId, swapTypeId, sdk.NewCoin(denomX, sdk.NewInt(1)), denomY, orderPrice, types.DefaultSwapFeeRate),
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, sdk.NewCoin(DenomX, sdk.NewInt(1)), DenomY, orderPrice, types.DefaultSwapFeeRate),
 		},
 	}
 
