@@ -27,9 +27,18 @@ func TestSortDenoms(t *testing.T) {
 		denoms         []string
 		expectedDenoms []string
 	}{
-		{[]string{"uCoinB", "uCoinA"}, []string{"uCoinA", "uCoinB"}},
-		{[]string{"uCoinC", "uCoinA", "uCoinB"}, []string{"uCoinA", "uCoinB", "uCoinC"}},
-		{[]string{"uCoinC", "uCoinA", "uCoinD", "uCoinB"}, []string{"uCoinA", "uCoinB", "uCoinC", "uCoinD"}},
+		{
+			denoms:         []string{"uCoinB", "uCoinA"},
+			expectedDenoms: []string{"uCoinA", "uCoinB"},
+		},
+		{
+			denoms:         []string{"uCoinC", "uCoinA", "uCoinB"},
+			expectedDenoms: []string{"uCoinA", "uCoinB", "uCoinC"},
+		},
+		{
+			denoms:         []string{"uCoinC", "uCoinA", "uCoinD", "uCoinB"},
+			expectedDenoms: []string{"uCoinA", "uCoinB", "uCoinC", "uCoinD"},
+		},
 	}
 
 	for _, tc := range tests {
