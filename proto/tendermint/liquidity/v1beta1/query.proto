@@ -65,6 +65,38 @@ service Query {
         };
     }
 
+    // Get specific liquidity pool corresponding to the pool_coin_denom.
+    rpc LiquidityPoolWithPoolCoinDenom (QueryLiquidityPoolWithRequest) returns (QueryLiquidityPoolResponse) {
+        option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/{pool_coin_denom}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns the liquidity pool corresponding to the pool_coin_denom.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = the liquidity pool corresponding to the pool_coin_denom doesn\'t exist: key not found","details":[]}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":3,"message":"TBD","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
     // Get the pool's current batch.
     rpc LiquidityPoolBatch (QueryLiquidityPoolBatchRequest) returns (QueryLiquidityPoolBatchResponse) {
         option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/{pool_id}/batch";
