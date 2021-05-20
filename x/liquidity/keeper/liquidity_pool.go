@@ -18,7 +18,7 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 	params := k.GetParams(ctx)
 	var poolType types.PoolType
 
-	// check poolType exist, get poolType from param
+	// check if poolType exists, get poolType from param
 	if len(params.PoolTypes) >= int(msg.PoolTypeId) {
 		poolType = params.PoolTypes[msg.PoolTypeId-1]
 		if poolType.Id != msg.PoolTypeId {
@@ -172,7 +172,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 
-	// reinitialize pool in case of reserve coins has run out
+	// reinitialize pool in case the reserve coins have run out
 	if reserveCoins.IsZero() {
 		for _, depositCoin := range msg.Msg.DepositCoins {
 			if depositCoin.Amount.LT(params.MinInitDepositAmount) {
@@ -249,7 +249,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	refundedCoinA := sdk.NewInt(0)
 	refundedCoinB := sdk.NewInt(0)
 
-	// handle when depositing coin A amount is less than, greater than or equal to depositable amount
+	// handle when depositing coin A amount is less than, greater than, or equal to depositable amount
 	if depositCoinA.Amount.LT(depositableCoinAmountA) {
 		depositCoinAmountB = depositCoinA.Amount.ToDec().QuoTruncate(lastReserveRatio).TruncateInt()
 		acceptedCoins = sdk.NewCoins(depositCoinA, sdk.NewCoin(depositCoinB.Denom, depositCoinAmountB))
@@ -543,7 +543,7 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Depos
 	if err := k.ReleaseEscrow(ctx, batchMsg.Msg.GetDepositor(), batchMsg.Msg.DepositCoins); err != nil {
 		return err
 	}
-	// not delete now, set ToBeDeleted true for delete on next block beginblock
+	// do not delete now, and set ToBeDeleted true for delete on next block beginblock
 	batchMsg.ToBeDeleted = true
 	k.SetPoolBatchDepositMsgState(ctx, batchMsg.Msg.PoolId, batchMsg)
 	ctx.EventManager().EmitEvent(
@@ -583,7 +583,7 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.With
 			sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
 		))
 
-	// not delete now, set ToBeDeleted true for delete on next block beginblock
+	// do not delete now, and set ToBeDeleted true for delete on next block beginblock
 	batchMsg.ToBeDeleted = true
 	k.SetPoolBatchWithdrawMsgState(ctx, batchMsg.Msg.PoolId, batchMsg)
 	return nil
@@ -767,7 +767,7 @@ func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWit
 
 	params := k.GetParams(ctx)
 
-	// can not exceed max order ratio  of reserve coins that can be ordered at a order
+	// cannot exceed max order ratio of reserve coins for one order
 	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
 
 	if !reserveCoinAmt.IsPositive() {
@@ -884,7 +884,7 @@ func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record types.PoolRecord) err
 	return nil
 }
 
-// IsPoolCoinDenom checks is the denom poolcoin or not, need to additional checking the reserve account is existed
+// IsPoolCoinDenom checks if the denom is already a poolcoin, need to additionally check if the reserve account exists
 func (k Keeper) IsPoolCoinDenom(ctx sdk.Context, denom string) bool {
 	if err := sdk.ValidateDenom(denom); err != nil {
 		return false
