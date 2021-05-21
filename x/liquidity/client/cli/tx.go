@@ -125,8 +125,8 @@ func NewSetPoolSwapFeeRateCmd() *cobra.Command {
 Example:
 $ liquidityd tx liquidity set-swap-fee-rate 1 0.006 --from pool_governor_address
 
-This example sets swap fee rate of liquidity pool with id 1 to to 0.006.
-This action can be only taken if the pool governor address is passed as from address.
+This example sets a swap fee rate to 0.006 on liquidity pool 1.
+This action can be taken only if the pool governor address is passed as the from address.
 
 [pool-id]: The id of the liquidity pool.
 [swap-fee-rate]: New swap fee rate for the pool.

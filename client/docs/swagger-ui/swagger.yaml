@@ -215,7 +215,8 @@ paths:
                         swap fee rate
                       title: >-
                         Pool governor address - initially set to pool creator
-                        address - updated when someone deposit more funds
+                        address, the address is updated when someone deposits
+                        more funds
                   title: The liquidity pool information
               pagination:
                 description: >-
@@ -381,7 +382,8 @@ paths:
                       swap fee rate
                     title: >-
                       Pool governor address - initially set to pool creator
-                      address - updated when someone deposit more funds
+                      address, the address is updated when someone deposits more
+                      funds
                 title: The liquidity pool information
             description: >-
               the response type for the QueryLiquidityPoolResponse RPC method.
@@ -2492,8 +2494,8 @@ definitions:
         example: cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun
         description: account address of pool governor - governor can adjust swap fee rate
         title: >-
-          Pool governor address - initially set to pool creator address -
-          updated when someone deposit more funds
+          Pool governor address - initially set to pool creator address, the
+          address is updated when someone deposits more funds
     title: The liquidity pool information
   tendermint.liquidity.v1beta1.PoolBatch:
     type: object
@@ -2667,8 +2669,8 @@ definitions:
               account address of pool governor - governor can adjust swap fee
               rate
             title: >-
-              Pool governor address - initially set to pool creator address -
-              updated when someone deposit more funds
+              Pool governor address - initially set to pool creator address, the
+              address is updated when someone deposits more funds
         title: The liquidity pool information
     description: >-
       the response type for the QueryLiquidityPoolResponse RPC method. It
@@ -2722,8 +2724,8 @@ definitions:
                 account address of pool governor - governor can adjust swap fee
                 rate
               title: >-
-                Pool governor address - initially set to pool creator address -
-                updated when someone deposit more funds
+                Pool governor address - initially set to pool creator address,
+                the address is updated when someone deposits more funds
           title: The liquidity pool information
       pagination:
         description: >-

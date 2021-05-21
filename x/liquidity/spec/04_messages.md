@@ -35,7 +35,7 @@ Deposit coins to the specified liquidity pool.
 ```go
 type MsgDepositWithinBatch struct {
 	DepositorAddress    string         // account address of the origin of this message
-	PoolId              uint64         // id of the liquidity pool where this message is belong to
+	PoolId              uint64         // id of the liquidity pool that this message is belongs to
 	DepositCoins 	    sdk.Coins      // deposit coins of this pool deposit message
 }
 ```
@@ -55,7 +55,7 @@ Withdraw pool coin from the specified liquidity pool.
 ```go
 type MsgWithdrawWithinBatch struct {
 	WithdrawerAddress string         // account address of the origin of this message
-	PoolId            uint64         // id of the liquidity pool where this message is belong to
+	PoolId            uint64         // id of the liquidity pool that this message is belongs to
 	PoolCoin          sdk.Coin       // pool coin sent for reserve coin withdraw
 }
 ```
@@ -75,7 +75,7 @@ type MsgWithdrawWithinBatch struct {
 ```go
 type MsgSwapWithinBatch struct {
 	SwapRequesterAddress string     // account address of the origin of this message
-	PoolId               uint64     // id of the liquidity pool where this message is belong to
+	PoolId               uint64     // id of the liquidity pool that this message is belongs to
 	SwapTypeId           uint32     // swap type id of this swap message, default 1: InstantSwap, requesting instant swap
 	OfferCoin            sdk.Coin   // offer coin of this swap message
 	DemandCoinDenom      string     // denom of demand coin of this swap message
@@ -101,7 +101,7 @@ type MsgSwapWithinBatch struct {
 
 ```go
 type MsgSetPoolSwapFeeRate struct {
-  PoolId        uint64  // id of the liquidity pool where this message is belong to
+  PoolId        uint64  // id of the liquidity pool that this message is belongs to
   SetterAddress string 	// swap fee rate setter address. Must be the address of pool governor.
   SwapFeeRate   sdk.Dec // new swap fee rate for the pool
 }
@@ -109,8 +109,8 @@ type MsgSetPoolSwapFeeRate struct {
 
 **Validity check**
 
-- `MsgSetPoolSwapFeeRate` failes if
+- `MsgSetPoolSwapFeeRate` fails if
   - `SwapRequester` address does not exist
   - `PoolId` does not exist
-  - `SwapFeeRate` excedes maximum allowed rate
+  - `SwapFeeRate` exceeds maximum allowed rate
   - `SetterAddress` does not belong to the pool governor

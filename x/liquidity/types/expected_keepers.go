@@ -26,7 +26,7 @@ type BankKeeper interface {
 type AccountKeeper interface {
 	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 	GetModuleAddress(name string) sdk.AccAddress
-	// Iterate over all accounts, calling the provided function. Stop iteraiton when it returns true.
+	// Iterate over all accounts, calling the provided function. Stop iteration when it returns true.
 	IterateAccounts(sdk.Context, func(authtypes.AccountI) bool)
 }
 

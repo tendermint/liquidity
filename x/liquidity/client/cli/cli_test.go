@@ -192,7 +192,7 @@ func (s *IntegrationTestSuite) TestNewSetPoolSwapFeeRateCmd() {
 
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -304,7 +304,7 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -389,7 +389,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -474,7 +474,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -636,7 +636,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -708,7 +708,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -766,7 +766,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -834,7 +834,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -919,7 +919,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -1004,7 +1004,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -1091,7 +1091,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -1178,7 +1178,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
 	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -1270,7 +1270,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
 	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
 	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
 
-	// liquidity pool should be created prior to test this integration test
+	// liquidity pool must be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
 		val.ClientCtx,
 		val.Address.String(),

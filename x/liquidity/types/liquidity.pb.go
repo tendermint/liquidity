@@ -143,7 +143,7 @@ type Pool struct {
 	PoolCoinDenom string `protobuf:"bytes,5,opt,name=pool_coin_denom,json=poolCoinDenom,proto3" json:"pool_coin_denom,omitempty" yaml:"pool_coin_denom"`
 	// Swap fee rate for every executed swap
 	SwapFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=swap_fee_rate,json=swapFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"swap_fee_rate,omitempty" yaml:"swap_fee_rate"`
-	// Pool governor address - initially set to pool creator address - updated when someone deposit more funds
+	// Pool governor address - initially set to pool creator address, the address is updated when someone deposits more funds
 	PoolGovernorAddress string `protobuf:"bytes,11,opt,name=pool_governor_address,json=poolGovernorAddress,proto3" json:"pool_governor_address,omitempty" yaml:"pool_governor_address"`
 }
 
@@ -190,7 +190,7 @@ type PoolMetadata struct {
 	ReserveCoins github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=reserve_coins,json=reserveCoins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"reserve_coins" yaml:"reserve_coins"`
 	// Swap fee rate for every executed swap
 	SwapFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=swap_fee_rate,json=swapFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"swap_fee_rate,omitempty" yaml:"swap_fee_rate"`
-	// Pool governor address - initially set to pool creator address - updated when someone deposit more funds
+	// Pool governor address - initially set to pool creator address, the address is updated when someone deposits more funds
 	PoolGovernorAddress string `protobuf:"bytes,11,opt,name=pool_governor_address,json=poolGovernorAddress,proto3" json:"pool_governor_address,omitempty" yaml:"pool_governor_address"`
 }
 

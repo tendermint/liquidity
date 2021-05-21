@@ -184,7 +184,7 @@ message Pool {
             example: "\"0.003\"",
             format: "sdk.Dec"
         }];
-    // Pool governor address - initially set to pool creator address - updated when someone deposit more funds
+    // Pool governor address - initially set to pool creator address, the address is updated when someone deposits more funds
     string pool_governor_address = 11 [
         (gogoproto.moretags) = "yaml:\"pool_governor_address\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -236,7 +236,7 @@ message PoolMetadata {
             format: "sdk.Dec"
         }];
 
-    // Pool governor address - initially set to pool creator address - updated when someone deposit more funds
+    // Pool governor address - initially set to pool creator address, the address is updated when someone deposits more funds
     string pool_governor_address = 11 [
         (gogoproto.moretags) = "yaml:\"pool_governor_address\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
