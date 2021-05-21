@@ -23,5 +23,5 @@ This module is available in the Cosmos Hub and other blockchains that are based 
 
 ## References
 
-- [Liquidity module](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
+- [Liquidity module proposal and milestone](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
 - [Cosmos SDK modules](https://github.com/cosmos/cosmos-sdk/tree/master/x)

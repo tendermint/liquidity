@@ -22,7 +22,7 @@ type Pool struct {
 
 The parameters of the Pool state are:
 
-- Pool: `0x11 | Id -> amino(Pool)`
+- Pool: `0x11 | Id -> ProtocolBuffer(Pool)`
 
 - PoolByReserveAccIndex: `0x12 | ReserveAcc -> nil`
 
@@ -58,7 +58,7 @@ When a user sends a MsgDeposit transaction to the network, it is accumulated in 
 
 ```go
 type DepositMsgState struct {
-    MsgHeight  uint64 // block height where this message is appended to the batch
+    MsgHeight  int64  // block height where this message is appended to the batch
     MsgIndex   uint64 // index of this deposit message in this liquidity pool
     Executed   bool   // true if executed on this batch, false if not executed
     Succeeded  bool   // true if executed successfully on this batch, false if failed
@@ -75,7 +75,7 @@ When a user sends a MsgWithdraw transaction to the network, it is accumulated in
 
 ```go
 type WithdrawMsgState struct {
-    MsgHeight  uint64 // block height where this message is appended to the batch
+    MsgHeight  int64  // block height where this message is appended to the batch
     MsgIndex   uint64 // index of this withdraw message in this liquidity pool
     Executed   bool   // true if executed on this batch, false if not executed
     Succeeded  bool   // true if executed successfully on this batch, false if failed
@@ -93,7 +93,7 @@ When a user sends a MsgSwap transaction to the network, it is accumulated in a b
 
 ```go
 type SwapMsgState struct {
-    MsgHeight          uint64 // block height where this message is appended to the batch
+    MsgHeight          int64  // block height where this message is appended to the batch
     MsgIndex           uint64 // index of this swap message in this liquidity pool
     Executed           bool   // true if executed on this batch, false if not executed
     Succeeded          bool   // true if executed successfully on this batch, false if failed
@@ -107,18 +107,18 @@ type SwapMsgState struct {
 
 The parameters of the PoolBatch, DepositMsgState, WithdrawMsgState, and SwapMsgState states are:
 
-- PoolBatchIndex: `0x21 | PoolId -> amino(int64)`
+- PoolBatchIndex: `0x21 | PoolId -> uint64`
 
-- PoolBatch: `0x22 | PoolId -> amino(PoolBatch)`
+- PoolBatch: `0x22 | PoolId -> ProtocolBuffer(PoolBatch)`
 
 - PoolBatchDepositMsgStateIndex: `0x31 | PoolId -> nil`
 
-- PoolBatchDepositMsgStates: `0x31 | PoolId | MsgIndex -> amino(DepositMsgState)`
+- PoolBatchDepositMsgStates: `0x31 | PoolId | MsgIndex -> ProtocolBuffer(DepositMsgState)`
 
 - PoolBatchWithdrawMsgStateIndex: `0x32 | PoolId -> nil`
 
-- PoolBatchWithdrawMsgStates: `0x32 | PoolId | MsgIndex -> amino(WithdrawMsgState)`
+- PoolBatchWithdrawMsgStates: `0x32 | PoolId | MsgIndex -> ProtocolBuffer(WithdrawMsgState)`
 
 - PoolBatchSwapMsgStateIndex: `0x33 | PoolId -> nil`
 
-- PoolBatchSwapMsgStates: `0x33 | PoolId | MsgIndex -> amino(SwapMsgState)`
+- PoolBatchSwapMsgStates: `0x33 | PoolId | MsgIndex -> ProtocolBuffer(SwapMsgState)`
