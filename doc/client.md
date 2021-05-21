@@ -46,7 +46,7 @@ For error codes with the description, see [errors.go](https://github.com/tenderm
 
 ## REST
 
-A node exposes the REST server default port of `1317`. Configure the port in `[api]` section of the `$HOME/.liquidityd/config/app.toml` file. When `swagger` param is set to `true`, you can check the Swagger documentation in your browser <http://localhost:1317/swagger-liquidity/>. You can also reference the Swagger documentation in the SwaggerHub [api-docs](https://app.swaggerhub.com/apis-docs/bharvest/).
+A node exposes the REST server default port of `1317`. Configure the port in `[api]` section of the `app.toml` file located in your `$HOME/.liquidityd/config/` directory. When `swagger` param is set to `true`, you can open up your browser and check out the Swagger documentation in `http://localhost:1317/swagger-liquidity/`. You can also reference the public api documentation in [this link](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs/).
 
 The POST endpoints of the new gGPC-gateway REST are not available. The [Migrating to New REST Endpoints](https://docs.cosmos.network/master/migrations/rest.html#migrating-to-new-rest-endpoints) Cosmos SDK guide suggests to use Protobuf directly. You can use the command line interface or use the temporarily available REST API at `localhost:1317/cosmos/tx/v1beta1/txs`.
 
