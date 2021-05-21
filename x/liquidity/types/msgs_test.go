@@ -50,9 +50,17 @@ func TestMsgCreatePool(t *testing.T) {
 	}
 
 	for _, tc := range cases {
+		require.IsType(t, &types.MsgCreatePool{}, tc.msg)
+		require.Equal(t, types.TypeMsgCreatePool, tc.msg.Type())
+		require.Equal(t, types.RouterKey, tc.msg.Route())
+		require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(tc.msg)), tc.msg.GetSignBytes())
+
 		err := tc.msg.ValidateBasic()
 		if tc.expectedErr == "" {
 			require.Nil(t, err)
+			signers := tc.msg.GetSigners()
+			require.Len(t, signers, 1)
+			require.Equal(t, tc.msg.GetPoolCreator(), signers[0])
 		} else {
 			require.EqualError(t, err, tc.expectedErr)
 		}
@@ -85,9 +93,17 @@ func TestMsgDepositWithinBatch(t *testing.T) {
 	}
 
 	for _, tc := range cases {
+		require.IsType(t, &types.MsgDepositWithinBatch{}, tc.msg)
+		require.Equal(t, types.TypeMsgDepositWithinBatch, tc.msg.Type())
+		require.Equal(t, types.RouterKey, tc.msg.Route())
+		require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(tc.msg)), tc.msg.GetSignBytes())
+
 		err := tc.msg.ValidateBasic()
 		if tc.expectedErr == "" {
 			require.Nil(t, err)
+			signers := tc.msg.GetSigners()
+			require.Len(t, signers, 1)
+			require.Equal(t, tc.msg.GetDepositor(), signers[0])
 		} else {
 			require.EqualError(t, err, tc.expectedErr)
 		}
@@ -117,9 +133,17 @@ func TestMsgWithdrawWithinBatch(t *testing.T) {
 	}
 
 	for _, tc := range cases {
+		require.IsType(t, &types.MsgWithdrawWithinBatch{}, tc.msg)
+		require.Equal(t, types.TypeMsgWithdrawWithinBatch, tc.msg.Type())
+		require.Equal(t, types.RouterKey, tc.msg.Route())
+		require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(tc.msg)), tc.msg.GetSignBytes())
+
 		err := tc.msg.ValidateBasic()
 		if tc.expectedErr == "" {
 			require.Nil(t, err)
+			signers := tc.msg.GetSigners()
+			require.Len(t, signers, 1)
+			require.Equal(t, tc.msg.GetWithdrawer(), signers[0])
 		} else {
 			require.EqualError(t, err, tc.expectedErr)
 		}
@@ -159,9 +183,17 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 	}
 
 	for _, tc := range cases {
+		require.IsType(t, &types.MsgSwapWithinBatch{}, tc.msg)
+		require.Equal(t, types.TypeMsgSwapWithinBatch, tc.msg.Type())
+		require.Equal(t, types.RouterKey, tc.msg.Route())
+		require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(tc.msg)), tc.msg.GetSignBytes())
+
 		err := tc.msg.ValidateBasic()
 		if tc.expectedErr == "" {
 			require.Nil(t, err)
+			signers := tc.msg.GetSigners()
+			require.Len(t, signers, 1)
+			require.Equal(t, tc.msg.GetSwapRequester(), signers[0])
 		} else {
 			require.EqualError(t, err, tc.expectedErr)
 		}
