@@ -3,13 +3,11 @@ package types_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
-
-	"github.com/tendermint/tendermint/crypto"
 )
 
 const (
