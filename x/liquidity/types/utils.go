@@ -18,13 +18,13 @@ func AlphabeticalDenomPair(denom1, denom2 string) (resDenom1, resDenom2 string) 
 	}
 }
 
-// SortDenoms sorts denoms in an alphabetical order.
+// SortDenoms sorts denoms in alphabetical order.
 func SortDenoms(denoms []string) []string {
 	sort.Strings(denoms)
 	return denoms
 }
 
-// GetPoolReserveAcc returns the pool's reserve account address.
+// GetPoolReserveAcc returns the address of the pool's reserve account.
 func GetPoolReserveAcc(poolName string) sdk.AccAddress {
 	return sdk.AccAddress(crypto.AddressHash([]byte(poolName)))
 }
@@ -44,7 +44,7 @@ func GetCoinsTotalAmount(coins sdk.Coins) sdk.Int {
 	return totalAmount
 }
 
-// ValidateReserveCoinLimit checks if total amounts of depositCoins exceeds maxReserveCoinAmount.
+// ValidateReserveCoinLimit checks if total amounts of depositCoins exceed maxReserveCoinAmount.
 func ValidateReserveCoinLimit(maxReserveCoinAmount sdk.Int, depositCoins sdk.Coins) error {
 	totalAmount := GetCoinsTotalAmount(depositCoins)
 	if maxReserveCoinAmount.IsZero() {
