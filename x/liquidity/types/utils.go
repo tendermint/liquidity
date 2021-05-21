@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-// AlphabeticalDenomPair returns denom pairs which are alphabetically sorted.
+// AlphabeticalDenomPair returns denom pairs that are alphabetically sorted.
 func AlphabeticalDenomPair(denom1, denom2 string) (resDenom1, resDenom2 string) {
 	if denom1 > denom2 {
 		return denom2, denom1
