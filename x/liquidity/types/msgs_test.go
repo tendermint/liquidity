@@ -215,7 +215,7 @@ func TestMsgValidateBasic(t *testing.T) {
 			},
 			{
 				types.MsgCreatePool{PoolTypeId: validPoolTypeId},
-				types.ErrEmptyPoolCreatorAddr.Error(),
+				types.ErrInvalidPoolCreatorAddr.Error(),
 			},
 			{
 				types.MsgCreatePool{PoolCreatorAddress: validAddr, PoolTypeId: validPoolTypeId},
@@ -273,7 +273,7 @@ func TestMsgValidateBasic(t *testing.T) {
 		}{
 			{
 				types.MsgDepositWithinBatch{},
-				types.ErrEmptyDepositorAddr.Error(),
+				types.ErrInvalidDepositorAddr.Error(),
 			},
 			{
 				types.MsgDepositWithinBatch{DepositorAddress: validAddr},
@@ -317,7 +317,7 @@ func TestMsgValidateBasic(t *testing.T) {
 		}{
 			{
 				types.MsgWithdrawWithinBatch{},
-				types.ErrEmptyWithdrawerAddr.Error(),
+				types.ErrInvalidWithdrawerAddr.Error(),
 			},
 			{
 				types.MsgWithdrawWithinBatch{WithdrawerAddress: validAddr, PoolCoin: invalidDenomCoin},
@@ -346,7 +346,7 @@ func TestMsgValidateBasic(t *testing.T) {
 		}{
 			{
 				types.MsgSwapWithinBatch{},
-				types.ErrEmptySwapRequesterAddr.Error(),
+				types.ErrInvalidSwapRequesterAddr.Error(),
 			},
 			{
 				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: invalidDenomCoin, OrderPrice: orderPrice},
