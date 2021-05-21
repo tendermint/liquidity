@@ -36,7 +36,7 @@ func TestMsgCreatePool(t *testing.T) {
 			types.NewMsgCreatePool(poolCreator, 0, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
-			"empty pool creator address",
+			"invalid pool creator address",
 			types.NewMsgCreatePool(sdk.AccAddress{}, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
@@ -75,7 +75,7 @@ func TestMsgDepositWithinBatch(t *testing.T) {
 			types.NewMsgDepositWithinBatch(depositor, 0, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
-			"empty pool depositor address",
+			"invalid pool depositor address",
 			types.NewMsgDepositWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
 		},
 		{
@@ -107,7 +107,7 @@ func TestMsgWithdrawWithinBatch(t *testing.T) {
 			types.NewMsgWithdrawWithinBatch(withdrawer, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
 		},
 		{
-			"empty pool withdrawer address",
+			"invalid pool withdrawer address",
 			types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
 		},
 		{
@@ -141,7 +141,7 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, orderPrice, types.DefaultSwapFeeRate),
 		},
 		{
-			"empty pool swap requester address",
+			"invalid pool swap requester address",
 			types.NewMsgSwapWithinBatch(sdk.AccAddress{}, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, orderPrice, types.DefaultSwapFeeRate),
 		},
 		{
