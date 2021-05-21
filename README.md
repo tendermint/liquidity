@@ -1,4 +1,5 @@
-[![codecov](https://codecov.io/gh/tendermint/liquidity/branch/develop/graph/badge.svg)](https://codecov.io/gh/tendermint/liquidity?branch=develop) [![PkgGoDev](https://pkg.go.dev/badge/github.com/tendermint/liquidity)](https://pkg.go.dev/github.com/tendermint/liquidity)
+[![codecov](https://codecov.io/gh/tendermint/liquidity/branch/develop/graph/badge.svg)](https://codecov.io/gh/tendermint/liquidity?branch=develop)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/tendermint/liquidity)](https://pkg.go.dev/github.com/tendermint/liquidity)
 
 # Liquidity Module
 
@@ -6,11 +7,11 @@ The liquidity module serves Automated Market Maker (AMM)-style decentralized liq
 
 The module enables users to create a liquidity pool, make deposits and withdrawals, and request coin swaps from the liquidity pool.
 
-This module will be used in the [Cosmos Hub](https://hub.cosmos.network/main/hub-overview/overview.html), and it can be used in any other [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) based blockchain projects.
+This module can be used in the [Cosmos Hub](https://hub.cosmos.network/main/hub-overview/overview.html) and any other [Cosmos SDK](https://cosmos.network/)-based blockchain projects.
 
-- The Cosmos Hub AMM should have strong philosophy of inclusiveness of users from different blockchains because its prime utility is inter-blockchain communication.
-- To possess such characteristics, the liquidity module should provide most convenient ways for external users to come in and use the services provided by the Cosmos Hub.
-- The liquidity module should not anticipate specific assets, such as Atom, into the process of user-flow in a forced manner. It is repeatedly proved that unnatural anticipation of native coin at unavoidable parts of process resulting in poor user attraction.
+- The Cosmos Hub AMM applies a strong philosophy of inclusiveness for users from different blockchains with its prime utility of inter-blockchain communication.
+- To achieve heterogeneous blockchain adoption, the liquidity module provides convenient entry points for external users to come in and use the services that are provided by the Cosmos Hub.
+- The liquidity module does not anticipate specific assets, such as ATOM, into the user workflow. Data shows that unnatural anticipation of native coin at unavoidable parts of the process results in poor user attraction.
 
 ## Key features
 
@@ -19,12 +20,11 @@ This module will be used in the [Cosmos Hub](https://hub.cosmos.network/main/hub
 **Combination of traditional orderbook-based model and new AMM model**
 
 - With multiple advantages over order book-based models, the liquidity module combines a batch-based order book matching algorithm with AMM to create enriched utilities for more potential users.
-- The liquidity module redefines the concept of a "swap order" in AMM as a "limit order with a short lifetime" in an order book-based exchange. By combining these concepts from two different models as one united model, the function supports both ways to participate in trading and liquidity-providing activities.
+- The liquidity module redefines the concept of a “swap order” in AMM as a “limit order with a short lifetime” in an order book-based exchange. By combining these concepts from two different models as one united model, the function supports both ways to participate in trading and liquidity-providing activities.
 - Limit order options are not supported in the first version of the liquidity module, but the base structure of the codebase anticipates and supports feature expansion.
 - Advantages of the combined model
-
-  - More freedom on ways to provide liquidity, planned expansion for limit orders
-  - The combination of pool liquidity and limit order liquidity provide users with a more enriched trading environment
+    - More freedom on ways to provide liquidity, planned expansion for limit orders
+    - The combination of pool liquidity and limit order liquidity provide users with a more enriched trading environment
 
 For details, see the [Liquidity Module Light Paper](doc/LiquidityModuleLightPaper_EN.pdf).
 
@@ -117,17 +117,17 @@ $ make test-all
 ### 1\. Setup local testnet using script
 
 ```bash
-# This will bootstrap a single testnet locally.
-# Note that config, data, and keys are created inside
-# ./data/localnet folder and RPC, GRPC, REST ports are all open.
+# This script bootstraps a single local testnet.
+# Note that config, data, and keys are created in the ./data/localnet folder and
+# RPC, GRPC, and REST ports are all open.
 $ make localnet
 ```
 
-### 1.1 Broadcast transactions using CLI commands
+### 1.1 Broadcast transactions using CLI command-line interface
 
 Some sample scripts are available in [scripts](https://github.com/tendermint/liquidity/tree/develop/scripts) folder, which will help you to test out the liquidity module interface.
 
-### 2\. Setup local testnet manually
+### 2. Manually set up a local testnet
 
 ```bash
 # Build
@@ -187,7 +187,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 
 `$ liquidityd export`
 
-### export empty state case
+### Export empty state case
 
 ```json
 {
@@ -221,7 +221,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 }
 ```
 
-### export when some states exist
+### Export when some states exist
 
 ```json
 {
@@ -356,11 +356,13 @@ $ make proto-swagger-gen
 
 To dive into more about the liquidity module, check out the following resources.
 
-- [Liquidity Module Spec](x/liquidity/spec)
-- [Liquidity Module Lite Paper (English)](doc/LiquidityModuleLightPaper_EN.pdf)
-- [Liquidity Module Lite Paper (Korean)](doc/LiquidityModuleLightPaper_KO.pdf)
-- [Liquidity Module Lite Paper (Chinese)](doc/LiquidityModuleLightPaper_ZH.pdf)
-- [Proposal and milestone](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
-- [Swagger HTTP API doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
-- [godoc](https://pkg.go.dev/github.com/tendermint/liquidity)
-- [Client doc](doc/client.md)
+ - [Liquidity Module Spec](x/liquidity/spec)
+ - [Liquidity Module Lite Paper (English)](doc/LiquidityModuleLightPaper_EN.pdf)
+ - [Liquidity Module Lite Paper (Korean)](doc/LiquidityModuleLightPaper_KO.pdf)
+ - [Liquidity Module Lite Paper (Chinese)](doc/LiquidityModuleLightPaper_ZH.pdf)
+ - [Proposal and milestone](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
+ - [Swagger HTTP API doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
+ - [godoc](https://pkg.go.dev/github.com/tendermint/liquidity)
+ - [Client doc](doc/client.md)
+ - [Performance Testing](doc/Performance%20Testing%20for%20Liquidity%20Module.pdf)
+ 
