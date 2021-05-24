@@ -135,6 +135,21 @@ message Params {
             example: "\"1\"",
             format: "uint32"
         }];
+    
+    // CircuitBreakerEnabled stops liquidity transactions 
+    repeated CircuitBreakerEnabled circuit_breaker_enabled         = 10 [(gogoproto.moretags) = "yaml:\"circuit_breaker_enabled,omitempty\""];
+    bool                           default_circuit_breaker_enabled = 11 [(gogoproto.moretags) = "yaml:\"default_circuit_breaker_enabled,omitempty\""];
+}
+
+// CircuitBreakerEnabled maps regulator to a enabled status
+message CircuitBreakerEnabled {
+  option (gogoproto.equal)            = true;
+  option (gogoproto.goproto_stringer) = true;
+
+  // regulator is the bech32-encoded address
+  string regulator = 1;
+  // enabled is circuit breaker status 
+  bool enabled     = 2;
 }
 
 // The liquidity pool information
