@@ -64,6 +64,33 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 	return nil
 }
 
+func (k Keeper) MintAndSendPoolCoin(ctx sdk.Context, pool types.Pool, srcAddr, creatorAddr sdk.AccAddress, depositCoins sdk.Coins) (sdk.Coin, error) {
+	params := k.GetParams(ctx)
+
+	mintingCoin := sdk.NewCoin(pool.PoolCoinDenom, params.InitPoolCoinMintAmount)
+	mintingCoins := sdk.NewCoins(mintingCoin)
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintingCoins); err != nil {
+		return sdk.Coin{}, err
+	}
+
+	reserveAcc := pool.GetReserveAccount()
+
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+
+	inputs = append(inputs, banktypes.NewInput(srcAddr, depositCoins))
+	outputs = append(outputs, banktypes.NewOutput(reserveAcc, depositCoins))
+
+	inputs = append(inputs, banktypes.NewInput(k.accountKeeper.GetModuleAddress(types.ModuleName), mintingCoins))
+	outputs = append(outputs, banktypes.NewOutput(creatorAddr, mintingCoins))
+
+	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+		return sdk.Coin{}, err
+	}
+
+	return mintingCoin, nil
+}
+
 func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Pool, error) {
 	if err := k.ValidateMsgCreatePool(ctx, msg); err != nil {
 		return types.Pool{}, err
@@ -75,7 +102,6 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	reserveCoinDenoms := []string{denom1, denom2}
 
 	poolName := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
-	reserveAcc := types.GetPoolReserveAcc(poolName)
 
 	poolCreator := msg.GetPoolCreator()
 	accPoolCreator := k.accountKeeper.GetAccount(ctx, poolCreator)
@@ -95,33 +121,15 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 		return types.Pool{}, types.ErrInsufficientPoolCreationFee
 	}
 
-	PoolCoinDenom := types.GetPoolCoinDenom(poolName)
-
 	pool := types.Pool{
 		//Id: will set on SetPoolAtomic
 		TypeId:                msg.PoolTypeId,
 		ReserveCoinDenoms:     reserveCoinDenoms,
-		ReserveAccountAddress: reserveAcc.String(),
-		PoolCoinDenom:         PoolCoinDenom,
+		ReserveAccountAddress: types.GetPoolReserveAcc(poolName).String(),
+		PoolCoinDenom:         types.GetPoolCoinDenom(poolName),
 	}
 
-	batchEscrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
-	mintPoolCoin := sdk.NewCoins(sdk.NewCoin(pool.PoolCoinDenom, params.InitPoolCoinMintAmount))
-	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoin); err != nil {
-		return types.Pool{}, err
-	}
-
-	var inputs []banktypes.Input
-	var outputs []banktypes.Output
-
-	inputs = append(inputs, banktypes.NewInput(poolCreator, msg.DepositCoins))
-	outputs = append(outputs, banktypes.NewOutput(reserveAcc, msg.DepositCoins))
-
-	inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, mintPoolCoin))
-	outputs = append(outputs, banktypes.NewOutput(poolCreator, mintPoolCoin))
-
-	// execute multi-send
-	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+	if _, err := k.MintAndSendPoolCoin(ctx, pool, poolCreator, poolCreator, msg.DepositCoins); err != nil {
 		return types.Pool{}, err
 	}
 
@@ -180,20 +188,8 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 			}
 		}
 
-		mintPoolCoin := sdk.NewCoin(pool.PoolCoinDenom, params.InitPoolCoinMintAmount)
-		mintPoolCoins := sdk.NewCoins(mintPoolCoin)
-		if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoins); err != nil {
-			return err
-		}
-
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, msg.Msg.DepositCoins))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, msg.Msg.DepositCoins))
-
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, mintPoolCoins))
-		outputs = append(outputs, banktypes.NewOutput(depositor, mintPoolCoins))
-
-		// execute multi-send
-		if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+		poolCoin, err := k.MintAndSendPoolCoin(ctx, pool, batchEscrowAcc, depositor, msg.Msg.DepositCoins)
+		if err != nil {
 			return err
 		}
 
@@ -215,8 +211,8 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 				sdk.NewAttribute(types.AttributeValueDepositor, depositor.String()),
 				sdk.NewAttribute(types.AttributeValueAcceptedCoins, msg.Msg.DepositCoins.String()),
 				sdk.NewAttribute(types.AttributeValueRefundedCoins, ""),
-				sdk.NewAttribute(types.AttributeValuePoolCoinDenom, mintPoolCoin.Denom),
-				sdk.NewAttribute(types.AttributeValuePoolCoinAmount, mintPoolCoin.Amount.String()),
+				sdk.NewAttribute(types.AttributeValuePoolCoinDenom, poolCoin.Denom),
+				sdk.NewAttribute(types.AttributeValuePoolCoinAmount, poolCoin.Amount.String()),
 				sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
 			),
 		)
