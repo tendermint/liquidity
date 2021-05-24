@@ -98,9 +98,7 @@ paths:
 
 
                         NOTE: The amount field is an Int that implements the
-                        custom method
-
-                        signatures required by gogoproto.
+                        custom method signatures required by gogoproto.
                     description: Fee to create a Liquidity Pool
                   swap_fee_rate:
                     type: string
@@ -218,9 +216,7 @@ paths:
                     format: uint64
                     title: >-
                       total is total number of results available if
-                      PageRequest.count_total
-
-                      was set, its value is undefined otherwise
+                      PageRequest.count_total was set, its value is undefined otherwise
             description: >-
               The response type for the QueryLiquidityPoolsResponse RPC method.
               This response includes a list of all existing liquidity pools and
@@ -601,13 +597,13 @@ paths:
                       description: >-
                         `MsgDepositWithinBatch defines` an `sdk.Msg` type that
                         supports submitting a deposit requests to the liquidity
-                        pool batch
+                        pool batch.
 
                         The deposit is submitted with the specified `pool_id`
-                        and reserve `deposit_coins`
+                        and reserve `deposit_coins`.
 
                         The deposit requests are stacked in the liquidity pool
-                        batch and are not immediately processed
+                        batch and are not immediately processed.
 
                         Batch deposit requests are processed in the `endblock`
                         at the same time as other requests.
@@ -621,8 +617,7 @@ paths:
                     the next batch or batches
               pagination:
                 description: >-
-                  pagination defines the pagination in the response. not working
-                  on this version.
+                  pagination defines the pagination in the response. Not supported in this version.
                 type: object
                 properties:
                   next_key:
@@ -695,8 +690,7 @@ paths:
         - name: pagination.key
           description: |-
             key is a value returned in PageResponse.next_key to begin
-            querying the next page most efficiently. Only one of offset or key
-            should be set.
+            querying the next page most efficiently. Set only one of offset or key.
           in: query
           required: false
           type: string
@@ -705,10 +699,7 @@ paths:
           description: >-
             offset is a numeric offset that can be used when key is unavailable.
 
-            It is less efficient than using key. Only one of offset or key
-            should
-
-            be set.
+            Offset is less efficient than using key. Set only one of offset or key.
           in: query
           required: false
           type: string
@@ -731,7 +722,7 @@ paths:
             a count of the total number of items available for pagination in
             UIs.
 
-            count_total is only respected when offset is used. It is ignored
+            count_total is respected only when offset is used. count_total is ignored
             when key
 
             is set.
@@ -827,13 +818,13 @@ paths:
                     description: >-
                       `MsgDepositWithinBatch defines` an `sdk.Msg` type that
                       supports submitting a deposit requests to the liquidity
-                      pool batch
+                      pool batch.
 
                       The deposit is submitted with the specified `pool_id` and
-                      reserve `deposit_coins`
+                      reserve `deposit_coins`.
 
                       The deposit requests are stacked in the liquidity pool
-                      batch and are not immediately processed
+                      batch and are not immediately processed.
 
                       Batch deposit requests are processed in the `endblock` at
                       the same time as other requests.
@@ -1101,25 +1092,25 @@ paths:
                             are sorted alphabetically
                       description: >-
                         `MsgSwapWithinBatch` defines an sdk.Msg type that
-                        submits a swap offer request to the liquidity pool batch
+                        submits a swap offer request to the liquidity pool batch.
 
                         Submit swap offer to the liquidity pool batch with the
                         specified the `pool_id`, `swap_type_id`,
 
                         `demand_coin_denom` with the coin and the price you're
-                        offering
+                        offering.
 
                         The `offer_coin_fee` must be half of the offer coin
                         amount * current `params.swap_fee_rate` for reservation
-                        to pay fees
+                        to pay fees.
 
                         This request is added to the pool and executed at the
-                        end of the batch (`endblock`)
+                        end of the batch (`endblock`).
 
                         You must submit the request using the same fields as the
-                        pool
+                        pool.
 
-                        Only the default `swap_type_id`1 is supported
+                        Only the default `swap_type_id`1 is supported.
 
                         The detailed swap algorithm is shown here.
 
@@ -1238,7 +1229,7 @@ paths:
           format: uint64
         - name: pagination.count_total
           description: >-
-            count_total is set to true  to indicate that the result set should
+            count_total is set to true to indicate that the result set should
             include
 
             a count of the total number of items available for pagination in
@@ -1261,7 +1252,7 @@ paths:
       summary: Get specific swap message in the pool's current batch.
       description: >-
         Returns the swap message that corresponds to the msg_index in the pool's
-        current batch
+        current batch.
       operationId: PoolBatchSwapMsg
       responses:
         '200':
@@ -1446,25 +1437,25 @@ paths:
                           are sorted alphabetically
                     description: >-
                       `MsgSwapWithinBatch` defines an sdk.Msg type that submits
-                      a swap offer request to the liquidity pool batch
+                      a swap offer request to the liquidity pool batch.
 
                       Submit swap offer to the liquidity pool batch with the
                       specified the `pool_id`, `swap_type_id`,
 
                       `demand_coin_denom` with the coin and the price you're
-                      offering
+                      offering.
 
                       The `offer_coin_fee` must be half of the offer coin amount
                       * current `params.swap_fee_rate` for reservation to pay
-                      fees
+                      fees.
 
                       This request is added to the pool and executed at the end
                       of the batch (`endblock`)
 
                       You must submit the request using the same fields as the
-                      pool
+                      pool.
 
-                      Only the default `swap_type_id`1 is supported
+                      Only the default `swap_type_id`1 is supported.
 
                       The detailed swap algorithm is shown here.
 
@@ -1624,15 +1615,13 @@ paths:
                             amount: '1000'
                       description: >-
                         `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
-                        submits a withdraw request to the liquidity pool batch
+                        submits a withdraw request to the liquidity pool batch.
 
                         Withdraw submit to the batch from the Liquidity pool
-                        with the specified `pool_id`, `pool_coin` of the pool
+                        with the specified `pool_id`, `pool_coin` of the pool.
 
-                        this requests are stacked in the batch of the liquidity
-                        pool, not immediately processed and
-
-                        processed in the `endblock` at once with other requests.
+                        This request is stacked in the batch of the liquidity
+                        pool and is not immediately processed. Batch withdraw requests are processed in the `endblock` at the same time as other requests.
 
 
                         See:
@@ -1844,15 +1833,13 @@ paths:
                           amount: '1000'
                     description: >-
                       `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that
-                      submits a withdraw request to the liquidity pool batch
+                      submits a withdraw request to the liquidity pool batch.
 
                       Withdraw submit to the batch from the Liquidity pool with
-                      the specified `pool_id`, `pool_coin` of the pool
+                      the specified `pool_id`, `pool_coin` of the pool.
 
-                      this requests are stacked in the batch of the liquidity
-                      pool, not immediately processed and
-
-                      processed in the `endblock` at once with other requests.
+                      This request is stacked in the batch of the liquidity
+                      pool and is not immediately processed. Batch withdraw requests are processed in the `endblock` at the same time as other requests.
 
 
                       See:
@@ -2101,13 +2088,13 @@ definitions:
             title: reserve coin pair of the pool to deposit
         description: >-
           `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
-          submitting a deposit requests to the liquidity pool batch
+          submitting a deposit request to the liquidity pool batch.
 
           The deposit is submitted with the specified `pool_id` and reserve
-          `deposit_coins`
+          `deposit_coins`.
 
           The deposit requests are stacked in the liquidity pool batch and are
-          not immediately processed
+          not immediately processed.
 
           Batch deposit requests are processed in the `endblock` at the same
           time as other requests.
@@ -2154,13 +2141,13 @@ definitions:
         title: reserve coin pair of the pool to deposit
     description: >-
       `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting
-      a deposit requests to the liquidity pool batch
+      a deposit request to the liquidity pool batch.
 
       The deposit is submitted with the specified `pool_id` and reserve
-      `deposit_coins`
+      `deposit_coins`.
 
       The deposit requests are stacked in the liquidity pool batch and are not
-      immediately processed
+      immediately processed.
 
       Batch deposit requests are processed in the `endblock` at the same time as
       other requests.
@@ -2294,13 +2281,13 @@ definitions:
           amount: '1000'
     description: >-
       `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a withdraw
-      request to the liquidity pool batch
+      request to the liquidity pool batch.
 
       Withdraw submit to the batch from the Liquidity pool with the specified
-      `pool_id`, `pool_coin` of the pool
+      `pool_id`, `pool_coin` of the pool.
 
       Requests are stacked in the batch of the liquidity pool, they are not
-      immediately processed 
+      immediately processed.
 
       Requests are processed in the `endblock` at the same time as other requests.
 
@@ -2321,7 +2308,7 @@ definitions:
               example: '1'
               title: >-
                 The id of the pool_type to use as pool_type_id for pool
-                creation.
+                creation
 
                 Only pool-type-id 1 is supported
 
@@ -2846,13 +2833,13 @@ definitions:
                 title: reserve coin pair of the pool to deposit
             description: >-
               `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
-              submitting a deposit requests to the liquidity pool batch
+              submitting a deposit request to the liquidity pool batch.
 
               The deposit is submitted with the specified `pool_id` and reserve
-              `deposit_coins`
+              `deposit_coins`.
 
               The deposit requests are stacked in the liquidity pool batch and
-              are not immediately processed
+              are not immediately processed.
 
               Batch deposit requests are processed in the `endblock` at the same
               time as other requests.
@@ -2938,13 +2925,13 @@ definitions:
                   title: reserve coin pair of the pool to deposit
               description: >-
                 `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports
-                submitting a deposit requests to the liquidity pool batch
+                submitting a deposit request to the liquidity pool batch.
 
                 The deposit is submitted with the specified `pool_id` and
-                reserve `deposit_coins`
+                reserve `deposit_coins`.
 
                 The deposit requests are stacked in the liquidity pool batch and
-                are not immediately processed
+                are not immediately processed.
 
                 Batch deposit requests are processed in the `endblock` at the
                 same time as other requests.
@@ -3479,15 +3466,13 @@ definitions:
                   amount: '1000'
             description: >-
               `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a
-              withdraw request to the liquidity pool batch
+              withdraw request to the liquidity pool batch.
 
               Withdraw submit to the batch from the Liquidity pool with the
-              specified `pool_id`, `pool_coin` of the pool
+              specified `pool_id`, `pool_coin` of the pool.
 
-              this requests are stacked in the batch of the liquidity pool, not
-              immediately processed and
-
-              processed in the `endblock` at once with other requests.
+              The requests are stacked in the liquidity pool batch and are
+          not immediately processed. Withdraw requests are processed in the `endblock` at the same time as other requests.
 
 
               See:
@@ -3567,15 +3552,12 @@ definitions:
                     amount: '1000'
               description: >-
                 `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits
-                a withdraw request to the liquidity pool batch
+                a withdraw request to the liquidity pool batch.
 
                 Withdraw submit to the batch from the Liquidity pool with the
-                specified `pool_id`, `pool_coin` of the pool
+                specified `pool_id`, `pool_coin` of the pool.
 
-                this requests are stacked in the batch of the liquidity pool,
-                not immediately processed and
-
-                processed in the `endblock` at once with other requests.
+                This request is stacked in the batch of the liquidity pool and is not immediately processed. This request is processed in the `endblock` at the same time as other requests.
 
 
                 See:
@@ -3861,15 +3843,13 @@ definitions:
               amount: '1000'
         description: >-
           `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that submits a
-          withdraw request to the liquidity pool batch
+          withdraw request to the liquidity pool batch.
 
           Withdraw submit to the batch from the Liquidity pool with the
-          specified `pool_id`, `pool_coin` of the pool
+          specified `pool_id`, `pool_coin` of the pool.
 
-          this requests are stacked in the batch of the liquidity pool, not
-          immediately processed and
-
-          processed in the `endblock` at once with other requests.
+          This request is stacked in the batch of the liquidity pool and is not
+          immediately processed. The request is processed in the `endblock` at the same time as other requests.
 
 
           See:
