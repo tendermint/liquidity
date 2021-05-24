@@ -204,3 +204,28 @@ message MsgSwapWithinBatch {
 
 // MsgSwapWithinBatchResponse defines the Msg/Swap response type.
 message MsgSwapWithinBatchResponse {}
+
+// `MsgCircuitBreaker` defines an `sdk.Msg` type that submits a circuit breaker request to the network and disables transactions
+// A regulator is the only address that can trigger the request.
+//
+// See: https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+message MsgCircuitBreaker {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string regulator_address = 1 [(gogoproto.moretags) = "yaml:\"regulator_address\"",
+  (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    description: "account address of the origin of this message",
+    example: "\"cosmos1e35y69rhrt7y4yce5l5u73sjnxu0l33wvznyun\"",
+    format: "sdk.AccAddress"
+  }];
+
+  // true if executed, false if not executed yet
+  bool circuit_breaker_enabled = 7 [(gogoproto.moretags) = "yaml:\"circuit_breaker_enabled\"",
+  (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      example: "false",
+  }];
+}
+
+// MsgCircuitBreakerResponse defines the Msg/CircuitBreaker response type.
+message MsgCircuitBreakerResponse {}

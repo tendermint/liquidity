@@ -136,7 +136,7 @@ message Params {
             format: "uint32"
         }];
     
-    // CircuitBreakerEnabled stops liquidity transactions 
+    // CircuitBreakerEnabled enables/disables liquidity transactions 
     repeated CircuitBreakerEnabled circuit_breaker_enabled         = 10 [(gogoproto.moretags) = "yaml:\"circuit_breaker_enabled,omitempty\""];
     bool                           default_circuit_breaker_enabled = 11 [(gogoproto.moretags) = "yaml:\"default_circuit_breaker_enabled,omitempty\""];
 }
