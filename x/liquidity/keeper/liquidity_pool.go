@@ -745,7 +745,7 @@ func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgW
 	return nil
 }
 
-// ValidateMsgSwap validates MsgSwap
+// ValidateMsgSwapWithinBatch validates MsgSwapWithinBatch.
 func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWithinBatch) error {
 	if err := msg.ValidateBasic(); err != nil {
 		return err
@@ -855,17 +855,14 @@ func (k Keeper) ValidatePoolMetadata(ctx sdk.Context, pool *types.Pool, metaData
 
 // ValidatePoolRecord validates liquidity pool record after init or after export
 func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record types.PoolRecord) error {
-	// validate liquidity pool
 	if err := k.ValidatePool(ctx, &record.Pool); err != nil {
 		return err
 	}
 
-	// validate metadata
 	if err := k.ValidatePoolMetadata(ctx, &record.Pool, &record.PoolMetadata); err != nil {
 		return err
 	}
 
-	// validate each msgs with batch state
 	if len(record.DepositMsgStates) != 0 && record.PoolBatch.DepositMsgIndex != record.DepositMsgStates[len(record.DepositMsgStates)-1].MsgIndex+1 {
 		return types.ErrBadBatchMsgIndex
 	}
@@ -876,24 +873,25 @@ func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record types.PoolRecord) err
 		return types.ErrBadBatchMsgIndex
 	}
 
-	// TODO: add verify of escrow amount and poolcoin amount with compare to remaining msgs
 	return nil
 }
 
-// IsPoolCoinDenom checks is the denom poolcoin or not, need to additional checking the reserve account is existed
+// IsPoolCoinDenom returns true if the denom is a valid pool coin denom.
 func (k Keeper) IsPoolCoinDenom(ctx sdk.Context, denom string) bool {
 	if err := sdk.ValidateDenom(denom); err != nil {
 		return false
 	}
-	denomSplit := strings.SplitN(denom, types.PoolCoinDenomPrefix, 2)
-	if len(denomSplit) == 2 && denomSplit[0] == "" && len(denomSplit[1]) == 64 {
-		reserveAcc, err := sdk.AccAddressFromHex(denomSplit[1][:40])
-		if err != nil {
-			return false
-		}
-		_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
-		return found
-	} else {
+	if !strings.HasPrefix(denom, types.PoolCoinDenomPrefix) {
 		return false
 	}
+	denom = strings.TrimPrefix(denom, types.PoolCoinDenomPrefix)
+	if len(denom) != 64 {
+		return false
+	}
+	reserveAcc, err := sdk.AccAddressFromHex(denom[:40])
+	if err != nil {
+		return false
+	}
+	_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
+	return found
 }
