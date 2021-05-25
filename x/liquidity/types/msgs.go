@@ -10,6 +10,7 @@ var (
 	_ sdk.Msg = &MsgDepositWithinBatch{}
 	_ sdk.Msg = &MsgWithdrawWithinBatch{}
 	_ sdk.Msg = &MsgSwapWithinBatch{}
+	_ sdk.Msg = &MsgCircuitBreaker{}
 )
 
 // Messages Type of Liquidity module
@@ -18,6 +19,7 @@ const (
 	TypeMsgDepositWithinBatch  = "deposit_within_batch"
 	TypeMsgWithdrawWithinBatch = "withdraw_within_batch"
 	TypeMsgSwapWithinBatch     = "swap_within_batch"
+	TypeMsgCircuitBreaker      = "circuit_breaker"
 )
 
 // ------------------------------------------------------------------------
@@ -278,6 +280,58 @@ func (msg MsgSwapWithinBatch) GetSigners() []sdk.AccAddress {
 
 func (msg MsgSwapWithinBatch) GetSwapRequester() sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.SwapRequesterAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}
+
+// ------------------------------------------------------------------------
+// MsgCircuitBreaker
+// ------------------------------------------------------------------------
+
+// NewMsgCircuitBreaker creates a new MsgCircuitBreaker object.
+func NewMsgCircuitBreaker(
+	regulator sdk.AccAddress,
+	enabled bool,
+) *MsgCircuitBreaker {
+	return &MsgCircuitBreaker{
+		RegulatorAddress:      regulator.String(),
+		CircuitBreakerEnabled: enabled,
+	}
+}
+
+// Route implements Msg.
+func (msg MsgCircuitBreaker) Route() string { return RouterKey }
+
+// Type implements Msg.
+func (msg MsgCircuitBreaker) Type() string { return TypeMsgCircuitBreaker }
+
+// ValidateBasic implements Msg.
+func (msg MsgCircuitBreaker) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.RegulatorAddress); err != nil {
+		return ErrInvalidRegulatorAddr
+	}
+
+	return nil
+}
+
+// GetSignBytes implements Msg.
+func (msg MsgCircuitBreaker) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
+}
+
+// GetSigners implements Msg.
+func (msg MsgCircuitBreaker) GetSigners() []sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(msg.RegulatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{addr}
+}
+
+func (msg MsgCircuitBreaker) GetRegulator() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(msg.RegulatorAddress)
 	if err != nil {
 		panic(err)
 	}

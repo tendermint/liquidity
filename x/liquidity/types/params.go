@@ -39,6 +39,7 @@ var (
 	KeyUnitBatchHeight        = []byte("UnitBatchHeight")
 	KeyWithdrawFeeRate        = []byte("WithdrawFeeRate")
 	KeyMaxOrderAmountRatio    = []byte("MaxOrderAmountRatio")
+	KeyCircuitBreaker         = []byte("CircuitBreaker")
 )
 
 var (
@@ -55,8 +56,11 @@ var (
 		MinReserveCoinNum: MinReserveCoinNum,
 		MaxReserveCoinNum: MaxReserveCoinNum,
 	}
-	DefaultPoolTypes = []PoolType{DefaultPoolType}
-
+	DefaultPoolTypes      = []PoolType{DefaultPoolType}
+	DefaultCircuitBreaker = CircuitBreaker{
+		Regulator: "",
+		Enabled:   false,
+	}
 	MinOfferCoinAmount = sdk.NewInt(100) // TODO: move into parameters
 )
 
@@ -79,6 +83,7 @@ func DefaultParams() Params {
 		WithdrawFeeRate:        DefaultWithdrawFeeRate,
 		MaxOrderAmountRatio:    DefaultMaxOrderAmountRatio,
 		UnitBatchHeight:        DefaultUnitBatchHeight,
+		CircuitBreaker:         DefaultCircuitBreaker,
 	}
 }
 
@@ -94,6 +99,7 @@ func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 		paramstypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
 		paramstypes.NewParamSetPair(KeyMaxOrderAmountRatio, &p.MaxOrderAmountRatio, validateMaxOrderAmountRatio),
 		paramstypes.NewParamSetPair(KeyUnitBatchHeight, &p.UnitBatchHeight, validateUnitBatchHeight),
+		paramstypes.NewParamSetPair(KeyCircuitBreaker, &p.CircuitBreaker, validateCircuitBreaker),
 	}
 }
 
@@ -118,6 +124,7 @@ func (p Params) Validate() error {
 		{p.WithdrawFeeRate, validateWithdrawFeeRate},
 		{p.MaxOrderAmountRatio, validateMaxOrderAmountRatio},
 		{p.UnitBatchHeight, validateUnitBatchHeight},
+		{p.CircuitBreaker, validateCircuitBreaker},
 	} {
 		if err := v.validator(v.value); err != nil {
 			return err
@@ -292,6 +299,15 @@ func validateUnitBatchHeight(i interface{}) error {
 
 	if v == 0 {
 		return fmt.Errorf("unit batch height must be positive: %d", v)
+	}
+
+	return nil
+}
+
+func validateCircuitBreaker(i interface{}) error {
+	_, ok := i.(CircuitBreaker)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	return nil

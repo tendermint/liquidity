@@ -8,12 +8,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
-
-	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -33,6 +33,7 @@ func GetTxCmd() *cobra.Command {
 		NewDepositWithinBatchCmd(),
 		NewWithdrawWithinBatchCmd(),
 		NewSwapWithinBatchCmd(),
+		NewCircuitBreakerCmd(),
 	)
 
 	return liquidityTxCmd
@@ -315,6 +316,55 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 			}
 
 			msg := types.NewMsgSwapWithinBatch(swapRequester, poolId, uint32(swapTypeId), offerCoin, args[3], orderPrice, swapFeeRate)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func NewCircuitBreakerCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "circuit-breaker [enabled]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Trigger circuit breaker",
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Trigger circuit breaker.
+
+Example:
+$ %s tx %s circuit-breaker true --from regulator
+`,
+				version.AppName, types.ModuleName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			regulator := clientCtx.GetFromAddress()
+
+			enabled, err := cmd.Flags().GetBool(args[0])
+			if err != nil {
+				return err
+			}
+
+			fmt.Println("")
+			fmt.Println("> CLI regulator: ", regulator)
+			fmt.Println("> CLI enabled: ", enabled)
+
+			// err = poolCoin.Validate()
+			// if err != nil {
+			// 	return err
+			// }
+
+			msg := types.NewMsgCircuitBreaker(regulator, enabled)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

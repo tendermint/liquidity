@@ -153,3 +153,17 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 	)
 	return &types.MsgSwapWithinBatchResponse{}, nil
 }
+
+func (k msgServer) CircuitBreaker(goCtx context.Context, msg *types.MsgCircuitBreaker) (*types.MsgCircuitBreakerResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	params := k.GetParams(ctx)
+
+	// TODO: regulator address validation
+	fmt.Println("> Regulator Address: ", params.CircuitBreaker.Regulator)
+	fmt.Println("> Circuit Breaker Enabled: ", params.CircuitBreaker.Enabled)
+	fmt.Println("")
+
+	params.CircuitBreaker.Enabled = msg.CircuitBreakerEnabled
+
+	return &types.MsgCircuitBreakerResponse{}, nil
+}

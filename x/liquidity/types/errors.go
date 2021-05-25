@@ -24,6 +24,7 @@ var (
 	ErrInvalidDepositorAddr         = sdkerrors.Register(ModuleName, 16, "invalid pool depositor address")
 	ErrInvalidWithdrawerAddr        = sdkerrors.Register(ModuleName, 17, "invalid pool withdrawer address")
 	ErrInvalidSwapRequesterAddr     = sdkerrors.Register(ModuleName, 18, "invalid pool swap requester address")
+	ErrInvalidRegulatorAddr         = sdkerrors.Register(ModuleName, 40, "invalid circuit breaker regulator address")
 	ErrBadPoolCoinAmount            = sdkerrors.Register(ModuleName, 19, "invalid pool coin amount")
 	ErrBadDepositCoinsAmount        = sdkerrors.Register(ModuleName, 20, "invalid deposit coins amount")
 	ErrBadOfferCoinAmount           = sdkerrors.Register(ModuleName, 21, "invalid offer coin amount")
