@@ -308,7 +308,16 @@ func validateUnitBatchHeight(i interface{}) error {
 }
 
 func validateCircuitBreaker(i interface{}) error {
-	_, ok := i.(CircuitBreaker)
+	v, ok := i.(CircuitBreaker)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return validateIsBool(v.Enabled)
+}
+
+func validateIsBool(i interface{}) error {
+	_, ok := i.(bool)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}

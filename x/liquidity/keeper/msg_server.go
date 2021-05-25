@@ -181,6 +181,7 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 // Message server, handler for MsgCircuitBreaker
 func (k msgServer) CircuitBreaker(goCtx context.Context, msg *types.MsgCircuitBreaker) (*types.MsgCircuitBreakerResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	params := k.GetParams(ctx)
 
 	// regulator must have authority
