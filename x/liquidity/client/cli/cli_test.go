@@ -60,13 +60,13 @@ func (s *IntegrationTestSuite) SetupTest() {
 	cfg := liquiditytestutil.NewConfig(db)
 	cfg.NumValidators = 1
 
-	var liquidtyGenesisState liquiditytypes.GenesisState
-	err := cfg.Codec.UnmarshalJSON(cfg.GenesisState[liquiditytypes.ModuleName], &liquidtyGenesisState)
+	var liquidityGenState liquiditytypes.GenesisState
+	err := cfg.Codec.UnmarshalJSON(cfg.GenesisState[liquiditytypes.ModuleName], &liquidityGenState)
 	s.Require().NoError(err)
 
-	liquidtyGenesisState.Params = liquiditytypes.DefaultParams()
+	liquidityGenState.Params = liquiditytypes.DefaultParams()
 
-	cfg.GenesisState[liquiditytypes.ModuleName] = cfg.Codec.MustMarshalJSON(&liquidtyGenesisState)
+	cfg.GenesisState[liquiditytypes.ModuleName] = cfg.Codec.MustMarshalJSON(&liquidityGenState)
 	cfg.AccountTokens = sdk.NewInt(100_000_000_000) // node0token denom
 	cfg.StakingTokens = sdk.NewInt(100_000_000_000) // stake denom
 
