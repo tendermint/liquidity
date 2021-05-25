@@ -40,13 +40,11 @@ func (k msgServer) CreatePool(goCtx context.Context, msg *types.MsgCreatePool) (
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(
+	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 		),
-	)
-	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeCreatePool,
 			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
@@ -56,7 +54,8 @@ func (k msgServer) CreatePool(goCtx context.Context, msg *types.MsgCreatePool) (
 			sdk.NewAttribute(types.AttributeValueDepositCoins, msg.DepositCoins.String()),
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, pool.PoolCoinDenom),
 		),
-	)
+	})
+
 	return &types.MsgCreatePoolResponse{}, nil
 }
 
@@ -79,13 +78,11 @@ func (k msgServer) DepositWithinBatch(goCtx context.Context, msg *types.MsgDepos
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(
+	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 		),
-	)
-	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeDepositWithinBatch,
 			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
@@ -93,7 +90,8 @@ func (k msgServer) DepositWithinBatch(goCtx context.Context, msg *types.MsgDepos
 			sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(batchMsg.MsgIndex, 10)),
 			sdk.NewAttribute(types.AttributeValueDepositCoins, batchMsg.Msg.DepositCoins.String()),
 		),
-	)
+	})
+
 	return &types.MsgDepositWithinBatchResponse{}, nil
 }
 
@@ -116,13 +114,11 @@ func (k msgServer) WithdrawWithinBatch(goCtx context.Context, msg *types.MsgWith
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(
+	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 		),
-	)
-	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeWithdrawWithinBatch,
 			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
@@ -131,7 +127,8 @@ func (k msgServer) WithdrawWithinBatch(goCtx context.Context, msg *types.MsgWith
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, batchMsg.Msg.PoolCoin.Denom),
 			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, batchMsg.Msg.PoolCoin.Amount.String()),
 		),
-	)
+	})
+
 	return &types.MsgWithdrawWithinBatchResponse{}, nil
 }
 
@@ -159,13 +156,11 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 		return &types.MsgSwapWithinBatchResponse{}, err
 	}
 
-	ctx.EventManager().EmitEvent(
+	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 		),
-	)
-	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSwapWithinBatch,
 			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(batchMsg.Msg.PoolId, 10)),
@@ -178,7 +173,8 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 			sdk.NewAttribute(types.AttributeValueDemandCoinDenom, batchMsg.Msg.DemandCoinDenom),
 			sdk.NewAttribute(types.AttributeValueOrderPrice, batchMsg.Msg.OrderPrice.String()),
 		),
-	)
+	})
+
 	return &types.MsgSwapWithinBatchResponse{}, nil
 }
 
