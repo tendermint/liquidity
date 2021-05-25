@@ -13,6 +13,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/version"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -53,8 +54,9 @@ func GetCmdQueryParams() *cobra.Command {
 			fmt.Sprintf(`Query values set as liquidity parameters.
 
 Example:
-$ liquidityd query liquidity params
+$ %s query liquidity params
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -90,8 +92,9 @@ func GetCmdQueryLiquidityPool() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool
 Example:
-$ liquidityd query liquidity pool 1
+$ %s query liquidity pool 1
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -131,8 +134,9 @@ func GetCmdQueryLiquidityPools() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details about all liquidity pools on a network.
 Example:
-$ liquidityd query liquidity pools
+$ %s query liquidity pools
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -172,8 +176,9 @@ func GetCmdQueryLiquidityPoolBatch() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool batch
 Example:
-$ liquidityd query liquidity batch 1
+$ %s query liquidity batch 1
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -216,8 +221,9 @@ If batch messages are normally processed from the endblock, the resulting state 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity deposits 1
+$ %s query liquidity deposits 1
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -270,8 +276,9 @@ the resulting state is applied and the messages are removed from the beginning o
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity deposit 1 20
+$ %s query liquidity deposit 1 20
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -325,8 +332,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity withdraws 1
+$ %s query liquidity withdraws 1
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -373,8 +381,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity withdraw 1 20
+$ %s query liquidity withdraw 1 20
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -428,8 +437,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity swaps 1
+$ %s query liquidity swaps 1
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -482,8 +492,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity swap 1 20
+$ %s query liquidity swap 1 20
 `,
+				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
