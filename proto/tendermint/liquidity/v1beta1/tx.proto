@@ -21,6 +21,9 @@ service Msg {
 
   // Submit swap to the liquidity pool batch.
   rpc Swap(MsgSwapWithinBatch) returns (MsgSwapWithinBatchResponse);
+
+  // Submit circuit breaker to the network.
+  rpc CircuitBreaker(MsgCircuitBreaker) returns (MsgCircuitBreakerResponse);
 }
 
 // MsgCreatePool defines an sdk.Msg type that creates a liquidity pool
