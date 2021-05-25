@@ -332,9 +332,9 @@ func NewCircuitBreakerCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "circuit-breaker [enabled]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Trigger circuit breaker",
+		Short: "Send circuit breaker to the network",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Trigger circuit breaker.
+			fmt.Sprintf(`Send circuit breaker to the network to enable/disable liquidity transactions.
 
 Example:
 $ %s tx %s circuit-breaker true --from regulator
@@ -350,19 +350,10 @@ $ %s tx %s circuit-breaker true --from regulator
 
 			regulator := clientCtx.GetFromAddress()
 
-			enabled, err := cmd.Flags().GetBool(args[0])
+			enabled, err := strconv.ParseBool(args[0])
 			if err != nil {
 				return err
 			}
-
-			fmt.Println("")
-			fmt.Println("> CLI regulator: ", regulator)
-			fmt.Println("> CLI enabled: ", enabled)
-
-			// err = poolCoin.Validate()
-			// if err != nil {
-			// 	return err
-			// }
 
 			msg := types.NewMsgCircuitBreaker(regulator, enabled)
 			if err := msg.ValidateBasic(); err != nil {

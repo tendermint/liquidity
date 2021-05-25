@@ -135,7 +135,7 @@ var xxx_messageInfo_Params proto.InternalMessageInfo
 type CircuitBreaker struct {
 	// regulator is the bech32-encoded address
 	Regulator string `protobuf:"bytes,1,opt,name=regulator,proto3" json:"regulator,omitempty"`
-	// enabled is circuit breaker status
+	// enabled is circuit breaker status; the default is false meaning circuit breaker is not triggered.
 	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3" json:"enabled,omitempty"`
 }
 

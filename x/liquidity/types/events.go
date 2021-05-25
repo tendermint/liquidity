@@ -7,6 +7,7 @@ const (
 	EventTypeDepositWithinBatch  = TypeMsgDepositWithinBatch
 	EventTypeWithdrawWithinBatch = TypeMsgWithdrawWithinBatch
 	EventTypeSwapWithinBatch     = TypeMsgSwapWithinBatch
+	EventTypeCircuitBreaker      = TypeMsgCircuitBreaker
 	EventTypeDepositToPool       = "deposit_to_pool"
 	EventTypeWithdrawFromPool    = "withdraw_from_pool"
 	EventTypeSwapTransacted      = "swap_transacted"
@@ -43,6 +44,9 @@ const (
 	AttributeValueExchangedOfferCoinAmount   = "exchanged_offer_coin_amount"
 	AttributeValueReservedOfferCoinFeeAmount = "reserved_offer_coin_fee_amount"
 	AttributeValueOrderExpiryHeight          = "order_expiry_height"
+
+	AttributeValueRegulator             = "regulator"
+	AttributeValueCircuitBreakerEnabled = "circuit_breaker_enabled"
 
 	AttributeValueCategory = ModuleName
 

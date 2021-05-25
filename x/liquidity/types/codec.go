@@ -24,6 +24,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgDepositWithinBatch{},
 		&MsgWithdrawWithinBatch{},
 		&MsgSwapWithinBatch{},
+		&MsgCircuitBreaker{},
 	)
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

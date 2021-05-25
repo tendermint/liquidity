@@ -150,7 +150,7 @@ message CircuitBreaker {
 
   // regulator is the bech32-encoded address
   string regulator = 1;
-  // enabled is circuit breaker status 
+  // enabled is circuit breaker status; the default is false meaning circuit breaker is not triggered.
   bool enabled     = 2;
 }
 

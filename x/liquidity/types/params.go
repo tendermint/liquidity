@@ -26,6 +26,9 @@ const (
 
 	// DefaultSwapTypeId is the default swap type id. The only supported swap type (instant swap) id is 1.
 	DefaultSwapTypeId uint32 = 1
+
+	// DefaultCircuitBreakerRegulator is the default regulator that has authority to enable/disable circuit breaker.
+	DefaultCircuitBreakerRegulator = ""
 )
 
 // Parameter store keys
@@ -58,7 +61,7 @@ var (
 	}
 	DefaultPoolTypes      = []PoolType{DefaultPoolType}
 	DefaultCircuitBreaker = CircuitBreaker{
-		Regulator: "",
+		Regulator: DefaultCircuitBreakerRegulator,
 		Enabled:   false,
 	}
 	MinOfferCoinAmount = sdk.NewInt(100) // TODO: move into parameters

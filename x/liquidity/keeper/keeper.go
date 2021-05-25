@@ -61,3 +61,15 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
 }
+
+func (k Keeper) GetCircuitBreaker(ctx sdk.Context) types.CircuitBreaker {
+	var res types.CircuitBreaker
+	k.paramSpace.Get(ctx, types.KeyCircuitBreaker, &res)
+	return res
+}
+
+func (k Keeper) SetCircuitBreakerEnabled(ctx sdk.Context, enabled bool) {
+	params := k.GetParams(ctx)
+	params.CircuitBreaker.Enabled = enabled
+	k.SetParams(ctx, params)
+}

@@ -30,10 +30,16 @@ var _ types.MsgServer = msgServer{}
 // Message server, handler for CreatePool msg
 func (k msgServer) CreatePool(goCtx context.Context, msg *types.MsgCreatePool) (*types.MsgCreatePoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if k.GetCircuitBreaker(ctx).Enabled {
+		return nil, types.ErrCircuitBreakerEnabled
+	}
+
 	pool, err := k.Keeper.CreatePool(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -57,15 +63,22 @@ func (k msgServer) CreatePool(goCtx context.Context, msg *types.MsgCreatePool) (
 // Message server, handler for MsgDepositWithinBatch
 func (k msgServer) DepositWithinBatch(goCtx context.Context, msg *types.MsgDepositWithinBatch) (*types.MsgDepositWithinBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if k.GetCircuitBreaker(ctx).Enabled {
+		return nil, types.ErrCircuitBreakerEnabled
+	}
+
 	// TODO: remove redundant GetPoolBatch
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
+
 	batchMsg, err := k.Keeper.DepositLiquidityPoolToBatch(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -87,15 +100,22 @@ func (k msgServer) DepositWithinBatch(goCtx context.Context, msg *types.MsgDepos
 // Message server, handler for MsgWithdrawWithinBatch
 func (k msgServer) WithdrawWithinBatch(goCtx context.Context, msg *types.MsgWithdrawWithinBatch) (*types.MsgWithdrawWithinBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if k.GetCircuitBreaker(ctx).Enabled {
+		return nil, types.ErrCircuitBreakerEnabled
+	}
+
 	// TODO: remove redundant GetPoolBatch
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
+
 	batchMsg, err := k.Keeper.WithdrawLiquidityPoolToBatch(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -118,19 +138,27 @@ func (k msgServer) WithdrawWithinBatch(goCtx context.Context, msg *types.MsgWith
 // Message server, handler for MsgSwapWithinBatch
 func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*types.MsgSwapWithinBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	params := k.GetParams(ctx)
+	if params.CircuitBreaker.Enabled {
+		return nil, types.ErrCircuitBreakerEnabled
+	}
+
 	if msg.OfferCoinFee.IsZero() {
 		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
 	}
+
 	// TODO: remove redundant GetPoolBatch
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
+
 	batchMsg, err := k.Keeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
 	if err != nil {
 		return &types.MsgSwapWithinBatchResponse{}, err
 	}
+
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
@@ -154,16 +182,29 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 	return &types.MsgSwapWithinBatchResponse{}, nil
 }
 
+// Message server, handler for MsgCircuitBreaker
 func (k msgServer) CircuitBreaker(goCtx context.Context, msg *types.MsgCircuitBreaker) (*types.MsgCircuitBreakerResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	params := k.GetParams(ctx)
 
-	// TODO: regulator address validation
-	fmt.Println("> Regulator Address: ", params.CircuitBreaker.Regulator)
-	fmt.Println("> Circuit Breaker Enabled: ", params.CircuitBreaker.Enabled)
-	fmt.Println("")
+	// regulator must have authority
+	if params.CircuitBreaker.Regulator != msg.RegulatorAddress {
+		return nil, types.ErrUnauthorized
+	}
 
-	params.CircuitBreaker.Enabled = msg.CircuitBreakerEnabled
+	k.SetCircuitBreakerEnabled(ctx, msg.CircuitBreakerEnabled)
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+		),
+		sdk.NewEvent(
+			types.EventTypeCircuitBreaker,
+			sdk.NewAttribute(types.AttributeValueRegulator, params.CircuitBreaker.Regulator),
+			sdk.NewAttribute(types.AttributeValueCircuitBreakerEnabled, strconv.FormatBool(msg.CircuitBreakerEnabled)),
+		),
+	})
 
 	return &types.MsgCircuitBreakerResponse{}, nil
 }
