@@ -65,7 +65,10 @@ $ liquidityd query liquidity params
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			res, err := queryClient.Params(
+				context.Background(),
+				&types.QueryParamsRequest{},
+			)
 			if err != nil {
 				return err
 			}
@@ -103,17 +106,10 @@ $ liquidityd query liquidity pool 1
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
 
-			// Query the pool
 			res, err := queryClient.LiquidityPool(
 				context.Background(),
 				&types.QueryLiquidityPoolRequest{PoolId: poolId},
 			)
-			if err != nil {
-				return fmt.Errorf("failed to fetch poolId %d: %s", poolId, err)
-			}
-
-			params := &types.QueryLiquidityPoolRequest{PoolId: poolId}
-			res, err = queryClient.LiquidityPool(context.Background(), params)
 			if err != nil {
 				return err
 			}
@@ -150,13 +146,19 @@ $ liquidityd query liquidity pools
 			if err != nil {
 				return err
 			}
-			result, err := queryClient.LiquidityPools(context.Background(), &types.QueryLiquidityPoolsRequest{Pagination: pageReq})
+
+			res, err := queryClient.LiquidityPools(
+				context.Background(),
+				&types.QueryLiquidityPoolsRequest{Pagination: pageReq},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -186,24 +188,18 @@ $ liquidityd query liquidity batch 1
 				return fmt.Errorf("pool-id %s not a valid uint32, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
-			// Query the pool
-			result, err := queryClient.LiquidityPoolBatch(
+			res, err := queryClient.LiquidityPoolBatch(
 				context.Background(),
 				&types.QueryLiquidityPoolBatchRequest{PoolId: poolId},
 			)
 			if err != nil {
-				return fmt.Errorf("failed to fetch poolId %d: %s", poolId, err)
-			}
-
-			params := &types.QueryLiquidityPoolBatchRequest{PoolId: poolId}
-			result, err = queryClient.LiquidityPoolBatch(context.Background(), params)
-			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(result)
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
@@ -241,14 +237,21 @@ $ liquidityd query liquidity deposits 1
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
-			result, err := queryClient.PoolBatchDepositMsgs(context.Background(), &types.QueryPoolBatchDepositMsgsRequest{
-				PoolId: poolId, Pagination: pageReq})
+			res, err := queryClient.PoolBatchDepositMsgs(
+				context.Background(),
+				&types.QueryPoolBatchDepositMsgsRequest{
+					PoolId:     poolId,
+					Pagination: pageReq,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -289,14 +292,21 @@ $ liquidityd query liquidity deposit 1 20
 				return fmt.Errorf("msg-index %s not a valid uint, input a valid unsigned 32-bit integer for msg-index", args[1])
 			}
 
-			result, err := queryClient.PoolBatchDepositMsg(context.Background(), &types.QueryPoolBatchDepositMsgRequest{
-				PoolId: poolId, MsgIndex: msgIndex})
+			res, err := queryClient.PoolBatchDepositMsg(
+				context.Background(),
+				&types.QueryPoolBatchDepositMsgRequest{
+					PoolId:   poolId,
+					MsgIndex: msgIndex,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -344,6 +354,7 @@ $ liquidityd query liquidity withdraws 1
 			return clientCtx.PrintProto(result)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -384,14 +395,21 @@ $ liquidityd query liquidity withdraw 1 20
 				return fmt.Errorf("msg-index %s not a valid uint, input a valid unsigned 32-bit integer msg-index", args[1])
 			}
 
-			result, err := queryClient.PoolBatchWithdrawMsg(context.Background(), &types.QueryPoolBatchWithdrawMsgRequest{
-				PoolId: poolId, MsgIndex: msgIndex})
+			res, err := queryClient.PoolBatchWithdrawMsg(
+				context.Background(),
+				&types.QueryPoolBatchWithdrawMsgRequest{
+					PoolId:   poolId,
+					MsgIndex: msgIndex,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -431,14 +449,21 @@ $ liquidityd query liquidity swaps 1
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
-			result, err := queryClient.PoolBatchSwapMsgs(context.Background(), &types.QueryPoolBatchSwapMsgsRequest{
-				PoolId: poolId, Pagination: pageReq})
+			res, err := queryClient.PoolBatchSwapMsgs(
+				context.Background(),
+				&types.QueryPoolBatchSwapMsgsRequest{
+					PoolId:     poolId,
+					Pagination: pageReq,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -479,14 +504,21 @@ $ liquidityd query liquidity swap 1 20
 				return fmt.Errorf("msg-index %s not a valid uint, input a valid unsigned 32-bit integer for msg-index", args[1])
 			}
 
-			result, err := queryClient.PoolBatchSwapMsg(context.Background(), &types.QueryPoolBatchSwapMsgRequest{
-				PoolId: poolId, MsgIndex: msgIndex})
+			res, err := queryClient.PoolBatchSwapMsg(
+				context.Background(),
+				&types.QueryPoolBatchSwapMsgRequest{
+					PoolId:   poolId,
+					MsgIndex: msgIndex,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
