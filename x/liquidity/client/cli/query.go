@@ -9,11 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/spf13/cobra"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -54,9 +53,9 @@ func GetCmdQueryParams() *cobra.Command {
 			fmt.Sprintf(`Query values set as liquidity parameters.
 
 Example:
-$ %s query liquidity params
+$ %s query %s params
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -92,9 +91,9 @@ func GetCmdQueryLiquidityPool() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool
 Example:
-$ %s query liquidity pool 1
+$ %s query %s pool 1
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -134,9 +133,9 @@ func GetCmdQueryLiquidityPools() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details about all liquidity pools on a network.
 Example:
-$ %s query liquidity pools
+$ %s query %s pools
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -176,9 +175,9 @@ func GetCmdQueryLiquidityPoolBatch() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool batch
 Example:
-$ %s query liquidity batch 1
+$ %s query %s batch 1
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -221,9 +220,9 @@ If batch messages are normally processed from the endblock, the resulting state 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ %s query liquidity deposits 1
+$ %s query %s deposits 1
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -276,9 +275,9 @@ the resulting state is applied and the messages are removed from the beginning o
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ %s query liquidity deposit 1 20
+$ %s query %s deposit 1 20
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -332,9 +331,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ %s query liquidity withdraws 1
+$ %s query %s withdraws 1
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -381,9 +380,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ %s query liquidity withdraw 1 20
+$ %s query %s withdraw 1 20
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -437,9 +436,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ %s query liquidity swaps 1
+$ %s query %s swaps 1
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -492,9 +491,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ %s query liquidity swap 1 20
+$ %s query %s swap 1 20
 `,
-				version.AppName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
