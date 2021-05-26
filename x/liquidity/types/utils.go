@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"sort"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -34,6 +35,25 @@ func GetPoolReserveAcc(poolName string) sdk.AccAddress {
 func GetPoolCoinDenom(poolName string) string {
 	// originally pool coin denom has prefix with / splitter, but remove prefix for pass validation of ibc-transfer
 	return fmt.Sprintf("%s%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(poolName)))
+}
+
+// TODO: add comments, test codes
+func GetReserveAcc(poolCoinDenom string) (sdk.AccAddress, error) {
+	if err := sdk.ValidateDenom(poolCoinDenom); err != nil {
+		return nil, err
+	}
+	denomSplit := strings.SplitN(poolCoinDenom, PoolCoinDenomPrefix, 2)
+	if len(denomSplit) == 2 && denomSplit[0] == "" && len(denomSplit[1]) == 64 {
+		reserveAcc, err := sdk.AccAddressFromHex(denomSplit[1][:40])
+		if err != nil {
+			return nil, err
+		} else {
+			return reserveAcc, nil
+		}
+
+	} else {
+		return nil, ErrInvalidDenom
+	}
 }
 
 // Get Total amount of the coins
