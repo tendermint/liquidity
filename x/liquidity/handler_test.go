@@ -294,3 +294,43 @@ func TestMsgServerSwap(t *testing.T) {
 	require.Equal(t, 4, len(msgs))
 	require.Equal(t, 4, len(notProcessedMsgs))
 }
+
+func TestMsgCircuitBreaker(t *testing.T) {
+	simapp, ctx := app.CreateTestInput()
+	addrs := app.AddTestAddrs(simapp, ctx, 2, sdk.NewCoins(sdk.NewCoin("stake", sdk.NewInt(1_000_000))))
+
+	params := types.DefaultParams()
+	params.CircuitBreaker.Regulator = addrs[0].String()
+	params.CircuitBreaker.Enabled = false
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+
+	tests := []struct {
+		name          string
+		msg           *types.MsgCircuitBreaker
+		expectedError error
+	}{
+		{
+			name:          "authorized regulator account",
+			msg:           types.NewMsgCircuitBreaker(addrs[0], true),
+			expectedError: nil,
+		},
+		{
+			name:          "unauthorized regulator account",
+			msg:           types.NewMsgCircuitBreaker(addrs[1], true),
+			expectedError: types.ErrUnauthorized,
+		},
+	}
+
+	handler := liquidity.NewHandler(simapp.LiquidityKeeper)
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := handler(ctx, tc.msg)
+			if tc.expectedError != nil {
+				require.EqualError(t, err, tc.expectedError.Error())
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}

@@ -18,6 +18,7 @@ func TestValidateAuxFunctions(t *testing.T) {
 		validateWithdrawFeeRate,
 		validateMaxOrderAmountRatio,
 		validateUnitBatchHeight,
+		validateCircuitBreaker,
 	} {
 		err := v(badType{})
 		require.EqualError(t, err, "invalid parameter type: types.badType")

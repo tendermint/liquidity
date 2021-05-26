@@ -13,8 +13,6 @@ import (
 )
 
 func TestParams(t *testing.T) {
-	require.IsType(t, paramstypes.KeyTable{}, types.ParamKeyTable())
-
 	simapp, ctx := app.CreateTestInput()
 	defaultParams := types.DefaultParams()
 	require.Equal(t, defaultParams, simapp.LiquidityKeeper.GetParams(ctx))
@@ -36,6 +34,8 @@ withdraw_fee_rate: "0.003000000000000000"
 max_order_amount_ratio: "0.100000000000000000"
 unit_batch_height: 1
 `
+
+	require.IsType(t, paramstypes.KeyTable{}, types.ParamKeyTable())
 	require.Equal(t, paramsStr, defaultParams.String())
 }
 
