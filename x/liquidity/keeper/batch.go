@@ -7,10 +7,11 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// Reinitialize batch messages that were not executed in the previous batch and delete batch messages that were executed or ready to delete.
+// DeleteAndInitPoolBatch resets batch msg states that were previously executed
+// and deletes msg states that were marked to be deleted.
 func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
-		// Delete and init next batch when not empty batch on before block
+		// Re-initialize the executed batch.
 		if poolBatch.Executed {
 			// On the other hand, BatchDeposit, BatchWithdraw, is all handled by the endblock if there is no error.
 			// If there are BatchMsgs left, reset the Executed, Succeeded flag so that it can be executed in the next batch.
@@ -34,8 +35,8 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 
 			height := ctx.BlockHeight()
 
-			// reinitialize remaining batch msgs
-			// In the case of BatchSwapMsgs, it is often fractional matched or has not yet expired since it has not passed ExpiryHeight.
+			// In the case of remaining swap msg states, those are either fractionally matched
+			// or has not yet been expired.
 			swapMsgs := k.GetAllRemainingPoolBatchSwapMsgStates(ctx, poolBatch)
 			if len(swapMsgs) > 0 {
 				for _, msg := range swapMsgs {
@@ -49,12 +50,11 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 				k.SetPoolBatchSwapMsgStatesByPointer(ctx, poolBatch.PoolId, swapMsgs)
 			}
 
-			// delete batch messages that were executed or ready to delete
+			// Delete all batch msg states that are ready to be deleted.
 			k.DeleteAllReadyPoolBatchDepositMsgStates(ctx, poolBatch)
 			k.DeleteAllReadyPoolBatchWithdrawMsgStates(ctx, poolBatch)
 			k.DeleteAllReadyPoolBatchSwapMsgStates(ctx, poolBatch)
 
-			// Increase the batch index and initialize the values.
 			if err := k.InitNextBatch(ctx, poolBatch); err != nil {
 				panic(err)
 			}
@@ -63,7 +63,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 	})
 }
 
-// Increase the index of the already executed batch for processing as the next batch and reinitialize the values.
+// InitNextBatch re-initializes the batch and increases the batch index.
 func (k Keeper) InitNextBatch(ctx sdk.Context, poolBatch types.PoolBatch) error {
 	if !poolBatch.Executed {
 		return types.ErrBatchNotExecuted
@@ -78,12 +78,12 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, poolBatch types.PoolBatch) error 
 	return nil
 }
 
-// In case of deposit, withdraw, and swap msgs, unlike other normal tx msgs,
-// collect them in the liquidity pool batch and perform an execution once at the endblock to calculate and use the universal price.
+// ExecutePoolBatch executes the accumulated msgs in the batch.
+// The order is (1)swap, (2)deposit, (3)withdraw.
 func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
-	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
-		params := k.GetParams(ctx)
+	params := k.GetParams(ctx)
 
+	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		if !poolBatch.Executed && ctx.BlockHeight()%int64(params.UnitBatchHeight) == 0 {
 			executedMsgCount, err := k.SwapExecution(ctx, poolBatch)
 			if err != nil {
@@ -116,7 +116,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 				return false
 			})
 
-			// set executed when something executed
+			// Mark the batch as executed when any msgs were executed.
 			if executedMsgCount > 0 {
 				poolBatch.Executed = true
 				k.SetPoolBatch(ctx, poolBatch)
@@ -126,7 +126,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 	})
 }
 
-// In order to deal with the batch at once, the coins of msgs deposited in escrow.
+// HoldEscrow sends coins to the module account for an escrow.
 func (k Keeper) HoldEscrow(ctx sdk.Context, depositor sdk.AccAddress, depositCoins sdk.Coins) error {
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, depositor, types.ModuleName, depositCoins); err != nil {
 		return err
