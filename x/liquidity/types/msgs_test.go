@@ -123,6 +123,36 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 }
 
+func TestMsgCircuitBreaker(t *testing.T) {
+	regulator := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+
+	cases := []struct {
+		expectedErr string // empty means no error expected
+		msg         *types.MsgCircuitBreaker
+	}{
+		{
+			"",
+			types.NewMsgCircuitBreaker(regulator, false),
+		},
+	}
+	for _, tc := range cases {
+		require.IsType(t, &types.MsgCircuitBreaker{}, tc.msg)
+		require.Equal(t, types.TypeMsgCircuitBreaker, tc.msg.Type())
+		require.Equal(t, types.RouterKey, tc.msg.Route())
+		require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(tc.msg)), tc.msg.GetSignBytes())
+
+		err := tc.msg.ValidateBasic()
+		if tc.expectedErr == "" {
+			require.Nil(t, err)
+			signers := tc.msg.GetSigners()
+			require.Len(t, signers, 1)
+			require.Equal(t, tc.msg.GetRegulator(), signers[0])
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+	}
+}
+
 func TestMsgPanics(t *testing.T) {
 	emptyMsgCreatePool := types.MsgCreatePool{}
 	emptyMsgDeposit := types.MsgDepositWithinBatch{}
