@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
 	lapp "github.com/tendermint/liquidity/app"
@@ -39,11 +40,19 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.ctx = ctx
 	suite.app = app
 
-	//types.RegisterQueryServer(queryHelper, app.LiquidityKeeper)
 	suite.queryClient = types.NewQueryClient(queryHelper)
 }
 
-func TestParams(t *testing.T) {
+func TestCircuitBreaker(t *testing.T) {
+	app, ctx := createTestInput()
+
+	circuitBreaker := app.LiquidityKeeper.GetCircuitBreaker(ctx)
+	require.Equal(t, false, circuitBreaker.Enabled)
+
+	app.LiquidityKeeper.SetCircuitBreakerEnabled(ctx, true)
+
+	circuitBreaker = app.LiquidityKeeper.GetCircuitBreaker(ctx)
+	require.Equal(t, true, circuitBreaker.Enabled)
 }
 
 func TestKeeperTestSuite(t *testing.T) {
