@@ -99,3 +99,19 @@ The MsgWithdrawWithinBatch message performs validity checks. The transaction tha
 - `OrderPrice` <= zero
 - `OfferCoinFee` equals `OfferCoin` _`params.SwapFeeRate`_ `0.5` with truncating Int
 - Has sufficient balance `OfferCoinFee` to reserve offer coin fee
+
+## MsgCircuitBreaker
+
+The intention of circuit breaker is to have a contingency plan for a running network which maintains network liveness. This functionality pauses all transaction message types in liquidity module and it can be triggered by only a regulator who has given authority. A regulator must be trusted party or organization that is chosen by community. 
+
+```go
+type MsgCircuitBreaker struct {
+	RegulatorAddress      string  // regulator address that has given authority to trigger circuit breaker 
+	CircuitBreakerEnabled bool    // circuit breaker status; default is false 
+}
+```
+## Validity checks
+
+The MsgCircuitBreaker message performs validity checks. The transaction that is triggered with the `MsgCircuitBreaker` message fails if:
+
+- `RegulatorAddress` is not authorized

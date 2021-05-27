@@ -61,6 +61,15 @@ message           | module            | liquidity
 message           | action            | swap_within_batch
 message           | sender            | {senderAddress}
 
+### MsgCircuitBreaker
+
+Type              | Attribute Key            | Attribute Value
+----------------- | -------------------------| -----------------
+circuit_breaker   | regulator                | {regulator}
+circuit_breaker   | circuit_breaker_enabled  | {circuit_breaker_enabled}
+message           | module                   | liquidity
+message           | action                   | circuit_breaker
+message           | sender                   | {senderAddress}
 ## EndBlocker
 
 ### Batch Result for MsgDepositWithinBatch

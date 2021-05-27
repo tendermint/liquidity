@@ -15,6 +15,7 @@ SwapFeeRate            | string (sdk.Dec) | "0.003000000000000000"
 WithdrawFeeRate        | string (sdk.Dec) | "0.003000000000000000"
 MaxOrderAmountRatio    | string (sdk.Dec) | "0.100000000000000000"
 UnitBatchHeight        | uint32           | 1
+CircuitBreaker         | CircuitBreaker   | {"regulator":"","circuit_breaker_enabled":false}
 
 ## PoolTypes
 
@@ -70,6 +71,15 @@ Maximum ratio of reserve coins that can be ordered at a swap order.
 ## UnitBatchHeight
 
 The smallest unit batch size for every liquidity pool.
+
+## CircuitBreaker
+
+```go
+type MsgCircuitBreaker struct {
+	RegulatorAddress      string  // regulator address that has given authority to trigger circuit breaker 
+	CircuitBreakerEnabled bool    // circuit breaker status; default is false 
+}
+```
 
 # Constant Variables
 
