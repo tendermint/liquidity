@@ -462,7 +462,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	reserveCoins = k.GetReserveCoins(ctx, pool)
 
 	var lastReserveRatio sdk.Dec
-	if reserveCoins.Empty() {
+	if reserveCoins.IsZero() {
 		lastReserveRatio = sdk.ZeroDec()
 	} else {
 		lastReserveRatio = sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
@@ -491,7 +491,7 @@ func (k Keeper) GetReserveCoins(ctx sdk.Context, pool types.Pool) (reserveCoins 
 	reserveAcc := pool.GetReserveAccount()
 	reserveCoins = sdk.NewCoins()
 	for _, denom := range pool.ReserveCoinDenoms {
-		reserveCoins = reserveCoins.Add(k.bankKeeper.GetBalance(ctx, reserveAcc, denom))
+		reserveCoins = append(reserveCoins, k.bankKeeper.GetBalance(ctx, reserveAcc, denom))
 	}
 	return
 }

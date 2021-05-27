@@ -762,3 +762,23 @@ func TestWithdrawSmallAmount(t *testing.T) {
 		liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 	})
 }
+
+func TestGetReserveCoins(t *testing.T) {
+	simapp, ctx, pool, creatorAddr, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
+	require.NoError(t, err)
+
+	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+	require.Len(t, reserveCoins, 2)
+	require.True(t, reserveCoins.AmountOf(DenomX).Equal(sdk.NewInt(1000000)))
+	require.True(t, reserveCoins.AmountOf(DenomY).Equal(sdk.NewInt(1000000)))
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, sdk.NewInt64Coin(pool.PoolCoinDenom, 1000000)))
+	require.NoError(t, err)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+	require.Len(t, reserveCoins, 2)
+	require.True(t, reserveCoins.AmountOf(DenomX).IsZero())
+	require.True(t, reserveCoins.AmountOf(DenomY).IsZero())
+}
