@@ -25,10 +25,6 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 		return types.ErrPoolTypeNotExists
 	}
 
-	if poolType.MaxReserveCoinNum > types.MaxReserveCoinNum || types.MinReserveCoinNum > poolType.MinReserveCoinNum {
-		return types.ErrNumOfReserveCoin
-	}
-
 	reserveCoinNum := uint32(msg.DepositCoins.Len())
 	if reserveCoinNum > poolType.MaxReserveCoinNum || poolType.MinReserveCoinNum > reserveCoinNum {
 		return types.ErrNumOfReserveCoin
