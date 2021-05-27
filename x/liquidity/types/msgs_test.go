@@ -16,111 +16,186 @@ const (
 	DefaultSwapTypeId = uint32(1)
 	DenomX            = "denomX"
 	DenomY            = "denomY"
-	DenomPoolCoin     = "denomPoolCoin"
 )
 
 func TestMsgCreatePool(t *testing.T) {
-	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg := types.NewMsgCreatePool(addr, DefaultPoolTypeId, coins)
-	require.IsType(t, &types.MsgCreatePool{}, msg)
-	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgCreatePool, msg.Type())
+	poolCreator := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
 
-	err := msg.ValidateBasic()
-	require.NoError(t, err)
-	signers := msg.GetSigners()
-	require.Len(t, signers, 1)
-	require.Equal(t, msg.GetPoolCreator(), signers[0])
-	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+	cases := []struct {
+		expectedErr string // empty means no error expected
+		msg         *types.MsgCreatePool
+	}{
+		{
+			"",
+			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid index of the pool type",
+			types.NewMsgCreatePool(poolCreator, 0, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid pool creator address",
+			types.NewMsgCreatePool(sdk.AccAddress{}, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid number of reserve coin",
+			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid number of reserve coin",
+			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("denomZ", sdk.NewInt(1000)))),
+		},
+	}
 
-	// Fail cases
-	msg = types.NewMsgCreatePool(sdk.AccAddress{}, DefaultPoolTypeId, coins)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	coinsFail := sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreatePool(addr, DefaultPoolTypeId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("Denomfail", sdk.NewInt(1000)))
-	msg = types.NewMsgCreatePool(addr, DefaultPoolTypeId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(0)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgCreatePool(addr, DefaultPoolTypeId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
+	for _, tc := range cases {
+		require.IsType(t, &types.MsgCreatePool{}, tc.msg)
+		require.Equal(t, types.TypeMsgCreatePool, tc.msg.Type())
+		require.Equal(t, types.RouterKey, tc.msg.Route())
+		require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(tc.msg)), tc.msg.GetSignBytes())
+
+		err := tc.msg.ValidateBasic()
+		if tc.expectedErr == "" {
+			require.Nil(t, err)
+			signers := tc.msg.GetSigners()
+			require.Len(t, signers, 1)
+			require.Equal(t, tc.msg.GetPoolCreator(), signers[0])
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+	}
 }
 
 func TestMsgDepositWithinBatch(t *testing.T) {
-	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	coins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg := types.NewMsgDepositWithinBatch(addr, DefaultPoolId, coins)
-	require.IsType(t, &types.MsgDepositWithinBatch{}, msg)
-	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgDepositWithinBatch, msg.Type())
+	depositor := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
 
-	err := msg.ValidateBasic()
-	require.NoError(t, err)
-	signers := msg.GetSigners()
-	require.Len(t, signers, 1)
-	require.Equal(t, msg.GetDepositor(), signers[0])
-	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+	cases := []struct {
+		expectedErr string // empty means no error expected
+		msg         *types.MsgDepositWithinBatch
+	}{
+		{
+			"",
+			types.NewMsgDepositWithinBatch(depositor, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+		},
+		{
+			"",
+			types.NewMsgDepositWithinBatch(depositor, 0, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid pool depositor address",
+			types.NewMsgDepositWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+		},
+		{
+			"invalid number of reserve coin",
+			types.NewMsgDepositWithinBatch(depositor, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+		},
+	}
 
-	// Fail case
-	coinsFail := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("Denomfail", sdk.NewInt(1000)))
-	msg = types.NewMsgDepositWithinBatch(addr, DefaultPoolId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	coinsFail = sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(0)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))
-	msg = types.NewMsgDepositWithinBatch(addr, DefaultPoolId, coinsFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	msg = types.NewMsgDepositWithinBatch(sdk.AccAddress{}, DefaultPoolId, coins)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
+	for _, tc := range cases {
+		require.IsType(t, &types.MsgDepositWithinBatch{}, tc.msg)
+		require.Equal(t, types.TypeMsgDepositWithinBatch, tc.msg.Type())
+		require.Equal(t, types.RouterKey, tc.msg.Route())
+		require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(tc.msg)), tc.msg.GetSignBytes())
+
+		err := tc.msg.ValidateBasic()
+		if tc.expectedErr == "" {
+			require.Nil(t, err)
+			signers := tc.msg.GetSigners()
+			require.Len(t, signers, 1)
+			require.Equal(t, tc.msg.GetDepositor(), signers[0])
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+	}
 }
+
 func TestMsgWithdrawWithinBatch(t *testing.T) {
-	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	coin := sdk.NewCoin(DenomPoolCoin, sdk.NewInt(1000))
-	msg := types.NewMsgWithdrawWithinBatch(addr, DefaultPoolId, coin)
-	require.IsType(t, &types.MsgWithdrawWithinBatch{}, msg)
-	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgWithdrawWithinBatch, msg.Type())
+	withdrawer := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	poolCoinDenom := "poolCoinDenom"
 
-	err := msg.ValidateBasic()
-	require.NoError(t, err)
-	signers := msg.GetSigners()
-	require.Len(t, signers, 1)
-	require.Equal(t, msg.GetWithdrawer(), signers[0])
-	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+	cases := []struct {
+		expectedErr string // empty means no error expected
+		msg         *types.MsgWithdrawWithinBatch
+	}{
+		{
+			"",
+			types.NewMsgWithdrawWithinBatch(withdrawer, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
+		},
+		{
+			"invalid pool withdrawer address",
+			types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
+		},
+		{
+			"invalid pool coin amount",
+			types.NewMsgWithdrawWithinBatch(withdrawer, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(0))),
+		},
+	}
 
-	// Fail case
-	coinFail := sdk.NewCoin("testPoolCoin", sdk.NewInt(0))
-	msg = types.NewMsgWithdrawWithinBatch(addr, DefaultPoolId, coinFail)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-	msg = types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, DefaultPoolId, coin)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
+	for _, tc := range cases {
+		require.IsType(t, &types.MsgWithdrawWithinBatch{}, tc.msg)
+		require.Equal(t, types.TypeMsgWithdrawWithinBatch, tc.msg.Type())
+		require.Equal(t, types.RouterKey, tc.msg.Route())
+		require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(tc.msg)), tc.msg.GetSignBytes())
+
+		err := tc.msg.ValidateBasic()
+		if tc.expectedErr == "" {
+			require.Nil(t, err)
+			signers := tc.msg.GetSigners()
+			require.Len(t, signers, 1)
+			require.Equal(t, tc.msg.GetWithdrawer(), signers[0])
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+	}
 }
 
 func TestMsgSwapWithinBatch(t *testing.T) {
-	addr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	coin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
+	swapRequester := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
+	offerCoin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
 	orderPrice, err := sdk.NewDecFromStr("0.1")
 	require.NoError(t, err)
-	msg := types.NewMsgSwapWithinBatch(addr, DefaultPoolId, DefaultSwapTypeId, coin, DenomY, orderPrice, types.DefaultSwapFeeRate)
-	require.IsType(t, &types.MsgSwapWithinBatch{}, msg)
-	require.Equal(t, types.RouterKey, msg.Route())
-	require.Equal(t, types.TypeMsgSwapWithinBatch, msg.Type())
 
-	err = msg.ValidateBasic()
-	require.NoError(t, err)
-	signers := msg.GetSigners()
-	require.Len(t, signers, 1)
-	require.Equal(t, msg.GetSwapRequester(), signers[0])
-	require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
+	cases := []struct {
+		expectedErr string // empty means no error expected
+		msg         *types.MsgSwapWithinBatch
+	}{
+		{
+			"",
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, orderPrice, types.DefaultSwapFeeRate),
+		},
+		{
+			"invalid pool swap requester address",
+			types.NewMsgSwapWithinBatch(sdk.AccAddress{}, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, orderPrice, types.DefaultSwapFeeRate),
+		},
+		{
+			"invalid offer coin amount",
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, sdk.NewCoin(DenomX, sdk.NewInt(0)), DenomY, orderPrice, types.DefaultSwapFeeRate),
+		},
+		{
+			"invalid order price",
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, sdk.ZeroDec(), types.DefaultSwapFeeRate),
+		},
+		{
+			"offer amount should be over 100 micro",
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, sdk.NewCoin(DenomX, sdk.NewInt(1)), DenomY, orderPrice, types.DefaultSwapFeeRate),
+		},
+	}
+
+	for _, tc := range cases {
+		require.IsType(t, &types.MsgSwapWithinBatch{}, tc.msg)
+		require.Equal(t, types.TypeMsgSwapWithinBatch, tc.msg.Type())
+		require.Equal(t, types.RouterKey, tc.msg.Route())
+		require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(tc.msg)), tc.msg.GetSignBytes())
+
+		err := tc.msg.ValidateBasic()
+		if tc.expectedErr == "" {
+			require.Nil(t, err)
+			signers := tc.msg.GetSigners()
+			require.Len(t, signers, 1)
+			require.Equal(t, tc.msg.GetSwapRequester(), signers[0])
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+	}
 }
 
 func TestMsgPanics(t *testing.T) {
