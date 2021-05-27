@@ -1,16 +1,17 @@
-<!--
-order: 5
--->
+<!-- order: 5 -->
 
-# Begin-Block
+ # Begin-Block
 
-## 1) Delete pool batch messages to delete, And reset states for pool batch messages
+Begin block operations for the liquidity module reinitialize batch messages that were not executed in the previous batch and delete batch messages that were executed or ready to be deleted.
 
-Delete `{*action}MsgState`s which have `ToBeDeleted` state and then reset states remaining `{*action}MsgState`s, for execute on `end-block` of next batch index
+## Delete pool batch messages and reset states for pool batch messages
 
-## 2) Reinitialization executed pool batch to next liquidity pool batch
+- Delete `{*action}MsgState` messages that have `ToBeDeleted` state
+- Reset states for the remaining `{*action}MsgState` messages to execute on `end-block` of the next batch index
 
-Reinitialization executed `PoolBatch` for to be next batch, the Reinitialization process includes the following actions
+## Reinitialize executed pool batch to next liquidity pool batch
+
+Reinitialize the executed `PoolBatch` for the next batch. The reinitialization process includes the following actions:
 
 - Increase state `BatchIndex` of the batch
 - Reset state `BeginHeight` as current block height

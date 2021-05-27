@@ -364,4 +364,5 @@ To dive into more about the liquidity module, check out the following resources.
  - [Swagger HTTP API doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
  - [godoc](https://pkg.go.dev/github.com/tendermint/liquidity)
  - [Client doc](doc/client.md)
+ - [Performance Testing](doc/Performance%20Testing%20for%20Liquidity%20Module.pdf)
  
