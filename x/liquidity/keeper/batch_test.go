@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -1163,4 +1164,42 @@ func TestUnitBatchHeight(t *testing.T) {
 				t, (ctx.BlockHeight()-1)/int64(unitBatchHeight)*int64(unitBatchHeight)+1, batch.BeginHeight)
 		}
 	}
+}
+
+func TestSwapAutoOrderExpiryHeight(t *testing.T) {
+	simapp, ctx, pool, _, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
+	require.NoError(t, err)
+	ctx = ctx.WithBlockHeight(1)
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	params.UnitBatchHeight = 5
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+
+	addr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewInt64Coin(DenomX, 1000000)))
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	orderPrice := sdk.MustNewDecFromStr("2")
+	sms, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(
+		ctx,
+		types.NewMsgSwapWithinBatch(
+			addr, pool.Id, types.DefaultSwapTypeId, sdk.NewInt64Coin(DenomX, 100000), DenomY, orderPrice, params.SwapFeeRate),
+		types.CancelOrderLifeSpan)
+	require.NoError(t, err)
+	require.Equal(t, int64(5), sms.OrderExpiryHeight)
+
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	ctx = ctx.WithBlockHeight(4)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	balances := simapp.BankKeeper.GetAllBalances(ctx, addr)
+	fmt.Println(balances)
+	require.True(t, balances.AmountOf(DenomX).Equal(sdk.NewInt(1000000-100150)))
+	require.True(t, balances.AmountOf(DenomY).IsZero())
+
+	ctx = ctx.WithBlockHeight(5)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	balances = simapp.BankKeeper.GetAllBalances(ctx, addr)
+	require.True(t, !balances.AmountOf(DenomY).IsZero()) // Check if swap request has executed
 }
