@@ -78,8 +78,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	reserveAcc := types.GetPoolReserveAcc(poolName)
 
 	poolCreator := msg.GetPoolCreator()
-	accPoolCreator := k.accountKeeper.GetAccount(ctx, poolCreator)
-	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, accPoolCreator.GetAddress())
+	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, poolCreator)
 
 	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
 		return types.Pool{}, types.ErrInsufficientBalance
