@@ -77,6 +77,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
+	sdkupgrade "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -425,6 +426,12 @@ func NewLiquidityApp(
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
+	app.UpgradeKeeper.SetUpgradeHandler("Gravity-DEX",
+		func(ctx sdk.Context, plan sdkupgrade.Plan) {
+			var genState liquiditytypes.GenesisState
+			genState.Params = liquiditytypes.DefaultParams()
+			app.LiquidityKeeper.InitGenesis(ctx, genState)
+		})
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
