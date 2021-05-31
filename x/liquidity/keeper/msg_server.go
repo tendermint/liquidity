@@ -127,7 +127,7 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
 	}
-	batchMsg, err := k.Keeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
+	batchMsg, err := k.Keeper.SwapLiquidityPoolToBatch(ctx, msg, types.CancelOrderLifeSpan)
 	if err != nil {
 		return &types.MsgSwapWithinBatchResponse{}, err
 	}

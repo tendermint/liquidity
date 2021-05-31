@@ -12,9 +12,6 @@ import (
 )
 
 func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool) error {
-	if err := msg.ValidateBasic(); err != nil {
-		return err
-	}
 	params := k.GetParams(ctx)
 	var poolType types.PoolType
 
@@ -26,10 +23,6 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 		}
 	} else {
 		return types.ErrPoolTypeNotExists
-	}
-
-	if poolType.MaxReserveCoinNum > types.MaxReserveCoinNum || types.MinReserveCoinNum > poolType.MinReserveCoinNum {
-		return types.ErrNumOfReserveCoin
 	}
 
 	reserveCoinNum := uint32(msg.DepositCoins.Len())
@@ -78,8 +71,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	reserveAcc := types.GetPoolReserveAcc(poolName)
 
 	poolCreator := msg.GetPoolCreator()
-	accPoolCreator := k.accountKeeper.GetAccount(ctx, poolCreator)
-	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, accPoolCreator.GetAddress())
+	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, poolCreator)
 
 	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
 		return types.Pool{}, types.ErrInsufficientBalance
@@ -654,7 +646,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, match.SwapMsgState.ExchangedOfferCoin.Amount.String()),
 					sdk.NewAttribute(types.AttributeValueOfferCoinFeeAmount, match.OfferCoinFeeAmt.String()),
 					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, match.SwapMsgState.ReservedOfferCoinFee.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(match.OrderExpiryHeight, 10)),
+					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(match.SwapMsgState.OrderExpiryHeight, 10)),
 					sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
 				))
 		} else {
@@ -697,9 +689,6 @@ func (k Keeper) RefundSwaps(ctx sdk.Context, pool types.Pool, swapMsgStates []*t
 
 // ValidateMsgDepositLiquidityPool validates MsgDepositWithinBatch
 func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDepositWithinBatch) error {
-	if err := msg.ValidateBasic(); err != nil {
-		return err
-	}
 	pool, found := k.GetPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
@@ -714,7 +703,6 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 	if err := types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, reserveCoins.Add(msg.DepositCoins...)); err != nil {
 		return err
 	}
-	// TODO: validate msgIndex
 
 	denomA, denomB := types.AlphabeticalDenomPair(msg.DepositCoins[0].Denom, msg.DepositCoins[1].Denom)
 	if denomA != pool.ReserveCoinDenoms[0] || denomB != pool.ReserveCoinDenoms[1] {
@@ -725,9 +713,6 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 
 // ValidateMsgWithdrawLiquidityPool validates MsgWithdrawWithinBatch
 func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgWithdrawWithinBatch) error {
-	if err := msg.ValidateBasic(); err != nil {
-		return err
-	}
 	pool, found := k.GetPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
@@ -751,10 +736,6 @@ func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgW
 
 // ValidateMsgSwap validates MsgSwap
 func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWithinBatch) error {
-	if err := msg.ValidateBasic(); err != nil {
-		return err
-	}
-
 	pool, found := k.GetPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists

@@ -140,6 +140,9 @@ func validatePoolTypes(i interface{}) error {
 		if int(p.Id) != i+1 {
 			return fmt.Errorf("pool type ids must be sorted")
 		}
+		if p.MaxReserveCoinNum > MaxReserveCoinNum || MinReserveCoinNum > p.MinReserveCoinNum {
+			return fmt.Errorf("min, max reserve coin num value of pool types are out of bounds")
+		}
 	}
 
 	if len(v) > 1 || !v[0].Equal(DefaultPoolType) {

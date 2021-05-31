@@ -223,7 +223,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 }
 
 // In order to deal with the batch at once, Put the message in the batch and the coins of the msgs deposited in escrow.
-func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWithinBatch, OrderExpirySpanHeight int64) (*types.SwapMsgState, error) {
+func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWithinBatch, orderExpirySpanHeight int64) (*types.SwapMsgState, error) {
 	if err := k.ValidateMsgSwapWithinBatch(ctx, *msg); err != nil {
 		return nil, err
 	}
@@ -236,19 +236,27 @@ func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWith
 		poolBatch.BeginHeight = ctx.BlockHeight()
 	}
 
+	currentHeight := ctx.BlockHeight()
+
+	if orderExpirySpanHeight == 0 {
+		params := k.GetParams(ctx)
+		u := int64(params.UnitBatchHeight)
+		orderExpirySpanHeight = (u - currentHeight%u) % u
+	}
+
 	batchPoolMsg := types.SwapMsgState{
-		MsgHeight:            ctx.BlockHeight(),
+		MsgHeight:            currentHeight,
 		MsgIndex:             poolBatch.SwapMsgIndex,
 		Executed:             false,
 		Succeeded:            false,
 		ToBeDeleted:          false,
+		OrderExpiryHeight:    currentHeight + orderExpirySpanHeight,
 		ExchangedOfferCoin:   sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
 		RemainingOfferCoin:   msg.OfferCoin,
 		ReservedOfferCoinFee: msg.OfferCoinFee,
 		Msg:                  msg,
 	}
 
-	batchPoolMsg.OrderExpiryHeight = batchPoolMsg.MsgHeight + OrderExpirySpanHeight
 	if err := k.HoldEscrow(ctx, msg.GetSwapRequester(), sdk.NewCoins(msg.OfferCoin.Add(msg.OfferCoinFee))); err != nil {
 		return nil, err
 	}

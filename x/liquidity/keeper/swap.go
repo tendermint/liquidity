@@ -29,6 +29,9 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 		if currentHeight > sms.OrderExpiryHeight {
 			sms.ToBeDeleted = true
 		}
+		if err := k.ValidateMsgSwapWithinBatch(ctx, *sms.Msg); err != nil {
+			sms.ToBeDeleted = true
+		}
 		if !sms.ToBeDeleted {
 			swapMsgStatesNotToBeDeleted = append(swapMsgStatesNotToBeDeleted, sms)
 		}
