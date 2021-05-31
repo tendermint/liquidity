@@ -135,7 +135,6 @@ func NewBatchResult() BatchResult {
 // struct of swap matching result of each Batch swap message
 type MatchResult struct {
 	OrderDirection         OrderDirection
-	OrderExpiryHeight      int64
 	OrderMsgIndex          uint64
 	OrderPrice             sdk.Dec
 	OfferCoinAmt           sdk.Dec
@@ -508,9 +507,8 @@ func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, exe
 				for _, matchOrder := range matchedSwapMsgStates {
 					offerAmt := matchOrder.RemainingOfferCoin.Amount.ToDec()
 					matchResult := MatchResult{
-						OrderDirection:    direction,
-						OrderExpiryHeight: height + CancelOrderLifeSpan,
-						OfferCoinAmt:      offerAmt,
+						OrderDirection: direction,
+						OfferCoinAmt:   offerAmt,
 						// TransactedCoinAmt is a value that should not be lost, so Ceil it conservatively considering the decimal error.
 						TransactedCoinAmt: offerAmt.Mul(fractionalMatchRatio).Ceil(),
 						SwapMsgState:      matchOrder,
