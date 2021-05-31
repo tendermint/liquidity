@@ -425,6 +425,12 @@ func NewLiquidityApp(
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
+	app.UpgradeKeeper.SetUpgradeHandler("Gravity-DEX",
+		func(ctx sdk.Context, plan upgradetypes.Plan) {
+			var genState liquiditytypes.GenesisState
+			genState.Params = liquiditytypes.DefaultParams()
+			app.LiquidityKeeper.InitGenesis(ctx, genState)
+		})
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
