@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -1193,13 +1192,20 @@ func TestSwapAutoOrderExpiryHeight(t *testing.T) {
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 	balances := simapp.BankKeeper.GetAllBalances(ctx, addr)
-	fmt.Println(balances)
 	require.True(t, balances.AmountOf(DenomX).Equal(sdk.NewInt(1000000-100150)))
 	require.True(t, balances.AmountOf(DenomY).IsZero())
+	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
+	require.True(t, found)
+	states := simapp.LiquidityKeeper.GetAllPoolBatchSwapMsgStates(ctx, batch)
+	require.Len(t, states, 1)
 
 	ctx = ctx.WithBlockHeight(5)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 	balances = simapp.BankKeeper.GetAllBalances(ctx, addr)
 	require.True(t, !balances.AmountOf(DenomY).IsZero()) // Check if swap request has executed
+	ctx = ctx.WithBlockHeight(6)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	states = simapp.LiquidityKeeper.GetAllPoolBatchSwapMsgStates(ctx, batch)
+	require.Len(t, states, 0)
 }
