@@ -127,6 +127,13 @@ paths:
                     format: uint32
                     example: '1'
                     description: The smallest unit batch height for every liquidity pool.
+                  circuit_breaker_enabled:
+                    type: boolean
+                    format: bool
+                    example: 'false'
+                    title: >-
+                      Circuit breaker enables or disables transaction messages
+                      in liquidity module
             description: >-
               the response type for the QueryParamsResponse RPC method. This
               includes current parameter of the liquidity module.
@@ -2416,6 +2423,13 @@ definitions:
         format: uint32
         example: '1'
         description: The smallest unit batch height for every liquidity pool.
+      circuit_breaker_enabled:
+        type: boolean
+        format: bool
+        example: 'false'
+        title: >-
+          Circuit breaker enables or disables transaction messages in liquidity
+          module
     description: Params defines the parameters for the liquidity module.
   tendermint.liquidity.v1beta1.Pool:
     type: object
@@ -2784,6 +2798,13 @@ definitions:
             format: uint32
             example: '1'
             description: The smallest unit batch height for every liquidity pool.
+          circuit_breaker_enabled:
+            type: boolean
+            format: bool
+            example: 'false'
+            title: >-
+              Circuit breaker enables or disables transaction messages in
+              liquidity module
     description: >-
       the response type for the QueryParamsResponse RPC method. This includes
       current parameter of the liquidity module.
