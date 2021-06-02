@@ -44,6 +44,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.queryClient = types.NewQueryClient(queryHelper)
 }
 
+func TestKeeperTestSuite(t *testing.T) {
+	suite.Run(t, new(KeeperTestSuite))
+}
+
 func TestCircuitBreakerEnabled(t *testing.T) {
 	app, ctx := createTestInput()
 
@@ -57,8 +61,4 @@ func TestCircuitBreakerEnabled(t *testing.T) {
 
 	enabled = app.LiquidityKeeper.GetCircuitBreakerEnabled(ctx)
 	require.Equal(t, true, enabled)
-}
-
-func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(KeeperTestSuite))
 }
