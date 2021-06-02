@@ -61,3 +61,9 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
 }
+
+// GetCircuitBreakerEnabled returns circuit breaker enabled param from the paramspace.
+func (k Keeper) GetCircuitBreakerEnabled(ctx sdk.Context) (enabled bool) {
+	k.paramSpace.Get(ctx, types.KeyCircuitBreakerEnabled, &enabled)
+	return
+}
