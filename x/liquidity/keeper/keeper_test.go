@@ -47,7 +47,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 func TestCircuitBreakerEnabled(t *testing.T) {
 	app, ctx := createTestInput()
 
-	enabled := app.LiquidityKeeper.GetCircuitBreaker(ctx)
+	enabled := app.LiquidityKeeper.GetCircuitBreakerEnabled(ctx)
 	require.Equal(t, false, enabled)
 
 	params := app.LiquidityKeeper.GetParams(ctx)
@@ -55,7 +55,7 @@ func TestCircuitBreakerEnabled(t *testing.T) {
 
 	app.LiquidityKeeper.SetParams(ctx, params)
 
-	enabled = app.LiquidityKeeper.GetCircuitBreaker(ctx)
+	enabled = app.LiquidityKeeper.GetCircuitBreakerEnabled(ctx)
 	require.Equal(t, true, enabled)
 }
 
