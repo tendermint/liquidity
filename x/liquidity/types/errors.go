@@ -13,7 +13,7 @@ var (
 	ErrNumOfReserveCoin             = sdkerrors.Register(ModuleName, 5, "invalid number of reserve coin")
 	ErrNumOfPoolCoin                = sdkerrors.Register(ModuleName, 6, "invalid number of pool coin")
 	ErrInsufficientPool             = sdkerrors.Register(ModuleName, 7, "insufficient pool")
-	ErrInsufficientBalance          = sdkerrors.Register(ModuleName, 8, "insufficient coin balance to escrow")
+	ErrInsufficientBalance          = sdkerrors.Register(ModuleName, 8, "insufficient coin balance")
 	ErrLessThanMinInitDeposit       = sdkerrors.Register(ModuleName, 9, "deposit coin less than MinInitDepositAmount")
 	ErrNotImplementedYet            = sdkerrors.Register(ModuleName, 10, "not implemented yet")
 	ErrPoolAlreadyExists            = sdkerrors.Register(ModuleName, 11, "the pool already exists")

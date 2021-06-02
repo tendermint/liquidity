@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
@@ -73,16 +74,30 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	poolCreator := msg.GetPoolCreator()
 	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, poolCreator)
 
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.Pool{}, types.ErrInsufficientBalance
-	}
-
 	for _, coin := range msg.DepositCoins {
 		if coin.Amount.LT(params.MinInitDepositAmount) {
-			return types.Pool{}, types.ErrLessThanMinInitDeposit
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrLessThanMinInitDeposit, "deposit coin %s is smaller than %s", coin, params.MinInitDepositAmount)
 		}
 	}
 
+	for _, coin := range msg.DepositCoins {
+		balance := k.bankKeeper.GetBalance(ctx, poolCreator, coin.Denom)
+		if balance.IsLT(coin) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrInsufficientBalance, "%s is smaller than %s", balance, coin)
+		}
+	}
+
+	for _, coin := range params.PoolCreationFee {
+		balance := k.bankKeeper.GetBalance(ctx, poolCreator, coin.Denom)
+		neededAmt := coin.Amount.Add(msg.DepositCoins.AmountOf(coin.Denom))
+		neededCoin := sdk.NewCoin(coin.Denom, neededAmt)
+		if balance.IsLT(neededCoin) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrInsufficientPoolCreationFee, "%s is smaller than %s", balance, neededCoin)
+		}
+	}
 	if !poolCreatorBalances.IsAllGTE(params.PoolCreationFee.Add(msg.DepositCoins...)) {
 		return types.Pool{}, types.ErrInsufficientPoolCreationFee
 	}

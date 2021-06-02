@@ -211,14 +211,14 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	// Fail case, reset deposit balance for pool already exists case
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
-	require.Equal(t, types.ErrPoolAlreadyExists, err)
+	require.ErrorIs(t, err, types.ErrPoolAlreadyExists)
 
 	// reset deposit balance without PoolCreationFee of pool creator
 	// Fail case, insufficient balances for pool creation fee case
 	msgAB := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msgAB)
-	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
+	require.ErrorIs(t, types.ErrInsufficientPoolCreationFee, err)
 
 	// Success case, create another pool
 	msgAB = types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
