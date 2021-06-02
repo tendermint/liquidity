@@ -58,8 +58,14 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 
 var (
 	invariantCheckFlag = true // TODO: better way to handle below invariant checks?
-	// For the coin amount less than coinAmountThreshold, high errorRate don't mean
-	// that the calculation logic was wrong, thus ignore it.
+	// For coin amounts less than coinAmountThreshold, a high errorRate does not mean
+	// that the calculation logic has errors.
+	// For example, if there were two X coins and three Y coins in the pool, and someone deposits
+	// one X coin and one Y coin, it's an acceptable input.
+	// But pool price would change from 2/3 to 3/4 so errorRate will report 1/8(=0.125),
+	// meaning that the price has changed by 12.5%.
+	// This happens with small coin amounts, so there should be a threshold for coin amounts
+	// before we calculate the errorRate.
 	coinAmountThreshold = sdk.NewInt(10)
 	errorRateThreshold  = sdk.NewDecWithPrec(5, 2) // 5%
 )
