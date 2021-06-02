@@ -847,8 +847,8 @@ func TestDepositWithCoinsSent(t *testing.T) {
 	require.NoError(t, err)
 	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
 	require.Len(t, reserveCoins, 2) // denomZ coins are ignored
-	require.True(t, reserveCoins.AmountOf(DenomX).Equal(sdk.NewInt(2000000)))
-	require.True(t, reserveCoins.AmountOf(DenomY).Equal(sdk.NewInt(3000000)))
+	require.True(sdk.IntEq(t, reserveCoins.AmountOf(DenomX), sdk.NewInt(2000000)))
+	require.True(sdk.IntEq(t, reserveCoins.AmountOf(DenomY), sdk.NewInt(3000000)))
 
 	// Add more coins to deposit.
 	depositCoins := sdk.NewCoins(sdk.NewInt64Coin(DenomX, 3000000), sdk.NewInt64Coin(DenomY, 3000000))
@@ -861,10 +861,10 @@ func TestDepositWithCoinsSent(t *testing.T) {
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
 	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
-	require.True(t, reserveCoins.AmountOf(DenomX).Equal(sdk.NewInt(4000000)))
-	require.True(t, reserveCoins.AmountOf(DenomY).Equal(sdk.NewInt(6000000)))
+	require.True(sdk.IntEq(t, reserveCoins.AmountOf(DenomX), sdk.NewInt(3999999))) // This is because of decimal truncation error.
+	require.True(sdk.IntEq(t, reserveCoins.AmountOf(DenomY), sdk.NewInt(6000000)))
 	balances := simapp.BankKeeper.GetAllBalances(ctx, addr)
-	require.True(t, balances.AmountOf(DenomX).Equal(sdk.NewInt(1000000)))
-	require.True(t, balances.AmountOf(DenomY).Equal(sdk.NewInt(0)))
-	require.True(t, balances.AmountOf(pool.PoolCoinDenom).Equal(sdk.NewInt(1000000)))
+	require.True(sdk.IntEq(t, balances.AmountOf(DenomX), sdk.NewInt(1000001)))
+	require.True(sdk.IntEq(t, balances.AmountOf(DenomY), sdk.NewInt(0)))
+	require.True(sdk.IntEq(t, balances.AmountOf(pool.PoolCoinDenom), sdk.NewInt(999999)))
 }
