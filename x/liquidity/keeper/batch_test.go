@@ -641,12 +641,10 @@ func TestLiquidityScenario2(t *testing.T) {
 	orderPriceList := []sdk.Dec{price}
 	orderAddrList := addrs[1:2]
 
-	batchMsgs, batch := app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	batchMsgs, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	batchMsgs, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	batchMsgs, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, true)
-	require.NotNil(t, batchMsgs)
-	require.NotNil(t, batch)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, true)
 }
 
 // This scenario tests to executed accumulated deposit and withdraw pool batches
