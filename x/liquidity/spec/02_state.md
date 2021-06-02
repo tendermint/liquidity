@@ -56,7 +56,7 @@ Deposit, withdrawal, or swap orders are accumulated in a liquidity pool for a pr
 
 `DepositMsgState` defines the state of deposit message as it is processed in the next batch or batches.
 
-When a user sends `MsgDeposit` transaction to the network, it is accumulated in a batch. `DepositMsgState` contains the state information about the message; if the transaction is executed, successfully matched, and if it is to be deleted in the next block.
+When a user sends `MsgDepositWithinBatch` transaction to the network, it is accumulated in a batch. `DepositMsgState` contains the state information about the message; if the transaction is executed, successfully matched, and if it is to be deleted in the next block.
 
 ```go
 type DepositMsgState struct {
@@ -72,7 +72,7 @@ type DepositMsgState struct {
 
 `WithdrawMsgState` defines the state of withdraw message as it is processed in the next batch or batches.
 
-When a user sends `MsgWithdraw` transaction to the network, it is accumulated in a batch. `WithdrawMsgState` contains the state information about the message; if the transaction is executed, successfully matched, and if it is to be deleted in the next block.
+When a user sends `MsgWithdrawWithinBatch` transaction to the network, it is accumulated in a batch. `WithdrawMsgState` contains the state information about the message; if the transaction is executed, successfully matched, and if it is to be deleted in the next block.
 
 ```go
 type WithdrawMsgState struct {
@@ -88,7 +88,7 @@ type WithdrawMsgState struct {
 
 `SwapMsgState` defines the state of swap message as it is processed in the next batch or batches.
 
-When a user sends `MsgSwap` transaction to the network, it is accumulated in a batch. `SwapMsgState` contains the state information about the message; if the transaction is executed, successfully matched, and if it is to be deleted in the next block.
+When a user sends `MsgSwapWithinBatch` transaction to the network, it is accumulated in a batch. `SwapMsgState` contains the state information about the message; if the transaction is executed, successfully matched, and if it is to be deleted in the next block.
 
 ```go
 type SwapMsgState struct {
