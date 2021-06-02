@@ -6,15 +6,16 @@ The liquidity module contains the following parameters:
 
 Key                    | Type             | Example
 ---------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------
-PoolTypes              | []PoolType       | [{"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}]
-MinInitDepositAmount   | string (sdk.Int) | "1000000"
-InitPoolCoinMintAmount | string (sdk.Int) | "1000000"
-MaxReserveCoinAmount   | string (sdk.Int) | "1000000000000"
-PoolCreationFee        | sdk.Coins        | [{"denom":"stake","amount":"100000000"}]
-SwapFeeRate            | string (sdk.Dec) | "0.003000000000000000"
-WithdrawFeeRate        | string (sdk.Dec) | "0.003000000000000000"
-MaxOrderAmountRatio    | string (sdk.Dec) | "0.100000000000000000"
-UnitBatchHeight        | uint32           | 1
+PoolTypes              | []PoolType            | [{"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}]
+MinInitDepositAmount   | string (sdk.Int)      | "1000000"
+InitPoolCoinMintAmount | string (sdk.Int)      | "1000000"
+MaxReserveCoinAmount   | string (sdk.Int)      | "1000000000000"
+PoolCreationFee        | sdk.Coins             | [{"denom":"stake","amount":"100000000"}]
+SwapFeeRate            | string (sdk.Dec)      | "0.003000000000000000"
+WithdrawFeeRate        | string (sdk.Dec)      | "0.003000000000000000"
+MaxOrderAmountRatio    | string (sdk.Dec)      | "0.100000000000000000"
+UnitBatchHeight        | uint32                | 1
+CircuitBreakerEnabled  | CircuitBreakerEnabled | false
 
 ## PoolTypes
 
@@ -71,6 +72,9 @@ Maximum ratio of reserve coins that can be ordered at a swap order.
 
 The smallest unit batch size for every liquidity pool.
 
+## CircuitBreakerEnabled
+
+The intention of circuit breaker is to have a contingency plan for a running network which maintains network liveness. This parameter enables or disables all transaction message types in liquidity module.
 # Constant Variables
 
 Key                 | Type   | Constant Value

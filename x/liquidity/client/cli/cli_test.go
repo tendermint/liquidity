@@ -480,12 +480,13 @@ func (s *IntegrationTestSuite) TestGetCmdQueryParams() {
 		{
 			"json output",
 			[]string{fmt.Sprintf("--%s=json", tmcli.OutputFlag)},
-			`{"pool_types":[{"id":1,"name":"DefaultPoolType","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}],"min_init_deposit_amount":"1000000","init_pool_coin_mint_amount":"1000000","max_reserve_coin_amount":"0","pool_creation_fee":[{"denom":"stake","amount":"100000000"}],"swap_fee_rate":"0.003000000000000000","withdraw_fee_rate":"0.003000000000000000","max_order_amount_ratio":"0.100000000000000000","unit_batch_height":1}`,
+			`{"pool_types":[{"id":1,"name":"DefaultPoolType","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}],"min_init_deposit_amount":"1000000","init_pool_coin_mint_amount":"1000000","max_reserve_coin_amount":"0","pool_creation_fee":[{"denom":"stake","amount":"100000000"}],"swap_fee_rate":"0.003000000000000000","withdraw_fee_rate":"0.003000000000000000","max_order_amount_ratio":"0.100000000000000000","unit_batch_height":1,"circuit_breaker_enabled":false}`,
 		},
 		{
 			"text output",
 			[]string{fmt.Sprintf("--%s=text", tmcli.OutputFlag)},
-			`init_pool_coin_mint_amount: "1000000"
+			`circuit_breaker_enabled: false
+init_pool_coin_mint_amount: "1000000"
 max_order_amount_ratio: "0.100000000000000000"
 max_reserve_coin_amount: "0"
 min_init_deposit_amount: "1000000"

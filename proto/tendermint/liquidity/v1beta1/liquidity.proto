@@ -135,6 +135,14 @@ message Params {
             example: "\"1\"",
             format: "uint32"
         }];
+    
+    // Circuit breaker enables or disables transaction messages in liquidity module
+    bool circuit_breaker_enabled = 10 [
+        (gogoproto.moretags) = "yaml:\"circuit_breaker_enabled\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"false\"",
+            format: "bool"
+        }];
 }
 
 // The liquidity pool information
