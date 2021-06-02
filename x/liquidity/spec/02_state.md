@@ -24,7 +24,7 @@ The parameters of the Pool state are:
 
 - Pool: `0x11 | Id -> ProtocolBuffer(Pool)`
 
-- PoolByReserveAccIndex: `0x12 | ReserveAcc -> nil`
+- PoolByReserveAccIndex: `0x12 | ReserveAcc -> Id`
 
 - GlobalLiquidityPoolIdKey: `[]byte("globalLiquidityPoolId")`
 
@@ -111,14 +111,8 @@ The parameters of the PoolBatch, DepositMsgState, WithdrawMsgState, and SwapMsgS
 
 - PoolBatch: `0x22 | PoolId -> ProtocolBuffer(PoolBatch)`
 
-- PoolBatchDepositMsgStateIndex: `0x31 | PoolId -> nil`
-
 - PoolBatchDepositMsgStates: `0x31 | PoolId | MsgIndex -> ProtocolBuffer(DepositMsgState)`
 
-- PoolBatchWithdrawMsgStateIndex: `0x32 | PoolId -> nil`
-
 - PoolBatchWithdrawMsgStates: `0x32 | PoolId | MsgIndex -> ProtocolBuffer(WithdrawMsgState)`
-
-- PoolBatchSwapMsgStateIndex: `0x33 | PoolId -> nil`
 
 - PoolBatchSwapMsgStates: `0x33 | PoolId | MsgIndex -> ProtocolBuffer(SwapMsgState)`

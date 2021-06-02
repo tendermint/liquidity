@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/spf13/cobra"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -53,8 +53,9 @@ func GetCmdQueryParams() *cobra.Command {
 			fmt.Sprintf(`Query values set as liquidity parameters.
 
 Example:
-$ liquidityd query liquidity params
+$ %s query %s params
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -65,7 +66,10 @@ $ liquidityd query liquidity params
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			res, err := queryClient.Params(
+				context.Background(),
+				&types.QueryParamsRequest{},
+			)
 			if err != nil {
 				return err
 			}
@@ -87,8 +91,9 @@ func GetCmdQueryLiquidityPool() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool
 Example:
-$ liquidityd query liquidity pool 1
+$ %s query %s pool 1
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -103,17 +108,10 @@ $ liquidityd query liquidity pool 1
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
 
-			// Query the pool
 			res, err := queryClient.LiquidityPool(
 				context.Background(),
 				&types.QueryLiquidityPoolRequest{PoolId: poolId},
 			)
-			if err != nil {
-				return fmt.Errorf("failed to fetch poolId %d: %s", poolId, err)
-			}
-
-			params := &types.QueryLiquidityPoolRequest{PoolId: poolId}
-			res, err = queryClient.LiquidityPool(context.Background(), params)
 			if err != nil {
 				return err
 			}
@@ -135,8 +133,9 @@ func GetCmdQueryLiquidityPools() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details about all liquidity pools on a network.
 Example:
-$ liquidityd query liquidity pools
+$ %s query %s pools
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -150,13 +149,19 @@ $ liquidityd query liquidity pools
 			if err != nil {
 				return err
 			}
-			result, err := queryClient.LiquidityPools(context.Background(), &types.QueryLiquidityPoolsRequest{Pagination: pageReq})
+
+			res, err := queryClient.LiquidityPools(
+				context.Background(),
+				&types.QueryLiquidityPoolsRequest{Pagination: pageReq},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -170,8 +175,9 @@ func GetCmdQueryLiquidityPoolBatch() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool batch
 Example:
-$ liquidityd query liquidity batch 1
+$ %s query %s batch 1
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -186,24 +192,18 @@ $ liquidityd query liquidity batch 1
 				return fmt.Errorf("pool-id %s not a valid uint32, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
-			// Query the pool
-			result, err := queryClient.LiquidityPoolBatch(
+			res, err := queryClient.LiquidityPoolBatch(
 				context.Background(),
 				&types.QueryLiquidityPoolBatchRequest{PoolId: poolId},
 			)
 			if err != nil {
-				return fmt.Errorf("failed to fetch poolId %d: %s", poolId, err)
-			}
-
-			params := &types.QueryLiquidityPoolBatchRequest{PoolId: poolId}
-			result, err = queryClient.LiquidityPoolBatch(context.Background(), params)
-			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintProto(result)
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 	return cmd
 }
@@ -220,8 +220,9 @@ If batch messages are normally processed from the endblock, the resulting state 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity deposits 1
+$ %s query %s deposits 1
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -241,14 +242,21 @@ $ liquidityd query liquidity deposits 1
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
-			result, err := queryClient.PoolBatchDepositMsgs(context.Background(), &types.QueryPoolBatchDepositMsgsRequest{
-				PoolId: poolId, Pagination: pageReq})
+			res, err := queryClient.PoolBatchDepositMsgs(
+				context.Background(),
+				&types.QueryPoolBatchDepositMsgsRequest{
+					PoolId:     poolId,
+					Pagination: pageReq,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -267,8 +275,9 @@ the resulting state is applied and the messages are removed from the beginning o
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity deposit 1 20
+$ %s query %s deposit 1 20
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -289,14 +298,21 @@ $ liquidityd query liquidity deposit 1 20
 				return fmt.Errorf("msg-index %s not a valid uint, input a valid unsigned 32-bit integer for msg-index", args[1])
 			}
 
-			result, err := queryClient.PoolBatchDepositMsg(context.Background(), &types.QueryPoolBatchDepositMsgRequest{
-				PoolId: poolId, MsgIndex: msgIndex})
+			res, err := queryClient.PoolBatchDepositMsg(
+				context.Background(),
+				&types.QueryPoolBatchDepositMsgRequest{
+					PoolId:   poolId,
+					MsgIndex: msgIndex,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -315,8 +331,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity withdraws 1
+$ %s query %s withdraws 1
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -344,6 +361,7 @@ $ liquidityd query liquidity withdraws 1
 			return clientCtx.PrintProto(result)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -362,8 +380,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity withdraw 1 20
+$ %s query %s withdraw 1 20
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -384,14 +403,21 @@ $ liquidityd query liquidity withdraw 1 20
 				return fmt.Errorf("msg-index %s not a valid uint, input a valid unsigned 32-bit integer msg-index", args[1])
 			}
 
-			result, err := queryClient.PoolBatchWithdrawMsg(context.Background(), &types.QueryPoolBatchWithdrawMsgRequest{
-				PoolId: poolId, MsgIndex: msgIndex})
+			res, err := queryClient.PoolBatchWithdrawMsg(
+				context.Background(),
+				&types.QueryPoolBatchWithdrawMsgRequest{
+					PoolId:   poolId,
+					MsgIndex: msgIndex,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -410,8 +436,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity swaps 1
+$ %s query %s swaps 1
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -431,14 +458,21 @@ $ liquidityd query liquidity swaps 1
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
-			result, err := queryClient.PoolBatchSwapMsgs(context.Background(), &types.QueryPoolBatchSwapMsgsRequest{
-				PoolId: poolId, Pagination: pageReq})
+			res, err := queryClient.PoolBatchSwapMsgs(
+				context.Background(),
+				&types.QueryPoolBatchSwapMsgsRequest{
+					PoolId:     poolId,
+					Pagination: pageReq,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -457,8 +491,9 @@ the resulting state is applied and the messages are removed in the beginning of 
 To query for past blocks, query the block height using the REST/gRPC API of a node that is not pruned.
 
 Example:
-$ liquidityd query liquidity swap 1 20
+$ %s query %s swap 1 20
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -479,14 +514,21 @@ $ liquidityd query liquidity swap 1 20
 				return fmt.Errorf("msg-index %s not a valid uint, input a valid unsigned 32-bit integer for msg-index", args[1])
 			}
 
-			result, err := queryClient.PoolBatchSwapMsg(context.Background(), &types.QueryPoolBatchSwapMsgRequest{
-				PoolId: poolId, MsgIndex: msgIndex})
+			res, err := queryClient.PoolBatchSwapMsg(
+				context.Background(),
+				&types.QueryPoolBatchSwapMsgRequest{
+					PoolId:   poolId,
+					MsgIndex: msgIndex,
+				},
+			)
 			if err != nil {
 				return err
 			}
-			return clientCtx.PrintProto(result)
+
+			return clientCtx.PrintProto(res)
 		},
 	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd

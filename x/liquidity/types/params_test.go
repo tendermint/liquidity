@@ -35,6 +35,7 @@ swap_fee_rate: "0.003000000000000000"
 withdraw_fee_rate: "0.003000000000000000"
 max_order_amount_ratio: "0.100000000000000000"
 unit_batch_height: 1
+circuit_breaker_enabled: false
 `
 	require.Equal(t, paramsStr, defaultParams.String())
 }
