@@ -141,12 +141,12 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 
 		balanceA := bk.GetBalance(ctx, simAccount.Address, denomA).Amount
 		if !balanceA.IsPositive() {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "balanceA is zero or negative"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "balanceA is not positive"), nil, nil
 		}
 
 		balanceB := bk.GetBalance(ctx, simAccount.Address, denomB).Amount
 		if !balanceB.IsPositive() {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "balanceB is zero or negative"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "balanceB is not positive"), nil, nil
 		}
 
 		poolCreator := account.GetAddress()
