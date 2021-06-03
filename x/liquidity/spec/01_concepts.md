@@ -11,12 +11,13 @@ The liquidity module is a module that can be used on any Cosmos SDK based applic
 A liquidity pool is a coin reserve that contains two different types of coins in a trading pair. It has to be unique. A liquidity provider can be anyone (permissionless) who provides liquidity by depositing reserve coins into the pool. He/she earns the accumulated swap fees with respect to their pool share. Pool share is represented as possession of pool coins. All matchable swap requests are expected to be executed and unmatched ones are removed.
 ## Equivalent Swap Price Model (ESPM)
 
-The liquidity module is a Cosmos SDK implementation of an AMM system with a novel economic model called the Equivalent Swap Price Model (ESPM). The key distinguishing feature of the ESPM model from the Constant Product Market Maker (CPMM) model (e.g. Uniswap) is the implementation of a hybrid system. This system combines an orderbook model exchange and a simple liquidity pool model by which the order book is governed by a set of order rules and execution is performed in batches. In the ESPM, the pool price is always equal to the last swap price, thus reducing opportunities for arbitrage.
+The liquidity module is a Cosmos SDK implementation of an AMM system with a novel economic model called the Equivalent Swap Price Model (ESPM). The key distinguishing feature of the ESPM model from the Constant Product Market Maker (CPMM) model (for example, Uniswap) is the implementation of a hybrid system. This system combines an orderbook model exchange with a simple liquidity pool model that governs the order book with a set of order rules and performs execution in batches. In the ESPM, the pool price is always equal to the last swap price which reduces opportunities for arbitrage.
 
-The ESPM model is intended to provide protection against price volatility, transaction ordering vulnerabilities, and losses due to arbitrage, which are widely known vulnerabilities in AMMs such as Uniswap.
+The ESPM model is intended to provide protection against price volatility, transaction ordering vulnerabilities, and losses due to arbitrage. AMMs such as Uniswap do not provide protection against these whatever they are.
+
 ## Batch Execution
 
-The liquidity module uses batch execution methodology. Making deposit, withdrawal, or swap orders are accumulated in a liquidity pool for a pre-defined period, which can be one or more blocks in length. Orders are then added to the pool and executed at the end of the batch. The size of each batch is changeable by using governance parameter called `UnitBatchSize`.
+The liquidity module uses a batch execution methodology. Deposits, withdrawals, and swap orders are accumulated in a liquidity pool for a pre-defined period that is one or more blocks in length. Orders are then added to the pool and executed at the end of the batch. The size of each batch is configured by using the `UnitBatchSize` governance parameter.
 
 ## Price Discovery
 
@@ -24,12 +25,11 @@ Swap prices in liquidity pools are determined by the current pool coin reserves 
 
 ## Escrow Process
 
-The liquidity module uses module account that acts as an escrow account that holds and releases the coin amount during batch execution.
-
+The liquidity module uses a module account that acts as an escrow account. The module account holds and releases the coin amount during batch execution.
 ## Fees
 ### PoolCreationFee
 
-The liquidity module has `PoolCreationFee` parameter that is paid upon pool creation. This param is defined at genesis and it can be updated via the governance proposal. The purpose of this fee is to prevent from creating useless pools and making limitless transactions. This fee goes to community fund.
+The liquidity module `PoolCreationFee` parameter is paid upon pool creation. This param is defined at genesis and can be updated by using the governance proposal. The purpose of this fee is to prevent users from creating useless pools and making limitless transactions. The funds from this fee go to the community fund.
 ### WithdrawalFeeRate
 
 The liquidity module has `WithdrawFeeRate` parameter that is paid upon withdrawal. This param is defined at genesis and it can be updated via the governance proposal. The purpose of this fee is to prevent from making limitless withdrawals.
