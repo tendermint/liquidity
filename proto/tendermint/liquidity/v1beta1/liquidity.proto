@@ -14,7 +14,7 @@ message PoolType {
     option (gogoproto.equal) = true;
 
     // The id of the pool_type to use as pool_type_id for pool creation.
-    // Only pool-type-id 1 is supported
+    // Only pool-type-id 1 is supported.
     // {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
     uint32 id = 1 [(gogoproto.moretags) = "yaml:\"id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -28,14 +28,14 @@ message PoolType {
             example: "\"ConstantProductLiquidityPool\"",
         }];
 
-    // min number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
+    // minimum number of reserveCoins for LiquidityPoolType. Only 2 reserveCoins are allowed.
     uint32 min_reserve_coin_num = 3 [(gogoproto.moretags) = "yaml:\"min_reserve_coin_num\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"2\"",
             format: "uint32"
         }];
 
-    // max number of reserveCoins for LiquidityPoolType only 2 is allowed on this spec
+    // maximum number of reserveCoins for LiquidityPoolType. Only 2 reserveCoins are allowed.
     uint32 max_reserve_coin_num = 4 [(gogoproto.moretags) = "yaml:\"max_reserve_coin_num\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"2\"",
@@ -57,7 +57,7 @@ message Params {
         (gogoproto.nullable) = false
     ];
 
-    // Minimum number of coins to be deposited to the liquidity pool upon pool creation
+    // Minimum number of coins to be deposited to the liquidity pool on pool creation
     string min_init_deposit_amount = 2 [
         (gogoproto.moretags)   = "yaml:\"min_init_deposit_amount\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
@@ -67,7 +67,7 @@ message Params {
             format: "sdk.Int"
         }];
 
-    // Initial mint amount of pool coin upon pool creation
+    // Initial mint amount of pool coins upon pool creation
     string init_pool_coin_mint_amount = 3 [
         (gogoproto.moretags)   = "yaml:\"init_pool_coin_mint_amount\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
@@ -77,7 +77,7 @@ message Params {
             format: "sdk.Int"
         }];
 
-    // Limit the size of each liquidity pool in the beginning phase of Liquidity Module adoption to minimize risk, 0 means no limit
+    // Limit the size of each liquidity pool. In the beginning phase of Liquidity Module adoption, this limit minimizes risk. Although not recommended for production, you can set to 0 for no limit.
     string max_reserve_coin_amount = 4 [
         (gogoproto.moretags)   = "yaml:\"max_reserve_coin_amount\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
@@ -98,7 +98,7 @@ message Params {
         }
     ];
 
-    // Swap fee rate for every executed swap
+    // Swap fee rate for every executed swap.
     string swap_fee_rate = 6 [
         (gogoproto.moretags)   = "yaml:\"swap_fee_rate\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
@@ -108,7 +108,7 @@ message Params {
             format: "sdk.Dec"
         }];
 
-    // Reserve coin withdrawal with less proportion by withdrawFeeRate
+    // Reserve coin withdrawal with less proportion by withdrawFeeRate.
     string withdraw_fee_rate = 7 [
         (gogoproto.moretags)   = "yaml:\"withdraw_fee_rate\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
@@ -118,7 +118,7 @@ message Params {
             format: "sdk.Dec"
         }];
 
-    // Maximum ratio of reserve coins that can be ordered at a swap order
+    // Maximum ratio of reserve coins that can be ordered at a swap order.
     string max_order_amount_ratio = 8 [
         (gogoproto.moretags)   = "yaml:\"max_order_amount_ratio\"",
         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
@@ -128,12 +128,20 @@ message Params {
             format: "sdk.Dec"
         }];
 
-    // The smallest unit batch height for every liquidity pool
+    // The smallest unit batch height for every liquidity pool.
     uint32 unit_batch_height = 9 [
         (gogoproto.moretags) = "yaml:\"unit_batch_height\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1\"",
             format: "uint32"
+        }];
+    
+    // Circuit breaker enables or disables transaction messages in liquidity module
+    bool circuit_breaker_enabled = 10 [
+        (gogoproto.moretags) = "yaml:\"circuit_breaker_enabled\"",
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            example: "\"false\"",
+            format: "bool"
         }];
 }
 
@@ -227,7 +235,7 @@ message PoolBatch {
             format: "uint64"
         }];
 
-    // height where this batch is begun
+    // height where this batch is started
     int64 begin_height = 3 [(gogoproto.moretags) = "yaml:\"begin_height\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1000\"",
@@ -255,14 +263,14 @@ message PoolBatch {
             format: "uint64"
         }];
 
-    // true if executed, false if not executed yet
+    // true if executed, false if not executed 
     bool executed = 7 [(gogoproto.moretags) = "yaml:\"executed\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
         }];
 }
 
-// DepositMsgState defines the state of the deposit message that contains the state information as it is processed in the next batch or batches
+// DepositMsgState defines the state of the deposit message that contains the state information as the message is processed in the next batch or batches
 message DepositMsgState {
 
     // height where this message is appended to the batch
@@ -279,7 +287,7 @@ message DepositMsgState {
             format: "uint64"
         }];
 
-    // true if executed on this batch, false if not executed yet
+    // true if executed on this batch, false if not executed 
     bool executed = 3 [(gogoproto.moretags) = "yaml:\"executed\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
@@ -301,7 +309,7 @@ message DepositMsgState {
     MsgDepositWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
-// WithdrawMsgState defines the state of the withdraw message that contains state information as it is processed in the next batch or batches 
+// WithdrawMsgState defines the state of the withdraw message that contains state information as the message is processed in the next batch or batches 
 message WithdrawMsgState {
 
     // height where this message is appended to the batch
@@ -318,7 +326,7 @@ message WithdrawMsgState {
             format: "uint64"
         }];
 
-    // true if executed on this batch, false if not executed yet
+    // true if executed on this batch, false if not executed 
     bool executed = 3 [(gogoproto.moretags) = "yaml:\"executed\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
@@ -340,7 +348,7 @@ message WithdrawMsgState {
     MsgWithdrawWithinBatch msg = 6 [(gogoproto.moretags) = "yaml:\"msg\""];
 }
 
-// SwapMsgState defines the state of swap message that contains state information as it is processed in the next batch or batches
+// SwapMsgState defines the state of swap message that contains state information as the message is processed in the next batch or batches
 message SwapMsgState {
 
     // height where this message is appended to the batch
@@ -357,7 +365,7 @@ message SwapMsgState {
             format: "uint64"
         }];
 
-    // true if executed on this batch, false if not executed yet
+    // true if executed on this batch, false if not executed 
     bool executed = 3 [(gogoproto.moretags) = "yaml:\"executed\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "true",
@@ -375,7 +383,7 @@ message SwapMsgState {
             example: "true",
         }];
 
-    // swap orders are cancelled when current height is equal or higher than ExpiryHeight
+    // swap orders are cancelled when current height is equal to or higher than ExpiryHeight
     int64 order_expiry_height = 6 [(gogoproto.moretags) = "yaml:\"order_expiry_height\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             example: "\"1000\"",
