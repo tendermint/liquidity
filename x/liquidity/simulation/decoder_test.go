@@ -13,7 +13,7 @@ import (
 )
 
 func TestDecodeLiquidityStore(t *testing.T) {
-	cdc, _ := simapp.MakeCodecs()
+	cdc := simapp.MakeTestEncodingConfig().Marshaler
 	dec := simulation.NewDecodeStore(cdc)
 
 	liquidityPool := types.Pool{}
@@ -22,8 +22,8 @@ func TestDecodeLiquidityStore(t *testing.T) {
 
 	kvPairs := kv.Pairs{
 		Pairs: []kv.Pair{
-			{Key: types.PoolKeyPrefix, Value: cdc.MustMarshalBinaryBare(&liquidityPool)},
-			{Key: types.PoolBatchKeyPrefix, Value: cdc.MustMarshalBinaryBare(&liquidityPoolBatch)},
+			{Key: types.PoolKeyPrefix, Value: cdc.MustMarshal(&liquidityPool)},
+			{Key: types.PoolBatchKeyPrefix, Value: cdc.MustMarshal(&liquidityPoolBatch)},
 			{Key: []byte{0x99}, Value: []byte{0x99}},
 		},
 	}

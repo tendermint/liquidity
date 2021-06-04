@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	lapp "github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
@@ -30,10 +29,8 @@ type KeeperTestSuite struct {
 func (suite *KeeperTestSuite) SetupTest() {
 	app, ctx := createTestInput()
 
-	querier := keeper.Querier{Keeper: app.LiquidityKeeper}
-
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, querier)
+	types.RegisterQueryServer(queryHelper, app.LiquidityKeeper)
 
 	suite.addrs, suite.pools, suite.batches, suite.depositMsgs, suite.withdrawMsgs = createLiquidity(suite.T(), ctx, app)
 

@@ -4,8 +4,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 
 	"github.com/tendermint/liquidity/app"
@@ -32,18 +31,25 @@ func createRandomAccounts(accNum int) []sdk.AccAddress {
 	return testAddrs
 }
 
+func AddCoins(app *app.LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
+	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
+		return err
+	}
+	return app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
+}
+
 // setTotalSupply provides the total supply based on accAmt * totalAccounts.
 func setTotalSupply(app *app.LiquidityApp, ctx sdk.Context, accAmt sdk.Int, totalAccounts int) {
-	totalSupply := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt.MulRaw(int64(totalAccounts))))
-	prevSupply := app.BankKeeper.GetSupply(ctx)
-	app.BankKeeper.SetSupply(ctx, banktypes.NewSupply(prevSupply.GetTotal().Add(totalSupply...)))
+	prevSupply := app.BankKeeper.GetSupply(ctx, app.StakingKeeper.BondDenom(ctx))
+	diff := accAmt.MulRaw(int64(totalAccounts)).Sub(prevSupply.Amount)
+	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), diff)))
 }
 
 // saveAccount saves the provided account into the simapp with balance based on initCoins.
 func saveAccount(app *app.LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins) {
 	acc := app.AccountKeeper.NewAccountWithAddress(ctx, addr)
 	app.AccountKeeper.SetAccount(ctx, acc)
-	err := app.BankKeeper.AddCoins(ctx, addr, initCoins)
+	err := AddCoins(app, ctx, addr, initCoins)
 	if err != nil {
 		panic(err)
 	}
@@ -73,13 +79,6 @@ func addTestAddrs(app *app.LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk
 
 	return testAddrs
 }
-
-var (
-	valTokens = sdk.TokensFromConsensusPower(42)
-	//TestProposal        = types.NewTextProposal("Test", "description")
-	TestDescription     = stakingtypes.NewDescription("T", "E", "S", "T", "Z")
-	TestCommissionRates = stakingtypes.NewCommissionRates(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec())
-)
 
 func createLiquidity(t *testing.T, ctx sdk.Context, simapp *app.LiquidityApp) (
 	[]sdk.AccAddress, []types.Pool, []types.PoolBatch,

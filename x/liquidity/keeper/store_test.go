@@ -48,8 +48,8 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 
 		// make random orders, set buyer, seller accounts for the orders
 		XtoY, YtoX = app.GetRandomOrders(denomX, denomY, X, Y, r, 11, 11)
-		buyerAddrs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.NewInt(0))
-		sellerAddrs := app.AddTestAddrsIncremental(simapp, ctx, len(YtoX), sdk.NewInt(0))
+		buyerAddrs := app.AddTestAddrsIncremental(simapp, ctx, len(XtoY), sdk.ZeroInt())
+		sellerAddrs := app.AddTestAddrsIncremental(simapp, ctx, len(YtoX), sdk.ZeroInt())
 
 		poolId := uint64(1)
 		pool, found := simapp.LiquidityKeeper.GetPool(ctx, poolId)
