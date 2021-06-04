@@ -51,7 +51,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	denomY := reserveCoins[1].Denom
 
 	// make orderMap, orderbook by sort orderMap
-	orderMap, XtoY, YtoX := types.MakeOrderMap(swapMsgStates, denomX, denomY, false)
+	orderMap, xToY, yToX := types.MakeOrderMap(swapMsgStates, denomX, denomY, false)
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
@@ -72,32 +72,32 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 
 	if result.MatchType != types.NoMatch {
 		var poolXDeltaXtoY, poolXDeltaYtoX, poolYDeltaYtoX, poolYDeltaXtoY sdk.Dec
-		matchResultXtoY, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX, result.SwapPrice, currentHeight)
-		matchResultYtoX, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY, result.SwapPrice, currentHeight)
+		matchResultXtoY, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, xToY, result.EX, result.SwapPrice, currentHeight)
+		matchResultYtoX, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, yToX, result.EY, result.SwapPrice, currentHeight)
 		poolXDelta = poolXDeltaXtoY.Add(poolXDeltaYtoX)
 		poolYDelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
 
-	XtoY, YtoX, X, Y, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY := types.UpdateSwapMsgStates(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
+	xToY, yToX, X, Y, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY := types.UpdateSwapMsgStates(X, Y, xToY, yToX, matchResultXtoY, matchResultYtoX)
 
 	lastPrice := X.Quo(Y)
 
 	if invariantCheckFlag {
-		SwapMatchingInvariants(XtoY, YtoX, matchResultXtoY, matchResultYtoX)
+		SwapMatchingInvariants(xToY, yToX, matchResultXtoY, matchResultYtoX)
 		SwapPriceInvariants(matchResultXtoY, matchResultYtoX, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
 	}
 
-	types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
-	types.ValidateStateAndExpireOrders(YtoX, currentHeight, false)
+	types.ValidateStateAndExpireOrders(xToY, currentHeight, false)
+	types.ValidateStateAndExpireOrders(yToX, currentHeight, false)
 
-	orderMapExecuted, _, _ := types.MakeOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
+	orderMapExecuted, _, _ := types.MakeOrderMap(append(xToY, yToX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	if !orderBookExecuted.Validate(lastPrice) {
 		return executedMsgCount, types.ErrOrderBookInvalidity
 	}
 
-	types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
-	types.ValidateStateAndExpireOrders(YtoX, currentHeight, true)
+	types.ValidateStateAndExpireOrders(xToY, currentHeight, true)
+	types.ValidateStateAndExpireOrders(yToX, currentHeight, true)
 
 	// make index map for match result
 	matchResultMap := make(map[uint64]types.MatchResult)
@@ -110,7 +110,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 
 	if invariantCheckFlag {
 		SwapPriceDirection(currentPoolPrice, result)
-		SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates, XtoY, YtoX)
+		SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates, xToY, yToX)
 		SwapOrdersExecutionStateInvariants(matchResultMap, swapMsgStates, result, denomX)
 	}
 

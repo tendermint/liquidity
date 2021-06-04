@@ -29,7 +29,7 @@ func TestMsgServerCreatePool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeId := types.DefaultPoolTypeId
+	poolTypeId := types.DefaultPoolTypeID
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
@@ -54,7 +54,7 @@ func TestMsgServerCreatePool(t *testing.T) {
 	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
 	require.Equal(t, 1, len(pools))
 	require.Equal(t, uint64(1), pools[0].Id)
-	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextPoolId(ctx)-1)
+	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextPoolID(ctx)-1)
 	require.Equal(t, denomA, pools[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomB, pools[0].ReserveCoinDenoms[1])
 
@@ -71,7 +71,7 @@ func TestMsgServerDepositLiquidityPool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeId := types.DefaultPoolTypeId
+	poolTypeId := types.DefaultPoolTypeID
 	addrs := app.AddTestAddrs(simapp, ctx, 4, params.PoolCreationFee)
 
 	denomA := "uETH"
@@ -128,7 +128,7 @@ func TestMsgServerWithdrawLiquidityPool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeId := types.DefaultPoolTypeId
+	poolTypeId := types.DefaultPoolTypeID
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
@@ -187,7 +187,7 @@ func TestMsgServerGetLiquidityPoolMetadata(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeId := types.DefaultPoolTypeId
+	poolTypeId := types.DefaultPoolTypeID
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
@@ -212,7 +212,7 @@ func TestMsgServerGetLiquidityPoolMetadata(t *testing.T) {
 	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
 	require.Equal(t, 1, len(pools))
 	require.Equal(t, uint64(1), pools[0].Id)
-	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextPoolId(ctx)-1)
+	require.Equal(t, uint64(1), simapp.LiquidityKeeper.GetNextPoolID(ctx)-1)
 	require.Equal(t, denomA, pools[0].ReserveCoinDenoms[0])
 	require.Equal(t, denomB, pools[0].ReserveCoinDenoms[1])
 
@@ -251,13 +251,13 @@ func TestMsgServerSwap(t *testing.T) {
 
 	// Create pool
 	// The create pool msg is not run in batch, but is processed immediately.
-	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	// In case of deposit, withdraw, and swap msg, unlike other normal tx msgs,
 	// collect them in the batch and perform an execution at once at the endblock.
 
 	// add a deposit to pool and run batch execution on endblock
-	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:2], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:2], poolID, true)
 
 	// next block, reinitialize batch and increase batchIndex at beginBlocker,
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -275,8 +275,8 @@ func TestMsgServerSwap(t *testing.T) {
 	xOrderAddrs := addrs[1:4]
 	yOrderAddrs := addrs[5:6]
 
-	msg1 := app.GetSwapMsg(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId)
-	msg4 := app.GetSwapMsg(t, simapp, ctx, yOfferCoins, yOrderPrices, yOrderAddrs, poolId)
+	msg1 := app.GetSwapMsg(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID)
+	msg4 := app.GetSwapMsg(t, simapp, ctx, yOfferCoins, yOrderPrices, yOrderAddrs, poolID)
 
 	handler := liquidity.NewHandler(simapp.LiquidityKeeper)
 	_, err := handler(ctx, msg1[0])
@@ -287,7 +287,7 @@ func TestMsgServerSwap(t *testing.T) {
 	require.NoError(t, err)
 	_, err = handler(ctx, msg4[0])
 	require.NoError(t, err)
-	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, poolId)
+	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, poolID)
 	require.True(t, found)
 	notProcessedMsgs := simapp.LiquidityKeeper.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, batch)
 	msgs := simapp.LiquidityKeeper.GetAllPoolBatchSwapMsgStatesAsPointer(ctx, batch)

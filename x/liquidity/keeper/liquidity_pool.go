@@ -236,11 +236,11 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	depositCoinAmountB := depositCoinB.Amount
 	depositableCoinAmountA := depositCoinB.Amount.ToDec().MulTruncate(lastReserveRatio).TruncateInt()
 
-	acceptedCoins := sdk.NewCoins()
 	refundedCoins := sdk.NewCoins()
 	refundedCoinA := sdk.NewInt(0)
 	refundedCoinB := sdk.NewInt(0)
 
+	var acceptedCoins sdk.Coins
 	// handle when depositing coin A amount is less than, greater than or equal to depositable amount
 	if depositCoinA.Amount.LT(depositableCoinAmountA) {
 		depositCoinAmountB = depositCoinA.Amount.ToDec().QuoTruncate(lastReserveRatio).TruncateInt()
@@ -878,7 +878,6 @@ func (k Keeper) IsPoolCoinDenom(ctx sdk.Context, denom string) bool {
 		}
 		_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
 		return found
-	} else {
-		return false
 	}
+	return false
 }

@@ -58,6 +58,9 @@ issues:
       text: "SA1019:"
       linters:
         - staticcheck
+    - text: "ifElseChain:"
+      linters:
+        - gocritic
 
   max-issues-per-linter: 10000
   max-same-issues: 10000

@@ -56,13 +56,13 @@ func TestGenesisState(t *testing.T) {
 	Y := sdk.NewInt(200_000_000)
 
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10_000))
-	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
-	pool, found := simapp.LiquidityKeeper.GetPool(ctx, poolId)
+	pool, found := simapp.LiquidityKeeper.GetPool(ctx, poolID)
 	require.True(t, found)
 
 	poolCoins := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
-	app.TestDepositPool(t, simapp, ctx, sdk.NewInt(30_000_000), sdk.NewInt(20_000_000), addrs[1:2], poolId, false)
+	app.TestDepositPool(t, simapp, ctx, sdk.NewInt(30_000_000), sdk.NewInt(20_000_000), addrs[1:2], poolID, false)
 
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 

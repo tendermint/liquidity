@@ -52,7 +52,6 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // These invariants cannot be registered via RegisterInvariants since the module uses per-block batch execution.
 // We should approach adding these invariant checks inside actual logics of deposit / withdraw / swap.
 
@@ -208,21 +207,21 @@ func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdr
 }
 
 // SwapMatchingInvariants checks swap matching results of both X to Y and Y to X cases.
-func SwapMatchingInvariants(XtoY, YtoX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult) {
-	beforeMatchingXtoYLen := len(XtoY)
-	beforeMatchingYtoXLen := len(YtoX)
+func SwapMatchingInvariants(xToY, yToX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult) {
+	beforeMatchingXtoYLen := len(xToY)
+	beforeMatchingYtoXLen := len(yToX)
 	afterMatchingXtoYLen := len(matchResultXtoY)
 	afterMatchingYtoXLen := len(matchResultYtoX)
 
 	notMatchedXtoYLen := beforeMatchingXtoYLen - afterMatchingXtoYLen
 	notMatchedYtoXLen := beforeMatchingYtoXLen - afterMatchingYtoXLen
 
-	if notMatchedXtoYLen != types.CountNotMatchedMsgs(XtoY) {
-		panic("invariant check fails due to invalid XtoY match length")
+	if notMatchedXtoYLen != types.CountNotMatchedMsgs(xToY) {
+		panic("invariant check fails due to invalid xToY match length")
 	}
 
-	if notMatchedYtoXLen != types.CountNotMatchedMsgs(YtoX) {
-		panic("invariant check fails due to invalid YtoX match length")
+	if notMatchedYtoXLen != types.CountNotMatchedMsgs(yToX) {
+		panic("invariant check fails due to invalid yToX match length")
 	}
 }
 
@@ -279,7 +278,7 @@ func SwapPriceDirection(currentPoolPrice sdk.Dec, batchResult types.BatchResult)
 
 // SwapMsgStatesInvariants checks swap match result states invariants.
 func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, matchResultMap map[uint64]types.MatchResult,
-	swapMsgStates []*types.SwapMsgState, XtoY, YtoX []*types.SwapMsgState) {
+	swapMsgStates []*types.SwapMsgState, xToY, yToX []*types.SwapMsgState) {
 	if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
 		panic("invalid length of match result")
 	}
@@ -291,7 +290,7 @@ func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResul
 	}
 
 	for _, sms := range swapMsgStates {
-		for _, smsXtoY := range XtoY {
+		for _, smsXtoY := range xToY {
 			if sms.MsgIndex == smsXtoY.MsgIndex {
 				if *(sms) != *(smsXtoY) || sms != smsXtoY {
 					panic("swap message state not matched")
@@ -301,7 +300,7 @@ func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResul
 			}
 		}
 
-		for _, smsYtoX := range YtoX {
+		for _, smsYtoX := range yToX {
 			if sms.MsgIndex == smsYtoX.MsgIndex {
 				if *(sms) != *(smsYtoX) || sms != smsYtoX {
 					panic("swap message state not matched")
