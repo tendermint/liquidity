@@ -101,7 +101,7 @@ func TestPoolCreationFee(t *testing.T) {
 
 	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
-	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
+	require.ErrorIs(t, types.ErrInsufficientPoolCreationFee, err)
 
 	// Set PoolCreationFee for success
 	params.PoolCreationFee = types.DefaultPoolCreationFee

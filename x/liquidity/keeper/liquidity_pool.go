@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
@@ -105,26 +106,30 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	}
 
 	poolCreator := msg.GetPoolCreator()
-	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, poolCreator)
-
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.Pool{}, types.ErrInsufficientBalance
-	}
-
-	reserveCoins := k.GetReserveCoins(ctx, pool)
 
 	for _, coin := range msg.DepositCoins {
-		if coin.Amount.Add(reserveCoins.AmountOf(coin.Denom)).LT(params.MinInitDepositAmount) {
-			return types.Pool{}, types.ErrLessThanMinInitDeposit
+		if coin.Amount.LT(params.MinInitDepositAmount) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrLessThanMinInitDeposit, "deposit coin %s is smaller than %s", coin, params.MinInitDepositAmount)
 		}
 	}
 
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.Pool{}, types.ErrInsufficientBalance
+	for _, coin := range msg.DepositCoins {
+		balance := k.bankKeeper.GetBalance(ctx, poolCreator, coin.Denom)
+		if balance.IsLT(coin) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrInsufficientBalance, "%s is smaller than %s", balance, coin)
+		}
 	}
 
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins.Add(params.PoolCreationFee...)) {
-		return types.Pool{}, types.ErrInsufficientPoolCreationFee
+	for _, coin := range params.PoolCreationFee {
+		balance := k.bankKeeper.GetBalance(ctx, poolCreator, coin.Denom)
+		neededAmt := coin.Amount.Add(msg.DepositCoins.AmountOf(coin.Denom))
+		neededCoin := sdk.NewCoin(coin.Denom, neededAmt)
+		if balance.IsLT(neededCoin) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrInsufficientPoolCreationFee, "%s is smaller than %s", balance, neededCoin)
+		}
 	}
 
 	if _, err := k.MintAndSendPoolCoin(ctx, pool, poolCreator, poolCreator, msg.DepositCoins); err != nil {
@@ -142,7 +147,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 
 	k.SetPoolBatch(ctx, batch)
 
-	reserveCoins = k.GetReserveCoins(ctx, pool)
+	reserveCoins := k.GetReserveCoins(ctx, pool)
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	logger := k.Logger(ctx)
 	logger.Debug("createPool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
