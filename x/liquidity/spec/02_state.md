@@ -70,9 +70,13 @@ type DepositMsgState struct {
 ```
 ### WithdrawMsgState
 
-`WithdrawMsgState` defines the state of withdraw message as it is processed in the next batch or batches.
+`WithdrawMsgState` defines the state of the withdraw message as it is processed in the next batch or batches.
 
-When a user sends `MsgWithdrawWithinBatch` transaction to the network, it is accumulated in a batch. `WithdrawMsgState` contains the state information about the message; if the transaction is executed, successfully matched, and if it is to be deleted in the next block.
+When a user sends a `MsgWithdrawWithinBatch` transaction to the network, it is accumulated in a batch. `WithdrawMsgState` contains the state information about the message:
+
+- If the transaction is executed
+- If the transaction is successfully matched
+- If the transaction will be deleted in the next block
 
 ```go
 type WithdrawMsgState struct {
@@ -88,7 +92,11 @@ type WithdrawMsgState struct {
 
 `SwapMsgState` defines the state of swap message as it is processed in the next batch or batches.
 
-When a user sends `MsgSwapWithinBatch` transaction to the network, it is accumulated in a batch. `SwapMsgState` contains the state information about the message; if the transaction is executed, successfully matched, and if it is to be deleted in the next block.
+When a user sends a `MsgSwapWithinBatch` transaction to the network, it is accumulated in a batch. `SwapMsgState` contains the state information about the message:
+
+- If the transaction is executed
+- If the transaction is successfully matched
+- If the transaction will be deleted in the next block
 
 ```go
 type SwapMsgState struct {
