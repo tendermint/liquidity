@@ -26,6 +26,9 @@ const (
 
 	// DefaultSwapTypeId is the default swap type id. The only supported swap type (instant swap) id is 1.
 	DefaultSwapTypeId uint32 = 1
+
+	// DefaultCircuitBreakerEnabled is the default circuit breaker status. This param is used for a contingency plan.
+	DefaultCircuitBreakerEnabled = false
 )
 
 // Parameter store keys
@@ -39,6 +42,7 @@ var (
 	KeyUnitBatchHeight        = []byte("UnitBatchHeight")
 	KeyWithdrawFeeRate        = []byte("WithdrawFeeRate")
 	KeyMaxOrderAmountRatio    = []byte("MaxOrderAmountRatio")
+	KeyCircuitBreakerEnabled  = []byte("CircuitBreakerEnabled")
 )
 
 var (
@@ -79,6 +83,7 @@ func DefaultParams() Params {
 		WithdrawFeeRate:        DefaultWithdrawFeeRate,
 		MaxOrderAmountRatio:    DefaultMaxOrderAmountRatio,
 		UnitBatchHeight:        DefaultUnitBatchHeight,
+		CircuitBreakerEnabled:  DefaultCircuitBreakerEnabled,
 	}
 }
 
@@ -94,6 +99,7 @@ func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 		paramstypes.NewParamSetPair(KeyWithdrawFeeRate, &p.WithdrawFeeRate, validateWithdrawFeeRate),
 		paramstypes.NewParamSetPair(KeyMaxOrderAmountRatio, &p.MaxOrderAmountRatio, validateMaxOrderAmountRatio),
 		paramstypes.NewParamSetPair(KeyUnitBatchHeight, &p.UnitBatchHeight, validateUnitBatchHeight),
+		paramstypes.NewParamSetPair(KeyCircuitBreakerEnabled, &p.CircuitBreakerEnabled, validateCircuitBreakerEnabled),
 	}
 }
 
@@ -118,6 +124,7 @@ func (p Params) Validate() error {
 		{p.WithdrawFeeRate, validateWithdrawFeeRate},
 		{p.MaxOrderAmountRatio, validateMaxOrderAmountRatio},
 		{p.UnitBatchHeight, validateUnitBatchHeight},
+		{p.CircuitBreakerEnabled, validateCircuitBreakerEnabled},
 	} {
 		if err := v.validator(v.value); err != nil {
 			return err
@@ -295,6 +302,15 @@ func validateUnitBatchHeight(i interface{}) error {
 
 	if v == 0 {
 		return fmt.Errorf("unit batch height must be positive: %d", v)
+	}
+
+	return nil
+}
+
+func validateCircuitBreakerEnabled(i interface{}) error {
+	_, ok := i.(bool)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	return nil
