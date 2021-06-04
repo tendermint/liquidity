@@ -107,10 +107,6 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	poolCreator := msg.GetPoolCreator()
 	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, poolCreator)
 
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.Pool{}, types.ErrInsufficientBalance
-	}
-
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 
 	for _, coin := range msg.DepositCoins {
@@ -143,6 +139,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	k.SetPoolBatch(ctx, batch)
 
 	reserveCoins = k.GetReserveCoins(ctx, pool)
+
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	logger := k.Logger(ctx)
 	logger.Debug("createPool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)

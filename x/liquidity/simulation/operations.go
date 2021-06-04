@@ -79,6 +79,22 @@ func WeightedOperations(
 	}
 }
 
+// [DEBUG]
+var (
+	availableDenoms = []string{
+		"foo1",
+		"foo2",
+		"foo3",
+		"foo4",
+		"foo5",
+		"foo6",
+		"foo7",
+		"foo8",
+		"foo9",
+		"foo10",
+	}
+)
+
 // SimulateMsgCreatePool generates a MsgCreatePool with random values
 // nolint: interfacer
 func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
@@ -88,14 +104,22 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		fmt.Println("")
 		fmt.Println("<SimulateMsgCreatePool>")
 
+		ctx = ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+		fmt.Println("<SimulateMsgCreatePool> - 1")
+		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
 		params := k.GetParams(ctx)
 		params.MaxReserveCoinAmount = GenMaxReserveCoinAmount(r)
 		k.SetParams(ctx, params)
 
+		fmt.Println("<SimulateMsgCreatePool> - 2")
+		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
+		// [DEBUG]
+		denomA, denomB := selectRandomDenoms(r)
+
 		// get randomized two denoms to create liquidity pool
-		denomA, denomB := randomDenoms(r)
+		// denomA, denomB := randomDenoms(r)
 		reserveCoinDenoms := []string{denomA, denomB}
 
 		// simAccount should have some fees to pay when creating liquidity pool
@@ -104,8 +128,6 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 			feeDenoms = append(feeDenoms, fee.GetDenom())
 		}
 
-		// return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "balanceB is negative"), nil, nil
-
 		// mint randomized two coins and pool creation fee denoms
 		mintingDenoms := append(reserveCoinDenoms, feeDenoms...)
 		err := mintCoins(r, simAccount.Address, mintingDenoms, bk, ctx)
@@ -113,18 +135,19 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to mint and send coins"), nil, err
 		}
 
+		fmt.Println("<SimulateMsgCreatePool> - 3")
+		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
+
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendableCoins := bk.SpendableCoins(ctx, account.GetAddress())
+
+		fmt.Println("<SimulateMsgCreatePool> - 4")
+		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
 
 		fees, err := randomFees(r, ctx, k, spendableCoins)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
 		}
-
-		fmt.Println("> address: ", simAccount.Address.String())
-		fmt.Println("> mintingDenoms: ", mintingDenoms)
-		fmt.Println("> spendableCoins: ", spendableCoins)
-		fmt.Println("> fees: ", fees)
 
 		poolName := types.PoolName(reserveCoinDenoms, types.DefaultPoolTypeId)
 		reserveAcc := types.GetPoolReserveAcc(poolName)
@@ -172,6 +195,9 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to generate mock tx"), nil, err
 		}
+
+		fmt.Println("<SimulateMsgCreatePool> - 5")
+		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
 
 		_, _, err = app.Deliver(txGen.TxEncoder(), tx)
 		if err != nil {
@@ -462,6 +488,18 @@ func mintCoins(r *rand.Rand, address sdk.AccAddress, denoms []string, bk types.B
 	}
 
 	return nil
+}
+
+func selectRandomDenoms(r *rand.Rand) (string, string) {
+	a := r.Intn(len(availableDenoms))
+	b := r.Intn(len(availableDenoms))
+	for a == b {
+		b = r.Intn(len(availableDenoms))
+	}
+
+	denomA, denomB := types.AlphabeticalDenomPair(availableDenoms[a], availableDenoms[b])
+
+	return strings.ToLower(denomA), strings.ToLower(denomB)
 }
 
 // randomDenoms returns two random denoms with random string length anywhere from 4 to 6
