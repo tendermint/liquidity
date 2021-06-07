@@ -42,7 +42,7 @@ func (k Querier) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolR
 // LiquidityPool queries a liquidity pool with the given pool coin denom.
 func (k Querier) LiquidityPoolByPoolCoinDenom(c context.Context, req *types.QueryLiquidityPoolByPoolCoinDenomRequest) (*types.QueryLiquidityPoolResponse, error) {
 	empty := &types.QueryLiquidityPoolByPoolCoinDenomRequest{}
-	if req == nil || req == empty {
+	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
