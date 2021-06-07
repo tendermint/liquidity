@@ -67,7 +67,7 @@ service Query {
 
     // Get specific liquidity pool corresponding to the pool_coin_denom.
     rpc LiquidityPoolByPoolCoinDenom (QueryLiquidityPoolByPoolCoinDenomRequest) returns (QueryLiquidityPoolResponse) {
-        option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/{pool_coin_denom}";
+        option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/denom/{pool_coin_denom}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns the liquidity pool corresponding to the pool_coin_denom.";
             external_docs: {
