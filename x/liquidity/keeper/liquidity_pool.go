@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
@@ -105,26 +106,30 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	}
 
 	poolCreator := msg.GetPoolCreator()
-	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, poolCreator)
-
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.Pool{}, types.ErrInsufficientBalance
-	}
-
-	reserveCoins := k.GetReserveCoins(ctx, pool)
 
 	for _, coin := range msg.DepositCoins {
-		if coin.Amount.Add(reserveCoins.AmountOf(coin.Denom)).LT(params.MinInitDepositAmount) {
-			return types.Pool{}, types.ErrLessThanMinInitDeposit
+		if coin.Amount.LT(params.MinInitDepositAmount) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrLessThanMinInitDeposit, "deposit coin %s is smaller than %s", coin, params.MinInitDepositAmount)
 		}
 	}
 
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.Pool{}, types.ErrInsufficientBalance
+	for _, coin := range msg.DepositCoins {
+		balance := k.bankKeeper.GetBalance(ctx, poolCreator, coin.Denom)
+		if balance.IsLT(coin) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrInsufficientBalance, "%s is smaller than %s", balance, coin)
+		}
 	}
 
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins.Add(params.PoolCreationFee...)) {
-		return types.Pool{}, types.ErrInsufficientPoolCreationFee
+	for _, coin := range params.PoolCreationFee {
+		balance := k.bankKeeper.GetBalance(ctx, poolCreator, coin.Denom)
+		neededAmt := coin.Amount.Add(msg.DepositCoins.AmountOf(coin.Denom))
+		neededCoin := sdk.NewCoin(coin.Denom, neededAmt)
+		if balance.IsLT(neededCoin) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrInsufficientPoolCreationFee, "%s is smaller than %s", balance, neededCoin)
+		}
 	}
 
 	if _, err := k.MintAndSendPoolCoin(ctx, pool, poolCreator, poolCreator, msg.DepositCoins); err != nil {
@@ -142,7 +147,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 
 	k.SetPoolBatch(ctx, batch)
 
-	reserveCoins = k.GetReserveCoins(ctx, pool)
+	reserveCoins := k.GetReserveCoins(ctx, pool)
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	logger := k.Logger(ctx)
 	logger.Debug("createPool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
@@ -228,9 +233,9 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	reserveCoins.Sort()
 
 	// Decimal Error, divide the Int coin amount by the Decimal Rate and erase the decimal point to deposit a lower value
-	lastReserveCoinA := sdk.NewDecFromInt(reserveCoins[0].Amount)
-	lastReserveCoinB := sdk.NewDecFromInt(reserveCoins[1].Amount)
-	lastReserveRatio := lastReserveCoinA.QuoTruncate(lastReserveCoinB)
+	lastReserveCoinA := reserveCoins[0].Amount
+	lastReserveCoinB := reserveCoins[1].Amount
+	lastReserveRatio := lastReserveCoinA.ToDec().QuoTruncate(lastReserveCoinB.ToDec())
 
 	depositCoinA := depositCoins[0]
 	depositCoinB := depositCoins[1]
@@ -240,8 +245,8 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 
 	acceptedCoins := sdk.NewCoins()
 	refundedCoins := sdk.NewCoins()
-	refundedCoinA := sdk.NewInt(0)
-	refundedCoinB := sdk.NewInt(0)
+	refundedCoinA := sdk.ZeroInt()
+	refundedCoinB := sdk.ZeroInt()
 
 	// handle when depositing coin A amount is less than, greater than or equal to depositable amount
 	if depositCoinA.Amount.LT(depositableCoinAmountA) {
@@ -305,22 +310,13 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 
 	if invariantCheckFlag {
 		afterReserveCoins := k.GetReserveCoins(ctx, pool)
-		afterReserveCoinA := sdk.NewDecFromInt(afterReserveCoins[0].Amount)
-		afterReserveCoinB := sdk.NewDecFromInt(afterReserveCoins[1].Amount)
-		afterReserveRatio := afterReserveCoinA.QuoTruncate(afterReserveCoinB)
-		poolCoinTotalSupplyDec := sdk.NewDecFromInt(poolCoinTotalSupply)
-		mintPoolCoinDec := sdk.NewDecFromInt(mintPoolCoin.Amount)
-		depositCoinADec := sdk.NewDecFromInt(depositCoinA.Amount)
-		depositCoinBDec := sdk.NewDecFromInt(depositCoinB.Amount)
-		refundedCoinADec := sdk.NewDecFromInt(refundedCoinA)
-		refundedCoinBDec := sdk.NewDecFromInt(refundedCoinB)
+		afterReserveCoinA := afterReserveCoins[0].Amount
+		afterReserveCoinB := afterReserveCoins[1].Amount
 
-		MintingPoolCoinsInvariant(poolCoinTotalSupplyDec, mintPoolCoinDec, depositCoinADec, depositCoinBDec,
-			lastReserveCoinA, lastReserveCoinB, refundedCoinADec, refundedCoinBDec)
-		DepositReserveCoinsInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinADec, depositCoinBDec,
-			afterReserveCoinA, afterReserveCoinB, refundedCoinADec, refundedCoinBDec)
-		DepositRatioInvariant(depositCoinADec, depositCoinBDec, refundedCoinADec, refundedCoinBDec, lastReserveCoinA, lastReserveCoinB)
-		ImmutablePoolPriceAfterDepositInvariant(lastReserveRatio, afterReserveRatio)
+		MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin.Amount, depositCoinA.Amount, depositCoinB.Amount,
+			lastReserveCoinA, lastReserveCoinB, refundedCoinA, refundedCoinB)
+		DepositInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA.Amount, depositCoinB.Amount,
+			afterReserveCoinA, afterReserveCoinB, refundedCoinA, refundedCoinB)
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -416,20 +412,20 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	if invariantCheckFlag {
 		afterPoolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
 		afterReserveCoins := k.GetReserveCoins(ctx, pool)
-		afterReserveCoinA := sdk.ZeroDec()
-		afterReserveCoinB := sdk.ZeroDec()
+		afterReserveCoinA := sdk.ZeroInt()
+		afterReserveCoinB := sdk.ZeroInt()
 		if !afterReserveCoins.IsZero() {
-			afterReserveCoinA = afterReserveCoins[0].Amount.ToDec()
-			afterReserveCoinB = afterReserveCoins[1].Amount.ToDec()
+			afterReserveCoinA = afterReserveCoins[0].Amount
+			afterReserveCoinB = afterReserveCoins[1].Amount
 		}
-		burnedPoolCoin := poolCoins[0].Amount.ToDec()
-		withdrawCoinA := withdrawCoins[0].Amount.ToDec()
-		withdrawCoinB := withdrawCoins[1].Amount.ToDec()
-		reserveCoinA := reserveCoins[0].Amount.ToDec()
-		reserveCoinB := reserveCoins[1].Amount.ToDec()
-		lastPoolTotalSupply := poolCoinTotalSupply.ToDec()
-		afterPoolTotalSupply := afterPoolCoinTotalSupply.ToDec()
-		lastPoolCoinSupply := poolCoinTotalSupply.ToDec()
+		burnedPoolCoin := poolCoins[0].Amount
+		withdrawCoinA := withdrawCoins[0].Amount
+		withdrawCoinB := withdrawCoins[1].Amount
+		reserveCoinA := reserveCoins[0].Amount
+		reserveCoinB := reserveCoins[1].Amount
+		lastPoolTotalSupply := poolCoinTotalSupply
+		afterPoolTotalSupply := afterPoolCoinTotalSupply
+		lastPoolCoinSupply := poolCoinTotalSupply
 
 		BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
 			lastPoolTotalSupply, withdrawProportion)
