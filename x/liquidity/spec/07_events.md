@@ -101,12 +101,15 @@ swap_transacted | swap_requester                 | {swapRequesterAddress}
 swap_transacted | swap_type_id                   | {swapTypeId}
 swap_transacted | offer_coin_denom               | {offerCoinDenom}
 swap_transacted | offer_coin_amount              | {offerCoinAmount}
+swap_transacted | exchanged_coin_denom           | {exchangedCoinDenom}
 swap_transacted | order_price                    | {orderPrice}
 swap_transacted | swap_price                     | {swapPrice}
 swap_transacted | transacted_coin_amount         | {transactedCoinAmount}
 swap_transacted | remaining_offer_coin_amount    | {remainingOfferCoinAmount}
 swap_transacted | exchanged_offer_coin_amount    | {exchangedOfferCoinAmount}
+swap_transacted | exchanged_demand_coin_amount   | {exchangedDemandCoinAmount}
 swap_transacted | offer_coin_fee_amount          | {offerCoinFeeAmount}
+swap_transacted | exchanged_coin_fee_amount      | {exchangedCoinFeeAmount}
 swap_transacted | reserved_offer_coin_fee_amount | {reservedOfferCoinFeeAmount}
 swap_transacted | order_expiry_height            | {orderExpiryHeight}
 swap_transacted | success                        | {success}
