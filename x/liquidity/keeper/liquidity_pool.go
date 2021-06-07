@@ -473,7 +473,10 @@ func (k Keeper) GetPoolCoinTotalSupply(ctx sdk.Context, pool types.Pool) sdk.Int
 
 // IsDepletedPool returns true if the pool is depleted.
 func (k Keeper) IsDepletedPool(ctx sdk.Context, pool types.Pool) bool {
-	return !k.GetPoolCoinTotalSupply(ctx, pool).IsPositive()
+	reserveCoins := k.GetReserveCoins(ctx, pool)
+	return !k.GetPoolCoinTotalSupply(ctx, pool).IsPositive() ||
+		reserveCoins.AmountOf(pool.ReserveCoinDenoms[0]).IsZero() ||
+		reserveCoins.AmountOf(pool.ReserveCoinDenoms[1]).IsZero()
 }
 
 // GetPoolCoinTotal returns total supply of pool coin of the pool in form of sdk.Coin
