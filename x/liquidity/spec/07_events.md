@@ -107,6 +107,7 @@ swap_transacted | transacted_coin_amount         | {transactedCoinAmount}
 swap_transacted | remaining_offer_coin_amount    | {remainingOfferCoinAmount}
 swap_transacted | exchanged_offer_coin_amount    | {exchangedOfferCoinAmount}
 swap_transacted | offer_coin_fee_amount          | {offerCoinFeeAmount}
+swap_transacted | exchanged_coin_fee_amount      | {exchangedCoinFeeAmount}
 swap_transacted | reserved_offer_coin_fee_amount | {reservedOfferCoinFeeAmount}
 swap_transacted | order_expiry_height            | {orderExpiryHeight}
 swap_transacted | success                        | {success}
