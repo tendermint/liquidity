@@ -101,20 +101,15 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		fmt.Println("")
-		fmt.Println("<SimulateMsgCreatePool>")
+		// fmt.Println("")
+		// fmt.Println("<Start SimulateMsgCreatePool>")
 
-		ctx = ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
-		fmt.Println("<SimulateMsgCreatePool> - 1")
-		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
 		params := k.GetParams(ctx)
 		params.MaxReserveCoinAmount = GenMaxReserveCoinAmount(r)
 		k.SetParams(ctx, params)
 
-		fmt.Println("<SimulateMsgCreatePool> - 2")
-		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
 		// [DEBUG]
 		denomA, denomB := selectRandomDenoms(r)
 
@@ -135,19 +130,8 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to mint and send coins"), nil, err
 		}
 
-		fmt.Println("<SimulateMsgCreatePool> - 3")
-		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
-
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendableCoins := bk.SpendableCoins(ctx, account.GetAddress())
-
-		fmt.Println("<SimulateMsgCreatePool> - 4")
-		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
-
-		fees, err := randomFees(r, ctx, k, spendableCoins)
-		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
-		}
 
 		poolName := types.PoolName(reserveCoinDenoms, types.DefaultPoolTypeId)
 		reserveAcc := types.GetPoolReserveAcc(poolName)
@@ -176,10 +160,24 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		// it will fail if the total reserve coin amount after the deposit is larger than the parameter
 		err = types.ValidateReserveCoinLimit(params.MaxReserveCoinAmount, depositCoins)
 		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "can not exceed reserve coin limit amount"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "can not exceed reserve coin limit amount"), nil, nil
 		}
 
 		msg := types.NewMsgCreatePool(poolCreator, types.DefaultPoolTypeId, depositCoins)
+
+		var fees sdk.Coins
+		coins, hasNeg := spendableCoins.SafeSub(depositCoins)
+		if !hasNeg {
+			fees, err = randomFees(r, ctx, k, coins)
+			if err != nil {
+				return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
+			}
+		}
+
+		// fmt.Println("> address: ", simAccount.Address.String())
+		// fmt.Println("> mintingDenoms: ", mintingDenoms)
+		// fmt.Println("> spendableCoins: ", spendableCoins)
+		// fmt.Println("> fees: ", fees)
 
 		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
@@ -196,16 +194,13 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to generate mock tx"), nil, err
 		}
 
-		fmt.Println("<SimulateMsgCreatePool> - 5")
-		fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
-
 		_, _, err = app.Deliver(txGen.TxEncoder(), tx)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		fmt.Println("<End of SimulateMsgCreatePool>")
-		fmt.Println("")
+		// fmt.Println("<End of SimulateMsgCreatePool>")
+		// fmt.Println("")
 
 		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
 	}
