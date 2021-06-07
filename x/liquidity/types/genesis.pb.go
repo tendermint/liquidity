@@ -23,7 +23,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// record of the state of each pool after genesis export or import, used to check variables
+// records the state of each pool after genesis export or import, used to check variables
 type PoolRecord struct {
 	Pool              Pool               `protobuf:"bytes,1,opt,name=pool,proto3" json:"pool" yaml:"pool"`
 	PoolMetadata      PoolMetadata       `protobuf:"bytes,2,opt,name=pool_metadata,json=poolMetadata,proto3" json:"pool_metadata" yaml:"pool_metadata"`
@@ -110,7 +110,7 @@ func (m *PoolRecord) GetSwapMsgStates() []SwapMsgState {
 
 // GenesisState defines the liquidity module's genesis state.
 type GenesisState struct {
-	// params defines all the parameters of related to liquidity.
+	// params defines all the parameters for the liquidity module.
 	Params      Params       `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	PoolRecords []PoolRecord `protobuf:"bytes,2,rep,name=pool_records,json=poolRecords,proto3" json:"pool_records" yaml:"pools"`
 }

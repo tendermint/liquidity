@@ -211,14 +211,14 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	// Fail case, reset deposit balance for pool already exists case
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
-	require.Equal(t, types.ErrPoolAlreadyExists, err)
+	require.ErrorIs(t, err, types.ErrPoolAlreadyExists)
 
 	// reset deposit balance without PoolCreationFee of pool creator
 	// Fail case, insufficient balances for pool creation fee case
 	msgAB := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msgAB)
-	require.Equal(t, types.ErrInsufficientPoolCreationFee, err)
+	require.ErrorIs(t, types.ErrInsufficientPoolCreationFee, err)
 
 	// Success case, create another pool
 	msgAB = types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
@@ -641,12 +641,10 @@ func TestLiquidityScenario2(t *testing.T) {
 	orderPriceList := []sdk.Dec{price}
 	orderAddrList := addrs[1:2]
 
-	batchMsgs, batch := app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	batchMsgs, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	batchMsgs, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
-	batchMsgs, batch = app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, true)
-	require.NotNil(t, batchMsgs)
-	require.NotNil(t, batch)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, offerCoinList, orderPriceList, orderAddrList, poolId, true)
 }
 
 // This scenario tests to executed accumulated deposit and withdraw pool batches
@@ -1163,4 +1161,49 @@ func TestUnitBatchHeight(t *testing.T) {
 				t, (ctx.BlockHeight()-1)/int64(unitBatchHeight)*int64(unitBatchHeight)+1, batch.BeginHeight)
 		}
 	}
+}
+
+func TestSwapAutoOrderExpiryHeight(t *testing.T) {
+	simapp, ctx, pool, _, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
+	require.NoError(t, err)
+	ctx = ctx.WithBlockHeight(1)
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	params.UnitBatchHeight = 5
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+
+	addr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewInt64Coin(DenomX, 1000000)))
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+
+	orderPrice := sdk.MustNewDecFromStr("2")
+	sms, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(
+		ctx,
+		types.NewMsgSwapWithinBatch(
+			addr, pool.Id, types.DefaultSwapTypeId, sdk.NewInt64Coin(DenomX, 100000), DenomY, orderPrice, params.SwapFeeRate),
+		types.CancelOrderLifeSpan)
+	require.NoError(t, err)
+	require.Equal(t, int64(5), sms.OrderExpiryHeight)
+
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	ctx = ctx.WithBlockHeight(4)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	balances := simapp.BankKeeper.GetAllBalances(ctx, addr)
+	require.True(t, balances.AmountOf(DenomX).Equal(sdk.NewInt(1000000-100150)))
+	require.True(t, balances.AmountOf(DenomY).IsZero())
+	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
+	require.True(t, found)
+	states := simapp.LiquidityKeeper.GetAllPoolBatchSwapMsgStates(ctx, batch)
+	require.Len(t, states, 1)
+
+	ctx = ctx.WithBlockHeight(5)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	balances = simapp.BankKeeper.GetAllBalances(ctx, addr)
+	require.True(t, !balances.AmountOf(DenomY).IsZero()) // Check if swap request has executed
+	ctx = ctx.WithBlockHeight(6)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	states = simapp.LiquidityKeeper.GetAllPoolBatchSwapMsgStates(ctx, batch)
+	require.Len(t, states, 0)
 }

@@ -8,12 +8,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
-
-	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -48,7 +48,7 @@ func NewCreatePoolCmd() *cobra.Command {
 			fmt.Sprintf(`Create liquidity pool and deposit coins.
 
 Example:
-$ liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from mykey
+$ %s tx %s create-pool 1 1000000000uatom,50000000000uusd --from mykey
 
 This example creates a liquidity pool of pool-type 1 (two coins) and deposits 1000000000uatom and 50000000000uusd.
 New liquidity pools can be created only for coin combinations that do not already exist in the network.
@@ -56,6 +56,7 @@ New liquidity pools can be created only for coin combinations that do not alread
 [pool-type]: The id of the liquidity pool-type. The only supported pool type is 1
 [deposit-coins]: The amount of coins to deposit to the liquidity pool. The number of deposit coins must be 2 in pool type 1.
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -98,6 +99,7 @@ New liquidity pools can be created only for coin combinations that do not alread
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -116,7 +118,7 @@ This deposit request is not processed immediately since it is accumulated in the
 All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
-$ liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from mykey
+$ %s tx %s deposit 1 100000000uatom,5000000000uusd --from mykey
 
 This example request deposits 100000000uatom and 5000000000uusd to pool-id 1.
 Deposits must be the same coin denoms as the reserve coins.
@@ -124,6 +126,7 @@ Deposits must be the same coin denoms as the reserve coins.
 [pool-id]: The pool id of the liquidity pool
 [deposit-coins]: The amount of coins to deposit to the liquidity pool
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -162,6 +165,7 @@ Deposits must be the same coin denoms as the reserve coins.
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -180,7 +184,7 @@ This swap request is not processed immediately since it is accumulated in the li
 All requests in a batch are treated equally and executed at the same swap price.
 
 Example:
-$ liquidityd tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from mykey
+$ %s tx %s withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from mykey
 
 This example request withdraws 10000 pool coin from the specified liquidity pool.
 The appropriate pool coin must be requested from the specified pool.
@@ -188,6 +192,7 @@ The appropriate pool coin must be requested from the specified pool.
 [pool-id]: The pool id of the liquidity pool
 [pool-coin]: The amount of pool coin to withdraw from the liquidity pool
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -222,6 +227,7 @@ The appropriate pool coin must be requested from the specified pool.
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -244,7 +250,7 @@ The requested swap is executed with a swap price that is calculated from the giv
 Swap orders are executed only when the execution swap price is equal to or greater than the submitted order price of the swap order.
 
 Example:
-$ liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from mykey
+$ %s tx %s swap 1 1 50000000uusd uatom 0.019 0.003 --from mykey
 
 For this example, imagine that an existing liquidity pool has with 1000000000uatom and 50000000000uusd.
 This example request swaps 50000000uusd for at least 950000uatom with the order price of 0.019 and swap fee rate of 0.003.
@@ -263,6 +269,7 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 [order-price]: The limit order price for the swap order. The price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically 
 [swap-fee-rate]: The swap fee rate to pay for swap that is proportional to swap amount. The swap fee rate must be the value that set as liquidity parameter in the current network.
 `,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -322,6 +329,7 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

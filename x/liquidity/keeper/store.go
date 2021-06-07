@@ -94,24 +94,28 @@ func (k Keeper) GetNextPoolId(ctx sdk.Context) uint64 {
 }
 
 // GetPoolByReserveAccIndex reads from kvstore and return a specific liquidityPool indexed by given reserve account
-func (k Keeper) GetPoolByReserveAccIndex(ctx sdk.Context, reserveAcc sdk.AccAddress) (liquidityPool types.Pool, found bool) {
+func (k Keeper) GetPoolByReserveAccIndex(ctx sdk.Context, reserveAcc sdk.AccAddress) (pool types.Pool, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	key := types.GetPoolByReserveAccIndexKey(reserveAcc)
 
 	value := store.Get(key)
 	if value == nil {
-		return liquidityPool, false
+		return pool, false
 	}
 
-	liquidityPool = types.MustUnmarshalPool(k.cdc, value)
-
-	return liquidityPool, true
+	val := gogotypes.UInt64Value{}
+	err := k.cdc.UnmarshalBinaryBare(value, &val)
+	if err != nil {
+		return pool, false
+	}
+	poolId := val.GetValue()
+	return k.GetPool(ctx, poolId)
 }
 
 // SetPoolByReserveAccIndex sets Index by ReserveAcc for pool duplication check
 func (k Keeper) SetPoolByReserveAccIndex(ctx sdk.Context, pool types.Pool) {
 	store := ctx.KVStore(k.storeKey)
-	b := types.MustMarshalPool(k.cdc, pool)
+	b := k.cdc.MustMarshalBinaryBare(&gogotypes.UInt64Value{Value: pool.Id})
 	store.Set(types.GetPoolByReserveAccIndexKey(pool.GetReserveAccount()), b)
 }
 
