@@ -42,6 +42,7 @@ const (
 	AttributeValueTransactedCoinAmount       = "transacted_coin_amount"
 	AttributeValueRemainingOfferCoinAmount   = "remaining_offer_coin_amount"
 	AttributeValueExchangedOfferCoinAmount   = "exchanged_offer_coin_amount"
+	AttributeValueExchangedDemandCoinAmount  = "exchanged_demand_coin_amount"
 	AttributeValueReservedOfferCoinFeeAmount = "reserved_offer_coin_fee_amount"
 	AttributeValueOrderExpiryHeight          = "order_expiry_height"
 

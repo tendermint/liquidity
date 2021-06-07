@@ -618,10 +618,13 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 		}
 
 		if match, ok := matchResultMap[sms.MsgIndex]; ok {
-			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
-			sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(
-				sms.Msg.DemandCoinDenom, match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()))
-			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, match.OfferCoinFeeAmt.TruncateInt()))
+			transactedAmt := match.TransactedCoinAmt.TruncateInt()
+			receiveAmt := match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()
+			offerCoinFeeAmt := match.OfferCoinFeeAmt.TruncateInt()
+
+			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, transactedAmt))
+			sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(sms.Msg.DemandCoinDenom, receiveAmt))
+			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, offerCoinFeeAmt))
 
 			if sms.RemainingOfferCoin.IsPositive() && sms.OrderExpiryHeight == ctx.BlockHeight() {
 				sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
@@ -645,10 +648,11 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 					sdk.NewAttribute(types.AttributeValueDemandCoinDenom, sms.Msg.DemandCoinDenom),
 					sdk.NewAttribute(types.AttributeValueOrderPrice, sms.Msg.OrderPrice.String()),
 					sdk.NewAttribute(types.AttributeValueSwapPrice, batchResult.SwapPrice.String()),
-					sdk.NewAttribute(types.AttributeValueTransactedCoinAmount, match.TransactedCoinAmt.String()),
+					sdk.NewAttribute(types.AttributeValueTransactedCoinAmount, transactedAmt.String()),
 					sdk.NewAttribute(types.AttributeValueRemainingOfferCoinAmount, sms.RemainingOfferCoin.Amount.String()),
 					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, sms.ExchangedOfferCoin.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueOfferCoinFeeAmount, match.OfferCoinFeeAmt.String()),
+					sdk.NewAttribute(types.AttributeValueExchangedDemandCoinAmount, receiveAmt.String()),
+					sdk.NewAttribute(types.AttributeValueOfferCoinFeeAmount, offerCoinFeeAmt.String()),
 					sdk.NewAttribute(types.AttributeValueExchangedCoinFeeAmount, match.ExchangedCoinFeeAmt.String()),
 					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, sms.ReservedOfferCoinFee.Amount.String()),
 					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(sms.OrderExpiryHeight, 10)),
