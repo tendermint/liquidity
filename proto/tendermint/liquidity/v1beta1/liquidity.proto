@@ -14,7 +14,7 @@ message PoolType {
     option (gogoproto.equal) = true;
 
     // This is the id of the pool_type that will be used as pool_type_id for pool creation.
-    // In this version, pool-type-id 1 is only available
+    // In this version, only pool-type-id 1 is supported
     // {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
     uint32 id = 1 [(gogoproto.moretags) = "yaml:\"id\"",
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
