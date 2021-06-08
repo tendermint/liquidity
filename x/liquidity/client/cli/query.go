@@ -5,6 +5,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -92,26 +93,64 @@ func GetCmdQueryLiquidityPool() *cobra.Command {
 			fmt.Sprintf(`Query details of a liquidity pool
 Example:
 $ %s query %s pool 1
+
+Example (with pool coin denom):
+$ %s query %s pool --pool-coin-denom={POOL COIN DENOM HERE}
+
+Example (with reserve acc):
+$ %s query %s pool --reserve-acc={RESERVE ACC}
 `,
-				version.AppName, types.ModuleName,
+				version.AppName, types.ModuleName, version.AppName, types.ModuleName, version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var res *types.QueryLiquidityPoolResponse
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
-			queryClient := types.NewQueryClient(clientCtx)
 
+			queryClient := types.NewQueryClient(clientCtx)
+			foundArg := false
 			poolId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
 
-			res, err := queryClient.LiquidityPool(
-				context.Background(),
-				&types.QueryLiquidityPoolRequest{PoolId: poolId},
-			)
+			if poolId != 0 {
+				foundArg = true
+				res, err = queryClient.LiquidityPool(
+					context.Background(),
+					&types.QueryLiquidityPoolRequest{PoolId: poolId},
+				)
+			}
+
+			if !foundArg {
+				poolCoinDenom, _ := cmd.Flags().GetString("pool-coin-denom")
+				if poolCoinDenom != "" {
+					foundArg = true
+					res, err = queryClient.LiquidityPoolWithCoinDenom(
+						context.Background(),
+						&types.QueryLiquidityPoolByCoinDenomRequest{CoinDenom: poolCoinDenom},
+					)
+				}
+			}
+
+			if !foundArg {
+				reserveAcc, _ := cmd.Flags().GetString("reserve-acc")
+				if reserveAcc != "" {
+					foundArg = true
+					res, err = queryClient.LiquidityPoolWithReserveAcc(
+						context.Background(),
+						&types.QueryLiquidityPoolByReserveAccRequest{ReserveAcc: reserveAcc},
+					)
+				}
+			}
+
+			if !foundArg {
+				return errors.New("no valid params provided")
+			}
+
 			if err != nil {
 				return err
 			}
