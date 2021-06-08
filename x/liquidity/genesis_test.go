@@ -34,11 +34,11 @@ func TestGenesisState(t *testing.T) {
 	Y := sdk.NewInt(1000000000)
 
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
-	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	// begin block, init
-	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, true)
-	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolID, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolID, true)
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -48,10 +48,10 @@ func TestGenesisState(t *testing.T) {
 	offerCoins := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
 	orderPrices := []sdk.Dec{price}
 	orderAddrs := addrs[1:2]
-	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolId, false)
-	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolId, false)
-	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolId, false)
-	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolId, true)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, false)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, false)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, false)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, true)
 
 	genesisExported := liquidity.ExportGenesis(ctx, simapp.LiquidityKeeper)
 	bankGenesisExported := simapp.BankKeeper.ExportGenesis(ctx)

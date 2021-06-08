@@ -18,10 +18,10 @@ import (
 
 const custom = "custom"
 
-func getQueriedLiquidityPool(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, poolId uint64) (types.Pool, error) {
+func getQueriedLiquidityPool(t *testing.T, ctx sdk.Context, cdc *codec.LegacyAmino, querier sdk.Querier, poolID uint64) (types.Pool, error) {
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryLiquidityPool}, "/"),
-		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId: poolId}),
+		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId: poolID}),
 	}
 
 	pool := types.Pool{}
@@ -63,10 +63,10 @@ func TestNewQuerier(t *testing.T) {
 
 	querier := keeper.NewQuerier(simapp.LiquidityKeeper, cdc)
 
-	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, DenomX, DenomY, addrs[0])
+	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, DenomX, DenomY, addrs[0])
 	query := abci.RequestQuery{
 		Path: strings.Join([]string{custom, types.QuerierRoute, types.QueryLiquidityPool}, "/"),
-		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId: poolId}),
+		Data: cdc.MustMarshalJSON(types.QueryLiquidityPoolParams{PoolId: poolID}),
 	}
 	queryFailCase := abci.RequestQuery{
 		Path: strings.Join([]string{"failCustom", "failRoute", "failQuery"}, "/"),
@@ -99,21 +99,21 @@ func TestQueries(t *testing.T) {
 
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
 
-	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 	poolId2 := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, "testDenom", addrs[0])
-	require.Equal(t, uint64(1), poolId)
+	require.Equal(t, uint64(1), poolID)
 	require.Equal(t, uint64(2), poolId2)
 
 	// begin block, init
-	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:10], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:10], poolID, true)
 
 	querier := keeper.NewQuerier(simapp.LiquidityKeeper, cdc)
 
-	require.Equal(t, uint64(1), poolId)
-	poolRes, err := getQueriedLiquidityPool(t, ctx, cdc, querier, poolId)
+	require.Equal(t, uint64(1), poolID)
+	poolRes, err := getQueriedLiquidityPool(t, ctx, cdc, querier, poolID)
 	require.NoError(t, err)
-	require.Equal(t, poolId, poolRes.Id)
-	require.Equal(t, types.DefaultPoolTypeId, poolRes.TypeId)
+	require.Equal(t, poolID, poolRes.Id)
+	require.Equal(t, types.DefaultPoolTypeID, poolRes.TypeId)
 	require.Equal(t, []string{DenomX, DenomY}, poolRes.ReserveCoinDenoms)
 	require.NotNil(t, poolRes.PoolCoinDenom)
 	require.NotNil(t, poolRes.ReserveAccountAddress)

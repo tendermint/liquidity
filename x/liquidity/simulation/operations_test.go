@@ -83,7 +83,7 @@ func TestSimulateMsgCreatePool(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetPoolCreator().String())
-	require.Equal(t, types.DefaultPoolTypeId, msg.PoolTypeId)
+	require.Equal(t, types.DefaultPoolTypeID, msg.PoolTypeId)
 	require.Equal(t, "171625357wLfFy,279341739zDmT", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgCreatePool, msg.Type())
 	require.Len(t, futureOperations, 0)
@@ -243,7 +243,7 @@ func setupLiquidityPools(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx
 		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
-		createPoolMsg := types.NewMsgCreatePool(account.GetAddress(), types.DefaultPoolTypeId, depositCoins)
+		createPoolMsg := types.NewMsgCreatePool(account.GetAddress(), types.DefaultPoolTypeID, depositCoins)
 
 		_, err = app.LiquidityKeeper.CreatePool(ctx, createPoolMsg)
 		require.NoError(t, err)

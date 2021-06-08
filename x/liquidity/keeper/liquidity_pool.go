@@ -242,11 +242,11 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	depositCoinAmountB := depositCoinB.Amount
 	depositableCoinAmountA := depositCoinB.Amount.ToDec().MulTruncate(lastReserveRatio).TruncateInt()
 
-	acceptedCoins := sdk.NewCoins()
 	refundedCoins := sdk.NewCoins()
 	refundedCoinA := sdk.ZeroInt()
 	refundedCoinB := sdk.ZeroInt()
 
+	var acceptedCoins sdk.Coins
 	// handle when depositing coin A amount is less than, greater than or equal to depositable amount
 	if depositCoinA.Amount.LT(depositableCoinAmountA) {
 		depositCoinAmountB = depositCoinA.Amount.ToDec().QuoTruncate(lastReserveRatio).TruncateInt()
@@ -472,7 +472,10 @@ func (k Keeper) GetPoolCoinTotalSupply(ctx sdk.Context, pool types.Pool) sdk.Int
 
 // IsDepletedPool returns true if the pool is depleted.
 func (k Keeper) IsDepletedPool(ctx sdk.Context, pool types.Pool) bool {
-	return !k.GetPoolCoinTotalSupply(ctx, pool).IsPositive()
+	reserveCoins := k.GetReserveCoins(ctx, pool)
+	return !k.GetPoolCoinTotalSupply(ctx, pool).IsPositive() ||
+		reserveCoins.AmountOf(pool.ReserveCoinDenoms[0]).IsZero() ||
+		reserveCoins.AmountOf(pool.ReserveCoinDenoms[1]).IsZero()
 }
 
 // GetPoolCoinTotal returns total supply of pool coin of the pool in form of sdk.Coin

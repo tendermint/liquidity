@@ -9,8 +9,8 @@ import (
 )
 
 // PoolName returns unique name of the pool consists of given reserve coin denoms and type id.
-func PoolName(reserveCoinDenoms []string, poolTypeId uint32) string {
-	return strings.Join(append(SortDenoms(reserveCoinDenoms), strconv.FormatUint(uint64(poolTypeId), 10)), "/")
+func PoolName(reserveCoinDenoms []string, poolTypeID uint32) string {
+	return strings.Join(append(SortDenoms(reserveCoinDenoms), strconv.FormatUint(uint64(poolTypeID), 10)), "/")
 }
 
 // Name returns the pool's name.
@@ -39,10 +39,6 @@ func (pool Pool) Validate() error {
 	if pool.ReserveAccountAddress == "" {
 		return ErrEmptyReserveAccountAddress
 	}
-	//addr, err := sdk.AccAddressFromBech32(pool.ReserveAccountAddress)
-	//if err != nil || pool.GetReserveAccount().Equals(addr) {
-	//	return ErrBadReserveAccountAddress
-	//}
 	if pool.ReserveAccountAddress != GetPoolReserveAcc(pool.Name()).String() {
 		return ErrBadReserveAccountAddress
 	}
@@ -56,9 +52,9 @@ func (pool Pool) Validate() error {
 }
 
 // NewPoolBatch creates a new PoolBatch object.
-func NewPoolBatch(poolId, batchIndex uint64) PoolBatch {
+func NewPoolBatch(poolID, batchIndex uint64) PoolBatch {
 	return PoolBatch{
-		PoolId:           poolId,
+		PoolId:           poolID,
 		Index:            batchIndex,
 		BeginHeight:      0,
 		DepositMsgIndex:  1,
@@ -100,8 +96,8 @@ func (pool Pool) GetReserveAccount() sdk.AccAddress {
 // GetPoolCoinDenom returns the pool coin's denom.
 func (pool Pool) GetPoolCoinDenom() string { return pool.PoolCoinDenom }
 
-// GetPoolId returns id of the pool.
-func (pool Pool) GetPoolId() uint64 { return pool.Id }
+// GetId returns id of the pool.
+func (pool Pool) GetId() uint64 { return pool.Id } //nolint:golint
 
 // Pools is a collection of pools.
 type Pools []Pool

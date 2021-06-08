@@ -49,28 +49,28 @@ func TestSortDenoms(t *testing.T) {
 func TestGetPoolInformation(t *testing.T) {
 	testCases := []struct {
 		reserveCoinDenoms     []string
-		poolTypeId            uint32
+		poolTypeID            uint32
 		expectedPoolName      string
 		expectedReserveAcc    string
 		expectedPoolCoinDenom string
 	}{
 		{
 			reserveCoinDenoms:     []string{"denomX", "denomY"},
-			poolTypeId:            uint32(1),
+			poolTypeID:            uint32(1),
 			expectedPoolName:      "denomX/denomY/1",
 			expectedReserveAcc:    "cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3",
 			expectedPoolCoinDenom: "poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4",
 		},
 		{
 			reserveCoinDenoms:     []string{"stake", "token"},
-			poolTypeId:            uint32(1),
+			poolTypeID:            uint32(1),
 			expectedPoolName:      "stake/token/1",
 			expectedReserveAcc:    "cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u",
 			expectedPoolCoinDenom: "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
 		},
 		{
 			reserveCoinDenoms:     []string{"uatom", "uusd"},
-			poolTypeId:            uint32(2),
+			poolTypeID:            uint32(2),
 			expectedPoolName:      "uatom/uusd/2",
 			expectedReserveAcc:    "cosmos1xqm0g09czvdp5c7jk0fmz85u7maz52m040eh8g",
 			expectedPoolCoinDenom: "pool3036F43CB8131A1A63D2B3D3B11E9CF6FA2A2B6FEC17D5AD283C25C939614A8C",
@@ -78,7 +78,7 @@ func TestGetPoolInformation(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		poolName := types.PoolName(tc.reserveCoinDenoms, tc.poolTypeId)
+		poolName := types.PoolName(tc.reserveCoinDenoms, tc.poolTypeID)
 		require.Equal(t, tc.expectedPoolName, poolName)
 
 		reserveAcc := types.GetPoolReserveAcc(poolName)

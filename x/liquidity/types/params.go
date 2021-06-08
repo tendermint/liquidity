@@ -21,11 +21,11 @@ const (
 	// DefaultUnitBatchHeight is the default number of blocks in one batch. This param is used for scalability.
 	DefaultUnitBatchHeight uint32 = 1
 
-	// DefaultPoolTypeId is the default pool type id. The only supported pool type id is 1.
-	DefaultPoolTypeId uint32 = 1
+	// DefaultPoolTypeID is the default pool type id. The only supported pool type id is 1.
+	DefaultPoolTypeID uint32 = 1
 
-	// DefaultSwapTypeId is the default swap type id. The only supported swap type (instant swap) id is 1.
-	DefaultSwapTypeId uint32 = 1
+	// DefaultSwapTypeID is the default swap type id. The only supported swap type (instant swap) id is 1.
+	DefaultSwapTypeID uint32 = 1
 
 	// DefaultCircuitBreakerEnabled is the default circuit breaker status. This param is used for a contingency plan.
 	DefaultCircuitBreakerEnabled = false

@@ -11,13 +11,13 @@ const (
 
 // QueryLiquidityPoolParams is the query parameters for 'custom/liquidity'
 type QueryLiquidityPoolParams struct {
-	PoolId uint64 `json:"pool_id" yaml:"pool_id"`
+	PoolId uint64 `json:"pool_id" yaml:"pool_id"` // nolint:golint
 }
 
 // return params of Liquidity Pool Query
-func NewQueryLiquidityPoolParams(poolId uint64) QueryLiquidityPoolParams {
+func NewQueryLiquidityPoolParams(poolID uint64) QueryLiquidityPoolParams {
 	return QueryLiquidityPoolParams{
-		PoolId: poolId,
+		PoolId: poolID,
 	}
 }
 
