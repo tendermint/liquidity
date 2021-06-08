@@ -52,11 +52,11 @@ var commonArgs = []string{
 }
 
 // MsgCreatePoolExec creates a transaction for creating liquidity pool.
-func MsgCreatePoolExec(clientCtx client.Context, from, poolId, depositCoins string,
+func MsgCreatePoolExec(clientCtx client.Context, from, poolID, depositCoins string,
 	extraArgs ...string) (testutil.BufferWriter, error) {
 
 	args := append([]string{
-		poolId,
+		poolID,
 		depositCoins,
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
 	}, commonArgs...)
@@ -67,11 +67,11 @@ func MsgCreatePoolExec(clientCtx client.Context, from, poolId, depositCoins stri
 }
 
 // MsgDepositWithinBatchExec creates a transaction to deposit new amounts to the pool.
-func MsgDepositWithinBatchExec(clientCtx client.Context, from, poolId, depositCoins string,
+func MsgDepositWithinBatchExec(clientCtx client.Context, from, poolID, depositCoins string,
 	extraArgs ...string) (testutil.BufferWriter, error) {
 
 	args := append([]string{
-		poolId,
+		poolID,
 		depositCoins,
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
 	}, commonArgs...)
@@ -82,11 +82,11 @@ func MsgDepositWithinBatchExec(clientCtx client.Context, from, poolId, depositCo
 }
 
 // MsgWithdrawWithinBatchExec creates a transaction to withraw pool coin amount from the pool.
-func MsgWithdrawWithinBatchExec(clientCtx client.Context, from, poolId, poolCoin string,
+func MsgWithdrawWithinBatchExec(clientCtx client.Context, from, poolID, poolCoin string,
 	extraArgs ...string) (testutil.BufferWriter, error) {
 
 	args := append([]string{
-		poolId,
+		poolID,
 		poolCoin,
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
 	}, commonArgs...)
@@ -97,12 +97,12 @@ func MsgWithdrawWithinBatchExec(clientCtx client.Context, from, poolId, poolCoin
 }
 
 // MsgSwapWithinBatchExec creates a transaction to swap coins in the pool.
-func MsgSwapWithinBatchExec(clientCtx client.Context, from, poolId, swapTypeId,
+func MsgSwapWithinBatchExec(clientCtx client.Context, from, poolID, swapTypeID,
 	offerCoin, demandCoinDenom, orderPrice, swapFeeRate string, extraArgs ...string) (testutil.BufferWriter, error) {
 
 	args := append([]string{
-		poolId,
-		swapTypeId,
+		poolID,
+		swapTypeID,
 		offerCoin,
 		demandCoinDenom,
 		orderPrice,

@@ -31,11 +31,11 @@ func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	Y := sdk.NewInt(1000000000)
 
 	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
-	poolId := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	// begin block, init
-	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolId, true)
-	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolId, true)
+	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolID, true)
+	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolID, true)
 
 	invariant := keeper.AllInvariants(simapp.LiquidityKeeper)
 	_, broken := invariant(ctx)
@@ -58,10 +58,10 @@ func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	yOrderPrices := []sdk.Dec{priceY}
 	xOrderAddrs := addrs[1:2]
 	yOrderAddrs := addrs[2:3]
-	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
-	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
-	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolId, false)
-	app.TestSwapPool(t, simapp, ctx, yOfferCoins, yOrderPrices, yOrderAddrs, poolId, false)
+	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
+	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
+	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
+	app.TestSwapPool(t, simapp, ctx, yOfferCoins, yOrderPrices, yOrderAddrs, poolID, false)
 
 	_, broken = invariant(ctx)
 	require.False(t, broken)

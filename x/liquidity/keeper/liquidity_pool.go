@@ -243,11 +243,11 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	depositCoinAmountB := depositCoinB.Amount
 	depositableCoinAmountA := depositCoinB.Amount.ToDec().MulTruncate(lastReserveRatio).TruncateInt()
 
-	acceptedCoins := sdk.NewCoins()
 	refundedCoins := sdk.NewCoins()
 	refundedCoinA := sdk.ZeroInt()
 	refundedCoinB := sdk.ZeroInt()
 
+	var acceptedCoins sdk.Coins
 	// handle when depositing coin A amount is less than, greater than or equal to depositable amount
 	if depositCoinA.Amount.LT(depositableCoinAmountA) {
 		depositCoinAmountB = depositCoinA.Amount.ToDec().QuoTruncate(lastReserveRatio).TruncateInt()

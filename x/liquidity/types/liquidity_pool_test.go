@@ -76,7 +76,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	pool.PoolCoinDenom = pool.Name()
 	require.NoError(t, pool.Validate())
 	require.Equal(t, pool.Name(), types.PoolName(pool.ReserveCoinDenoms, pool.TypeId))
-	require.Equal(t, pool.Id, pool.GetPoolId())
+	require.Equal(t, pool.Id, pool.GetId())
 	require.Equal(t, pool.PoolCoinDenom, pool.GetPoolCoinDenom())
 
 	cdc := simapp.AppCodec()
