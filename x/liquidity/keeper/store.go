@@ -78,7 +78,7 @@ func (k Keeper) GetNextPoolID(ctx sdk.Context) uint64 {
 
 	bz := store.Get(types.GlobalLiquidityPoolIDKey)
 	if bz == nil {
-		// initialize the LiquidityPoolId
+		// initialize the LiquidityPoolID
 		poolID = 1
 	} else {
 		val := gogotypes.UInt64Value{}

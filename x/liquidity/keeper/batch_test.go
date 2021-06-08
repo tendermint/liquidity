@@ -199,8 +199,8 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 	feePoolBalance := simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
 
 	// Success case, create Liquidity pool
-	poolTypeId := types.DefaultPoolTypeID
-	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	poolTypeID := types.DefaultPoolTypeID
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
@@ -215,13 +215,13 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch(t *testing.T) {
 
 	// reset deposit balance without PoolCreationFee of pool creator
 	// Fail case, insufficient balances for pool creation fee case
-	msgAB := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
+	msgAB := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msgAB)
 	require.ErrorIs(t, types.ErrInsufficientPoolCreationFee, err)
 
 	// Success case, create another pool
-	msgAB = types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalanceAB)
+	msgAB = types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalanceAB)
 	app.SaveAccount(simapp, ctx, addrs[0], depositAB.Add(params.PoolCreationFee...))
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msgAB)
 	require.NoError(t, err)
@@ -401,8 +401,8 @@ func TestCreateDepositWithdrawLiquidityPoolToBatch2(t *testing.T) {
 	require.Equal(t, deposit, depositBalance)
 
 	// create Liquidity pool
-	poolTypeId := types.DefaultPoolTypeID
-	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	poolTypeID := types.DefaultPoolTypeID
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 

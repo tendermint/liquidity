@@ -19,7 +19,7 @@ func TestMsgCreatePool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeId := types.DefaultPoolTypeID
+	poolTypeID := types.DefaultPoolTypeID
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
@@ -35,7 +35,7 @@ func TestMsgCreatePool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
 
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
@@ -60,7 +60,7 @@ func TestMsgDepositLiquidityPool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeId := types.DefaultPoolTypeID
+	poolTypeID := types.DefaultPoolTypeID
 	addrs := app.AddTestAddrs(simapp, ctx, 4, params.PoolCreationFee)
 
 	denomA := "uETH"
@@ -83,7 +83,7 @@ func TestMsgDepositLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
 
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createMsg)
 	require.NoError(t, err)
@@ -115,7 +115,7 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeId := types.DefaultPoolTypeID
+	poolTypeID := types.DefaultPoolTypeID
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
@@ -131,7 +131,7 @@ func TestMsgWithdrawLiquidityPool(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
 
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createMsg)
 	require.NoError(t, err)
@@ -173,7 +173,7 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	poolTypeId := types.DefaultPoolTypeID
+	poolTypeID := types.DefaultPoolTypeID
 	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
 
 	denomA := "uETH"
@@ -189,7 +189,7 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 
 	require.Equal(t, deposit, depositBalance)
 
-	msg := types.NewMsgCreatePool(addrs[0], poolTypeId, depositBalance)
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
 
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
