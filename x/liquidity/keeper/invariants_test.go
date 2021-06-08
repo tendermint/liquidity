@@ -14,16 +14,15 @@ import (
 
 func TestWithdrawRatioInvariant(t *testing.T) {
 	require.NotPanics(t, func() {
-		keeper.WithdrawAmountInvariant(sdk.NewDec(1), sdk.NewDec(1), sdk.NewDec(2), sdk.NewDec(3), sdk.NewDec(1), sdk.NewDec(2), types.DefaultParams().WithdrawFeeRate)
+		keeper.WithdrawAmountInvariant(sdk.NewInt(1), sdk.NewInt(1), sdk.NewInt(2), sdk.NewInt(3), sdk.NewInt(1), sdk.NewInt(2), types.DefaultParams().WithdrawFeeRate)
 	})
 	require.Panics(t, func() {
-		keeper.WithdrawAmountInvariant(sdk.NewDec(1), sdk.NewDec(1), sdk.NewDec(2), sdk.NewDec(5), sdk.NewDec(1), sdk.NewDec(2), types.DefaultParams().WithdrawFeeRate)
+		keeper.WithdrawAmountInvariant(sdk.NewInt(1), sdk.NewInt(1), sdk.NewInt(2), sdk.NewInt(5), sdk.NewInt(1), sdk.NewInt(2), types.DefaultParams().WithdrawFeeRate)
 	})
 }
 
 func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
-	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
@@ -39,16 +38,16 @@ func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolID, true)
 
 	invariant := keeper.AllInvariants(simapp.LiquidityKeeper)
-	msg, broken := invariant(ctx)
+	_, broken := invariant(ctx)
 	require.False(t, broken)
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
-	msg, broken = invariant(ctx)
+	_, broken = invariant(ctx)
 	require.False(t, broken)
 
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-	msg, broken = invariant(ctx)
+	_, broken = invariant(ctx)
 	require.False(t, broken)
 
 	price, _ := sdk.NewDecFromStr("1.1")
@@ -59,32 +58,31 @@ func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	yOrderPrices := []sdk.Dec{priceY}
 	xOrderAddrs := addrs[1:2]
 	yOrderAddrs := addrs[2:3]
-	_, batch := app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
-	_, batch = app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
-	_, batch = app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
-	_, batch = app.TestSwapPool(t, simapp, ctx, yOfferCoins, yOrderPrices, yOrderAddrs, poolID, false)
+	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
+	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
+	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
+	app.TestSwapPool(t, simapp, ctx, yOfferCoins, yOrderPrices, yOrderAddrs, poolID, false)
 
-	msg, broken = invariant(ctx)
+	_, broken = invariant(ctx)
 	require.False(t, broken)
 
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
-	msg, broken = invariant(ctx)
+	_, broken = invariant(ctx)
 	require.False(t, broken)
 
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-	msg, broken = invariant(ctx)
+	_, broken = invariant(ctx)
 	require.False(t, broken)
 
 	batchEscrowAcc := simapp.AccountKeeper.GetModuleAddress(types.ModuleName)
 	escrowAmt := simapp.BankKeeper.GetAllBalances(ctx, batchEscrowAcc)
-	simapp.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addrs[0],
+	require.NotEmpty(t, escrowAmt)
+	err := simapp.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addrs[0],
 		sdk.NewCoins(sdk.NewCoin(xOfferCoins[0].Denom, xOfferCoins[0].Amount.QuoRaw(2))))
+	require.NoError(t, err)
 	escrowAmt = simapp.BankKeeper.GetAllBalances(ctx, batchEscrowAcc)
 
-	msg, broken = invariant(ctx)
+	msg, broken := invariant(ctx)
 	require.True(t, broken)
-
-	require.NotEmpty(t, batch)
-	require.NotEmpty(t, escrowAmt)
-	require.NotEmpty(t, msg)
+	require.Equal(t, "liquidity: batch escrow amount invariant broken invariant\nbatch escrow amount LT batch remaining amount\n", msg)
 }

@@ -21,7 +21,6 @@ const (
 	PoolCoinDenomPrefix = "pool"
 )
 
-// prefix key of liquidity states for indexing when kvstore
 var (
 	// param key for global Liquidity Pool IDs
 	GlobalLiquidityPoolIDKey = []byte("globalLiquidityPoolId")

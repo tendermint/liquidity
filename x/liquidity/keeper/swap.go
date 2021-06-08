@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -9,23 +10,25 @@ import (
 )
 
 // Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.
-func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatch) (uint64, error) {
+func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint64, error) {
 	// get all swap message batch states that are not executed, not succeeded, and not to be deleted.
-	swapMsgStates := k.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, liquidityPoolBatch)
+	swapMsgStates := k.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, poolBatch)
 	if len(swapMsgStates) == 0 {
 		return 0, nil
 	}
 
-	pool, found := k.GetPool(ctx, liquidityPoolBatch.PoolId)
+	pool, found := k.GetPool(ctx, poolBatch.PoolId)
 	if !found {
 		return 0, types.ErrPoolNotExists
 	}
 
 	currentHeight := ctx.BlockHeight()
 	// set executed states of all messages to true
+	executedMsgCount := uint64(0)
 	var swapMsgStatesNotToBeDeleted []*types.SwapMsgState
 	for _, sms := range swapMsgStates {
 		sms.Executed = true
+		executedMsgCount++
 		if currentHeight > sms.OrderExpiryHeight {
 			sms.ToBeDeleted = true
 		}
@@ -34,6 +37,25 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 		}
 		if !sms.ToBeDeleted {
 			swapMsgStatesNotToBeDeleted = append(swapMsgStatesNotToBeDeleted, sms)
+		} else {
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeSwapTransacted,
+					sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+					sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.Index, 10)),
+					sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(sms.MsgIndex, 10)),
+					sdk.NewAttribute(types.AttributeValueSwapRequester, sms.Msg.GetSwapRequester().String()),
+					sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(sms.Msg.SwapTypeId), 10)),
+					sdk.NewAttribute(types.AttributeValueOfferCoinDenom, sms.Msg.OfferCoin.Denom),
+					sdk.NewAttribute(types.AttributeValueOfferCoinAmount, sms.Msg.OfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueDemandCoinDenom, sms.Msg.DemandCoinDenom),
+					sdk.NewAttribute(types.AttributeValueOrderPrice, sms.Msg.OrderPrice.String()),
+					sdk.NewAttribute(types.AttributeValueRemainingOfferCoinAmount, sms.RemainingOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, sms.ExchangedOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, sms.ReservedOfferCoinFee.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(sms.OrderExpiryHeight, 10)),
+					sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
+				))
 		}
 	}
 	k.SetPoolBatchSwapMsgStatesByPointer(ctx, pool.Id, swapMsgStates)
@@ -56,8 +78,6 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
 	result, found := orderBook.Match(X, Y)
-
-	executedMsgCount := uint64(len(swapMsgStates))
 
 	if !found {
 		err := k.RefundSwaps(ctx, pool, swapMsgStates)
