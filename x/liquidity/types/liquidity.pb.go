@@ -26,19 +26,19 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Structure for the pool type to distinguish the characteristics of the reserve pools
+// Structure for the pool type to distinguish the characteristics of the reserve pools.
 type PoolType struct {
-	// The id of the pool_type to use as pool_type_id for pool creation.
-	// Only pool-type-id 1 is supported.
+	// This is the id of the pool_type that is used as pool_type_id for pool creation.
+	// In this version, only pool-type-id 1 is supported.
 	// {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""}
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty" yaml:"id"`
-	// name of the pool type
+	// name of the pool type.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
-	// minimum number of reserveCoins for LiquidityPoolType. Only 2 reserveCoins are allowed.
+	// minimum number of reserveCoins for LiquidityPoolType, only 2 reserve coins are supported.
 	MinReserveCoinNum uint32 `protobuf:"varint,3,opt,name=min_reserve_coin_num,json=minReserveCoinNum,proto3" json:"min_reserve_coin_num,omitempty" yaml:"min_reserve_coin_num"`
-	// maximum number of reserveCoins for LiquidityPoolType. Only 2 reserveCoins are allowed.
+	// maximum number of reserveCoins for LiquidityPoolType, only 2 reserve coins are supported.
 	MaxReserveCoinNum uint32 `protobuf:"varint,4,opt,name=max_reserve_coin_num,json=maxReserveCoinNum,proto3" json:"max_reserve_coin_num,omitempty" yaml:"max_reserve_coin_num"`
-	// description of the pool type
+	// description of the pool type.
 	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty" yaml:"description"`
 }
 
@@ -79,13 +79,13 @@ var xxx_messageInfo_PoolType proto.InternalMessageInfo
 type Params struct {
 	// list of available pool types
 	PoolTypes []PoolType `protobuf:"bytes,1,rep,name=pool_types,json=poolTypes,proto3" json:"pool_types" yaml:"pool_types"`
-	// Minimum number of coins to be deposited to the liquidity pool on pool creation
+	// Minimum number of coins to be deposited to the liquidity pool on pool creation.
 	MinInitDepositAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=min_init_deposit_amount,json=minInitDepositAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"min_init_deposit_amount" yaml:"min_init_deposit_amount"`
-	// Initial mint amount of pool coins upon pool creation
+	// Initial mint amount of pool coins upon pool creation.
 	InitPoolCoinMintAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=init_pool_coin_mint_amount,json=initPoolCoinMintAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"init_pool_coin_mint_amount" yaml:"init_pool_coin_mint_amount"`
-	// Limit the size of each liquidity pool. In the beginning phase of Liquidity Module adoption, this limit minimizes risk. Although not recommended for production, you can set to 0 for no limit.
+	// Limit the size of each liquidity pool to minimize risk. In development, set to 0 for no limit. In production, set a limit.
 	MaxReserveCoinAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,4,opt,name=max_reserve_coin_amount,json=maxReserveCoinAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"max_reserve_coin_amount" yaml:"max_reserve_coin_amount"`
-	// Fee to create a Liquidity Pool.
+	// Fee paid to create a Liquidity Pool. Set a fee to prevent spamming.
 	PoolCreationFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=pool_creation_fee,json=poolCreationFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"pool_creation_fee" yaml:"pool_creation_fee"`
 	// Swap fee rate for every executed swap.
 	SwapFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=swap_fee_rate,json=swapFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"swap_fee_rate" yaml:"swap_fee_rate"`
@@ -95,7 +95,7 @@ type Params struct {
 	MaxOrderAmountRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=max_order_amount_ratio,json=maxOrderAmountRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"max_order_amount_ratio" yaml:"max_order_amount_ratio"`
 	// The smallest unit batch height for every liquidity pool.
 	UnitBatchHeight uint32 `protobuf:"varint,9,opt,name=unit_batch_height,json=unitBatchHeight,proto3" json:"unit_batch_height,omitempty" yaml:"unit_batch_height"`
-	// Circuit breaker enables or disables transaction messages in liquidity module
+	// Circuit breaker enables or disables transaction messages in liquidity module.
 	CircuitBreakerEnabled bool `protobuf:"varint,10,opt,name=circuit_breaker_enabled,json=circuitBreakerEnabled,proto3" json:"circuit_breaker_enabled,omitempty" yaml:"circuit_breaker_enabled"`
 }
 
@@ -131,7 +131,7 @@ func (m *Params) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
-// The liquidity pool information
+// Pool defines the liquidity pool that contains pool information.
 type Pool struct {
 	// id of the pool
 	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id" yaml:"id"`
@@ -178,7 +178,7 @@ func (m *Pool) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Pool proto.InternalMessageInfo
 
-// Metadata for the state of each pool for invariant checking after genesis export or import
+// Metadata for the state of each pool for invariant checking after genesis export or import.
 type PoolMetadata struct {
 	// id of the pool
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
@@ -221,7 +221,8 @@ func (m *PoolMetadata) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_PoolMetadata proto.InternalMessageInfo
 
-// The batch or batches of a given liquidity pool that contains indexes of the deposit, withdraw, and swap messages. The index param increments by 1 if the pool id exists.
+// PoolBatch defines the batch or batches of a given liquidity pool that contains indexes of deposit, withdraw, and swap messages.
+// Index param increments by 1 if the pool id is same.
 type PoolBatch struct {
 	// id of the pool
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id" yaml:"pool_id"`
@@ -272,7 +273,7 @@ func (m *PoolBatch) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_PoolBatch proto.InternalMessageInfo
 
-// DepositMsgState defines the state of the deposit message that contains the state information as the message is processed in the next batch or batches
+// DepositMsgState defines the state of deposit message that contains state information as it is processed in the next batch or batches.
 type DepositMsgState struct {
 	// height where this message is appended to the batch
 	MsgHeight int64 `protobuf:"varint,1,opt,name=msg_height,json=msgHeight,proto3" json:"msg_height,omitempty" yaml:"msg_height"`
@@ -321,7 +322,7 @@ func (m *DepositMsgState) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_DepositMsgState proto.InternalMessageInfo
 
-// WithdrawMsgState defines the state of the withdraw message that contains state information as the message is processed in the next batch or batches
+// WithdrawMsgState defines the state of the withdraw message that contains state information as the message is processed in the next batch or batches.
 type WithdrawMsgState struct {
 	// height where this message is appended to the batch
 	MsgHeight int64 `protobuf:"varint,1,opt,name=msg_height,json=msgHeight,proto3" json:"msg_height,omitempty" yaml:"msg_height"`
@@ -370,7 +371,7 @@ func (m *WithdrawMsgState) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_WithdrawMsgState proto.InternalMessageInfo
 
-// SwapMsgState defines the state of swap message that contains state information as the message is processed in the next batch or batches
+// SwapMsgState defines the state of the swap message that contains state information as the message is processed in the next batch or batches.
 type SwapMsgState struct {
 	// height where this message is appended to the batch
 	MsgHeight int64 `protobuf:"varint,1,opt,name=msg_height,json=msgHeight,proto3" json:"msg_height,omitempty" yaml:"msg_height"`
