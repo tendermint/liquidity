@@ -67,7 +67,7 @@ New liquidity pools can be created only for coin combinations that do not alread
 			poolCreator := clientCtx.GetFromAddress()
 
 			// Get pool type index
-			poolTypeId, err := strconv.ParseUint(args[0], 10, 32)
+			poolTypeID, err := strconv.ParseUint(args[0], 10, 32)
 			if err != nil {
 				return fmt.Errorf("pool-type %s not a valid uint, input a valid unsigned 32-bit integer for pool-type", args[0])
 			}
@@ -83,7 +83,7 @@ New liquidity pools can be created only for coin combinations that do not alread
 				return err
 			}
 
-			if poolTypeId != 1 {
+			if poolTypeID != 1 {
 				return types.ErrPoolTypeNotExists
 			}
 
@@ -91,7 +91,7 @@ New liquidity pools can be created only for coin combinations that do not alread
 				return fmt.Errorf("the number of deposit coins must be two in pool-type 1")
 			}
 
-			msg := types.NewMsgCreatePool(poolCreator, uint32(poolTypeId), depositCoins)
+			msg := types.NewMsgCreatePool(poolCreator, uint32(poolTypeID), depositCoins)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -137,7 +137,7 @@ Deposits must be the same coin denoms as the reserve coins.
 			depositor := clientCtx.GetFromAddress()
 
 			// Get pool type index
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
@@ -157,7 +157,7 @@ Deposits must be the same coin denoms as the reserve coins.
 				return fmt.Errorf("the number of deposit coins must be two in the pool-type 1")
 			}
 
-			msg := types.NewMsgDepositWithinBatch(depositor, poolId, depositCoins)
+			msg := types.NewMsgDepositWithinBatch(depositor, poolID, depositCoins)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -203,7 +203,7 @@ The appropriate pool coin must be requested from the specified pool.
 			withdrawer := clientCtx.GetFromAddress()
 
 			// Get pool type index
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
@@ -219,7 +219,7 @@ The appropriate pool coin must be requested from the specified pool.
 				return err
 			}
 
-			msg := types.NewMsgWithdrawWithinBatch(withdrawer, poolId, poolCoin)
+			msg := types.NewMsgWithdrawWithinBatch(withdrawer, poolID, poolCoin)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -280,18 +280,18 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 			swapRequester := clientCtx.GetFromAddress()
 
 			// Get pool id
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
 
 			// Get swap type
-			swapTypeId, err := strconv.ParseUint(args[1], 10, 32)
+			swapTypeID, err := strconv.ParseUint(args[1], 10, 32)
 			if err != nil {
 				return fmt.Errorf("swap-type %s not a valid uint, input a valid unsigned 32-bit integer for swap-type", args[2])
 			}
 
-			if swapTypeId != 1 {
+			if swapTypeID != 1 {
 				return types.ErrSwapTypeNotExists
 			}
 
@@ -321,7 +321,7 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 				return err
 			}
 
-			msg := types.NewMsgSwapWithinBatch(swapRequester, poolId, uint32(swapTypeId), offerCoin, args[3], orderPrice, swapFeeRate)
+			msg := types.NewMsgSwapWithinBatch(swapRequester, poolID, uint32(swapTypeID), offerCoin, args[3], orderPrice, swapFeeRate)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

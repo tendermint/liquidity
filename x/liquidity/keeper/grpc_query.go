@@ -25,7 +25,7 @@ var _ types.QueryServer = Querier{}
 // LiquidityPool queries a liquidity pool with the given pool id.
 func (k Querier) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolRequest) (*types.QueryLiquidityPoolResponse, error) {
 	empty := &types.QueryLiquidityPoolRequest{}
-	if req == nil || req == empty {
+	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 
@@ -61,7 +61,7 @@ func (k Querier) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidity
 // Pools queries all liquidity pools currently existed with each liquidity pool with batch and metadata.
 func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPoolsRequest) (*types.QueryLiquidityPoolsResponse, error) {
 	empty := &types.QueryLiquidityPoolsRequest{}
-	if req == nil || req == empty {
+	if req == nil || *req == *empty {
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 

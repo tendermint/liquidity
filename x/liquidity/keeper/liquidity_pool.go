@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/tendermint/liquidity/x/liquidity/types"
@@ -105,26 +106,30 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	}
 
 	poolCreator := msg.GetPoolCreator()
-	poolCreatorBalances := k.bankKeeper.GetAllBalances(ctx, poolCreator)
-
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.Pool{}, types.ErrInsufficientBalance
-	}
-
-	reserveCoins := k.GetReserveCoins(ctx, pool)
 
 	for _, coin := range msg.DepositCoins {
-		if coin.Amount.Add(reserveCoins.AmountOf(coin.Denom)).LT(params.MinInitDepositAmount) {
-			return types.Pool{}, types.ErrLessThanMinInitDeposit
+		if coin.Amount.LT(params.MinInitDepositAmount) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrLessThanMinInitDeposit, "deposit coin %s is smaller than %s", coin, params.MinInitDepositAmount)
 		}
 	}
 
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins) {
-		return types.Pool{}, types.ErrInsufficientBalance
+	for _, coin := range msg.DepositCoins {
+		balance := k.bankKeeper.GetBalance(ctx, poolCreator, coin.Denom)
+		if balance.IsLT(coin) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrInsufficientBalance, "%s is smaller than %s", balance, coin)
+		}
 	}
 
-	if !poolCreatorBalances.IsAllGTE(msg.DepositCoins.Add(params.PoolCreationFee...)) {
-		return types.Pool{}, types.ErrInsufficientPoolCreationFee
+	for _, coin := range params.PoolCreationFee {
+		balance := k.bankKeeper.GetBalance(ctx, poolCreator, coin.Denom)
+		neededAmt := coin.Amount.Add(msg.DepositCoins.AmountOf(coin.Denom))
+		neededCoin := sdk.NewCoin(coin.Denom, neededAmt)
+		if balance.IsLT(neededCoin) {
+			return types.Pool{}, sdkerrors.Wrapf(
+				types.ErrInsufficientPoolCreationFee, "%s is smaller than %s", balance, neededCoin)
+		}
 	}
 
 	if _, err := k.MintAndSendPoolCoin(ctx, pool, poolCreator, poolCreator, msg.DepositCoins); err != nil {
@@ -142,7 +147,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 
 	k.SetPoolBatch(ctx, batch)
 
-	reserveCoins = k.GetReserveCoins(ctx, pool)
+	reserveCoins := k.GetReserveCoins(ctx, pool)
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	logger := k.Logger(ctx)
 	logger.Debug("createPool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
@@ -238,11 +243,11 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	depositCoinAmountB := depositCoinB.Amount
 	depositableCoinAmountA := depositCoinB.Amount.ToDec().MulTruncate(lastReserveRatio).TruncateInt()
 
-	acceptedCoins := sdk.NewCoins()
 	refundedCoins := sdk.NewCoins()
 	refundedCoinA := sdk.ZeroInt()
 	refundedCoinB := sdk.ZeroInt()
 
+	var acceptedCoins sdk.Coins
 	// handle when depositing coin A amount is less than, greater than or equal to depositable amount
 	if depositCoinA.Amount.LT(depositableCoinAmountA) {
 		depositCoinAmountB = depositCoinA.Amount.ToDec().QuoTruncate(lastReserveRatio).TruncateInt()
@@ -468,7 +473,10 @@ func (k Keeper) GetPoolCoinTotalSupply(ctx sdk.Context, pool types.Pool) sdk.Int
 
 // IsDepletedPool returns true if the pool is depleted.
 func (k Keeper) IsDepletedPool(ctx sdk.Context, pool types.Pool) bool {
-	return !k.GetPoolCoinTotalSupply(ctx, pool).IsPositive()
+	reserveCoins := k.GetReserveCoins(ctx, pool)
+	return !k.GetPoolCoinTotalSupply(ctx, pool).IsPositive() ||
+		reserveCoins.AmountOf(pool.ReserveCoinDenoms[0]).IsZero() ||
+		reserveCoins.AmountOf(pool.ReserveCoinDenoms[1]).IsZero()
 }
 
 // GetPoolCoinTotal returns total supply of pool coin of the pool in form of sdk.Coin
@@ -613,10 +621,13 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 		}
 
 		if match, ok := matchResultMap[sms.MsgIndex]; ok {
-			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, match.TransactedCoinAmt.TruncateInt()))
-			sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(
-				sms.Msg.DemandCoinDenom, match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()))
-			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, match.OfferCoinFeeAmt.TruncateInt()))
+			transactedAmt := match.TransactedCoinAmt.TruncateInt()
+			receiveAmt := match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()
+			offerCoinFeeAmt := match.OfferCoinFeeAmt.TruncateInt()
+
+			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, transactedAmt))
+			sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(sms.Msg.DemandCoinDenom, receiveAmt))
+			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, offerCoinFeeAmt))
 
 			if sms.RemainingOfferCoin.IsPositive() && sms.OrderExpiryHeight == ctx.BlockHeight() {
 				sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
@@ -632,19 +643,22 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 					types.EventTypeSwapTransacted,
 					sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
 					sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
-					sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(match.SwapMsgState.MsgIndex, 10)),
-					sdk.NewAttribute(types.AttributeValueSwapRequester, match.SwapMsgState.Msg.GetSwapRequester().String()),
-					sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(match.SwapMsgState.Msg.SwapTypeId), 10)),
-					sdk.NewAttribute(types.AttributeValueOfferCoinDenom, match.SwapMsgState.Msg.OfferCoin.Denom),
-					sdk.NewAttribute(types.AttributeValueOfferCoinAmount, match.SwapMsgState.Msg.OfferCoin.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueOrderPrice, match.SwapMsgState.Msg.OrderPrice.String()),
+					sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(sms.MsgIndex, 10)),
+					sdk.NewAttribute(types.AttributeValueSwapRequester, sms.Msg.GetSwapRequester().String()),
+					sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(sms.Msg.SwapTypeId), 10)),
+					sdk.NewAttribute(types.AttributeValueOfferCoinDenom, sms.Msg.OfferCoin.Denom),
+					sdk.NewAttribute(types.AttributeValueOfferCoinAmount, sms.Msg.OfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueDemandCoinDenom, sms.Msg.DemandCoinDenom),
+					sdk.NewAttribute(types.AttributeValueOrderPrice, sms.Msg.OrderPrice.String()),
 					sdk.NewAttribute(types.AttributeValueSwapPrice, batchResult.SwapPrice.String()),
-					sdk.NewAttribute(types.AttributeValueTransactedCoinAmount, match.TransactedCoinAmt.String()),
-					sdk.NewAttribute(types.AttributeValueRemainingOfferCoinAmount, match.SwapMsgState.RemainingOfferCoin.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, match.SwapMsgState.ExchangedOfferCoin.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueOfferCoinFeeAmount, match.OfferCoinFeeAmt.String()),
-					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, match.SwapMsgState.ReservedOfferCoinFee.Amount.String()),
-					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(match.SwapMsgState.OrderExpiryHeight, 10)),
+					sdk.NewAttribute(types.AttributeValueTransactedCoinAmount, transactedAmt.String()),
+					sdk.NewAttribute(types.AttributeValueRemainingOfferCoinAmount, sms.RemainingOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, sms.ExchangedOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueExchangedDemandCoinAmount, receiveAmt.String()),
+					sdk.NewAttribute(types.AttributeValueOfferCoinFeeAmount, offerCoinFeeAmt.String()),
+					sdk.NewAttribute(types.AttributeValueExchangedCoinFeeAmount, match.ExchangedCoinFeeAmt.String()),
+					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, sms.ReservedOfferCoinFee.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(sms.OrderExpiryHeight, 10)),
 					sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
 				))
 		} else {
@@ -652,6 +666,27 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 			sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
 			sms.Succeeded = false
 			sms.ToBeDeleted = true
+
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeSwapTransacted,
+					sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+					sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
+					sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(sms.MsgIndex, 10)),
+					sdk.NewAttribute(types.AttributeValueSwapRequester, sms.Msg.GetSwapRequester().String()),
+					sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(sms.Msg.SwapTypeId), 10)),
+					sdk.NewAttribute(types.AttributeValueOfferCoinDenom, sms.Msg.OfferCoin.Denom),
+					sdk.NewAttribute(types.AttributeValueOfferCoinAmount, sms.Msg.OfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueDemandCoinDenom, sms.Msg.DemandCoinDenom),
+					sdk.NewAttribute(types.AttributeValueOrderPrice, sms.Msg.OrderPrice.String()),
+					sdk.NewAttribute(types.AttributeValueSwapPrice, batchResult.SwapPrice.String()),
+					sdk.NewAttribute(types.AttributeValueRemainingOfferCoinAmount, sms.RemainingOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, sms.ExchangedOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, sms.ReservedOfferCoinFee.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(sms.OrderExpiryHeight, 10)),
+					sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
+				))
+
 		}
 	}
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {

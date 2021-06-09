@@ -56,7 +56,6 @@ func (orderBook OrderBook) Swap(i, j int) { orderBook[i], orderBook[j] = orderBo
 
 // increasing sort orderbook by order price
 func (orderBook OrderBook) Sort() {
-	//sort.Sort(orderBook)
 	sort.Slice(orderBook, func(i, j int) bool {
 		return orderBook[i].Price.LT(orderBook[j].Price)
 	})
@@ -64,7 +63,6 @@ func (orderBook OrderBook) Sort() {
 
 // decreasing sort orderbook by order price
 func (orderBook OrderBook) Reverse() {
-	//sort.Reverse(orderBook)
 	sort.Slice(orderBook, func(i, j int) bool {
 		return orderBook[i].Price.GT(orderBook[j].Price)
 	})
@@ -147,13 +145,13 @@ type MatchResult struct {
 
 // The price and coins of swap messages in orderbook are calculated
 // to derive match result with the price direction.
-func (orderBook OrderBook) Match(X, Y sdk.Dec) (BatchResult, bool) {
-	currentPrice := X.Quo(Y)
+func (orderBook OrderBook) Match(x, y sdk.Dec) (BatchResult, bool) {
+	currentPrice := x.Quo(y)
 	priceDirection := orderBook.PriceDirection(currentPrice)
 	if priceDirection == Staying {
 		return orderBook.CalculateMatchStay(currentPrice), true
 	}
-	return orderBook.CalculateMatch(priceDirection, X, Y)
+	return orderBook.CalculateMatch(priceDirection, x, y)
 }
 
 // Check orderbook validity naively
@@ -204,8 +202,8 @@ func (orderBook OrderBook) CalculateMatchStay(currentPrice sdk.Dec) (r BatchResu
 
 // Calculates the batch results with the logic for each direction
 // TODO: return pointer
-func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec) (maxScenario BatchResult, found bool) {
-	currentPrice := X.Quo(Y)
+func (orderBook OrderBook) CalculateMatch(direction PriceDirection, x, y sdk.Dec) (maxScenario BatchResult, found bool) {
+	currentPrice := x.Quo(y)
 	lastOrderPrice := currentPrice
 	var matchScenarios []BatchResult
 	start, end, delta := 0, len(orderBook)-1, 1
@@ -219,7 +217,7 @@ func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec
 			continue
 		} else {
 			orderPrice := order.Price
-			r := orderBook.CalculateSwap(direction, X, Y, orderPrice, lastOrderPrice)
+			r := orderBook.CalculateSwap(direction, x, y, orderPrice, lastOrderPrice)
 			// Check to see if it exceeds a value that can be a decimal error
 			if (direction == Increasing && r.PoolY.Sub(r.EX.Quo(r.SwapPrice)).GTE(sdk.OneDec())) ||
 				(direction == Decreasing && r.PoolX.Sub(r.EY.Mul(r.SwapPrice)).GTE(sdk.OneDec())) {
@@ -244,20 +242,20 @@ func (orderBook OrderBook) CalculateMatch(direction PriceDirection, X, Y sdk.Dec
 		}
 	}
 	maxScenario.PriceDirection = direction
-	return
+	return maxScenario, found
 }
 
 // CalculateSwap calculates the batch result.
-func (orderBook OrderBook) CalculateSwap(direction PriceDirection, X, Y, orderPrice, lastOrderPrice sdk.Dec) (r BatchResult) {
-	r = NewBatchResult()
+func (orderBook OrderBook) CalculateSwap(direction PriceDirection, x, y, orderPrice, lastOrderPrice sdk.Dec) BatchResult {
+	r := NewBatchResult()
 	r.OriginalEX, r.OriginalEY = orderBook.ExecutableAmt(lastOrderPrice.Add(orderPrice).Quo(sdk.NewDec(2)))
 	r.EX = r.OriginalEX.ToDec()
 	r.EY = r.OriginalEY.ToDec()
 
-	r.SwapPrice = X.Add(r.EX.MulInt64(2)).Quo(Y.Add(r.EY.MulInt64(2))) // P_s = (X + 2EX) / (Y + 2EY)
+	r.SwapPrice = x.Add(r.EX.MulInt64(2)).Quo(y.Add(r.EY.MulInt64(2))) // P_s = (X + 2EX) / (Y + 2EY)
 
 	if direction == Increasing {
-		r.PoolY = r.SwapPrice.Mul(Y).Sub(X).Quo(r.SwapPrice.MulInt64(2)) // (P_s * Y - X / 2P_s)
+		r.PoolY = r.SwapPrice.Mul(y).Sub(x).Quo(r.SwapPrice.MulInt64(2)) // (P_s * Y - X / 2P_s)
 		if lastOrderPrice.LT(r.SwapPrice) && r.SwapPrice.LT(orderPrice) && !r.PoolY.IsNegative() {
 			if r.EX.IsZero() && r.EY.IsZero() {
 				r.MatchType = NoMatch
@@ -266,7 +264,7 @@ func (orderBook OrderBook) CalculateSwap(direction PriceDirection, X, Y, orderPr
 			}
 		}
 	} else if direction == Decreasing {
-		r.PoolX = X.Sub(r.SwapPrice.Mul(Y)).QuoInt64(2) // (X - P_s * Y) / 2
+		r.PoolX = x.Sub(r.SwapPrice.Mul(y)).QuoInt64(2) // (X - P_s * Y) / 2
 		if orderPrice.LT(r.SwapPrice) && r.SwapPrice.LT(lastOrderPrice) && !r.PoolX.IsNegative() {
 			if r.EX.IsZero() && r.EY.IsZero() {
 				r.MatchType = NoMatch
@@ -283,11 +281,11 @@ func (orderBook OrderBook) CalculateSwap(direction PriceDirection, X, Y, orderPr
 		r.SwapPrice = orderPrice
 		// When calculating the Pool value, conservatively Truncated decimal, so Ceil it to reduce the decimal error
 		if direction == Increasing {
-			r.PoolY = r.SwapPrice.Mul(Y).Sub(X).Quo(r.SwapPrice.MulInt64(2)) // (P_s * Y - X) / 2P_s
+			r.PoolY = r.SwapPrice.Mul(y).Sub(x).Quo(r.SwapPrice.MulInt64(2)) // (P_s * Y - X) / 2P_s
 			r.EX = sdk.MinDec(r.EX, r.EY.Add(r.PoolY).Mul(r.SwapPrice)).Ceil()
 			r.EY = sdk.MaxDec(sdk.MinDec(r.EY, r.EX.Quo(r.SwapPrice).Sub(r.PoolY)), sdk.ZeroDec()).Ceil()
 		} else if direction == Decreasing {
-			r.PoolX = X.Sub(r.SwapPrice.Mul(Y)).QuoInt64(2) // (X - P_s * Y) / 2
+			r.PoolX = x.Sub(r.SwapPrice.Mul(y)).QuoInt64(2) // (X - P_s * Y) / 2
 			r.EY = sdk.MinDec(r.EY, r.EX.Add(r.PoolX).Quo(r.SwapPrice)).Ceil()
 			r.EX = sdk.MaxDec(sdk.MinDec(r.EX, r.EY.Mul(r.SwapPrice).Sub(r.PoolX)), sdk.ZeroDec()).Ceil()
 		}
@@ -295,19 +293,19 @@ func (orderBook OrderBook) CalculateSwap(direction PriceDirection, X, Y, orderPr
 	}
 
 	if direction == Increasing {
-		if r.SwapPrice.LT(X.Quo(Y)) || r.PoolY.IsNegative() {
+		if r.SwapPrice.LT(x.Quo(y)) || r.PoolY.IsNegative() {
 			r.TransactAmt = sdk.ZeroDec()
 		} else {
 			r.TransactAmt = sdk.MinDec(r.EX, r.EY.Add(r.PoolY).Mul(r.SwapPrice))
 		}
 	} else if direction == Decreasing {
-		if r.SwapPrice.GT(X.Quo(Y)) || r.PoolX.IsNegative() {
+		if r.SwapPrice.GT(x.Quo(y)) || r.PoolX.IsNegative() {
 			r.TransactAmt = sdk.ZeroDec()
 		} else {
 			r.TransactAmt = sdk.MinDec(r.EY, r.EX.Add(r.PoolX).Quo(r.SwapPrice))
 		}
 	}
-	return
+	return r
 }
 
 // Get Price direction of the orderbook with current Price
@@ -366,11 +364,11 @@ func (orderBook OrderBook) MustExecutableAmt(swapPrice sdk.Dec) (mustExecutableB
 	return
 }
 
-// make orderMap key as swap price, value as Buy, Sell Amount from swap msgs, with split as Buy XtoY, Sell YtoX msg list.
+// make orderMap key as swap price, value as Buy, Sell Amount from swap msgs, with split as Buy xToY, Sell yToX msg list.
 func MakeOrderMap(swapMsgs []*SwapMsgState, denomX, denomY string, onlyNotMatched bool) (OrderMap, []*SwapMsgState, []*SwapMsgState) {
 	orderMap := make(OrderMap)
-	var XtoY []*SwapMsgState // buying Y from X
-	var YtoX []*SwapMsgState // selling Y for X
+	var xToY []*SwapMsgState // buying Y from X
+	var yToX []*SwapMsgState // selling Y for X
 	for _, m := range swapMsgs {
 		if onlyNotMatched && (m.ToBeDeleted || m.RemainingOfferCoin.IsZero()) {
 			continue
@@ -384,7 +382,7 @@ func MakeOrderMap(swapMsgs []*SwapMsgState, denomX, denomY string, onlyNotMatche
 		switch {
 		// buying Y from X
 		case m.Msg.OfferCoin.Denom == denomX:
-			XtoY = append(XtoY, m)
+			xToY = append(xToY, m)
 			if o, ok := orderMap[orderPriceString]; ok {
 				order = o
 				order.BuyOfferAmt = o.BuyOfferAmt.Add(m.RemainingOfferCoin.Amount)
@@ -393,7 +391,7 @@ func MakeOrderMap(swapMsgs []*SwapMsgState, denomX, denomY string, onlyNotMatche
 			}
 		// selling Y for X
 		case m.Msg.OfferCoin.Denom == denomY:
-			YtoX = append(YtoX, m)
+			yToX = append(yToX, m)
 			if o, ok := orderMap[orderPriceString]; ok {
 				order = o
 				order.SellOfferAmt = o.SellOfferAmt.Add(m.RemainingOfferCoin.Amount)
@@ -406,10 +404,10 @@ func MakeOrderMap(swapMsgs []*SwapMsgState, denomX, denomY string, onlyNotMatche
 		order.SwapMsgStates = append(order.SwapMsgStates, m)
 		orderMap[orderPriceString] = order
 	}
-	return orderMap, XtoY, YtoX
+	return orderMap, xToY, yToX
 }
 
-//check validity state of the batch swap messages, and set to delete state to height timeout expired order
+// check validity state of the batch swap messages, and set to delete state to height timeout expired order
 func ValidateStateAndExpireOrders(swapMsgStates []*SwapMsgState, currentHeight int64, expireThisHeight bool) {
 	for _, order := range swapMsgStates {
 		if !order.Executed {
@@ -450,10 +448,7 @@ func CheckSwapPrice(matchResultXtoY, matchResultYtoX []MatchResult, swapPrice sd
 			return false
 		}
 	}
-	if swapPrice.IsZero() {
-		return false
-	}
-	return true
+	return !swapPrice.IsZero()
 }
 
 // Find matched orders and set status for msgs
@@ -478,7 +473,7 @@ func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, exe
 
 	matchAmt := sdk.ZeroInt()
 	accumMatchAmt := sdk.ZeroInt()
-	var matchedSwapMsgStates []*SwapMsgState
+	var matchedSwapMsgStates []*SwapMsgState //nolint:prealloc
 
 	for i, order := range swapMsgStates {
 		// include the matched order in matchAmt, matchedSwapMsgStates
@@ -545,17 +540,17 @@ func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, exe
 			matchedSwapMsgStates = matchedSwapMsgStates[:0]
 		}
 	}
-	return
+	return matchResults, poolXDelta, poolYDelta
 }
 
 // UpdateSwapMsgStates updates SwapMsgStates using the MatchResults.
-func UpdateSwapMsgStates(X, Y sdk.Dec, XtoY, YtoX []*SwapMsgState, matchResultXtoY, matchResultYtoX []MatchResult) (
+func UpdateSwapMsgStates(x, y sdk.Dec, xToY, yToX []*SwapMsgState, matchResultXtoY, matchResultYtoX []MatchResult) (
 	[]*SwapMsgState, []*SwapMsgState, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec) {
-	sort.SliceStable(XtoY, func(i, j int) bool {
-		return XtoY[i].Msg.OrderPrice.GT(XtoY[j].Msg.OrderPrice)
+	sort.SliceStable(xToY, func(i, j int) bool {
+		return xToY[i].Msg.OrderPrice.GT(xToY[j].Msg.OrderPrice)
 	})
-	sort.SliceStable(YtoX, func(i, j int) bool {
-		return YtoX[i].Msg.OrderPrice.LT(YtoX[j].Msg.OrderPrice)
+	sort.SliceStable(yToX, func(i, j int) bool {
+		return yToX[i].Msg.OrderPrice.LT(yToX[j].Msg.OrderPrice)
 	})
 
 	poolXDelta := sdk.ZeroDec()
@@ -611,8 +606,8 @@ func UpdateSwapMsgStates(X, Y sdk.Dec, XtoY, YtoX []*SwapMsgState, matchResultXt
 	poolXDelta = poolXDelta.Add(decimalErrorX)
 	poolYDelta = poolYDelta.Add(decimalErrorY)
 
-	X = X.Add(poolXDelta)
-	Y = Y.Add(poolYDelta)
+	x = x.Add(poolXDelta)
+	y = y.Add(poolYDelta)
 
-	return XtoY, YtoX, X, Y, poolXDelta, poolYDelta, decimalErrorX, decimalErrorY
+	return xToY, yToX, x, y, poolXDelta, poolYDelta, decimalErrorX, decimalErrorY
 }
