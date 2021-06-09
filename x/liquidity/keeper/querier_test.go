@@ -88,7 +88,6 @@ func TestQueries(t *testing.T) {
 
 	simapp := app.Setup(false)
 	ctx := simapp.BaseApp.NewContext(false, tmproto.Header{})
-	//_ = simapp.LiquidityKeeper.GetParams(ctx)
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)

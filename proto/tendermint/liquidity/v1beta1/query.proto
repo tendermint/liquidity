@@ -65,6 +65,71 @@ service Query {
         };
     }
 
+    // Get specific liquidity pool corresponding to the pool_coin_denom.
+    rpc LiquidityPoolByPoolCoinDenom (QueryLiquidityPoolByPoolCoinDenomRequest) returns (QueryLiquidityPoolResponse) {
+        option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/pool_coin_denom/{pool_coin_denom}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns the liquidity pool corresponding to the pool_coin_denom.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = the liquidity pool corresponding to the pool_coin_denom doesn\'t exist: key not found","details":[]}'
+                    }
+                }
+            }
+            responses: {
+                key: "404"
+                value: {
+                    description: "Not Found"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":5,"message":"rpc error: code = NotFound desc = liquidity pool with pool coin denom xx doesn\'t exist: key not found","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
+
+    // Get specific liquidity pool corresponding to the reserve account.
+    rpc LiquidityPoolByReserveAcc (QueryLiquidityPoolByReserveAccRequest) returns (QueryLiquidityPoolResponse) {
+        option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/reserve_acc/{reserve_acc}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns the liquidity pool corresponding to the reserve account.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = the liquidity pool corresponding to the reserve account doesn\'t exist: key not found","details":[]}'
+                    }
+                }
+            }
+            responses: {
+                key: "404"
+                value: {
+                    description: "Not Found"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":5,"message":"rpc error: code = NotFound desc = the reserve account address xx is not valid: key not found","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
     // Get the pool's current batch.
     rpc LiquidityPoolBatch (QueryLiquidityPoolBatchRequest) returns (QueryLiquidityPoolBatchResponse) {
         option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/{pool_id}/batch";
@@ -312,6 +377,16 @@ message QueryLiquidityPoolRequest {
 // the response type for the QueryLiquidityPoolResponse RPC method. It returns the liquidity pool corresponding to the requested pool_id.
 message QueryLiquidityPoolResponse {
     Pool pool = 1 [(gogoproto.nullable) = false];
+}
+
+// the request type for the QueryLiquidityByPoolCoinDenomPool RPC method. requestable specified pool_coin_denom.
+message QueryLiquidityPoolByPoolCoinDenomRequest {
+    string pool_coin_denom = 1;
+}
+
+// the request type for the QueryLiquidityByReserveAcc RPC method. requestable specified reserve_acc.
+message QueryLiquidityPoolByReserveAccRequest {
+    string reserve_acc = 1;
 }
 
 // the request type for the QueryLiquidityPoolBatch RPC method. requestable including specified pool_id.
