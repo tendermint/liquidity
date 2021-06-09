@@ -421,7 +421,7 @@ paths:
   '/tendermint/liquidity/v1beta1/pools/reserve_acc/{reserve_acc}':
     get:
       summary: Get specific liquidity pool corresponding to the reserve account.
-      description: It returns the liquidity pool corresponding to the reserve account..
+      description: It returns the liquidity pool corresponding to the reserve account.
       operationId: LiquidityPoolByReserveAcc
       responses:
         '200':

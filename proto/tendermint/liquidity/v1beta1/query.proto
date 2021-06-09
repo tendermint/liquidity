@@ -102,7 +102,7 @@ service Query {
     rpc LiquidityPoolByReserveAcc (QueryLiquidityPoolByReserveAccRequest) returns (QueryLiquidityPoolResponse) {
         option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/reserve_acc/{reserve_acc}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            description: "It returns the liquidity pool corresponding to the reserve account..";
+            description: "It returns the liquidity pool corresponding to the reserve account.";
             external_docs: {
                 url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
                 description: "Find out more about the query and error codes";

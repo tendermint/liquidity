@@ -48,7 +48,6 @@ func GetReserveAcc(poolCoinDenom string) (sdk.AccAddress, error) {
 		return nil, ErrInvalidDenom
 	}
 	return sdk.AccAddressFromHex(poolCoinDenom[:40])
-	return nil, ErrInvalidDenom
 }
 
 // GetCoinsTotalAmount returns total amount of all coins in sdk.Coins.
