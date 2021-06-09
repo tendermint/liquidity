@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -895,17 +894,7 @@ func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record types.PoolRecord) err
 
 // IsPoolCoinDenom returns true if the denom is a valid pool coin denom.
 func (k Keeper) IsPoolCoinDenom(ctx sdk.Context, denom string) bool {
-	if err := sdk.ValidateDenom(denom); err != nil {
-		return false
-	}
-	if !strings.HasPrefix(denom, types.PoolCoinDenomPrefix) {
-		return false
-	}
-	denom = strings.TrimPrefix(denom, types.PoolCoinDenomPrefix)
-	if len(denom) != 64 {
-		return false
-	}
-	reserveAcc, err := sdk.AccAddressFromHex(denom[:40])
+	reserveAcc, err := types.GetReserveAcc(denom)
 	if err != nil {
 		return false
 	}

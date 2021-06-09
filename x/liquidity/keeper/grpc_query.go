@@ -39,6 +39,42 @@ func (k Querier) LiquidityPool(c context.Context, req *types.QueryLiquidityPoolR
 	return k.MakeQueryLiquidityPoolResponse(pool)
 }
 
+// LiquidityPool queries a liquidity pool with the given pool coin denom.
+func (k Querier) LiquidityPoolByPoolCoinDenom(c context.Context, req *types.QueryLiquidityPoolByPoolCoinDenomRequest) (*types.QueryLiquidityPoolResponse, error) {
+	empty := &types.QueryLiquidityPoolByPoolCoinDenomRequest{}
+	if req == nil || *req == *empty {
+		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	reserveAcc, err := types.GetReserveAcc(req.PoolCoinDenom)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "liquidity pool with pool coin denom %s doesn't exist", req.PoolCoinDenom)
+	}
+	pool, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "liquidity pool with pool coin denom %s doesn't exist", req.PoolCoinDenom)
+	}
+	return k.MakeQueryLiquidityPoolResponse(pool)
+}
+
+// LiquidityPool queries a liquidity pool with the given reserve account address.
+func (k Querier) LiquidityPoolByReserveAcc(c context.Context, req *types.QueryLiquidityPoolByReserveAccRequest) (*types.QueryLiquidityPoolResponse, error) {
+	empty := &types.QueryLiquidityPoolByReserveAccRequest{}
+	if req == nil || *req == *empty {
+		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	reserveAcc, err := sdk.AccAddressFromBech32(req.ReserveAcc)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "the reserve account address %s is not valid", req.ReserveAcc)
+	}
+	pool, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "liquidity pool with pool reserve account %s doesn't exist", req.ReserveAcc)
+	}
+	return k.MakeQueryLiquidityPoolResponse(pool)
+}
+
 // LiquidityPoolBatch queries a liquidity pool batch with the given pool id.
 func (k Querier) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidityPoolBatchRequest) (*types.QueryLiquidityPoolBatchResponse, error) {
 	empty := &types.QueryLiquidityPoolBatchRequest{}

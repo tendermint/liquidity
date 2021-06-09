@@ -86,40 +86,81 @@ $ %s query %s params
 func GetCmdQueryLiquidityPool() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pool [pool-id]",
-		Args:  cobra.ExactArgs(1),
 		Short: "Query details of a liquidity pool",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool
 Example:
-$ %s query %s pool 1
+$ %[1]s query %[2]s pool 1
+
+Example (with pool coin denom):
+$ %[1]s query %[2]s pool --pool-coin-denom=[denom]
+
+Example (with reserve acc):
+$ %[1]s query %[2]s pool --reserve-acc=[address]
 `,
 				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var res *types.QueryLiquidityPoolResponse
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
+
+			foundArg := false
 			queryClient := types.NewQueryClient(clientCtx)
 
-			poolID, err := strconv.ParseUint(args[0], 10, 64)
-			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
+			poolCoinDenom, _ := cmd.Flags().GetString(FlagPoolCoinDenom)
+			if poolCoinDenom != "" {
+				foundArg = true
+				res, err = queryClient.LiquidityPoolByPoolCoinDenom(
+					context.Background(),
+					&types.QueryLiquidityPoolByPoolCoinDenomRequest{PoolCoinDenom: poolCoinDenom},
+				)
+				if err != nil {
+					return err
+				}
 			}
 
-			res, err := queryClient.LiquidityPool(
-				context.Background(),
-				&types.QueryLiquidityPoolRequest{PoolId: poolID},
-			)
-			if err != nil {
-				return err
+			reserveAcc, _ := cmd.Flags().GetString(FlagReserveAcc)
+			if !foundArg && reserveAcc != "" {
+				foundArg = true
+				res, err = queryClient.LiquidityPoolByReserveAcc(
+					context.Background(),
+					&types.QueryLiquidityPoolByReserveAccRequest{ReserveAcc: reserveAcc},
+				)
+				if err != nil {
+					return err
+				}
+			}
+
+			if !foundArg && len(args) > 0 {
+				poolID, err := strconv.ParseUint(args[0], 10, 64)
+				if err != nil {
+					return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
+				}
+
+				if poolID != 0 {
+					foundArg = true
+					res, err = queryClient.LiquidityPool(
+						context.Background(),
+						&types.QueryLiquidityPoolRequest{PoolId: poolID},
+					)
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+			if !foundArg {
+				return fmt.Errorf("provide the pool-id argument or --%s or --%s flag", FlagPoolCoinDenom, FlagReserveAcc)
 			}
 
 			return clientCtx.PrintProto(res)
 		},
 	}
-
+	cmd.Flags().AddFlagSet(flagSetPool())
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
