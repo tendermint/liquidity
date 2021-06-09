@@ -26,6 +26,11 @@ Swap prices in liquidity pools are determined by the current pool coin reserves 
 ## Escrow Process
 
 The liquidity module uses a module account that acts as an escrow account. The module account holds and releases the coin amount during batch execution.
+
+## Refund 
+
+The liquidity module has refund functions when deposit, withdraw, or swap batch states are not successfully executed.
+Read [the logic](https://github.com/tendermint/liquidity/blob/e8ab2f4d75079157d008eba9f310b199573eed28/x/liquidity/keeper/batch.go#L83-L127) to get more context.
 ## Fees
 ### PoolCreationFee
 
