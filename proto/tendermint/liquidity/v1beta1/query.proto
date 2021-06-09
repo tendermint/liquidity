@@ -67,7 +67,7 @@ service Query {
 
     // Get specific liquidity pool corresponding to the pool_coin_denom.
     rpc LiquidityPoolByPoolCoinDenom (QueryLiquidityPoolByPoolCoinDenomRequest) returns (QueryLiquidityPoolResponse) {
-        option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/denom/{pool_coin_denom}";
+        option (google.api.http).get = "/tendermint/liquidity/v1beta1/pools/pool_coin_denom/{pool_coin_denom}";
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             description: "It returns the liquidity pool corresponding to the pool_coin_denom.";
             external_docs: {
@@ -85,12 +85,12 @@ service Query {
                 }
             }
             responses: {
-                key: "400"
+                key: "404"
                 value: {
-                    description: "Bad Request"
+                    description: "Not Found"
                     examples: {
                         key: "application/json"
-                        value: '{"code":3,"message":"TBD","details":[]}'
+                        value: '{"code":5,"message":"rpc error: code = NotFound desc = liquidity pool with pool coin denom xx doesn\'t exist: key not found","details":[]}'
                     }
                 }
             }
@@ -118,12 +118,12 @@ service Query {
                 }
             }
             responses: {
-                key: "400"
+                key: "404"
                 value: {
-                    description: "Bad Request"
+                    description: "Not Found"
                     examples: {
                         key: "application/json"
-                        value: '{"code":3,"message":"TBD","details":[]}'
+                        value: '{"code":5,"message":"rpc error: code = NotFound desc = the reserve account address xx is not valid: key not found","details":[]}'
                     }
                 }
             }

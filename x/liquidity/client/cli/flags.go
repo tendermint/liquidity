@@ -1,12 +1,14 @@
 package cli
 
+// DONTCOVER
+
 import (
 	flag "github.com/spf13/pflag"
 )
 
 const (
-	FlagPoolCoinDenom  = "pool-coin-denom"
-	FlagReserveAcc = "reserve-acc"
+	FlagPoolCoinDenom = "pool-coin-denom"
+	FlagReserveAcc    = "reserve-acc"
 )
 
 func flagSetPool() *flag.FlagSet {

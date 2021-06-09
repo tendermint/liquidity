@@ -35,23 +35,20 @@ func GetPoolCoinDenom(poolName string) string {
 	return fmt.Sprintf("%s%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(poolName)))
 }
 
-// TODO: add comments, test codes
+// GetReserveAcc extracts and returns reserve account from pool coin denom.
 func GetReserveAcc(poolCoinDenom string) (sdk.AccAddress, error) {
 	if err := sdk.ValidateDenom(poolCoinDenom); err != nil {
 		return nil, err
 	}
-	denomSplit := strings.SplitN(poolCoinDenom, PoolCoinDenomPrefix, 2)
-	if len(denomSplit) == 2 && denomSplit[0] == "" && len(denomSplit[1]) == 64 {
-		reserveAcc, err := sdk.AccAddressFromHex(denomSplit[1][:40])
-		if err != nil {
-			return nil, err
-		} else {
-			return reserveAcc, nil
-		}
-
-	} else {
+	if !strings.HasPrefix(poolCoinDenom, PoolCoinDenomPrefix) {
 		return nil, ErrInvalidDenom
 	}
+	poolCoinDenom = strings.TrimPrefix(poolCoinDenom, PoolCoinDenomPrefix)
+	if len(poolCoinDenom) != 64 {
+		return nil, ErrInvalidDenom
+	}
+	return sdk.AccAddressFromHex(poolCoinDenom[:40])
+	return nil, ErrInvalidDenom
 }
 
 // GetCoinsTotalAmount returns total amount of all coins in sdk.Coins.

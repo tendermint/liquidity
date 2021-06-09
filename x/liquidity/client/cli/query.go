@@ -5,7 +5,6 @@ package cli
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -91,15 +90,15 @@ func GetCmdQueryLiquidityPool() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool
 Example:
-$ %s query %s pool 1
+$ %[1]s query %[2]s pool 1
 
 Example (with pool coin denom):
-$ %s query %s pool --pool-coin-denom=pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
+$ %[1]s query %[2]s pool --pool-coin-denom=[denom]
 
 Example (with reserve acc):
-$ %s query %s pool --reserve-acc=cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we
+$ %[1]s query %[2]s pool --reserve-acc=[address]
 `,
-				version.AppName, types.ModuleName, version.AppName, types.ModuleName, version.AppName, types.ModuleName,
+				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -119,6 +118,9 @@ $ %s query %s pool --reserve-acc=cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we
 					context.Background(),
 					&types.QueryLiquidityPoolByPoolCoinDenomRequest{PoolCoinDenom: poolCoinDenom},
 				)
+				if err != nil {
+					return err
+				}
 			}
 
 			reserveAcc, _ := cmd.Flags().GetString(FlagReserveAcc)
@@ -128,6 +130,9 @@ $ %s query %s pool --reserve-acc=cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we
 					context.Background(),
 					&types.QueryLiquidityPoolByReserveAccRequest{ReserveAcc: reserveAcc},
 				)
+				if err != nil {
+					return err
+				}
 			}
 
 			if !foundArg && len(args) > 0 {
@@ -142,15 +147,14 @@ $ %s query %s pool --reserve-acc=cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we
 						context.Background(),
 						&types.QueryLiquidityPoolRequest{PoolId: poolID},
 					)
+					if err != nil {
+						return err
+					}
 				}
 			}
 
 			if !foundArg {
-				return errors.New("no valid params provided")
-			}
-
-			if err != nil {
-				return err
+				return fmt.Errorf("provide the pool-id argument or --%s or --%s flag", FlagPoolCoinDenom, FlagReserveAcc)
 			}
 
 			return clientCtx.PrintProto(res)

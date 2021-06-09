@@ -21,6 +21,46 @@ func TestAlphabeticalDenomPair(t *testing.T) {
 	require.Equal(t, denomB, afterDenomB)
 }
 
+func TestGetReserveAcc(t *testing.T) {
+	expectedReserveAcc, _ := sdk.AccAddressFromBech32("cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3")
+	tests := []struct {
+		poolCoinDenom      string
+		expectedReserveAcc sdk.AccAddress
+		expPass            bool
+	}{
+		{
+			poolCoinDenom:      "poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4",
+			expectedReserveAcc: expectedReserveAcc,
+			expPass:            true,
+		},
+		{
+			poolCoinDenom:      "poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A",
+			expectedReserveAcc: nil,
+			expPass:            false,
+		},
+		{
+			poolCoinDenom:      "D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4",
+			expectedReserveAcc: nil,
+			expPass:            false,
+		},
+		{
+			poolCoinDenom:      "ibc/D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4",
+			expectedReserveAcc: nil,
+			expPass:            false,
+		},
+	}
+
+	for _, tc := range tests {
+		reserveAcc, err := types.GetReserveAcc(tc.poolCoinDenom)
+		if tc.expPass {
+			require.Equal(t, tc.expectedReserveAcc, reserveAcc)
+		} else {
+			require.Nil(t, reserveAcc)
+			require.ErrorIs(t, err, types.ErrInvalidDenom)
+		}
+	}
+}
+
 func TestSortDenoms(t *testing.T) {
 	tests := []struct {
 		denoms         []string
@@ -86,6 +126,10 @@ func TestGetPoolInformation(t *testing.T) {
 
 		poolCoinDenom := types.GetPoolCoinDenom(poolName)
 		require.Equal(t, tc.expectedPoolCoinDenom, poolCoinDenom)
+
+		expectedReserveAcc, err := types.GetReserveAcc(poolCoinDenom)
+		require.NoError(t, err)
+		require.Equal(t, tc.expectedReserveAcc, expectedReserveAcc.String())
 	}
 }
 

@@ -559,9 +559,57 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 			true,
 		},
 		{
-			"valid case",
+			"valid case with pool id",
 			[]string{
 				fmt.Sprintf("%d", uint32(1)),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
+		},
+		{
+			"with invalid pool coin denom",
+			[]string{
+				fmt.Sprintf("--%s=%s", cli.FlagPoolCoinDenom, "invalid_value"),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			true,
+		},
+		{
+			"with empty pool coin denom",
+			[]string{
+				fmt.Sprintf("--%s", cli.FlagPoolCoinDenom),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			true,
+		},
+		{
+			"valid case with pool coin denom",
+			[]string{
+				fmt.Sprintf("--%s=%s", cli.FlagPoolCoinDenom, "poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D"),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
+		},
+		{
+			"with invalid reserve acc",
+			[]string{
+				fmt.Sprintf("--%s=%s", cli.FlagReserveAcc, "invalid_value"),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			true,
+		},
+		{
+			"with empty reserve acc",
+			[]string{
+				fmt.Sprintf("--%s", cli.FlagReserveAcc),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			true,
+		},
+		{
+			"valid case with reserve acc",
+			[]string{
+				fmt.Sprintf("--%s=%s", cli.FlagReserveAcc, "cosmos1cva80e6jcxpezd3k5dl7zwy2eg30u7ld3y0a67"),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			false,

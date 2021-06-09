@@ -668,10 +668,48 @@ withdraw_fee_rate: "0.003000000000000000"
 
 ## Pool
 
-Example `pool` query command:
+Example `pool` query command using `pool-id` argument:
 
 ```bash
 $ liquidityd query liquidity pool 1
+```
+
+Result:
+
+```json
+pool:
+  id: "1"
+  pool_coin_denom: pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
+  reserve_account_address: cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we
+  reserve_coin_denoms:
+  - uatom
+  - uusd
+  type_id: 1
+```
+
+Example `pool` query command using `--pool-coin-denom` flag:
+
+```bash
+$ liquidityd query liquidity pool --pool-coin-denom=pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
+```
+
+Result:
+
+```json
+pool:
+  id: "1"
+  pool_coin_denom: pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295
+  reserve_account_address: cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we
+  reserve_coin_denoms:
+  - uatom
+  - uusd
+  type_id: 1
+```
+
+Example `pool` query command using `--reserve-acc` flag:
+
+```bash
+$ liquidityd query liquidity pool --reserve-acc=cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we
 ```
 
 Result:

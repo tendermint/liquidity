@@ -51,6 +51,104 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPool() {
 	}
 }
 
+func (suite *KeeperTestSuite) TestGRPCLiquidityPoolByPoolCoinDenom() {
+	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
+	pool, found := app.LiquidityKeeper.GetPool(ctx, suite.pools[0].Id)
+	suite.True(found)
+
+	var req *types.QueryLiquidityPoolByPoolCoinDenomRequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"empty request",
+			func() {
+				req = &types.QueryLiquidityPoolByPoolCoinDenomRequest{}
+			},
+			false,
+		},
+		{
+			"valid request",
+			func() {
+				req = &types.QueryLiquidityPoolByPoolCoinDenomRequest{PoolCoinDenom: suite.pools[0].PoolCoinDenom}
+			},
+			true,
+		},
+		{
+			"invalid request",
+			func() {
+				req = &types.QueryLiquidityPoolByPoolCoinDenomRequest{PoolCoinDenom: suite.pools[0].PoolCoinDenom[:10]}
+			},
+			false,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+			res, err := queryClient.LiquidityPoolByPoolCoinDenom(context.Background(), req)
+			if tc.expPass {
+				suite.NoError(err)
+				suite.Equal(pool.Id, res.Pool.Id)
+			} else {
+				suite.Error(err)
+				suite.Nil(res)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestGRPCLiquidityPoolByReserveAcc() {
+	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
+	pool, found := app.LiquidityKeeper.GetPool(ctx, suite.pools[0].Id)
+	suite.True(found)
+
+	var req *types.QueryLiquidityPoolByReserveAccRequest
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"empty request",
+			func() {
+				req = &types.QueryLiquidityPoolByReserveAccRequest{}
+			},
+			false,
+		},
+		{
+			"valid request",
+			func() {
+				req = &types.QueryLiquidityPoolByReserveAccRequest{ReserveAcc: suite.pools[0].ReserveAccountAddress}
+			},
+			true,
+		},
+		{
+			"invalid request",
+			func() {
+				req = &types.QueryLiquidityPoolByReserveAccRequest{ReserveAcc: suite.pools[0].ReserveAccountAddress[:10]}
+			},
+			false,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
+			tc.malleate()
+			res, err := queryClient.LiquidityPoolByReserveAcc(context.Background(), req)
+			if tc.expPass {
+				suite.NoError(err)
+				suite.Equal(pool.Id, res.Pool.Id)
+			} else {
+				suite.Error(err)
+				suite.Nil(res)
+			}
+		})
+	}
+}
+
 func (suite *KeeperTestSuite) TestGRPCQueryLiquidityPools() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
 	pools := app.LiquidityKeeper.GetAllPools(ctx)
