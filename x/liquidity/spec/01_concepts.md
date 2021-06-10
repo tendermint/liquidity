@@ -11,9 +11,9 @@ The liquidity module is a module that can be used on any Cosmos SDK-based applic
 A liquidity pool is a coin reserve that contains two different types of coins in a trading pair. The trading pair has to be unique. A liquidity provider can be anyone (permissionless) who provides liquidity by depositing reserve coins into the pool. The liquidity provider earns the accumulated swap fees with respect to their pool share. The pool share is represented as possession of pool coins. All matchable swap requests are expected to be executed and unmatched swap requests are removed.
 ## Equivalent Swap Price Model (ESPM)
 
-The liquidity module is a Cosmos SDK implementation of an automated market maker (AMM) and constant product market maker (CPMM) system with a novel economic model called the Equivalent Swap Price Model (ESPM).
- 
-The key distinguishing feature of the ESPM model is the implementation of a hybrid system that combines an orderbook model exchange with a simple liquidity pool model that governs the order book with a set of order rules and performs execution in batches. In the ESPM, the pool price is always equal to the last swap price which reduces opportunities for arbitrage.
+The liquidity module is a Cosmos SDK implementation of an AMM system with a novel economic model called the Equivalent Swap Price Model (ESPM).
+
+The key distinguishing feature of the ESPM model from the Constant Product Market Maker (CPMM) model is the implementation of a hybrid system that combines an orderbook model exchange with a simple liquidity pool model that governs the order book with a set of order rules and performs execution in batches. In the ESPM, the pool price is always equal to the last swap price which reduces opportunities for arbitrage.
 
 The ESPM model is intended to provide protection against price volatility, transaction ordering vulnerabilities, and losses due to arbitrage. AMMs such as Uniswap do not provide this level of protection.
 
