@@ -183,11 +183,6 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "number of liquidity pools equals zero"), nil, nil
 		}
 
-		// use pre-created simulated accounts if randomAccounts are empty for the unit test
-		if len(randomAccounts) == 0 {
-			randomAccounts = accs
-		}
-
 		pool, ok := randomLiquidity(r, k, ctx)
 		if !ok {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to pick liquidity pool"), nil, nil
@@ -226,7 +221,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 
 		fees, err := randomFees(r, spendable)
 		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to generate fees"), nil, err
 		}
 
 		msg := types.NewMsgDepositWithinBatch(depositor, pool.Id, depositCoins)
@@ -263,11 +258,6 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		if len(k.GetAllPools(ctx)) == 0 {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "number of liquidity pools equals zero"), nil, nil
-		}
-
-		// use pre-created simulated accounts if randomAccounts are empty for the unit test
-		if len(randomAccounts) == 0 {
-			randomAccounts = accs
 		}
 
 		pool, ok := randomLiquidity(r, k, ctx)
@@ -338,11 +328,6 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "number of liquidity pools equals zero"), nil, nil
 		}
 
-		// use pre-created simulated accounts if randomAccounts are empty for the unit test
-		if len(randomAccounts) == 0 {
-			randomAccounts = accs
-		}
-
 		pool, ok := randomLiquidity(r, k, ctx)
 		if !ok {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "unable to pick liquidity pool"), nil, nil
@@ -357,7 +342,7 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 		simAccount := randomAccounts[r.Intn(len(randomAccounts))]
 		err := mintCoins(r, simAccount, []string{reserveCoinDenomA, reserveCoinDenomB}, bk, ctx)
 		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to mint and send coins"), nil, err
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "unable to mint and send coins"), nil, err
 		}
 
 		account := ak.GetAccount(ctx, simAccount.Address)
@@ -377,7 +362,7 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 
 		fees, err := randomFees(r, spendable)
 		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "unable to generate fees"), nil, err
 		}
 
 		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
