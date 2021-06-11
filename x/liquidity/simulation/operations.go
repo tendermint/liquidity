@@ -105,7 +105,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		mintingDenoms = append(mintingDenoms, feeDenoms...)
 
 		// mint coins of randomized and fee denoms
-		err := mintCoins(r, simAccount, mintingDenoms, bk, ctx)
+		err := mintCoins(ctx, r, bk, simAccount, mintingDenoms)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to mint and send coins"), nil, err
 		}
@@ -195,7 +195,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 		// note that select the simulated account that has some balances of reserve coin denoms result in
 		// many failed transactions due to random accounts change after a creating pool.
 		simAccount := randomAccounts[r.Intn(len(randomAccounts))]
-		err := mintCoins(r, simAccount, []string{reserveCoinDenomA, reserveCoinDenomB}, bk, ctx)
+		err := mintCoins(ctx, r, bk, simAccount, []string{reserveCoinDenomA, reserveCoinDenomB})
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to mint and send coins"), nil, err
 		}
@@ -271,7 +271,7 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 		// note that select the simulated account that has some balance of pool coin denom result in
 		// many failed transactions due to random accounts change after a creating pool.
 		simAccount := randomAccounts[r.Intn(len(randomAccounts))]
-		err := mintCoins(r, simAccount, []string{poolCoinDenom}, bk, ctx)
+		err := mintCoins(ctx, r, bk, simAccount, []string{poolCoinDenom})
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "unable to mint and send coins"), nil, err
 		}
@@ -340,7 +340,7 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 		// note that select the simulated account that has some balances of reserve coin denoms result in
 		// many failed transactions due to random accounts change after a creating pool.
 		simAccount := randomAccounts[r.Intn(len(randomAccounts))]
-		err := mintCoins(r, simAccount, []string{reserveCoinDenomA, reserveCoinDenomB}, bk, ctx)
+		err := mintCoins(ctx, r, bk, simAccount, []string{reserveCoinDenomA, reserveCoinDenomB})
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "unable to mint and send coins"), nil, err
 		}

@@ -20,7 +20,7 @@ var (
 )
 
 // mintCoins mints and send coins to the simulated account.
-func mintCoins(r *rand.Rand, acc simtypes.Account, denoms []string, bk types.BankKeeper, ctx sdk.Context) error {
+func mintCoins(ctx sdk.Context, r *rand.Rand, bk types.BankKeeper, acc simtypes.Account, denoms []string) error {
 	var mintCoins, sendCoins sdk.Coins
 	for _, denom := range denoms {
 		mintAmt := sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e15, 1e16)))
