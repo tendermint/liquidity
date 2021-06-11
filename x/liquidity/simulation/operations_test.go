@@ -2,6 +2,7 @@ package simulation_test
 
 import (
 	"math/rand"
+	"strings"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -82,9 +83,9 @@ func TestSimulateMsgCreatePool(t *testing.T) {
 	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetPoolCreator().String())
+	require.Equal(t, "cosmos10kn7aww37y27c4lggjx6mycyhr927677rkp7x0", msg.GetPoolCreator().String())
 	require.Equal(t, types.DefaultPoolTypeId, msg.PoolTypeId)
-	require.Equal(t, "164003092AjEdl,170565196cKpB", msg.DepositCoins.String())
+	require.Equal(t, "90341750hsuk,28960633ijmo", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgCreatePool, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -97,7 +98,7 @@ func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	// setup accounts
 	s := rand.NewSource(1)
 	r := rand.New(s)
-	accounts := getTestingAccounts(t, r, app, ctx, 3)
+	accounts := getTestingAccounts(t, r, app, ctx, 5)
 
 	// setup random liquidity pools
 	setupLiquidityPools(t, r, app, ctx, accounts)
@@ -114,8 +115,8 @@ func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetDepositor().String())
-	require.Equal(t, "160538706Qfyze,478362889VIkPZ", msg.DepositCoins.String())
+	require.Equal(t, "cosmos1ua0fwyws7vzjrry3pqkklvf8mny93l9s9zg0h4", msg.GetDepositor().String())
+	require.Equal(t, "98565109ajedl,42661593ckpb", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgDepositWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -146,7 +147,7 @@ func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetWithdrawer().String())
-	require.Equal(t, "70867pool2D59CF15954FA399BBEA5EE6A2E73D09BC39FC8720F2E922AC17C9AC06758EA8", msg.PoolCoin.String())
+	require.Equal(t, "9119701471146pool0FC06113F5008CA0862D6FD187D3B03BEF57D5B64D57CC82E905EA4DFF6E1418", msg.PoolCoin.String())
 	require.Equal(t, types.TypeMsgWithdrawWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -177,13 +178,12 @@ func TestSimulateMsgSwapWithinBatch(t *testing.T) {
 
 	require.True(t, operationMsg.OK)
 	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetSwapRequester().String())
-	require.Equal(t, "6494706fGaE", msg.OfferCoin.String())
-	require.Equal(t, "jXUlr", msg.DemandCoinDenom)
+	require.Equal(t, "6453297fgae", msg.OfferCoin.String())
+	require.Equal(t, "jxulr", msg.DemandCoinDenom)
 	require.Equal(t, types.TypeMsgSwapWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
 
-// returns context and an app
 func createTestApp(isCheckTx bool) (*lapp.LiquidityApp, sdk.Context) {
 	app := lapp.Setup(false)
 
@@ -197,7 +197,7 @@ func createTestApp(isCheckTx bool) (*lapp.LiquidityApp, sdk.Context) {
 func getTestingAccounts(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx sdk.Context, n int) []simtypes.Account {
 	accounts := simtypes.RandomAccounts(r, n)
 
-	initAmt := sdk.TokensFromConsensusPower(1e6)
+	initAmt := sdk.TokensFromConsensusPower(1_000_000)
 	initCoins := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, initAmt))
 
 	// add coins to the accounts
@@ -218,9 +218,8 @@ func setupLiquidityPools(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx
 		// random denom with a length from 4 to 6 characters
 		denomA := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))
 		denomB := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))
-		denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+		denomA, denomB = types.AlphabeticalDenomPair(strings.ToLower(denomA), strings.ToLower(denomB))
 
-		// random fees
 		fees := sdk.NewCoin(params.GetBondDenom(), sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e10, 1e12))))
 
 		// mint random amounts of denomA and denomB coins

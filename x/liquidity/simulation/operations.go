@@ -1,7 +1,6 @@
 package simulation
 
 import (
-	"fmt"
 	"math/rand"
 	"strings"
 
@@ -17,7 +16,13 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// Simulation operation weights constants
+var (
+	// create simulated accounts due to gas usage overflow issue.
+	// Read this issue: https://github.com/tendermint/liquidity/issues/349
+	randomAccounts []simtypes.Account
+)
+
+// Simulation operation weights constants.
 const (
 	OpWeightMsgCreatePool          = "op_weight_msg_create_pool"
 	OpWeightMsgDepositWithinBatch  = "op_weight_msg_deposit_to_pool"
@@ -25,7 +30,7 @@ const (
 	OpWeightMsgSwapWithinBatch     = "op_weight_msg_swap"
 )
 
-// WeightedOperations returns all the operations from the module with their respective weights
+// WeightedOperations returns all the operations from the module with their respective weights.
 func WeightedOperations(
 	appParams simtypes.AppParams, cdc codec.JSONMarshaler, ak types.AccountKeeper,
 	bk types.BankKeeper, k keeper.Keeper,
@@ -79,60 +84,39 @@ func WeightedOperations(
 	}
 }
 
-// [DEBUG]
-var (
-	availableDenoms = []string{
-		"foo1",
-		"foo2",
-		"foo3",
-		"foo4",
-		"foo5",
-		"foo6",
-		"foo7",
-		"foo8",
-		"foo9",
-		"foo10",
-	}
-)
-
 // SimulateMsgCreatePool generates a MsgCreatePool with random values
 // nolint: interfacer
 func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		// fmt.Println("")
-		// fmt.Println("<Start SimulateMsgCreatePool>")
-
-		simAccount, _ := simtypes.RandomAcc(r, accs)
+		var simAccount simtypes.Account
+		randomAccounts = simtypes.RandomAccounts(r, 3)
+		simAccount = randomAccounts[r.Intn(3)]
 
 		params := k.GetParams(ctx)
 		params.MaxReserveCoinAmount = GenMaxReserveCoinAmount(r)
 		k.SetParams(ctx, params)
 
-		// [DEBUG]
-		denomA, denomB := selectRandomDenoms(r)
-
 		// get randomized two denoms to create liquidity pool
-		// denomA, denomB := randomDenoms(r)
+		denomA, denomB := randomDenoms(r)
 		reserveCoinDenoms := []string{denomA, denomB}
 
-		// simAccount should have some fees to pay when creating liquidity pool
+		// simAccount should have some fees to pay for transaction and pool creation fee
 		var feeDenoms []string
 		for _, fee := range params.PoolCreationFee {
 			feeDenoms = append(feeDenoms, fee.GetDenom())
 		}
 
-		// mint randomized two coins and pool creation fee denoms
+		// mint coins of randomized and fee denoms
 		mintingDenoms := append(reserveCoinDenoms, feeDenoms...)
-		err := mintCoins(r, simAccount.Address, mintingDenoms, bk, ctx)
+		err := mintCoins(r, simAccount, mintingDenoms, bk, ctx)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to mint and send coins"), nil, err
 		}
 
 		account := ak.GetAccount(ctx, simAccount.Address)
-		spendableCoins := bk.SpendableCoins(ctx, account.GetAddress())
-
+		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 		poolName := types.PoolName(reserveCoinDenoms, types.DefaultPoolTypeId)
 		reserveAcc := types.GetPoolReserveAcc(poolName)
 
@@ -165,19 +149,10 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 
 		msg := types.NewMsgCreatePool(poolCreator, types.DefaultPoolTypeId, depositCoins)
 
-		var fees sdk.Coins
-		coins, hasNeg := spendableCoins.SafeSub(depositCoins)
-		if !hasNeg {
-			fees, err = randomFees(r, ctx, k, coins)
-			if err != nil {
-				return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
-			}
+		fees, err := randomFees(r, ctx, k, spendable)
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
 		}
-
-		// fmt.Println("> address: ", simAccount.Address.String())
-		// fmt.Println("> mintingDenoms: ", mintingDenoms)
-		// fmt.Println("> spendableCoins: ", spendableCoins)
-		// fmt.Println("> fees: ", fees)
 
 		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
@@ -199,9 +174,6 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		// fmt.Println("<End of SimulateMsgCreatePool>")
-		// fmt.Println("")
-
 		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
 	}
 }
@@ -212,11 +184,13 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		fmt.Println("")
-		fmt.Println("<SimulateMsgDepositWithinBatch> - Shouldn't be called")
-
 		if len(k.GetAllPools(ctx)) == 0 {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "number of liquidity pools equals zero"), nil, nil
+		}
+
+		// use pre-created simulated accounts if randomAccounts are empty for the unit test
+		if len(randomAccounts) <= 0 {
+			randomAccounts = accs
 		}
 
 		pool, ok := randomLiquidity(r, k, ctx)
@@ -224,29 +198,27 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to pick liquidity pool"), nil, nil
 		}
 
-		simAccount, _ := simtypes.RandomAcc(r, accs)
+		reserveCoinDenomA := pool.ReserveCoinDenoms[0]
+		reserveCoinDenomB := pool.ReserveCoinDenoms[1]
 
-		account := ak.GetAccount(ctx, simAccount.Address)
-		spendableCoins := bk.SpendableCoins(ctx, account.GetAddress())
-
-		fees, err := randomFees(r, ctx, k, spendableCoins)
+		// select random simulated account and mint reserve coins
+		// note that select the simulated account that has some balances of reserve coin denoms result in
+		// many failed transactions due to random accounts change after a creating pool.
+		simAccount := randomAccounts[r.Intn(len(randomAccounts))]
+		err := mintCoins(r, simAccount, []string{reserveCoinDenomA, reserveCoinDenomB}, bk, ctx)
 		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to generate fees"), nil, err
-		}
-
-		// mint pool denoms to the simulated account
-		err = mintCoins(r, simAccount.Address, pool.ReserveCoinDenoms, bk, ctx)
-		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to mint and send coins"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to mint and send coins"), nil, err
 		}
 
 		params := k.GetParams(ctx)
 		params.MaxReserveCoinAmount = GenMaxReserveCoinAmount(r)
 		k.SetParams(ctx, params)
 
+		account := ak.GetAccount(ctx, simAccount.Address)
+		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 		depositor := account.GetAddress()
-		depositCoinA := randomDepositCoin(r, params.MinInitDepositAmount, pool.ReserveCoinDenoms[0])
-		depositCoinB := randomDepositCoin(r, params.MinInitDepositAmount, pool.ReserveCoinDenoms[1])
+		depositCoinA := randomDepositCoin(r, params.MinInitDepositAmount, reserveCoinDenomA)
+		depositCoinB := randomDepositCoin(r, params.MinInitDepositAmount, reserveCoinDenomB)
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
 		reserveCoins := k.GetReserveCoins(ctx, pool)
@@ -257,19 +229,9 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "can not exceed reserve coin limit amount"), nil, nil
 		}
 
-		spendableCoins = spendableCoins.Sub(fees)
-
-		for _, sc := range spendableCoins {
-			if sc.Denom == depositCoinA.Denom {
-				if sc.IsLT(depositCoinA) {
-					return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "account balance is low"), nil, nil
-				}
-			}
-			if sc.Denom == depositCoinB.Denom {
-				if sc.IsLT(depositCoinB) {
-					return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "account balance is low"), nil, nil
-				}
-			}
+		fees, err := randomFees(r, ctx, k, spendable)
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
 		}
 
 		msg := types.NewMsgDepositWithinBatch(depositor, pool.Id, depositCoins)
@@ -298,60 +260,54 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 	}
 }
 
-// SimulateMsgWithdrawWithinBatch generates a MsgWithdrawWithinBatch with random values
+// SimulateMsgWithdrawWithinBatch generates a MsgWithdrawWithinBatch with random values.
 // nolint: interfacer
 func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		fmt.Println("")
-		fmt.Println("<SimulateMsgWithdrawWithinBatch>")
-		fmt.Println("len(k.GetAllPools(ctx)): ", len(k.GetAllPools(ctx)))
-
 		if len(k.GetAllPools(ctx)) == 0 {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "number of liquidity pools equals zero"), nil, nil
 		}
 
-		fmt.Println("> len(k.GetAllPools(ctx)): ", len(k.GetAllPools(ctx)))
+		// use pre-created simulated accounts if randomAccounts are empty for the unit test
+		if len(randomAccounts) <= 0 {
+			randomAccounts = accs
+		}
 
 		pool, ok := randomLiquidity(r, k, ctx)
 		if !ok {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "unable to pick liquidity pool"), nil, nil
 		}
 
-		fmt.Println("> pool: ", pool)
+		poolCoinDenom := pool.GetPoolCoinDenom()
 
-		simAccount, _ := simtypes.RandomAcc(r, accs)
+		// select random simulated account and mint reserve coins
+		// note that select the simulated account that has some balance of pool coin denom result in
+		// many failed transactions due to random accounts change after a creating pool.
+		simAccount := randomAccounts[r.Intn(len(randomAccounts))]
+		err := mintCoins(r, simAccount, []string{poolCoinDenom}, bk, ctx)
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "unable to mint and send coins"), nil, err
+		}
 
-		// if simAccount.PrivKey == nil, delegation address does not exist in accs. Return error
+		// if simAccount.PrivKey == nil, then no account has pool coin denom balanace
 		if simAccount.PrivKey == nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "account private key is nil"), nil, nil
 		}
 
 		account := ak.GetAccount(ctx, simAccount.Address)
-		spendableCoins := bk.SpendableCoins(ctx, account.GetAddress())
-
-		fmt.Println("> account: ", account.GetAddress().String())
-
-		fees, err := randomFees(r, ctx, k, spendableCoins)
-		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "unable to generate fees"), nil, err
-		}
-
-		fmt.Println("> fees: ", fees)
-
-		poolCoinDenom := pool.GetPoolCoinDenom()
-
-		// make sure simAccount have pool coin balance
+		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 		balance := bk.GetBalance(ctx, simAccount.Address, poolCoinDenom)
-		if !balance.IsPositive() {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "account balance is not positive"), nil, nil
-		}
-
 		withdrawer := account.GetAddress()
 		withdrawCoin := randomWithdrawCoin(r, poolCoinDenom, balance.Amount)
 
 		msg := types.NewMsgWithdrawWithinBatch(withdrawer, pool.Id, withdrawCoin)
+
+		fees, err := randomFees(r, ctx, k, spendable)
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "unable to generate fees"), nil, err
+		}
 
 		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
@@ -368,14 +324,10 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to generate mock tx"), nil, err
 		}
 
-		fmt.Println("> tx: ", tx)
-
 		_, _, err = app.Deliver(txGen.TxEncoder(), tx)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
-
-		fmt.Println("<End of SimulateMsgWithdrawWithinBatch>")
 
 		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
 	}
@@ -387,11 +339,13 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		fmt.Println("")
-		fmt.Println("<SimulateMsgSwapWithinBatch> - Shouldn't be called")
-
 		if len(k.GetAllPools(ctx)) == 0 {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "number of liquidity pools equals zero"), nil, nil
+		}
+
+		// use pre-created simulated accounts if randomAccounts are empty for the unit test
+		if len(randomAccounts) <= 0 {
+			randomAccounts = accs
 		}
 
 		pool, ok := randomLiquidity(r, k, ctx)
@@ -399,34 +353,22 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "unable to pick liquidity pool"), nil, nil
 		}
 
-		simAccount, _ := simtypes.RandomAcc(r, accs)
-		account := ak.GetAccount(ctx, simAccount.Address)
+		reserveCoinDenomA := pool.ReserveCoinDenoms[0]
+		reserveCoinDenomB := pool.ReserveCoinDenoms[1]
 
-		// mint pool denoms to the simulated account
-		err := mintCoins(r, simAccount.Address, pool.ReserveCoinDenoms, bk, ctx)
+		// select random simulated account and mint reserve coins
+		// note that select the simulated account that has some balances of reserve coin denoms result in
+		// many failed transactions due to random accounts change after a creating pool.
+		simAccount := randomAccounts[r.Intn(len(randomAccounts))]
+		err := mintCoins(r, simAccount, []string{reserveCoinDenomA, reserveCoinDenomB}, bk, ctx)
 		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "unable to mint and send coins"), nil, nil
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "unable to mint and send coins"), nil, err
 		}
 
-		spendableCoins := bk.SpendableCoins(ctx, account.GetAddress())
+		account := ak.GetAccount(ctx, simAccount.Address)
+		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 		swapRequester := account.GetAddress()
 		offerCoin := randomOfferCoin(r, k, ctx, pool, pool.ReserveCoinDenoms[0])
-
-		fees, err := randomFees(r, ctx, k, spendableCoins)
-		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "unable to generate fees"), nil, err
-		}
-
-		spendableCoins = spendableCoins.Sub(fees)
-
-		for _, sc := range spendableCoins {
-			if sc.Denom == offerCoin.Denom {
-				if sc.IsLT(offerCoin) {
-					return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgSwapWithinBatch, "account balance is low"), nil, nil
-				}
-			}
-		}
-
 		demandCoinDenom := pool.ReserveCoinDenoms[1]
 		orderPrice := randomOrderPrice(r)
 		swapFeeRate := GenSwapFeeRate(r)
@@ -437,6 +379,11 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 		k.SetParams(ctx, params)
 
 		msg := types.NewMsgSwapWithinBatch(swapRequester, pool.Id, types.DefaultSwapTypeId, offerCoin, demandCoinDenom, orderPrice, swapFeeRate)
+
+		fees, err := randomFees(r, ctx, k, spendable)
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
+		}
 
 		txGen := liquidityparams.MakeTestEncodingConfig().TxConfig
 		tx, err := helpers.GenTx(
@@ -463,21 +410,25 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 }
 
 // mintCoins mints coins relative to the number of denoms and send them to the simulated account
-func mintCoins(r *rand.Rand, address sdk.AccAddress, denoms []string, bk types.BankKeeper, ctx sdk.Context) error {
+func mintCoins(r *rand.Rand, acc simtypes.Account, denoms []string, bk types.BankKeeper, ctx sdk.Context) error {
 	var mintCoins, sendCoins sdk.Coins
 	for _, denom := range denoms {
-		mintAmt := sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e13, 1e14)))
-		sendAmt := sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e11, 1e12)))
+		mintAmt := sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e15, 1e16)))
+		sendAmt := sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e13, 1e14)))
 		mintCoins = mintCoins.Add(sdk.NewCoin(denom, mintAmt))
 		sendCoins = sendCoins.Add(sdk.NewCoin(denom, sendAmt))
 	}
+
+	feeCoin := int64(simtypes.RandIntBetween(r, 1e13, 1e14))
+	mintCoins = mintCoins.Add(sdk.NewInt64Coin(sdk.DefaultBondDenom, feeCoin))
+	sendCoins = sendCoins.Add(sdk.NewInt64Coin(sdk.DefaultBondDenom, feeCoin))
 
 	err := bk.MintCoins(ctx, types.ModuleName, mintCoins)
 	if err != nil {
 		return err
 	}
 
-	err = bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, sendCoins)
+	err = bk.SendCoinsFromModuleToAccount(ctx, types.ModuleName, acc.Address, sendCoins)
 	if err != nil {
 		return err
 	}
@@ -485,33 +436,7 @@ func mintCoins(r *rand.Rand, address sdk.AccAddress, denoms []string, bk types.B
 	return nil
 }
 
-func selectRandomDenoms(r *rand.Rand) (string, string) {
-	a := r.Intn(len(availableDenoms))
-	b := r.Intn(len(availableDenoms))
-	for a == b {
-		b = r.Intn(len(availableDenoms))
-	}
-
-	denomA, denomB := types.AlphabeticalDenomPair(availableDenoms[a], availableDenoms[b])
-
-	return strings.ToLower(denomA), strings.ToLower(denomB)
-}
-
-// randomDenoms returns two random denoms with random string length anywhere from 4 to 6
-func randomDenoms(r *rand.Rand) (string, string) {
-	denomA := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))
-	denomB := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))
-	denomA, denomB = types.AlphabeticalDenomPair(strings.ToLower(denomA), strings.ToLower(denomB))
-	return denomA, denomB
-}
-
-// randomDepositCoin returns deposit amount between minInitDepositAmount+1 and 1e9
-func randomDepositCoin(r *rand.Rand, minInitDepositAmount sdk.Int, denom string) sdk.Coin {
-	amount := int64(simtypes.RandIntBetween(r, int(minInitDepositAmount.Int64()+1), 1e9))
-	return sdk.NewInt64Coin(denom, amount)
-}
-
-// randomLiquidity returns random liquidity pool with given access to the keeper and ctx
+// randomLiquidity returns random liquidity pool with given access to the keeper and ctx.
 func randomLiquidity(r *rand.Rand, k keeper.Keeper, ctx sdk.Context) (pool types.Pool, ok bool) {
 	pools := k.GetAllPools(ctx)
 	if len(pools) == 0 {
@@ -523,7 +448,13 @@ func randomLiquidity(r *rand.Rand, k keeper.Keeper, ctx sdk.Context) (pool types
 	return pools[i], true
 }
 
-// randomWithdrawCoin returns random withdraw amount between 1 and the account's current balance divide by 10
+// randomDepositCoin returns deposit amount between minInitDepositAmount+1 and 1e9.
+func randomDepositCoin(r *rand.Rand, minInitDepositAmount sdk.Int, denom string) sdk.Coin {
+	amount := int64(simtypes.RandIntBetween(r, int(minInitDepositAmount.Int64()+1), 1e8))
+	return sdk.NewInt64Coin(denom, amount)
+}
+
+// randomWithdrawCoin returns random withdraw amount between 1 and the account's current balance divide by 10.
 func randomWithdrawCoin(r *rand.Rand, denom string, balance sdk.Int) sdk.Coin {
 	// prevent panic from RandIntBetween
 	if balance.Quo(sdk.NewInt(10)).Int64() <= 1 {
@@ -534,55 +465,45 @@ func randomWithdrawCoin(r *rand.Rand, denom string, balance sdk.Int) sdk.Coin {
 	return sdk.NewInt64Coin(denom, amount)
 }
 
-// randomOrderPrice returns random order price amount between 0.01 to 1
+// randomOfferCoin returns random offer amount of coin.
+func randomOfferCoin(r *rand.Rand, k keeper.Keeper, ctx sdk.Context, pool types.Pool, denom string) sdk.Coin {
+	params := k.GetParams(ctx)
+	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(denom)
+	maximumOrderableAmt := reserveCoinAmt.ToDec().Mul(params.MaxOrderAmountRatio).TruncateInt()
+	amt := int64(simtypes.RandIntBetween(r, 1, int(maximumOrderableAmt.Int64())))
+	return sdk.NewInt64Coin(denom, amt)
+}
+
+// randomOrderPrice returns random order price amount between 0.01 to 1.
 func randomOrderPrice(r *rand.Rand) sdk.Dec {
 	return sdk.NewDecWithPrec(int64(simtypes.RandIntBetween(r, 1, 1e2)), 2)
 }
 
-// randomOfferCoin returns random offer amount of coin
-func randomOfferCoin(r *rand.Rand, k keeper.Keeper, ctx sdk.Context, pool types.Pool, denom string) sdk.Coin {
-	params := k.GetParams(ctx)
-
-	// prevent from "can not exceed max order ratio of reserve coins that can be ordered at a order" error
-	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(denom)
-	maximumOrderableAmt := reserveCoinAmt.ToDec().Mul(params.MaxOrderAmountRatio).TruncateInt()
-	amount := int64(simtypes.RandIntBetween(r, 1, int(maximumOrderableAmt.Int64())))
-
-	return sdk.NewInt64Coin(denom, amount)
-}
-
-// randomFees returns a random fee by selecting a random coin denomination except pool coin and
-// amount from the account's available balance. If the user doesn't have enough
-// funds for paying fees, it returns empty coins.
+// randomFees returns a random amount of bond denom fee and
+// if the user doesn't have enough funds for paying fees, it returns empty coins.
 func randomFees(r *rand.Rand, ctx sdk.Context, keeper keeper.Keeper, spendableCoins sdk.Coins) (sdk.Coins, error) {
 	if spendableCoins.Empty() {
 		return nil, nil
 	}
 
-	perm := r.Perm(len(spendableCoins))
-	var randCoin sdk.Coin
-	for _, index := range perm {
-		if keeper.IsPoolCoinDenom(ctx, spendableCoins[index].Denom) {
-			continue
-		}
-		randCoin = spendableCoins[index]
-		if !randCoin.Amount.IsZero() {
-			break
-		}
+	if spendableCoins.AmountOf(sdk.DefaultBondDenom).Equal(sdk.ZeroInt()) {
+		return nil, nil
 	}
 
-	if randCoin.Amount.IsZero() {
-		return nil, fmt.Errorf("random coin amount cannot be zero")
-	}
-
-	amt, err := simtypes.RandPositiveInt(r, randCoin.Amount)
+	amt, err := simtypes.RandPositiveInt(r, spendableCoins.AmountOf(sdk.DefaultBondDenom))
 	if err != nil {
 		return nil, err
 	}
 
-	// Create a random fee and verify the fees are within the account's spendable
-	// balance.
-	fees := sdk.NewCoins(sdk.NewCoin(randCoin.Denom, amt))
+	fees := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, amt))
 
 	return fees, nil
+}
+
+// randomDenoms returns two random denoms with random string length anywhere from 4 to 6.
+func randomDenoms(r *rand.Rand) (string, string) {
+	denomA := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))
+	denomB := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))
+	denomA, denomB = types.AlphabeticalDenomPair(strings.ToLower(denomA), strings.ToLower(denomB))
+	return denomA, denomB
 }

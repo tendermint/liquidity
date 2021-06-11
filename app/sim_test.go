@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"strconv"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -293,10 +292,6 @@ func TestAppStateDeterminism(t *testing.T) {
 
 	for i := 0; i < numSeeds; i++ {
 		config.Seed = rand.Int63()
-		// config.Seed = 8674665223082153551
-		config.ExportParamsPath = "../export-params-" + strconv.Itoa(i) + ".json"
-		config.ExportStatePath = "../export-state-" + strconv.Itoa(i) + ".json"
-		config.ExportStatsPath = "../export-stats-" + strconv.Itoa(i) + ".json"
 
 		for j := 0; j < numTimesToRunPerSeed; j++ {
 			var logger log.Logger
@@ -314,7 +309,7 @@ func TestAppStateDeterminism(t *testing.T) {
 				config.Seed, i+1, numSeeds, j+1, numTimesToRunPerSeed,
 			)
 
-			_, simParams, err := simulation.SimulateFromSeed(
+			_, _, err := simulation.SimulateFromSeed(
 				t,
 				os.Stdout,
 				app.BaseApp,
@@ -325,10 +320,6 @@ func TestAppStateDeterminism(t *testing.T) {
 				config,
 				app.AppCodec(),
 			)
-			require.NoError(t, err)
-
-			// export state and simParams before the simulation error is checked
-			err = simapp.CheckExportSimulation(app, config, simParams)
 			require.NoError(t, err)
 
 			if config.Commit {
