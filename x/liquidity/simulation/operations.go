@@ -149,7 +149,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 
 		msg := types.NewMsgCreatePool(poolCreator, types.DefaultPoolTypeID, depositCoins)
 
-		fees, err := randomFees(r, ctx, k, spendable)
+		fees, err := randomFees(r, k, spendable)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
 		}
@@ -189,7 +189,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 		}
 
 		// use pre-created simulated accounts if randomAccounts are empty for the unit test
-		if len(randomAccounts) <= 0 {
+		if len(randomAccounts) == 0 {
 			randomAccounts = accs
 		}
 
@@ -229,7 +229,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgDepositWithinBatch, "can not exceed reserve coin limit amount"), nil, nil
 		}
 
-		fees, err := randomFees(r, ctx, k, spendable)
+		fees, err := randomFees(r, k, spendable)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
 		}
@@ -271,7 +271,7 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 		}
 
 		// use pre-created simulated accounts if randomAccounts are empty for the unit test
-		if len(randomAccounts) <= 0 {
+		if len(randomAccounts) == 0 {
 			randomAccounts = accs
 		}
 
@@ -304,7 +304,7 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 
 		msg := types.NewMsgWithdrawWithinBatch(withdrawer, pool.Id, withdrawCoin)
 
-		fees, err := randomFees(r, ctx, k, spendable)
+		fees, err := randomFees(r, k, spendable)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgWithdrawWithinBatch, "unable to generate fees"), nil, err
 		}
@@ -344,7 +344,7 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 		}
 
 		// use pre-created simulated accounts if randomAccounts are empty for the unit test
-		if len(randomAccounts) <= 0 {
+		if len(randomAccounts) == 0 {
 			randomAccounts = accs
 		}
 
@@ -380,7 +380,7 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 
 		msg := types.NewMsgSwapWithinBatch(swapRequester, pool.Id, types.DefaultSwapTypeID, offerCoin, demandCoinDenom, orderPrice, swapFeeRate)
 
-		fees, err := randomFees(r, ctx, k, spendable)
+		fees, err := randomFees(r, k, spendable)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to generate fees"), nil, err
 		}
@@ -481,7 +481,7 @@ func randomOrderPrice(r *rand.Rand) sdk.Dec {
 
 // randomFees returns a random amount of bond denom fee and
 // if the user doesn't have enough funds for paying fees, it returns empty coins.
-func randomFees(r *rand.Rand, ctx sdk.Context, keeper keeper.Keeper, spendableCoins sdk.Coins) (sdk.Coins, error) {
+func randomFees(r *rand.Rand, keeper keeper.Keeper, spendableCoins sdk.Coins) (sdk.Coins, error) {
 	if spendableCoins.Empty() {
 		return nil, nil
 	}
