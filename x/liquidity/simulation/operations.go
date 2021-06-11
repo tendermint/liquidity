@@ -99,17 +99,19 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		k.SetParams(ctx, params)
 
 		// get randomized two denoms to create liquidity pool
+		var mintingDenoms []string
 		denomA, denomB := randomDenoms(r)
 		reserveCoinDenoms := []string{denomA, denomB}
+		mintingDenoms = append(mintingDenoms, reserveCoinDenoms...)
 
 		// simAccount should have some fees to pay for transaction and pool creation fee
 		var feeDenoms []string
 		for _, fee := range params.PoolCreationFee {
 			feeDenoms = append(feeDenoms, fee.GetDenom())
 		}
+		mintingDenoms = append(mintingDenoms, feeDenoms...)
 
 		// mint coins of randomized and fee denoms
-		mintingDenoms := append(reserveCoinDenoms, feeDenoms...)
 		err := mintCoins(r, simAccount, mintingDenoms, bk, ctx)
 		if err != nil {
 			return simtypes.NoOpMsg(types.ModuleName, types.TypeMsgCreatePool, "unable to mint and send coins"), nil, err
