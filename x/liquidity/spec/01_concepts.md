@@ -4,88 +4,64 @@
 
 ## Liquidity Module
 
-The liquidity module implements a decentralized token exchange (DEX) on any Cosmos SDK-based network. Any user can create a liquidity pool with a pair of tokens, provide liquidity by depositing reserve tokens into the liquidity pool, and trade tokens using the liquidity pool.
+The liquidity module is a module that can be used on any Cosmos SDK-based application. The liquidity module implements a decentralized exchange (DEX) that serves liquidity providing and coin swap functions. Anyone can create a liquidity pool with a pair of coins, provide liquidity by depositing reserve coins into the liquidity pool, and trade coins using the liquidity pool. All of the logic is designed to always protect the pool investors.
 
-### How the Liquidity Module democratizes liquidity
+## Liquidity Pool
 
-The liquidity module democratizes liquidity because anyone can deposit coins in the liquidity pool and earn fees.
+A liquidity pool is a coin reserve that contains two different types of coins in a trading pair. The trading pair has to be unique. A liquidity provider can be anyone (permissionless) who provides liquidity by depositing reserve coins into the pool. The liquidity provider earns the accumulated swap fees with respect to their pool share. The pool share is represented as possession of pool coins. All matchable swap requests are expected to be executed and unmatched swap requests are removed.
+## Equivalent Swap Price Model (ESPM)
 
-These features of the liquidity module create incentives to transfer tokens:
+The liquidity module is a Cosmos SDK implementation of an AMM system with a novel economic model called the Equivalent Swap Price Model (ESPM).
 
-- Combines a traditional order book-based exchange system with a Uniswap-like AMM mechanism. This hybrid system deepens liquidity for the token swap marketplace.
+The key distinguishing feature of the ESPM model from the Constant Product Market Maker (CPMM) model is the implementation of a hybrid system that combines an orderbook model exchange with a simple liquidity pool model that governs the order book with a set of order rules and performs execution in batches. In the ESPM, the pool price is always equal to the last swap price which reduces opportunities for arbitrage.
 
-- Executes batch-style swaps that minimize front-running risk and sub-second latency competition, thereby protecting ordinary traders.
+The ESPM model is intended to provide protection against price volatility, transaction ordering vulnerabilities, and losses due to arbitrage. AMMs such as Uniswap do not provide this level of protection.
 
-  - The order book accumulates incoming limit orders into a batch.
-  - The liquidity module matches accumulated limit orders and orders from the liquidity pool at an equivalent swap price at each batch execution height.
-  - All limit orders in a batch are treated equally and executed at the same swap price.
+## Batch Execution
 
-## Features of the Liquidity Module
+The liquidity module uses a batch execution methodology. Deposits, withdrawals, and swap orders are accumulated in a liquidity pool for a pre-defined period that is one or more blocks in length. Orders are then added to the pool and executed at the end of the batch. The size of each batch is configured by using the `UnitBatchSize` governance parameter.
 
-The main features of the liquidity module are:
+## Price Discovery
 
-### Liquidity Pool
+Swap prices in liquidity pools are determined by the current pool coin reserves and the requested swap amount. Arbitrageurs buy or sell coins in liquidity pools to gain instant profit that results in real-time price discovery of liquidity pools.
 
-A liquidity pool is a coin reserve that contains two kinds of coins in a trading pair. A unique pool exists for each token pair.
+## Escrow Process
 
-A liquidity provider (entity or person) deposits the coins into the liquidity pool and then shares the accumulated swap fees with respect to their pool share. Pool share is represented as possession of pool coins.
+The liquidity module uses a module account that acts as an escrow account. The module account holds and releases the coin amount during batch execution.
 
-A liquidity pool is permissionless.
+## Refund 
 
-### Coin Swap
+The liquidity module has refund functions when deposit, withdraw, or swap batch states are not successfully executed.
+Read [the batch transaction logic](https://github.com/tendermint/liquidity/blob/e8ab2f4d75079157d008eba9f310b199573eed28/x/liquidity/keeper/batch.go#L83-L127) in the code for more context.
+## Fees
 
-With the liquidity module, you can request a coin swap in a liquidity pool. Coin swaps use a universal swap ratio for all swap requests.
+You set liquidity module fees for pool creation, withdrawal, and swap in genesis state. These fees can be updated by the governance proposal.
+### PoolCreationFee
 
-1. The requested coin swap is executed with a swap price that is calculated from the given swap price.
+The liquidity module pool creation fee set by the `PoolCreationFee` parameter is paid on pool creation. The purpose of this fee is to prevent users from creating useless pools and making limitless transactions. The funds from this fee go to the community fund.
+### WithdrawalFeeRate
 
-2. The current other coin swap requests and the current liquidity pool coin reserve status.
+The liquidity module has `WithdrawFeeRate` parameter that is paid upon withdrawal. The purpose of this fee is to prevent from making limitless withdrawals.
 
-3. Swap orders are executed only when the execution swap price is equal to or greater than the submitted order price of the swap order.
+### SwapFeeRate
 
-All matchable swap requests are executed and unmatched swap requests are removed.
-
-### Price Discovery
-
-Coin swap prices in liquidity pools are determined by the current liquidity pool coin reserves and current requested swap amount.
-
-Arbitrageurs buy or sell coins in liquidity pools to gain instant profit that results in real-time price discovery of liquidity pools.
-
-### Escrow Process
-
-For swap orders and deposit and withdrawal transactions, the escrow amount of coins is withdrawn from your balance.
-
-### Swap Fees
-
-Swap fees are paid to the liquidity pools. Swap fees are accumulated in the liquidity pools so that the liquidity provider accumulates profit.
-
-### Batches and Swap Executions
-
-Coin swaps are executed for every batch. A batch is composed of one or more consecutive blocks. The size of each batch can be decided by governance parameters and the algorithm in the liquidity module.
-
-### Pool Identification
+Swap fees are paid upon swap orders. They are accumulated in the pools and are shared among the liquidity providers. The liquidity module implements half-half-fee mechanism that minimizes the impact of fee payment process. Read [the issue about fees in half offer coins, half exchanged coins](https://github.com/tendermint/liquidity/issues/41) to have more context.
+## Pool Identification
 
 The pools in the liquidity module are identified with:
+### PoolName
 
-#### PoolName
-
-- `reserveCoinDenoms1/reserveCoinDenoms2/poolTypeId`
-
-- string join with reserve coin denoms and `poolTypeId`
-
-- Forward slash `/` separator
-
-- Example: `denomX/denomY/1`
-
-#### PoolReserveAcc
+- Concatenate two different reserve coin denoms and pool type id and forward slash `/` separator. 
+  - Example: `uatom/stake/1`
+### PoolReserveAccount
 
 - `sdk.AccAddress(crypto.AddressHash([]byte(PoolName)))`
-
-- Example: `cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3` (`D35A0CC16EE598F90B044CE296A405BA9C381E38`)
-
-#### PoolCoinDenom
+  - Example: `cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3` (`D35A0CC16EE598F90B044CE296A405BA9C381E38`)
+### PoolCoinDenom
 
 - `fmt.Sprintf("%s%X", PoolCoinDenomPrefix, sha256.Sum256([]byte(PoolName)))`
+- Use `PoolCoinDenomPrefix` for `pool`
+  - Example: `poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4`
 
-- PoolCoinDenomPrefix: `pool`
 
-- Example: `poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4`
+
