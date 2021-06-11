@@ -115,7 +115,7 @@ func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetDepositor().String())
+	require.Equal(t, "cosmos10kn7aww37y27c4lggjx6mycyhr927677rkp7x0", msg.GetDepositor().String())
 	require.Equal(t, "38511541fgae,71186277jxulr", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgDepositWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
@@ -146,8 +146,8 @@ func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetWithdrawer().String())
-	require.Equal(t, "3372752438556poolA295B958C22781F58E51E1E4E8205F5E8E041D65F7E7AB5D7DDECCFFA7A75B01", msg.PoolCoin.String())
+	require.Equal(t, "cosmos10kn7aww37y27c4lggjx6mycyhr927677rkp7x0", msg.GetWithdrawer().String())
+	require.Equal(t, "3402627138556poolA295B958C22781F58E51E1E4E8205F5E8E041D65F7E7AB5D7DDECCFFA7A75B01", msg.PoolCoin.String())
 	require.Equal(t, types.TypeMsgWithdrawWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -177,7 +177,7 @@ func TestSimulateMsgSwapWithinBatch(t *testing.T) {
 	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetSwapRequester().String())
+	require.Equal(t, "cosmos10kn7aww37y27c4lggjx6mycyhr927677rkp7x0", msg.GetSwapRequester().String())
 	require.Equal(t, "6453297fgae", msg.OfferCoin.String())
 	require.Equal(t, "jxulr", msg.DemandCoinDenom)
 	require.Equal(t, types.TypeMsgSwapWithinBatch, msg.Type())
