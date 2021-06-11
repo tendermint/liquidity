@@ -22,11 +22,12 @@ const (
 
 	AttributeValueDepositCoins = "deposit_coins"
 
-	AttributeValueOfferCoinDenom     = "offer_coin_denom"
-	AttributeValueOfferCoinAmount    = "offer_coin_amount"
-	AttributeValueOfferCoinFeeAmount = "offer_coin_fee_amount"
-	AttributeValueDemandCoinDenom    = "demand_coin_denom"
-	AttributeValueOrderPrice         = "order_price"
+	AttributeValueOfferCoinDenom         = "offer_coin_denom"
+	AttributeValueOfferCoinAmount        = "offer_coin_amount"
+	AttributeValueOfferCoinFeeAmount     = "offer_coin_fee_amount"
+	AttributeValueExchangedCoinFeeAmount = "exchanged_coin_fee_amount"
+	AttributeValueDemandCoinDenom        = "demand_coin_denom"
+	AttributeValueOrderPrice             = "order_price"
 
 	AttributeValueDepositor     = "depositor"
 	AttributeValueRefundedCoins = "refunded_coins"
@@ -41,6 +42,7 @@ const (
 	AttributeValueTransactedCoinAmount       = "transacted_coin_amount"
 	AttributeValueRemainingOfferCoinAmount   = "remaining_offer_coin_amount"
 	AttributeValueExchangedOfferCoinAmount   = "exchanged_offer_coin_amount"
+	AttributeValueExchangedDemandCoinAmount  = "exchanged_demand_coin_amount"
 	AttributeValueReservedOfferCoinFeeAmount = "reserved_offer_coin_fee_amount"
 	AttributeValueOrderExpiryHeight          = "order_expiry_height"
 

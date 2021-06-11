@@ -134,7 +134,7 @@ func (k Keeper) HoldEscrow(ctx sdk.Context, depositor sdk.AccAddress, depositCoi
 	return nil
 }
 
-// If batch messages has expired or has not been processed, will be refunded the escrow that had been deposited through this function.
+// If batch messages have expired or have not been processed, coins that were deposited with this function are refunded to the escrow.
 func (k Keeper) ReleaseEscrow(ctx sdk.Context, withdrawer sdk.AccAddress, withdrawCoins sdk.Coins) error {
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, withdrawer, withdrawCoins); err != nil {
 		return err
@@ -158,7 +158,7 @@ func (k Keeper) ReleaseEscrowForMultiSend(withdrawer sdk.AccAddress, withdrawCoi
 	return input, output, nil
 }
 
-// In order to deal with the batch at once, Put the message in the batch and the coins of the msgs deposited in escrow.
+// In order to deal with the batch at the same time, the coins of msgs are deposited in escrow.
 func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepositWithinBatch) (types.DepositMsgState, error) {
 	if err := k.ValidateMsgDepositLiquidityPool(ctx, *msg); err != nil {
 		return types.DepositMsgState{}, err
@@ -190,7 +190,7 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 	return msgState, nil
 }
 
-// In order to deal with the batch at once, Put the message in the batch and the coins of the msgs deposited in escrow.
+// In order to deal with the batch at the same time, the coins of msgs are deposited in escrow.
 func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWithdrawWithinBatch) (types.WithdrawMsgState, error) {
 	if err := k.ValidateMsgWithdrawLiquidityPool(ctx, *msg); err != nil {
 		return types.WithdrawMsgState{}, err
@@ -222,7 +222,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 	return batchPoolMsg, nil
 }
 
-// In order to deal with the batch at once, Put the message in the batch and the coins of the msgs deposited in escrow.
+// In order to deal with the batch at the same time, the coins of msgs are deposited in escrow.
 func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWithinBatch, orderExpirySpanHeight int64) (*types.SwapMsgState, error) {
 	if err := k.ValidateMsgSwapWithinBatch(ctx, *msg); err != nil {
 		return nil, err

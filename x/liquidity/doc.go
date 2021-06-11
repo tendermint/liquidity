@@ -13,5 +13,4 @@ Resources
  - Swagger HTTP API doc https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs
  - Client doc https://github.com/tendermint/liquidity/blob/develop/doc/client.md
 */
-
 package liquidity

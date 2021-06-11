@@ -22,7 +22,8 @@ const (
 )
 
 var (
-	GlobalLiquidityPoolIdKey = []byte("globalLiquidityPoolId")
+	// param key for global Liquidity Pool IDs
+	GlobalLiquidityPoolIDKey = []byte("globalLiquidityPoolId")
 
 	PoolKeyPrefix                  = []byte{0x11}
 	PoolByReserveAccIndexKeyPrefix = []byte{0x12}
@@ -36,10 +37,10 @@ var (
 )
 
 // GetPoolKey returns kv indexing key of the pool
-func GetPoolKey(poolId uint64) []byte {
+func GetPoolKey(poolID uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = PoolKeyPrefix[0]
-	copy(key[1:], sdk.Uint64ToBigEndian(poolId))
+	copy(key[1:], sdk.Uint64ToBigEndian(poolID))
 	return key
 }
 
@@ -49,68 +50,68 @@ func GetPoolByReserveAccIndexKey(reserveAcc sdk.AccAddress) []byte {
 }
 
 // GetPoolBatchIndexKey returns kv indexing key of the latest index value of the pool batch
-func GetPoolBatchIndexKey(poolId uint64) []byte {
+func GetPoolBatchIndexKey(poolID uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = PoolBatchIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
 	return key
 }
 
 // GetPoolBatchKey returns kv indexing key of the pool batch indexed by pool id
-func GetPoolBatchKey(poolId uint64) []byte {
+func GetPoolBatchKey(poolID uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = PoolBatchKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
 	return key
 }
 
 // GetPoolBatchDepositMsgStatesPrefix returns prefix of deposit message states in the pool's latest batch for iteration
-func GetPoolBatchDepositMsgStatesPrefix(poolId uint64) []byte {
+func GetPoolBatchDepositMsgStatesPrefix(poolID uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = PoolBatchDepositMsgStateIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
 	return key
 }
 
 // GetPoolBatchWithdrawMsgsPrefix returns prefix of withdraw message states in the pool's latest batch for iteration
-func GetPoolBatchWithdrawMsgsPrefix(poolId uint64) []byte {
+func GetPoolBatchWithdrawMsgsPrefix(poolID uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = PoolBatchWithdrawMsgStateIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
 	return key
 }
 
 // GetPoolBatchSwapMsgStatesPrefix returns prefix of swap message states in the pool's latest batch for iteration
-func GetPoolBatchSwapMsgStatesPrefix(poolId uint64) []byte {
+func GetPoolBatchSwapMsgStatesPrefix(poolID uint64) []byte {
 	key := make([]byte, 9)
 	key[0] = PoolBatchSwapMsgStateIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
 	return key
 }
 
 // GetPoolBatchDepositMsgStateIndexKey returns kv indexing key of the latest index value of the msg index
-func GetPoolBatchDepositMsgStateIndexKey(poolId, msgIndex uint64) []byte {
+func GetPoolBatchDepositMsgStateIndexKey(poolID, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = PoolBatchDepositMsgStateIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
 	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }
 
 // GetPoolBatchWithdrawMsgStateIndexKey returns kv indexing key of the latest index value of the msg index
-func GetPoolBatchWithdrawMsgStateIndexKey(poolId, msgIndex uint64) []byte {
+func GetPoolBatchWithdrawMsgStateIndexKey(poolID, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = PoolBatchWithdrawMsgStateIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
 	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }
 
 // GetPoolBatchSwapMsgStateIndexKey returns kv indexing key of the latest index value of the msg index
-func GetPoolBatchSwapMsgStateIndexKey(poolId, msgIndex uint64) []byte {
+func GetPoolBatchSwapMsgStateIndexKey(poolID, msgIndex uint64) []byte {
 	key := make([]byte, 17)
 	key[0] = PoolBatchSwapMsgStateIndexKeyPrefix[0]
-	copy(key[1:9], sdk.Uint64ToBigEndian(poolId))
+	copy(key[1:9], sdk.Uint64ToBigEndian(poolID))
 	copy(key[9:17], sdk.Uint64ToBigEndian(msgIndex))
 	return key
 }

@@ -20,10 +20,10 @@ const (
 )
 
 // NewMsgCreatePool creates a new MsgCreatePool.
-func NewMsgCreatePool(poolCreator sdk.AccAddress, poolTypeId uint32, depositCoins sdk.Coins) *MsgCreatePool {
+func NewMsgCreatePool(poolCreator sdk.AccAddress, poolTypeID uint32, depositCoins sdk.Coins) *MsgCreatePool {
 	return &MsgCreatePool{
 		PoolCreatorAddress: poolCreator.String(),
-		PoolTypeId:         poolTypeId,
+		PoolTypeId:         poolTypeID,
 		DepositCoins:       depositCoins,
 	}
 }
@@ -34,7 +34,7 @@ func (msg MsgCreatePool) Type() string { return TypeMsgCreatePool }
 
 func (msg MsgCreatePool) ValidateBasic() error {
 	if 1 > msg.PoolTypeId {
-		return ErrBadPoolTypeId
+		return ErrBadPoolTypeID
 	}
 	if _, err := sdk.AccAddressFromBech32(msg.PoolCreatorAddress); err != nil {
 		return ErrInvalidPoolCreatorAddr
@@ -69,10 +69,10 @@ func (msg MsgCreatePool) GetPoolCreator() sdk.AccAddress {
 }
 
 // NewMsgDepositWithinBatch creates a new MsgDepositWithinBatch.
-func NewMsgDepositWithinBatch(depositor sdk.AccAddress, poolId uint64, depositCoins sdk.Coins) *MsgDepositWithinBatch {
+func NewMsgDepositWithinBatch(depositor sdk.AccAddress, poolID uint64, depositCoins sdk.Coins) *MsgDepositWithinBatch {
 	return &MsgDepositWithinBatch{
 		DepositorAddress: depositor.String(),
-		PoolId:           poolId,
+		PoolId:           poolID,
 		DepositCoins:     depositCoins,
 	}
 }
@@ -118,10 +118,10 @@ func (msg MsgDepositWithinBatch) GetDepositor() sdk.AccAddress {
 }
 
 // NewMsgWithdrawWithinBatch creates a new MsgWithdrawWithinBatch.
-func NewMsgWithdrawWithinBatch(withdrawer sdk.AccAddress, poolId uint64, poolCoin sdk.Coin) *MsgWithdrawWithinBatch {
+func NewMsgWithdrawWithinBatch(withdrawer sdk.AccAddress, poolID uint64, poolCoin sdk.Coin) *MsgWithdrawWithinBatch {
 	return &MsgWithdrawWithinBatch{
 		WithdrawerAddress: withdrawer.String(),
-		PoolId:            poolId,
+		PoolId:            poolID,
 		PoolCoin:          poolCoin,
 	}
 }
@@ -166,8 +166,8 @@ func (msg MsgWithdrawWithinBatch) GetWithdrawer() sdk.AccAddress {
 // NewMsgSwapWithinBatch creates a new MsgSwapWithinBatch.
 func NewMsgSwapWithinBatch(
 	swapRequester sdk.AccAddress,
-	poolId uint64,
-	swapTypeId uint32,
+	poolID uint64,
+	swapTypeID uint32,
 	offerCoin sdk.Coin,
 	demandCoinDenom string,
 	orderPrice sdk.Dec,
@@ -175,8 +175,8 @@ func NewMsgSwapWithinBatch(
 ) *MsgSwapWithinBatch {
 	return &MsgSwapWithinBatch{
 		SwapRequesterAddress: swapRequester.String(),
-		PoolId:               poolId,
-		SwapTypeId:           swapTypeId,
+		PoolId:               poolID,
+		SwapTypeId:           swapTypeID,
 		OfferCoin:            offerCoin,
 		OfferCoinFee:         GetOfferCoinFee(offerCoin, swapFeeRate),
 		DemandCoinDenom:      demandCoinDenom,

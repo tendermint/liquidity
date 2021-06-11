@@ -241,7 +241,7 @@ func TestMsgValidateBasic(t *testing.T) {
 		}{
 			{
 				types.MsgCreatePool{},
-				types.ErrBadPoolTypeId.Error(),
+				types.ErrBadPoolTypeID.Error(),
 			},
 			{
 				types.MsgCreatePool{PoolTypeId: validPoolTypeId},

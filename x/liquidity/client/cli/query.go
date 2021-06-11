@@ -43,7 +43,7 @@ func GetQueryCmd() *cobra.Command {
 	return liquidityQueryCmd
 }
 
-//GetCmdQueryParams implements the params query command.
+// GetCmdQueryParams implements the params query command.
 func GetCmdQueryParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
@@ -86,40 +86,81 @@ $ %s query %s params
 func GetCmdQueryLiquidityPool() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pool [pool-id]",
-		Args:  cobra.ExactArgs(1),
 		Short: "Query details of a liquidity pool",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query details of a liquidity pool
 Example:
-$ %s query %s pool 1
+$ %[1]s query %[2]s pool 1
+
+Example (with pool coin denom):
+$ %[1]s query %[2]s pool --pool-coin-denom=[denom]
+
+Example (with reserve acc):
+$ %[1]s query %[2]s pool --reserve-acc=[address]
 `,
 				version.AppName, types.ModuleName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			var res *types.QueryLiquidityPoolResponse
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
+
+			foundArg := false
 			queryClient := types.NewQueryClient(clientCtx)
 
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
-			if err != nil {
-				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
+			poolCoinDenom, _ := cmd.Flags().GetString(FlagPoolCoinDenom)
+			if poolCoinDenom != "" {
+				foundArg = true
+				res, err = queryClient.LiquidityPoolByPoolCoinDenom(
+					context.Background(),
+					&types.QueryLiquidityPoolByPoolCoinDenomRequest{PoolCoinDenom: poolCoinDenom},
+				)
+				if err != nil {
+					return err
+				}
 			}
 
-			res, err := queryClient.LiquidityPool(
-				context.Background(),
-				&types.QueryLiquidityPoolRequest{PoolId: poolId},
-			)
-			if err != nil {
-				return err
+			reserveAcc, _ := cmd.Flags().GetString(FlagReserveAcc)
+			if !foundArg && reserveAcc != "" {
+				foundArg = true
+				res, err = queryClient.LiquidityPoolByReserveAcc(
+					context.Background(),
+					&types.QueryLiquidityPoolByReserveAccRequest{ReserveAcc: reserveAcc},
+				)
+				if err != nil {
+					return err
+				}
+			}
+
+			if !foundArg && len(args) > 0 {
+				poolID, err := strconv.ParseUint(args[0], 10, 64)
+				if err != nil {
+					return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
+				}
+
+				if poolID != 0 {
+					foundArg = true
+					res, err = queryClient.LiquidityPool(
+						context.Background(),
+						&types.QueryLiquidityPoolRequest{PoolId: poolID},
+					)
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+			if !foundArg {
+				return fmt.Errorf("provide the pool-id argument or --%s or --%s flag", FlagPoolCoinDenom, FlagReserveAcc)
 			}
 
 			return clientCtx.PrintProto(res)
 		},
 	}
-
+	cmd.Flags().AddFlagSet(flagSetPool())
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -187,14 +228,14 @@ $ %s query %s batch 1
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint32, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
 			res, err := queryClient.LiquidityPoolBatch(
 				context.Background(),
-				&types.QueryLiquidityPoolBatchRequest{PoolId: poolId},
+				&types.QueryLiquidityPoolBatchRequest{PoolId: poolID},
 			)
 			if err != nil {
 				return err
@@ -237,7 +278,7 @@ $ %s query %s deposits 1
 				return err
 			}
 
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
@@ -245,7 +286,7 @@ $ %s query %s deposits 1
 			res, err := queryClient.PoolBatchDepositMsgs(
 				context.Background(),
 				&types.QueryPoolBatchDepositMsgsRequest{
-					PoolId:     poolId,
+					PoolId:     poolID,
 					Pagination: pageReq,
 				},
 			)
@@ -288,7 +329,7 @@ $ %s query %s deposit 1 20
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
@@ -301,7 +342,7 @@ $ %s query %s deposit 1 20
 			res, err := queryClient.PoolBatchDepositMsg(
 				context.Background(),
 				&types.QueryPoolBatchDepositMsgRequest{
-					PoolId:   poolId,
+					PoolId:   poolID,
 					MsgIndex: msgIndex,
 				},
 			)
@@ -348,13 +389,13 @@ $ %s query %s withdraws 1
 				return err
 			}
 
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
 
 			result, err := queryClient.PoolBatchWithdrawMsgs(context.Background(), &types.QueryPoolBatchWithdrawMsgsRequest{
-				PoolId: poolId, Pagination: pageReq})
+				PoolId: poolID, Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -393,7 +434,7 @@ $ %s query %s withdraw 1 20
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
@@ -406,7 +447,7 @@ $ %s query %s withdraw 1 20
 			res, err := queryClient.PoolBatchWithdrawMsg(
 				context.Background(),
 				&types.QueryPoolBatchWithdrawMsgRequest{
-					PoolId:   poolId,
+					PoolId:   poolID,
 					MsgIndex: msgIndex,
 				},
 			)
@@ -453,7 +494,7 @@ $ %s query %s swaps 1
 				return err
 			}
 
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer pool-id", args[0])
 			}
@@ -461,7 +502,7 @@ $ %s query %s swaps 1
 			res, err := queryClient.PoolBatchSwapMsgs(
 				context.Background(),
 				&types.QueryPoolBatchSwapMsgsRequest{
-					PoolId:     poolId,
+					PoolId:     poolID,
 					Pagination: pageReq,
 				},
 			)
@@ -504,7 +545,7 @@ $ %s query %s swap 1 20
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
@@ -517,7 +558,7 @@ $ %s query %s swap 1 20
 			res, err := queryClient.PoolBatchSwapMsg(
 				context.Background(),
 				&types.QueryPoolBatchSwapMsgRequest{
-					PoolId:   poolId,
+					PoolId:   poolID,
 					MsgIndex: msgIndex,
 				},
 			)

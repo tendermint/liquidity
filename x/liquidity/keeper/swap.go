@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -9,14 +10,14 @@ import (
 )
 
 // Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.
-func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatch) (uint64, error) {
+func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint64, error) {
 	// get all swap message batch states that are not executed, not succeeded, and not to be deleted.
-	swapMsgStates := k.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, liquidityPoolBatch)
+	swapMsgStates := k.GetAllNotProcessedPoolBatchSwapMsgStates(ctx, poolBatch)
 	if len(swapMsgStates) == 0 {
 		return 0, nil
 	}
 
-	pool, found := k.GetPool(ctx, liquidityPoolBatch.PoolId)
+	pool, found := k.GetPool(ctx, poolBatch.PoolId)
 	if !found {
 		return 0, types.ErrPoolNotExists
 	}
@@ -36,6 +37,25 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 		}
 		if !sms.ToBeDeleted {
 			swapMsgStatesNotToBeDeleted = append(swapMsgStatesNotToBeDeleted, sms)
+		} else {
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeSwapTransacted,
+					sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+					sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(poolBatch.Index, 10)),
+					sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(sms.MsgIndex, 10)),
+					sdk.NewAttribute(types.AttributeValueSwapRequester, sms.Msg.GetSwapRequester().String()),
+					sdk.NewAttribute(types.AttributeValueSwapTypeId, strconv.FormatUint(uint64(sms.Msg.SwapTypeId), 10)),
+					sdk.NewAttribute(types.AttributeValueOfferCoinDenom, sms.Msg.OfferCoin.Denom),
+					sdk.NewAttribute(types.AttributeValueOfferCoinAmount, sms.Msg.OfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueDemandCoinDenom, sms.Msg.DemandCoinDenom),
+					sdk.NewAttribute(types.AttributeValueOrderPrice, sms.Msg.OrderPrice.String()),
+					sdk.NewAttribute(types.AttributeValueRemainingOfferCoinAmount, sms.RemainingOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueExchangedOfferCoinAmount, sms.ExchangedOfferCoin.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, sms.ReservedOfferCoinFee.Amount.String()),
+					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(sms.OrderExpiryHeight, 10)),
+					sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
+				))
 		}
 	}
 	k.SetPoolBatchSwapMsgStatesByPointer(ctx, pool.Id, swapMsgStates)
@@ -53,7 +73,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 	denomY := reserveCoins[1].Denom
 
 	// make orderMap, orderbook by sort orderMap
-	orderMap, XtoY, YtoX := types.MakeOrderMap(swapMsgStates, denomX, denomY, false)
+	orderMap, xToY, yToX := types.MakeOrderMap(swapMsgStates, denomX, denomY, false)
 	orderBook := orderMap.SortOrderBook()
 
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
@@ -72,32 +92,32 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 
 	if result.MatchType != types.NoMatch {
 		var poolXDeltaXtoY, poolXDeltaYtoX, poolYDeltaYtoX, poolYDeltaXtoY sdk.Dec
-		matchResultXtoY, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, XtoY, result.EX, result.SwapPrice, currentHeight)
-		matchResultYtoX, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, YtoX, result.EY, result.SwapPrice, currentHeight)
+		matchResultXtoY, poolXDeltaXtoY, poolYDeltaXtoY = types.FindOrderMatch(types.DirectionXtoY, xToY, result.EX, result.SwapPrice, currentHeight)
+		matchResultYtoX, poolXDeltaYtoX, poolYDeltaYtoX = types.FindOrderMatch(types.DirectionYtoX, yToX, result.EY, result.SwapPrice, currentHeight)
 		poolXDelta = poolXDeltaXtoY.Add(poolXDeltaYtoX)
 		poolYDelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
 
-	XtoY, YtoX, X, Y, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY := types.UpdateSwapMsgStates(X, Y, XtoY, YtoX, matchResultXtoY, matchResultYtoX)
+	xToY, yToX, X, Y, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY := types.UpdateSwapMsgStates(X, Y, xToY, yToX, matchResultXtoY, matchResultYtoX)
 
 	lastPrice := X.Quo(Y)
 
 	if invariantCheckFlag {
-		SwapMatchingInvariants(XtoY, YtoX, matchResultXtoY, matchResultYtoX)
+		SwapMatchingInvariants(xToY, yToX, matchResultXtoY, matchResultYtoX)
 		SwapPriceInvariants(matchResultXtoY, matchResultYtoX, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
 	}
 
-	types.ValidateStateAndExpireOrders(XtoY, currentHeight, false)
-	types.ValidateStateAndExpireOrders(YtoX, currentHeight, false)
+	types.ValidateStateAndExpireOrders(xToY, currentHeight, false)
+	types.ValidateStateAndExpireOrders(yToX, currentHeight, false)
 
-	orderMapExecuted, _, _ := types.MakeOrderMap(append(XtoY, YtoX...), denomX, denomY, true)
+	orderMapExecuted, _, _ := types.MakeOrderMap(append(xToY, yToX...), denomX, denomY, true)
 	orderBookExecuted := orderMapExecuted.SortOrderBook()
 	if !orderBookExecuted.Validate(lastPrice) {
 		return executedMsgCount, types.ErrOrderBookInvalidity
 	}
 
-	types.ValidateStateAndExpireOrders(XtoY, currentHeight, true)
-	types.ValidateStateAndExpireOrders(YtoX, currentHeight, true)
+	types.ValidateStateAndExpireOrders(xToY, currentHeight, true)
+	types.ValidateStateAndExpireOrders(yToX, currentHeight, true)
 
 	// make index map for match result
 	matchResultMap := make(map[uint64]types.MatchResult)
@@ -110,7 +130,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, liquidityPoolBatch types.PoolBatc
 
 	if invariantCheckFlag {
 		SwapPriceDirection(currentPoolPrice, result)
-		SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates, XtoY, YtoX)
+		SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates, xToY, yToX)
 		SwapOrdersExecutionStateInvariants(matchResultMap, swapMsgStates, result, denomX)
 	}
 
