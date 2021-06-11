@@ -6,9 +6,9 @@
 
 This document specifies the liquidity module of the Cosmos SDK that serves AMM (Automated Market Makers) style decentralized liquidity providing and coin swap functions.
 
-The module enables you to create a liquidity pool, deposit coins, or withdraw coins from the liquidity pool, and request a coin swap to the liquidity pool.
+The module enables you to create a liquidity pool with a pair of coins, deposit reserve coins into the pool to provide liquidity, request withdrawal from the pool, and trade coins using the liquidity pool.
 
-This module is available in the Cosmos Hub and other blockchains that are based on the Cosmos SDK.
+This module is available in the Cosmos Hub and can be used by other blockchains that are based on the Cosmos SDK.
 
 ## Contents
 
