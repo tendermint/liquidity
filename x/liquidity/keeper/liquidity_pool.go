@@ -149,7 +149,14 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	logger := k.Logger(ctx)
-	logger.Debug("createPool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
+	logger.Debug(
+		"create liquidity pool",
+		"msg", msg,
+		"pool", pool,
+		"reserveCoins", reserveCoins,
+		"lastReserveRatio", lastReserveRatio,
+	)
+
 	return pool, nil
 }
 
@@ -219,7 +226,13 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 			),
 		)
 		logger := k.Logger(ctx)
-		logger.Debug("ReinitializePool", msg, "pool", pool, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
+		logger.Debug(
+			"reinitialize pool",
+			"msg", msg,
+			"pool", pool,
+			"reserveCoins", reserveCoins,
+			"lastReserveRatio", lastReserveRatio,
+		)
 
 		return nil
 	}
@@ -337,7 +350,15 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	lastReserveRatio = sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
 
 	logger := k.Logger(ctx)
-	logger.Debug("deposit", msg, "pool", pool, "inputs", inputs, "outputs", outputs, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
+	logger.Debug(
+		"deposit coins to the pool",
+		"msg", msg,
+		"pool", pool,
+		"inputs", inputs,
+		"outputs", outputs,
+		"reserveCoins", reserveCoins,
+		"lastReserveRatio", lastReserveRatio,
+	)
 
 	return nil
 }
@@ -458,7 +479,15 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	}
 
 	logger := k.Logger(ctx)
-	logger.Debug("withdraw", msg, "pool", pool, "inputs", inputs, "outputs", outputs, "reserveCoins", reserveCoins, "lastReserveRatio", lastReserveRatio)
+	logger.Debug(
+		"withdraw pool coin from the pool",
+		"msg", msg,
+		"pool", pool,
+		"inputs", inputs,
+		"outputs", outputs,
+		"reserveCoins", reserveCoins,
+		"lastReserveRatio", lastReserveRatio,
+	)
 
 	return nil
 }
