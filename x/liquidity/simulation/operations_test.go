@@ -98,7 +98,7 @@ func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	// setup accounts
 	s := rand.NewSource(1)
 	r := rand.New(s)
-	accounts := getTestingAccounts(t, r, app, ctx, 5)
+	accounts := getTestingAccounts(t, r, app, ctx, 1)
 
 	// setup random liquidity pools
 	setupLiquidityPools(t, r, app, ctx, accounts)
@@ -115,8 +115,8 @@ func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, "cosmos1ua0fwyws7vzjrry3pqkklvf8mny93l9s9zg0h4", msg.GetDepositor().String())
-	require.Equal(t, "98565109ajedl,42661593ckpb", msg.DepositCoins.String())
+	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetDepositor().String())
+	require.Equal(t, "38511541fgae,71186277jxulr", msg.DepositCoins.String())
 	require.Equal(t, types.TypeMsgDepositWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
@@ -129,7 +129,7 @@ func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 	// setup accounts
 	s := rand.NewSource(1)
 	r := rand.New(s)
-	accounts := getTestingAccounts(t, r, app, ctx, 3)
+	accounts := getTestingAccounts(t, r, app, ctx, 1)
 
 	// setup random liquidity pools
 	setupLiquidityPools(t, r, app, ctx, accounts)
@@ -146,8 +146,8 @@ func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 	require.NoError(t, types.ModuleCdc.UnmarshalJSON(operationMsg.Msg, &msg))
 
 	require.True(t, operationMsg.OK)
-	require.Equal(t, "cosmos1p8wcgrjr4pjju90xg6u9cgq55dxwq8j7u4x9a0", msg.GetWithdrawer().String())
-	require.Equal(t, "9119701471146pool0FC06113F5008CA0862D6FD187D3B03BEF57D5B64D57CC82E905EA4DFF6E1418", msg.PoolCoin.String())
+	require.Equal(t, "cosmos1tnh2q55v8wyygtt9srz5safamzdengsnqeycj3", msg.GetWithdrawer().String())
+	require.Equal(t, "3372752438556poolA295B958C22781F58E51E1E4E8205F5E8E041D65F7E7AB5D7DDECCFFA7A75B01", msg.PoolCoin.String())
 	require.Equal(t, types.TypeMsgWithdrawWithinBatch, msg.Type())
 	require.Len(t, futureOperations, 0)
 }
