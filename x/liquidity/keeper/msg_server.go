@@ -31,9 +31,6 @@ var _ types.MsgServer = msgServer{}
 func (k msgServer) CreatePool(goCtx context.Context, msg *types.MsgCreatePool) (*types.MsgCreatePoolResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// fmt.Println("<CreatePool MsgServer> - First")
-	// fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
-
 	if k.GetCircuitBreakerEnabled(ctx) {
 		return nil, types.ErrCircuitBreakerEnabled
 	}
@@ -58,9 +55,6 @@ func (k msgServer) CreatePool(goCtx context.Context, msg *types.MsgCreatePool) (
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, pool.PoolCoinDenom),
 		),
 	})
-
-	// fmt.Println("<CreatePool MsgServer> - Last")
-	// fmt.Println("> GasConsumed: ", ctx.GasMeter().GasConsumed())
 
 	return &types.MsgCreatePoolResponse{}, nil
 }
