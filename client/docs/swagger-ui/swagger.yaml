@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.2.2
+  version: 2.3.0
 paths:
   /cosmos/liquidity/v1beta1/params:
     get:
