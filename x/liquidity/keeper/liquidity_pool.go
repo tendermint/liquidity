@@ -320,7 +320,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	msg.ToBeDeleted = true
 	k.SetPoolBatchDepositMsgState(ctx, msg.Msg.PoolId, msg)
 
-	if invariantCheckFlag {
+	if batchLogicInvariantCheckFlag {
 		afterReserveCoins := k.GetReserveCoins(ctx, pool)
 		afterReserveCoinA := afterReserveCoins[0].Amount
 		afterReserveCoinB := afterReserveCoins[1].Amount
@@ -429,7 +429,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	msg.ToBeDeleted = true
 	k.SetPoolBatchWithdrawMsgState(ctx, msg.Msg.PoolId, msg)
 
-	if invariantCheckFlag {
+	if batchLogicInvariantCheckFlag {
 		afterPoolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
 		afterReserveCoins := k.GetReserveCoins(ctx, pool)
 		afterReserveCoinA := sdk.ZeroInt()

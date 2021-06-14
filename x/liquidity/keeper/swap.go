@@ -102,7 +102,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 
 	lastPrice := X.Quo(Y)
 
-	if invariantCheckFlag {
+	if batchLogicInvariantCheckFlag {
 		SwapMatchingInvariants(xToY, yToX, matchResultXtoY, matchResultYtoX)
 		SwapPriceInvariants(matchResultXtoY, matchResultYtoX, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
 	}
@@ -128,8 +128,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 		matchResultMap[match.SwapMsgState.MsgIndex] = match
 	}
 
-	if invariantCheckFlag {
-		SwapPriceDirection(currentPoolPrice, result)
+	if batchLogicInvariantCheckFlag {
+		SwapPriceDirectionInvariants(currentPoolPrice, result)
 		SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates, xToY, yToX)
 		SwapOrdersExecutionStateInvariants(matchResultMap, swapMsgStates, result, denomX)
 	}

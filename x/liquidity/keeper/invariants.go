@@ -56,7 +56,7 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 // We should approach adding these invariant checks inside actual logics of deposit / withdraw / swap.
 
 var (
-	invariantCheckFlag = true // TODO: better way to handle below invariant checks?
+	batchLogicInvariantCheckFlag = true //
 	// For coin amounts less than coinAmountThreshold, a high errorRate does not mean
 	// that the calculation logic has errors.
 	// For example, if there were two X coins and three Y coins in the pool, and someone deposits
@@ -176,8 +176,6 @@ func WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserve
 	}
 }
 
-// TODO: add invariant check for withdrawed coin ratio
-
 // ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins.
 func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB sdk.Int) {
 	// TestReinitializePool tests a scenario where after reserve coins are zero
@@ -249,8 +247,8 @@ func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, p
 	}
 }
 
-// SwapPriceDirection checks whether the calculated swap price is increased, decreased, or stayed from the last pool price.
-func SwapPriceDirection(currentPoolPrice sdk.Dec, batchResult types.BatchResult) {
+// SwapPriceDirectionInvariants checks whether the calculated swap price is increased, decreased, or stayed from the last pool price.
+func SwapPriceDirectionInvariants(currentPoolPrice sdk.Dec, batchResult types.BatchResult) {
 	switch batchResult.PriceDirection {
 	case types.Increasing:
 		if !batchResult.SwapPrice.GTE(currentPoolPrice) {
