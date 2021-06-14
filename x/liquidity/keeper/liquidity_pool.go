@@ -784,7 +784,7 @@ func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgW
 	}
 
 	poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
-	if !poolCoinTotalSupply.IsPositive() {
+	if k.IsDepletedPool(ctx, pool) {
 		return types.ErrDepletedPool
 	}
 
