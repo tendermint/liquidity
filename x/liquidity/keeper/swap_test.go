@@ -121,11 +121,11 @@ func TestSwapExecution(t *testing.T) {
 
 		// handle msgs, set order msgs to batch
 		for _, msg := range xToY {
-			_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
+			_, err := simapp.LiquidityKeeper.SwapWithinBatch(ctx, msg, 0)
 			require.NoError(t, err)
 		}
 		for _, msg := range yToX {
-			_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
+			_, err := simapp.LiquidityKeeper.SwapWithinBatch(ctx, msg, 0)
 			require.NoError(t, err)
 		}
 
@@ -192,11 +192,11 @@ func testSwapEdgeCases(t *testing.T, r *rand.Rand, simapp *app.LiquidityApp, ctx
 
 	// handle msgs, set order msgs to batch
 	for _, msg := range xToY {
-		_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, int64(r.Intn(4)))
+		_, err := simapp.LiquidityKeeper.SwapWithinBatch(ctx, msg, int64(r.Intn(4)))
 		require.NoError(t, err)
 	}
 	for _, msg := range yToX {
-		_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, int64(r.Intn(4)))
+		_, err := simapp.LiquidityKeeper.SwapWithinBatch(ctx, msg, int64(r.Intn(4)))
 		require.NoError(t, err)
 	}
 
@@ -252,7 +252,7 @@ func TestBadSwapExecution(t *testing.T) {
 
 	currentPrice := X.ToDec().Quo(Y.ToDec())
 	swapMsg := types.NewMsgSwapWithinBatch(testAddr, 0, types.DefaultSwapTypeID, offerCoin, denomY, currentPrice, params.SwapFeeRate)
-	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, swapMsg, 0)
+	_, err = simapp.LiquidityKeeper.SwapWithinBatch(ctx, swapMsg, 0)
 	require.ErrorIs(t, err, types.ErrPoolNotExists)
 
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
@@ -280,7 +280,7 @@ func TestBalancesAfterSwap(t *testing.T) {
 		offerAmt := aliceCoin.Amount.ToDec().Quo(sdk.MustNewDecFromStr("1.0015")).TruncateInt()
 		offerCoin := sdk.NewCoin(denomY, offerAmt)
 
-		_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, types.NewMsgSwapWithinBatch(
+		_, err = simapp.LiquidityKeeper.SwapWithinBatch(ctx, types.NewMsgSwapWithinBatch(
 			aliceAddr, pool.Id, types.DefaultSwapTypeID, offerCoin, denomX, orderPrice, params.SwapFeeRate), 0)
 		require.NoError(t, err)
 
@@ -328,7 +328,7 @@ func TestRefundEscrow(t *testing.T) {
 
 			liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
-			_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, types.NewMsgSwapWithinBatch(
+			_, err := simapp.LiquidityKeeper.SwapWithinBatch(ctx, types.NewMsgSwapWithinBatch(
 				addr, pool.Id, types.DefaultSwapTypeID, sdk.NewCoin(DenomY, offerAmtWithFee), DenomX, orderPrice, params.SwapFeeRate), 0)
 			require.NoError(t, err)
 
@@ -346,7 +346,7 @@ func TestSwapWithDepletedPool(t *testing.T) {
 
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 	pc := simapp.BankKeeper.GetBalance(ctx, creatorAddr, pool.PoolCoinDenom)
-	_, err = simapp.LiquidityKeeper.WithdrawLiquidityPoolToBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, pc))
+	_, err = simapp.LiquidityKeeper.WithdrawWithinBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, pc))
 	require.NoError(t, err)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
@@ -354,7 +354,7 @@ func TestSwapWithDepletedPool(t *testing.T) {
 	offerCoin := sdk.NewInt64Coin(DenomX, 10000)
 	orderPrice := sdk.MustNewDecFromStr("1.0")
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-	_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(
+	_, err = simapp.LiquidityKeeper.SwapWithinBatch(
 		ctx,
 		types.NewMsgSwapWithinBatch(addr, pool.Id, types.DefaultSwapTypeID, offerCoin, DenomY, orderPrice, params.SwapFeeRate),
 		0)
