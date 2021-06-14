@@ -96,11 +96,6 @@ func (k Querier) LiquidityPoolBatch(c context.Context, req *types.QueryLiquidity
 
 // Pools queries all liquidity pools currently existed with each liquidity pool with batch and metadata.
 func (k Querier) LiquidityPools(c context.Context, req *types.QueryLiquidityPoolsRequest) (*types.QueryLiquidityPoolsResponse, error) {
-	empty := &types.QueryLiquidityPoolsRequest{}
-	if req == nil || *req == *empty {
-		return nil, status.Errorf(codes.InvalidArgument, "empty request")
-	}
-
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
