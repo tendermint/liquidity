@@ -204,7 +204,7 @@ localnet:
 
 lint:
 	$(BINDIR)/golangci-lint run
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "*.pb.go" | xargs gofmt -d -s
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "*.pb.go" -not -path "*/statik*" | xargs gofmt -d -s
 	go mod verify
 
 .PHONY: lint
