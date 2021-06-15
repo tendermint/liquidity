@@ -694,7 +694,7 @@ func TestLiquidityScenario3(t *testing.T) {
 }
 
 // This scenario tests deposit refund scenario
-func TestLiquidityScenario4(t *testing.T) {
+func TestDepositRefund(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
@@ -709,8 +709,7 @@ func TestLiquidityScenario4(t *testing.T) {
 	// create pool with 1000X and 500Y coins
 	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
-	// make deposit to the pool with 1000X and 500Y coins
-	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:2], poolID, false)
+	app.TestDepositPool(t, simapp, ctx, sdk.OneInt(), sdk.OneInt(), addrs[1:2], poolID, false)
 
 	// balance should be zero since accounts' balances are expected to be in an escrow account
 	balanceX := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomX)
@@ -718,21 +717,12 @@ func TestLiquidityScenario4(t *testing.T) {
 	require.Equal(t, sdk.ZeroInt(), balanceX.Amount)
 	require.Equal(t, sdk.ZeroInt(), balanceY.Amount)
 
-	pool, found := simapp.LiquidityKeeper.GetPool(ctx, poolID)
-	require.True(t, found)
-
-	// delete previously created pool
-	simapp.LiquidityKeeper.DeletePool(ctx, pool)
-
-	pool, found = simapp.LiquidityKeeper.GetPool(ctx, poolID)
-	require.False(t, found)
-
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
 	balanceXRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomX)
 	balanceYRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomY)
-	require.Equal(t, X, balanceXRefunded.Amount)
-	require.Equal(t, Y, balanceYRefunded.Amount)
+	require.True(sdk.IntEq(t, sdk.OneInt(), balanceXRefunded.Amount))
+	require.True(sdk.IntEq(t, sdk.OneInt(), balanceYRefunded.Amount))
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
