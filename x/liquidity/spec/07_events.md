@@ -79,16 +79,17 @@ deposit_to_pool | success          | {success}
 
 ### Batch Result for MsgWithdrawWithinBatch
 
-Type               | Attribute Key    | Attribute Value
------------------- | ---------------- | -------------------
-withdraw_from_pool | pool_id          | {poolId}
-withdraw_from_pool | batch_index      | {batchIndex}
-withdraw_from_pool | msg_index        | {withdrawMsgIndex}
-withdraw_from_pool | withdrawer       | {withdrawerAddress}
-withdraw_from_pool | pool_coin_denom  | {poolCoinDenom}
-withdraw_from_pool | pool_coin_amount | {poolCoinAmount}
-withdraw_from_pool | withdraw_coins   | {withdrawCoins}
-withdraw_from_pool | success          | {success}
+| Type               | Attribute Key      | Attribute Value     |
+| ------------------ | ------------------ | ------------------- |
+| withdraw_from_pool | pool_id            | {poolId}            |
+| withdraw_from_pool | batch_index        | {batchIndex}        |
+| withdraw_from_pool | msg_index          | {withdrawMsgIndex}  |
+| withdraw_from_pool | withdrawer         | {withdrawerAddress} |
+| withdraw_from_pool | pool_coin_denom    | {poolCoinDenom}     |
+| withdraw_from_pool | pool_coin_amount   | {poolCoinAmount}    |
+| withdraw_from_pool | withdraw_coins     | {withdrawCoins}     |
+| withdraw_from_pool | withdraw_fee_coins | {withdrawFeeCoins}  |
+| withdraw_from_pool | success            | {success}           |
 
 ### Batch Result for MsgSwapWithinBatch
 

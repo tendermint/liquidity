@@ -394,6 +394,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	params := k.GetParams(ctx)
 	withdrawProportion := sdk.OneDec().Sub(params.WithdrawFeeRate)
 	withdrawCoins := sdk.NewCoins()
+	withdrawFeeCoins := sdk.NewCoins()
 
 	// Case for withdrawing all reserve coins
 	if msg.Msg.PoolCoin.Amount.Equal(poolCoinTotalSupply) {
@@ -403,8 +404,10 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 		// Calculate withdraw amount of respective reserve coin considering fees and pool coin's totally supply
 		for _, reserveCoin := range reserveCoins {
 			// WithdrawAmount = ReserveAmount * PoolCoinAmount * WithdrawFeeProportion / TotalSupply
+			withdrawAmtWithFee := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().TruncateInt().Quo(poolCoinTotalSupply)
 			withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().MulTruncate(withdrawProportion).TruncateInt().Quo(poolCoinTotalSupply)
 			withdrawCoins = append(withdrawCoins, sdk.NewCoin(reserveCoin.Denom, withdrawAmt))
+			withdrawFeeCoins = append(withdrawFeeCoins, sdk.NewCoin(reserveCoin.Denom, withdrawAmtWithFee.Sub(withdrawAmt)))
 		}
 	}
 
@@ -445,13 +448,11 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 		reserveCoinB := reserveCoins[1].Amount
 		lastPoolTotalSupply := poolCoinTotalSupply
 		afterPoolTotalSupply := afterPoolCoinTotalSupply
-		lastPoolCoinSupply := poolCoinTotalSupply
 
-		BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
-			lastPoolTotalSupply, withdrawProportion)
+		BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, lastPoolTotalSupply, withdrawFeeCoins)
 		WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
-			afterReserveCoinA, afterReserveCoinB, afterPoolTotalSupply, lastPoolCoinSupply, burnedPoolCoin)
-		WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, burnedPoolCoin, lastPoolCoinSupply, params.WithdrawFeeRate)
+			afterReserveCoinA, afterReserveCoinB, afterPoolTotalSupply, lastPoolTotalSupply, burnedPoolCoin)
+		WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, burnedPoolCoin, lastPoolTotalSupply, params.WithdrawFeeRate)
 		ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB)
 	}
 
@@ -465,6 +466,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, msg.Msg.PoolCoin.Denom),
 			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, msg.Msg.PoolCoin.Amount.String()),
 			sdk.NewAttribute(types.AttributeValueWithdrawCoins, withdrawCoins.String()),
+			sdk.NewAttribute(types.AttributeValueWithdrawFeeCoins, withdrawFeeCoins.String()),
 			sdk.NewAttribute(types.AttributeValueSuccess, types.Success),
 		),
 	)
@@ -605,7 +607,6 @@ func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.With
 			sdk.NewAttribute(types.AttributeValueWithdrawer, batchMsg.Msg.GetWithdrawer().String()),
 			sdk.NewAttribute(types.AttributeValuePoolCoinDenom, batchMsg.Msg.PoolCoin.Denom),
 			sdk.NewAttribute(types.AttributeValuePoolCoinAmount, batchMsg.Msg.PoolCoin.Amount.String()),
-			sdk.NewAttribute(types.AttributeValueWithdrawCoins, sdk.NewCoins().String()),
 			sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
 		))
 
