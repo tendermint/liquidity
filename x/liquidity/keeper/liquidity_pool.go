@@ -197,16 +197,7 @@ func (k Keeper) ExecuteDeposit(ctx sdk.Context, msg types.DepositMsgState, batch
 	if k.IsDepletedPool(ctx, pool) {
 		for _, depositCoin := range msg.Msg.DepositCoins {
 			if depositCoin.Amount.Add(reserveCoins.AmountOf(depositCoin.Denom)).LT(params.MinInitDepositAmount) {
-				ctx.EventManager().EmitEvent(
-					sdk.NewEvent(
-						types.EventTypeDepositToPool,
-						sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
-						sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
-						sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msg.MsgIndex, 10)),
-						sdk.NewAttribute(types.AttributeValueDepositor, depositor.String()),
-						sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
-					))
-				return nil // Return nil instead of types.ErrLessThanMinInitDeposit to prevent panic.
+				return types.ErrLessThanMinInitDeposit
 			}
 		}
 		poolCoin, err := k.MintAndSendPoolCoin(ctx, pool, batchEscrowAcc, depositor, msg.Msg.DepositCoins)
