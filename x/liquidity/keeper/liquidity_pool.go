@@ -402,7 +402,6 @@ func (k Keeper) ExecuteWithdrawal(ctx sdk.Context, msg types.WithdrawMsgState, b
 	// Case for withdrawing all reserve coins
 	if msg.Msg.PoolCoin.Amount.Equal(poolCoinTotalSupply) {
 		withdrawCoins = reserveCoins
-		withdrawProportion = sdk.OneDec()
 	} else {
 		// Calculate withdraw amount of respective reserve coin considering fees and pool coin's totally supply
 		for _, reserveCoin := range reserveCoins {
