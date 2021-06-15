@@ -147,7 +147,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	k.SetPoolBatch(ctx, batch)
 
 	reserveCoins := k.GetReserveCoins(ctx, pool)
-	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
+	lastReserveRatio := sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	logger := k.Logger(ctx)
 	logger.Debug(
 		"create liquidity pool",
@@ -196,7 +196,6 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 				return types.ErrLessThanMinInitDeposit
 			}
 		}
-
 		poolCoin, err := k.MintAndSendPoolCoin(ctx, pool, batchEscrowAcc, depositor, msg.Msg.DepositCoins)
 		if err != nil {
 			return err
@@ -210,7 +209,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 		reserveCoins = k.GetReserveCoins(ctx, pool)
 		lastReserveCoinA := sdk.NewDecFromInt(reserveCoins[0].Amount)
 		lastReserveCoinB := sdk.NewDecFromInt(reserveCoins[1].Amount)
-		lastReserveRatio := lastReserveCoinA.QuoTruncate(lastReserveCoinB)
+		lastReserveRatio := lastReserveCoinA.Quo(lastReserveCoinB)
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeDepositToPool,
@@ -298,8 +297,8 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	// calculate pool token mint amount
 	poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
 	poolCoinAmt := sdk.MinInt(
-		poolCoinTotalSupply.ToDec().Mul(depositCoinAmountA.ToDec()).Quo(reserveCoins[0].Amount.ToDec()).TruncateInt(),
-		poolCoinTotalSupply.ToDec().Mul(depositCoinAmountB.ToDec()).Quo(reserveCoins[1].Amount.ToDec()).TruncateInt())
+		poolCoinTotalSupply.ToDec().MulTruncate(depositCoinAmountA.ToDec()).QuoTruncate(reserveCoins[0].Amount.ToDec()).TruncateInt(),
+		poolCoinTotalSupply.ToDec().MulTruncate(depositCoinAmountB.ToDec()).QuoTruncate(reserveCoins[1].Amount.ToDec()).TruncateInt())
 	mintPoolCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
 	mintPoolCoins := sdk.NewCoins(mintPoolCoin)
 
@@ -347,7 +346,7 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	)
 
 	reserveCoins = k.GetReserveCoins(ctx, pool)
-	lastReserveRatio = sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
+	lastReserveRatio = sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 
 	logger := k.Logger(ctx)
 	logger.Debug(
@@ -475,7 +474,7 @@ func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgStat
 	if reserveCoins.IsZero() {
 		lastReserveRatio = sdk.ZeroDec()
 	} else {
-		lastReserveRatio = sdk.NewDecFromInt(reserveCoins[0].Amount).QuoTruncate(sdk.NewDecFromInt(reserveCoins[1].Amount))
+		lastReserveRatio = sdk.NewDecFromInt(reserveCoins[0].Amount).Quo(sdk.NewDecFromInt(reserveCoins[1].Amount))
 	}
 
 	logger := k.Logger(ctx)
