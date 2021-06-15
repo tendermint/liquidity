@@ -100,8 +100,8 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 		panic("invariant check fails due to incorrect ratio of pool coins")
 	}
 
-	if sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).GT(sdk.NewInt(1)) ||
-		sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedB).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).GT(sdk.NewInt(1)) {
+	if sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).Quo(mintPoolCoin).ToDec().GT(errorRateThreshold) ||
+		sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedB).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).Quo(mintPoolCoin).ToDec().GT(errorRateThreshold) {
 		panic("invariant check fails due to incorrect amount of pool coins")
 	}
 }
@@ -153,8 +153,10 @@ func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, res
 
 	expectedBurningPoolCoinBasedA := lastPoolCoinSupply.ToDec().MulTruncate(withdrawCoinARatio).TruncateInt()
 	expectedBurningPoolCoinBasedB := lastPoolCoinSupply.ToDec().MulTruncate(withdrawCoinBRatio).TruncateInt()
-	if sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedA).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedA)).GT(sdk.NewInt(1)) ||
-		sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedB).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedB)).GT(sdk.NewInt(1)) {
+
+	if burnedPoolCoin.GTE(coinAmountThreshold) &&
+		(sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedA).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedA)).Quo(burnedPoolCoin).ToDec().GT(errorRateThreshold) ||
+			sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedB).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedB)).Quo(burnedPoolCoin).ToDec().GT(errorRateThreshold)) {
 		panic("invariant check fails due to incorrect amount of burning pool coins")
 	}
 }
@@ -270,11 +272,11 @@ func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, p
 func SwapPriceDirectionInvariants(currentPoolPrice sdk.Dec, batchResult types.BatchResult) {
 	switch batchResult.PriceDirection {
 	case types.Increasing:
-		if !batchResult.SwapPrice.GTE(currentPoolPrice) {
+		if !batchResult.SwapPrice.GT(currentPoolPrice) {
 			panic("invariant check fails due to incorrect price direction")
 		}
 	case types.Decreasing:
-		if !batchResult.SwapPrice.LTE(currentPoolPrice) {
+		if !batchResult.SwapPrice.LT(currentPoolPrice) {
 			panic("invariant check fails due to incorrect price direction")
 		}
 	case types.Staying:
