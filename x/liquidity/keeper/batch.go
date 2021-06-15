@@ -82,6 +82,7 @@ func (k Keeper) InitNextPoolBatch(ctx sdk.Context, poolBatch types.PoolBatch) er
 // The order is (1)swap, (2)deposit, (3)withdraw.
 func (k Keeper) ExecutePoolBatches(ctx sdk.Context) {
 	params := k.GetParams(ctx)
+	logger := k.Logger(ctx)
 
 	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		if !poolBatch.Executed && ctx.BlockHeight()%int64(params.UnitBatchHeight) == 0 {
@@ -96,10 +97,15 @@ func (k Keeper) ExecutePoolBatches(ctx sdk.Context) {
 				}
 				executedMsgCount++
 				if err := k.ExecuteDeposit(ctx, batchMsg, poolBatch); err != nil {
+					logger.Error("deposit failed",
+						"poolID", poolBatch.PoolId,
+						"batchIndex", poolBatch.Index,
+						"msgIndex", batchMsg.MsgIndex,
+						"depositor", batchMsg.Msg.GetDepositor(),
+						"error", err)
 					if err := k.RefundDeposit(ctx, batchMsg, poolBatch); err != nil {
 						panic(err)
 					}
-					panic(err)
 				}
 				return false
 			})
@@ -110,10 +116,15 @@ func (k Keeper) ExecutePoolBatches(ctx sdk.Context) {
 				}
 				executedMsgCount++
 				if err := k.ExecuteWithdrawal(ctx, batchMsg, poolBatch); err != nil {
+					logger.Error("withdraw failed",
+						"poolID", poolBatch.PoolId,
+						"batchIndex", poolBatch.Index,
+						"msgIndex", batchMsg.MsgIndex,
+						"withdrawer", batchMsg.Msg.GetWithdrawer(),
+						"error", err)
 					if err := k.RefundWithdrawal(ctx, batchMsg, poolBatch); err != nil {
 						panic(err)
 					}
-					panic(err)
 				}
 				return false
 			})
