@@ -694,7 +694,7 @@ func TestLiquidityScenario3(t *testing.T) {
 }
 
 // This scenario tests deposit refund scenario
-func TestDepositRefund(t *testing.T) {
+func TestDepositRefundTooSmallDepositAmount(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
@@ -723,6 +723,51 @@ func TestDepositRefund(t *testing.T) {
 	balanceYRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomY)
 	require.True(sdk.IntEq(t, sdk.OneInt(), balanceXRefunded.Amount))
 	require.True(sdk.IntEq(t, sdk.OneInt(), balanceYRefunded.Amount))
+
+	// next block
+	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+}
+
+// This scenario tests deposit refund scenario
+func TestDepositRefundDeletedPool(t *testing.T) {
+	simapp, ctx := createTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+
+	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
+
+	X := sdk.NewInt(1000000000)
+	Y := sdk.NewInt(500000000)
+
+	// create 20 random accounts with an initial balance of 0.01
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+
+	// create pool with 1000X and 500Y coins
+	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
+
+	app.TestDepositPool(t, simapp, ctx, X, Y, addrs[1:2], poolID, false)
+
+	// balance should be zero since accounts' balances are expected to be in an escrow account
+	balanceX := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomX)
+	balanceY := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomY)
+	require.Equal(t, sdk.ZeroInt(), balanceX.Amount)
+	require.Equal(t, sdk.ZeroInt(), balanceY.Amount)
+
+	pool, found := simapp.LiquidityKeeper.GetPool(ctx, poolID)
+	require.True(t, found)
+
+	// delete previously created pool
+	simapp.LiquidityKeeper.DeletePool(ctx, pool)
+
+	pool, found = simapp.LiquidityKeeper.GetPool(ctx, poolID)
+	require.False(t, found)
+
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	balanceXRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomX)
+	balanceYRefunded := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomY)
+	require.True(sdk.IntEq(t, X, balanceXRefunded.Amount))
+	require.True(sdk.IntEq(t, Y, balanceYRefunded.Amount))
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
