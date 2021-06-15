@@ -160,14 +160,14 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	return pool, nil
 }
 
-func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState, batch types.PoolBatch) error {
+func (k Keeper) ExecuteDeposit(ctx sdk.Context, msg types.DepositMsgState, batch types.PoolBatch) error {
 	if msg.Executed || msg.ToBeDeleted || msg.Succeeded {
 		return fmt.Errorf("cannot process already executed batch msg")
 	}
 	msg.Executed = true
 	k.SetPoolBatchDepositMsgState(ctx, msg.Msg.PoolId, msg)
 
-	if err := k.ValidateMsgDepositLiquidityPool(ctx, *msg.Msg); err != nil {
+	if err := k.ValidateMsgDepositWithinBatch(ctx, *msg.Msg); err != nil {
 		return err
 	}
 
@@ -362,15 +362,15 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	return nil
 }
 
-// WithdrawLiquidityPool withdraws pool coin from the liquidity pool
-func (k Keeper) WithdrawLiquidityPool(ctx sdk.Context, msg types.WithdrawMsgState, batch types.PoolBatch) error {
+// ExecuteWithdrawal withdraws pool coin from the liquidity pool
+func (k Keeper) ExecuteWithdrawal(ctx sdk.Context, msg types.WithdrawMsgState, batch types.PoolBatch) error {
 	if msg.Executed || msg.ToBeDeleted || msg.Succeeded {
 		return fmt.Errorf("cannot process already executed batch msg")
 	}
 	msg.Executed = true
 	k.SetPoolBatchWithdrawMsgState(ctx, msg.Msg.PoolId, msg)
 
-	if err := k.ValidateMsgWithdrawLiquidityPool(ctx, *msg.Msg); err != nil {
+	if err := k.ValidateMsgWithdrawWithinBatch(ctx, *msg.Msg); err != nil {
 		return err
 	}
 	poolCoins := sdk.NewCoins(msg.Msg.PoolCoin)
@@ -558,8 +558,8 @@ func (k Keeper) SetPoolRecord(ctx sdk.Context, record types.PoolRecord) types.Po
 	return record
 }
 
-// RefundDepositLiquidityPool refunds deposit amounts to the depositor
-func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.DepositMsgState, batch types.PoolBatch) error {
+// RefundDeposit refunds deposit amounts to the depositor
+func (k Keeper) RefundDeposit(ctx sdk.Context, batchMsg types.DepositMsgState, batch types.PoolBatch) error {
 	batchMsg, _ = k.GetPoolBatchDepositMsgState(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	if !batchMsg.Executed || batchMsg.Succeeded {
 		return fmt.Errorf("cannot refund not executed or already succeeded msg")
@@ -585,8 +585,8 @@ func (k Keeper) RefundDepositLiquidityPool(ctx sdk.Context, batchMsg types.Depos
 	return nil
 }
 
-// RefundWithdrawLiquidityPool refunds pool coin of the liquidity pool to the withdrawer
-func (k Keeper) RefundWithdrawLiquidityPool(ctx sdk.Context, batchMsg types.WithdrawMsgState, batch types.PoolBatch) error {
+// RefundWithdrawal refunds pool coin of the liquidity pool to the withdrawer
+func (k Keeper) RefundWithdrawal(ctx sdk.Context, batchMsg types.WithdrawMsgState, batch types.PoolBatch) error {
 	batchMsg, _ = k.GetPoolBatchWithdrawMsgState(ctx, batchMsg.Msg.PoolId, batchMsg.MsgIndex)
 	if !batchMsg.Executed || batchMsg.Succeeded {
 		return fmt.Errorf("cannot refund not executed or already succeeded msg")
@@ -747,8 +747,8 @@ func (k Keeper) RefundSwaps(ctx sdk.Context, pool types.Pool, swapMsgStates []*t
 	return nil
 }
 
-// ValidateMsgDepositLiquidityPool validates MsgDepositWithinBatch
-func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDepositWithinBatch) error {
+// ValidateMsgDepositWithinBatch validates MsgDepositWithinBatch
+func (k Keeper) ValidateMsgDepositWithinBatch(ctx sdk.Context, msg types.MsgDepositWithinBatch) error {
 	pool, found := k.GetPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
@@ -771,8 +771,8 @@ func (k Keeper) ValidateMsgDepositLiquidityPool(ctx sdk.Context, msg types.MsgDe
 	return nil
 }
 
-// ValidateMsgWithdrawLiquidityPool validates MsgWithdrawWithinBatch
-func (k Keeper) ValidateMsgWithdrawLiquidityPool(ctx sdk.Context, msg types.MsgWithdrawWithinBatch) error {
+// ValidateMsgWithdrawWithinBatch validates MsgWithdrawWithinBatch
+func (k Keeper) ValidateMsgWithdrawWithinBatch(ctx sdk.Context, msg types.MsgWithdrawWithinBatch) error {
 	pool, found := k.GetPool(ctx, msg.PoolId)
 	if !found {
 		return types.ErrPoolNotExists
