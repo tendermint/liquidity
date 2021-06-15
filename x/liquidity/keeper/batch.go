@@ -99,6 +99,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 					if err := k.RefundDepositLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
 						panic(err)
 					}
+					panic(err)
 				}
 				return false
 			})
@@ -112,6 +113,7 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 					if err := k.RefundWithdrawLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
 						panic(err)
 					}
+					panic(err)
 				}
 				return false
 			})

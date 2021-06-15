@@ -58,11 +58,13 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 }
 
 func (k Keeper) MintAndSendPoolCoin(ctx sdk.Context, pool types.Pool, srcAddr, creatorAddr sdk.AccAddress, depositCoins sdk.Coins) (sdk.Coin, error) {
-	params := k.GetParams(ctx)
+	cacheCtx, writeCache := ctx.CacheContext()
+
+	params := k.GetParams(cacheCtx)
 
 	mintingCoin := sdk.NewCoin(pool.PoolCoinDenom, params.InitPoolCoinMintAmount)
 	mintingCoins := sdk.NewCoins(mintingCoin)
-	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintingCoins); err != nil {
+	if err := k.bankKeeper.MintCoins(cacheCtx, types.ModuleName, mintingCoins); err != nil {
 		return sdk.Coin{}, err
 	}
 
@@ -77,9 +79,11 @@ func (k Keeper) MintAndSendPoolCoin(ctx sdk.Context, pool types.Pool, srcAddr, c
 	inputs = append(inputs, banktypes.NewInput(k.accountKeeper.GetModuleAddress(types.ModuleName), mintingCoins))
 	outputs = append(outputs, banktypes.NewOutput(creatorAddr, mintingCoins))
 
-	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+	if err := k.bankKeeper.InputOutputCoins(cacheCtx, inputs, outputs); err != nil {
 		return sdk.Coin{}, err
 	}
+
+	writeCache()
 
 	return mintingCoin, nil
 }
@@ -193,7 +197,16 @@ func (k Keeper) DepositLiquidityPool(ctx sdk.Context, msg types.DepositMsgState,
 	if k.IsDepletedPool(ctx, pool) {
 		for _, depositCoin := range msg.Msg.DepositCoins {
 			if depositCoin.Amount.Add(reserveCoins.AmountOf(depositCoin.Denom)).LT(params.MinInitDepositAmount) {
-				return types.ErrLessThanMinInitDeposit
+				ctx.EventManager().EmitEvent(
+					sdk.NewEvent(
+						types.EventTypeDepositToPool,
+						sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(pool.Id, 10)),
+						sdk.NewAttribute(types.AttributeValueBatchIndex, strconv.FormatUint(batch.Index, 10)),
+						sdk.NewAttribute(types.AttributeValueMsgIndex, strconv.FormatUint(msg.MsgIndex, 10)),
+						sdk.NewAttribute(types.AttributeValueDepositor, depositor.String()),
+						sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
+					))
+				return nil // Return nil instead of types.ErrLessThanMinInitDeposit to prevent panic.
 			}
 		}
 
