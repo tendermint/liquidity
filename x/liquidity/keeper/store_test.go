@@ -73,11 +73,11 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 
 		// handle msgs, set order msgs to batch
 		for _, msg := range xToY[:10] {
-			_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
+			_, err := simapp.LiquidityKeeper.SwapWithinBatch(ctx, msg, 0)
 			require.NoError(t, err)
 		}
 		for _, msg := range yToX[:10] {
-			_, err := simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, msg, 0)
+			_, err := simapp.LiquidityKeeper.SwapWithinBatch(ctx, msg, 0)
 			require.NoError(t, err)
 		}
 
@@ -100,9 +100,9 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 		poolBatch.SwapMsgIndex = uint64(18446744073709551610)
 		simapp.LiquidityKeeper.SetPoolBatch(ctx, poolBatch)
 
-		_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, xToY[10], 0)
+		_, err = simapp.LiquidityKeeper.SwapWithinBatch(ctx, xToY[10], 0)
 		require.NoError(t, err)
-		_, err = simapp.LiquidityKeeper.SwapLiquidityPoolToBatch(ctx, yToX[10], 0)
+		_, err = simapp.LiquidityKeeper.SwapWithinBatch(ctx, yToX[10], 0)
 		require.NoError(t, err)
 
 		msgs = simapp.LiquidityKeeper.GetAllPoolBatchSwapMsgStatesAsPointer(ctx, poolBatch)

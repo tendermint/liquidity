@@ -66,7 +66,7 @@ func TestMsgServerCreatePool(t *testing.T) {
 	require.Error(t, err, types.ErrPoolAlreadyExists)
 }
 
-func TestMsgServerDepositLiquidityPool(t *testing.T) {
+func TestMsgServerExecuteDeposit(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
@@ -115,7 +115,7 @@ func TestMsgServerDepositLiquidityPool(t *testing.T) {
 	msgs := simapp.LiquidityKeeper.GetAllPoolBatchDepositMsgs(ctx, poolBatch)
 	require.Equal(t, 1, len(msgs))
 
-	err = simapp.LiquidityKeeper.DepositLiquidityPool(ctx, msgs[0], poolBatch)
+	err = simapp.LiquidityKeeper.ExecuteDeposit(ctx, msgs[0], poolBatch)
 	require.NoError(t, err)
 
 	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
@@ -123,7 +123,7 @@ func TestMsgServerDepositLiquidityPool(t *testing.T) {
 	require.Equal(t, poolCoin.Sub(poolCoinBefore), depositorBalance.Amount)
 }
 
-func TestMsgServerWithdrawLiquidityPool(t *testing.T) {
+func TestMsgServerExecuteWithdrawal(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
@@ -168,7 +168,7 @@ func TestMsgServerWithdrawLiquidityPool(t *testing.T) {
 	msgs := simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, poolBatch)
 	require.Equal(t, 1, len(msgs))
 
-	err = simapp.LiquidityKeeper.WithdrawLiquidityPool(ctx, msgs[0], poolBatch)
+	err = simapp.LiquidityKeeper.ExecuteWithdrawal(ctx, msgs[0], poolBatch)
 	require.NoError(t, err)
 
 	poolCoinAfter := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)

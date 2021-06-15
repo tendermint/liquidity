@@ -78,7 +78,6 @@ func WeightedOperations(
 }
 
 // SimulateMsgCreatePool generates a MsgCreatePool with random values
-// nolint: interfacer
 func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
@@ -174,7 +173,6 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 }
 
 // SimulateMsgDepositWithinBatch  generates a MsgDepositWithinBatch  with random values
-// nolint: interfacer
 func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
@@ -251,7 +249,6 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 }
 
 // SimulateMsgWithdrawWithinBatch generates a MsgWithdrawWithinBatch with random values.
-// nolint: interfacer
 func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
@@ -319,7 +316,6 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 }
 
 // SimulateMsgSwapWithinBatch generates a MsgSwapWithinBatch with random values
-// nolint: interfacer
 func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k keeper.Keeper) simtypes.Operation {
 	return func(
 		r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
