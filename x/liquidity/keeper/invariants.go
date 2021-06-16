@@ -56,7 +56,7 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 // We should approach adding these invariant checks inside actual logics of deposit / withdraw / swap.
 
 var (
-	invariantCheckFlag = true // TODO: better way to handle below invariant checks?
+	BatchLogicInvariantCheckFlag = false // It is only used at the development stage, and is disabled at the product level.
 	// For coin amounts less than coinAmountThreshold, a high errorRate does not mean
 	// that the calculation logic has errors.
 	// For example, if there were two X coins and three Y coins in the pool, and someone deposits
@@ -65,8 +65,8 @@ var (
 	// meaning that the price has changed by 12.5%.
 	// This happens with small coin amounts, so there should be a threshold for coin amounts
 	// before we calculate the errorRate.
-	coinAmountThreshold = sdk.NewInt(10)
 	errorRateThreshold  = sdk.NewDecWithPrec(5, 2) // 5%
+	coinAmountThreshold = sdk.NewInt(20)           // If a decimal error occurs at a value less than 20, the error rate is over 5%.
 )
 
 func errorRate(expected, actual sdk.Dec) sdk.Dec {
@@ -88,14 +88,22 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 		depositCoinB = depositCoinB.Sub(refundedCoinB)
 	}
 
-	poolCoinRatio := mintPoolCoin.Quo(poolCoinTotalSupply)
-	depositCoinARatio := depositCoinA.Quo(lastReserveCoinA)
-	depositCoinBRatio := depositCoinB.Quo(lastReserveCoinB)
+	poolCoinRatio := mintPoolCoin.ToDec().QuoInt(poolCoinTotalSupply)
+	depositCoinARatio := depositCoinA.ToDec().QuoInt(lastReserveCoinA)
+	depositCoinBRatio := depositCoinB.ToDec().QuoInt(lastReserveCoinB)
+	expectedMintPoolCoinAmtBasedA := depositCoinARatio.MulInt(poolCoinTotalSupply).TruncateInt()
+	expectedMintPoolCoinAmtBasedB := depositCoinBRatio.MulInt(poolCoinTotalSupply).TruncateInt()
 
 	// NewPoolCoinAmount / LastPoolCoinSupply <= AfterRefundedDepositCoinA / LastReserveCoinA
 	// NewPoolCoinAmount / LastPoolCoinSupply <= AfterRefundedDepositCoinA / LastReserveCoinB
 	if depositCoinARatio.LT(poolCoinRatio) || depositCoinBRatio.LT(poolCoinRatio) {
 		panic("invariant check fails due to incorrect ratio of pool coins")
+	}
+
+	if mintPoolCoin.GTE(coinAmountThreshold) &&
+		(sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).ToDec().QuoInt(mintPoolCoin).GT(errorRateThreshold) ||
+			sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedB).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).ToDec().QuoInt(mintPoolCoin).GT(errorRateThreshold)) {
+		panic("invariant check fails due to incorrect amount of pool coins")
 	}
 }
 
@@ -129,19 +137,28 @@ func DepositInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA, depositC
 }
 
 // BurningPoolCoinsInvariant checks the correct burning amount of pool coins.
-func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, lastPoolCoinSupply sdk.Int, withdrawProportion sdk.Dec) {
+func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, lastPoolCoinSupply sdk.Int, withdrawFeeCoins sdk.Coins) {
 	burningPoolCoinRatio := burnedPoolCoin.ToDec().Quo(lastPoolCoinSupply.ToDec())
 	if burningPoolCoinRatio.Equal(sdk.OneDec()) {
 		return
 	}
 
-	withdrawCoinARatio := withdrawCoinA.ToDec().Quo(withdrawProportion).Quo(reserveCoinA.ToDec())
-	withdrawCoinBRatio := withdrawCoinB.ToDec().Quo(withdrawProportion).Quo(reserveCoinB.ToDec())
+	withdrawCoinARatio := withdrawCoinA.Add(withdrawFeeCoins[0].Amount).ToDec().Quo(reserveCoinA.ToDec())
+	withdrawCoinBRatio := withdrawCoinB.Add(withdrawFeeCoins[1].Amount).ToDec().Quo(reserveCoinB.ToDec())
 
 	// BurnedPoolCoinAmount / LastPoolCoinSupply >= (WithdrawCoinA+WithdrawFeeCoinA) / LastReserveCoinA
 	// BurnedPoolCoinAmount / LastPoolCoinSupply >= (WithdrawCoinB+WithdrawFeeCoinB) / LastReserveCoinB
 	if withdrawCoinARatio.GT(burningPoolCoinRatio) || withdrawCoinBRatio.GT(burningPoolCoinRatio) {
 		panic("invariant check fails due to incorrect ratio of burning pool coins")
+	}
+
+	expectedBurningPoolCoinBasedA := lastPoolCoinSupply.ToDec().MulTruncate(withdrawCoinARatio).TruncateInt()
+	expectedBurningPoolCoinBasedB := lastPoolCoinSupply.ToDec().MulTruncate(withdrawCoinBRatio).TruncateInt()
+
+	if burnedPoolCoin.GTE(coinAmountThreshold) &&
+		(sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedA).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedA)).ToDec().QuoInt(burnedPoolCoin).GT(errorRateThreshold) ||
+			sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedB).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedB)).ToDec().QuoInt(burnedPoolCoin).GT(errorRateThreshold)) {
+		panic("invariant check fails due to incorrect amount of burning pool coins")
 	}
 }
 
@@ -180,8 +197,6 @@ func WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserve
 		}
 	}
 }
-
-// TODO: add invariant check for withdrawed coin ratio
 
 // ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins.
 func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB sdk.Int) {
@@ -222,8 +237,7 @@ func SwapMatchingInvariants(xToY, yToX []*types.SwapMsgState, matchResultXtoY, m
 }
 
 // SwapPriceInvariants checks swap price invariants.
-func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2,
-	decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
+func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2 sdk.Dec, result types.BatchResult) {
 	invariantCheckX := sdk.ZeroDec()
 	invariantCheckY := sdk.ZeroDec()
 
@@ -244,25 +258,21 @@ func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, p
 		panic(fmt.Errorf("invariant check fails due to invalid swap price: %s", invariantCheckX.String()))
 	}
 
-	if !poolXDelta.Add(decimalErrorX).Equal(poolXDelta2) || !poolYDelta.Add(decimalErrorY).Equal(poolYDelta2) {
-		panic(fmt.Errorf("invariant check fails due to invalid swap price: %s", poolXDelta.String()))
-	}
-
 	validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
 	if !validitySwapPrice {
 		panic("invariant check fails due to invalid swap price")
 	}
 }
 
-// SwapPriceDirection checks whether the calculated swap price is increased, decreased, or stayed from the last pool price.
-func SwapPriceDirection(currentPoolPrice sdk.Dec, batchResult types.BatchResult) {
+// SwapPriceDirectionInvariants checks whether the calculated swap price is increased, decreased, or stayed from the last pool price.
+func SwapPriceDirectionInvariants(currentPoolPrice sdk.Dec, batchResult types.BatchResult) {
 	switch batchResult.PriceDirection {
 	case types.Increasing:
-		if !batchResult.SwapPrice.GTE(currentPoolPrice) {
+		if !batchResult.SwapPrice.GT(currentPoolPrice) {
 			panic("invariant check fails due to incorrect price direction")
 		}
 	case types.Decreasing:
-		if !batchResult.SwapPrice.LTE(currentPoolPrice) {
+		if !batchResult.SwapPrice.LT(currentPoolPrice) {
 			panic("invariant check fails due to incorrect price direction")
 		}
 	case types.Staying:
@@ -310,8 +320,6 @@ func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResul
 			if sms.MsgIndex == msgAfter.SwapMsgState.MsgIndex {
 				if *(sms) != *(msgAfter.SwapMsgState) || sms != msgAfter.SwapMsgState {
 					panic("batch message not matched")
-				} else {
-					break
 				}
 			} else {
 				panic("fail msg pointer consistency")

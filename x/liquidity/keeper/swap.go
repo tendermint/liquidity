@@ -98,13 +98,13 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 		poolYDelta = poolYDeltaXtoY.Add(poolYDeltaYtoX)
 	}
 
-	xToY, yToX, X, Y, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY := types.UpdateSwapMsgStates(X, Y, xToY, yToX, matchResultXtoY, matchResultYtoX)
+	xToY, yToX, X, Y, poolXDelta2, poolYDelta2 := types.UpdateSwapMsgStates(X, Y, xToY, yToX, matchResultXtoY, matchResultYtoX)
 
 	lastPrice := X.Quo(Y)
 
-	if invariantCheckFlag {
+	if BatchLogicInvariantCheckFlag {
 		SwapMatchingInvariants(xToY, yToX, matchResultXtoY, matchResultYtoX)
-		SwapPriceInvariants(matchResultXtoY, matchResultYtoX, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY, result)
+		SwapPriceInvariants(matchResultXtoY, matchResultYtoX, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2, result)
 	}
 
 	types.ValidateStateAndExpireOrders(xToY, currentHeight, false)
@@ -128,8 +128,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 		matchResultMap[match.SwapMsgState.MsgIndex] = match
 	}
 
-	if invariantCheckFlag {
-		SwapPriceDirection(currentPoolPrice, result)
+	if BatchLogicInvariantCheckFlag {
+		SwapPriceDirectionInvariants(currentPoolPrice, result)
 		SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX, matchResultMap, swapMsgStates, xToY, yToX)
 		SwapOrdersExecutionStateInvariants(matchResultMap, swapMsgStates, result, denomX)
 	}

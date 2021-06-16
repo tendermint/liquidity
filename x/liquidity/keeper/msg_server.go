@@ -67,7 +67,6 @@ func (k msgServer) DepositWithinBatch(goCtx context.Context, msg *types.MsgDepos
 		return nil, types.ErrCircuitBreakerEnabled
 	}
 
-	// TODO: remove redundant GetPoolBatch
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
@@ -103,7 +102,6 @@ func (k msgServer) WithdrawWithinBatch(goCtx context.Context, msg *types.MsgWith
 		return nil, types.ErrCircuitBreakerEnabled
 	}
 
-	// TODO: remove redundant GetPoolBatch
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
@@ -145,7 +143,6 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
 	}
 
-	// TODO: remove redundant GetPoolBatch
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists

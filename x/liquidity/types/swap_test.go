@@ -95,7 +95,7 @@ func TestSwapScenario(t *testing.T) {
 	matchResultYtoX, poolXDeltaYtoX, poolYDeltaYtoX := types.FindOrderMatch(types.DirectionYtoX, yToX, result.EY,
 		result.SwapPrice, ctx.BlockHeight())
 
-	xToY, yToX, XDec, YDec, poolXDelta2, poolYDelta2, decimalErrorX, decimalErrorY :=
+	xToY, yToX, XDec, YDec, poolXDelta2, poolYDelta2 :=
 		types.UpdateSwapMsgStates(X.ToDec(), Y.ToDec(), xToY, yToX, matchResultXtoY, matchResultYtoX)
 
 	require.Equal(t, 0, types.CountNotMatchedMsgs(xToY))
@@ -111,7 +111,6 @@ func TestSwapScenario(t *testing.T) {
 
 	fmt.Println(poolXDeltaYtoX, poolYDeltaYtoX)
 	fmt.Println(poolXDelta2, poolYDelta2)
-	fmt.Println(decimalErrorX, decimalErrorY)
 	fmt.Println(XDec, YDec)
 
 	// Verify swap result by creating an orderbook with remaining messages that have been matched and not transacted.

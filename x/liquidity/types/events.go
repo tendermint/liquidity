@@ -28,15 +28,16 @@ const (
 	AttributeValueDemandCoinDenom        = "demand_coin_denom"
 	AttributeValueOrderPrice             = "order_price"
 
-	AttributeValueDepositor     = "depositor"
-	AttributeValueRefundedCoins = "refunded_coins"
-	AttributeValueAcceptedCoins = "accepted_coins"
-	AttributeValueSuccess       = "success"
-	AttributeValueWithdrawer    = "withdrawer"
-	AttributeValueWithdrawCoins = "withdraw_coins"
-	AttributeValueSwapRequester = "swap_requester"
-	AttributeValueSwapTypeId    = "swap_type_id" //nolint:golint
-	AttributeValueSwapPrice     = "swap_price"
+	AttributeValueDepositor        = "depositor"
+	AttributeValueRefundedCoins    = "refunded_coins"
+	AttributeValueAcceptedCoins    = "accepted_coins"
+	AttributeValueSuccess          = "success"
+	AttributeValueWithdrawer       = "withdrawer"
+	AttributeValueWithdrawCoins    = "withdraw_coins"
+	AttributeValueWithdrawFeeCoins = "withdraw_fee_coins"
+	AttributeValueSwapRequester    = "swap_requester"
+	AttributeValueSwapTypeId       = "swap_type_id" //nolint:golint
+	AttributeValueSwapPrice        = "swap_price"
 
 	AttributeValueTransactedCoinAmount       = "transacted_coin_amount"
 	AttributeValueRemainingOfferCoinAmount   = "remaining_offer_coin_amount"
