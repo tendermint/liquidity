@@ -125,7 +125,7 @@ $ make localnet
 
 ### 1.1 Broadcast transactions using CLI command-line interface
 
-Some sample scripts are available in [scripts](https://github.com/tendermint/liquidity/tree/develop/scripts) folder, which will help you to test out the liquidity module interface.
+Sample scripts are provided in [scripts](https://github.com/tendermint/liquidity/tree/develop/scripts) folder to help you to test the liquidity module interface.
 
 ### 2. Manually set up a local testnet
 
@@ -175,9 +175,9 @@ cat tx_swap_signed.json
 liquidityd tx encode tx_swap_signed.json
 ```
 
-### 2.2 Broadcaste transactions using REST APIs
+### 2.2 Broadcast transactions using REST APIs
 
-An example of broadcasting transactions using REST API (via gRPC-gateway) can be found in this [link](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints). Note that API server should be enabled in `$HOME/.liquidityapp/config/app.toml` to test this.
+For an example of broadcasting transactions using REST API (via gRPC-gateway), see Cosmos SDK [Migrating to New REST Endpoints](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints). Testing requires that the API server is enabled in `$HOME/.liquidityapp/config/app.toml`.
 
 ```bash
 curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"Cp0BCpoBCigvdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcFdpdGhpbkJhdGNoEm4KLWNvc21vczE4cWM2ZGwwNDZ1a3V0MjN3NnF1dndmenBmeWhncDJmeHFkcXAwNhACGAEiEAoEdXVzZBIINTAwMDAwMDAqBXVhdG9tMg0KBHV1c2QSBTc1MDAwOhExOTAwMDAwMDAwMDAwMDAwMBJYClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDsouFptHWGniIBzFrsE26PcfH950qjnf4RaEsd+g2fA0SBAoCCH8YAxIEEMCaDBpAOI3k8fay9TziZbl+eNCqmPEF7tWXua3ad0ldNR6XOgZjKRBP9sQSxCtaRFnqc6Avep9C4Rjt+CHDahRNpZ8u3A==","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
@@ -344,7 +344,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 
 The API documentation for the liquidity module is available on `http://localhost:1317/swagger-liquidity/` after you successfully boostrap a testnet in your local computer.
 
-Note that `swagger` config must be `true` in `$HOME/.liquidityapp/config/app.toml`. The public Swagger API docs are also available on [Cosmos SDK Liquidity Module - REST and gRPC Gateway docs](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs).
+You must set `swagger` config to `true` in `$HOME/.liquidityapp/config/app.toml`. The public Swagger API docs are also available on [Cosmos SDK Liquidity Module - REST and gRPC Gateway docs](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs).
 
 ```bash
 # Generate `*.pb.go`, `*.pb.gw.go` files from `proto/*.proto`
@@ -356,7 +356,7 @@ $ make proto-swagger-gen
 
 ## Resources
 
-To dive into more about the liquidity module, check out the following resources.
+To learn more about the liquidity module, check out the following resources:
 
  - [Liquidity Module Spec](x/liquidity/spec)
  - [Liquidity Module Lite Paper (English)](doc/LiquidityModuleLightPaper_EN.pdf)
