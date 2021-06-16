@@ -65,8 +65,8 @@ var (
 	// meaning that the price has changed by 12.5%.
 	// This happens with small coin amounts, so there should be a threshold for coin amounts
 	// before we calculate the errorRate.
-	coinAmountThreshold = sdk.NewInt(10)
 	errorRateThreshold  = sdk.NewDecWithPrec(5, 2) // 5%
+	coinAmountThreshold = sdk.NewInt(20)           // If a decimal error occurs at a value less than 20, the error rate is over 5%.
 )
 
 func errorRate(expected, actual sdk.Dec) sdk.Dec {
@@ -100,8 +100,9 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 		panic("invariant check fails due to incorrect ratio of pool coins")
 	}
 
-	if sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).Quo(mintPoolCoin).ToDec().GT(errorRateThreshold) ||
-		sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedB).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).Quo(mintPoolCoin).ToDec().GT(errorRateThreshold) {
+	if mintPoolCoin.GTE(coinAmountThreshold) &&
+		(sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).ToDec().QuoInt(mintPoolCoin).GT(errorRateThreshold) ||
+			sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedB).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).ToDec().QuoInt(mintPoolCoin).GT(errorRateThreshold)) {
 		panic("invariant check fails due to incorrect amount of pool coins")
 	}
 }
@@ -155,8 +156,8 @@ func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, res
 	expectedBurningPoolCoinBasedB := lastPoolCoinSupply.ToDec().MulTruncate(withdrawCoinBRatio).TruncateInt()
 
 	if burnedPoolCoin.GTE(coinAmountThreshold) &&
-		(sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedA).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedA)).Quo(burnedPoolCoin).ToDec().GT(errorRateThreshold) ||
-			sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedB).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedB)).Quo(burnedPoolCoin).ToDec().GT(errorRateThreshold)) {
+		(sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedA).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedA)).ToDec().QuoInt(burnedPoolCoin).GT(errorRateThreshold) ||
+			sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedB).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedB)).ToDec().QuoInt(burnedPoolCoin).GT(errorRateThreshold)) {
 		panic("invariant check fails due to incorrect amount of burning pool coins")
 	}
 }

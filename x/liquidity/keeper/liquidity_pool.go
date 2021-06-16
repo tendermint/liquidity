@@ -448,13 +448,13 @@ func (k Keeper) ExecuteWithdrawal(ctx sdk.Context, msg types.WithdrawMsgState, b
 		withdrawCoinB := withdrawCoins[1].Amount
 		reserveCoinA := reserveCoins[0].Amount
 		reserveCoinB := reserveCoins[1].Amount
-		lastPoolTotalSupply := poolCoinTotalSupply
+		lastPoolCoinTotalSupply := poolCoinTotalSupply
 		afterPoolTotalSupply := afterPoolCoinTotalSupply
 
-		BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, lastPoolTotalSupply, withdrawFeeCoins)
+		BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, lastPoolCoinTotalSupply, withdrawFeeCoins)
 		WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
-			afterReserveCoinA, afterReserveCoinB, afterPoolTotalSupply, lastPoolTotalSupply, burnedPoolCoin)
-		WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, burnedPoolCoin, lastPoolTotalSupply, params.WithdrawFeeRate)
+			afterReserveCoinA, afterReserveCoinB, afterPoolTotalSupply, lastPoolCoinTotalSupply, burnedPoolCoin)
+		WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, burnedPoolCoin, lastPoolCoinTotalSupply, params.WithdrawFeeRate)
 		ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB)
 	}
 

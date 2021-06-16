@@ -192,6 +192,7 @@ func TestAddr(addr string, bech string) (sdk.AccAddress, error) {
 func CreateTestInput() (*LiquidityApp, sdk.Context) {
 	cdc := codec.NewLegacyAmino()
 	types.RegisterLegacyAminoCodec(cdc)
+	keeper.BatchLogicInvariantCheckFlag = true
 
 	app := Setup(false)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
