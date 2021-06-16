@@ -236,8 +236,7 @@ func SwapMatchingInvariants(xToY, yToX []*types.SwapMsgState, matchResultXtoY, m
 }
 
 // SwapPriceInvariants checks swap price invariants.
-func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2,
-	decimalErrorX, decimalErrorY sdk.Dec, result types.BatchResult) {
+func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2 sdk.Dec, result types.BatchResult) {
 	invariantCheckX := sdk.ZeroDec()
 	invariantCheckY := sdk.ZeroDec()
 
@@ -256,10 +255,6 @@ func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, p
 
 	if !invariantCheckX.IsZero() && !invariantCheckY.IsZero() {
 		panic(fmt.Errorf("invariant check fails due to invalid swap price: %s", invariantCheckX.String()))
-	}
-
-	if !poolXDelta.Add(decimalErrorX).Equal(poolXDelta2) || !poolYDelta.Add(decimalErrorY).Equal(poolYDelta2) {
-		panic(fmt.Errorf("invariant check fails due to invalid swap price: %s", poolXDelta.String()))
 	}
 
 	validitySwapPrice := types.CheckSwapPrice(matchResultXtoY, matchResultYtoX, result.SwapPrice)
@@ -324,8 +319,6 @@ func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResul
 			if sms.MsgIndex == msgAfter.SwapMsgState.MsgIndex {
 				if *(sms) != *(msgAfter.SwapMsgState) || sms != msgAfter.SwapMsgState {
 					panic("batch message not matched")
-				} else {
-					break
 				}
 			} else {
 				panic("fail msg pointer consistency")

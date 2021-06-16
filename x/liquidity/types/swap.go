@@ -544,7 +544,7 @@ func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, exe
 
 // UpdateSwapMsgStates updates SwapMsgStates using the MatchResults.
 func UpdateSwapMsgStates(x, y sdk.Dec, xToY, yToX []*SwapMsgState, matchResultXtoY, matchResultYtoX []MatchResult) (
-	[]*SwapMsgState, []*SwapMsgState, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec) {
+	[]*SwapMsgState, []*SwapMsgState, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec) {
 	sort.SliceStable(xToY, func(i, j int) bool {
 		return xToY[i].Msg.OrderPrice.GT(xToY[j].Msg.OrderPrice)
 	})
@@ -608,5 +608,5 @@ func UpdateSwapMsgStates(x, y sdk.Dec, xToY, yToX []*SwapMsgState, matchResultXt
 	x = x.Add(poolXDelta)
 	y = y.Add(poolYDelta)
 
-	return xToY, yToX, x, y, poolXDelta, poolYDelta, decimalErrorX, decimalErrorY
+	return xToY, yToX, x, y, poolXDelta, poolYDelta
 }
