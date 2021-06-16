@@ -1,4 +1,3 @@
-// nolint
 package types
 
 // Event types for the liquidity module.
@@ -11,8 +10,8 @@ const (
 	EventTypeWithdrawFromPool    = "withdraw_from_pool"
 	EventTypeSwapTransacted      = "swap_transacted"
 
-	AttributeValuePoolId         = "pool_id"
-	AttributeValuePoolTypeId     = "pool_type_id"
+	AttributeValuePoolId         = "pool_id"      //nolint:golint
+	AttributeValuePoolTypeId     = "pool_type_id" //nolint:golint
 	AttributeValuePoolName       = "pool_name"
 	AttributeValueReserveAccount = "reserve_account"
 	AttributeValuePoolCoinDenom  = "pool_coin_denom"
@@ -36,7 +35,7 @@ const (
 	AttributeValueWithdrawer    = "withdrawer"
 	AttributeValueWithdrawCoins = "withdraw_coins"
 	AttributeValueSwapRequester = "swap_requester"
-	AttributeValueSwapTypeId    = "swap_type_id"
+	AttributeValueSwapTypeId    = "swap_type_id" //nolint:golint
 	AttributeValueSwapPrice     = "swap_price"
 
 	AttributeValueTransactedCoinAmount       = "transacted_coin_amount"

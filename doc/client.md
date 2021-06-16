@@ -648,6 +648,7 @@ $ liquidityd query liquidity params
 Result:
 
 ```json
+circuit_breaker_enabled: false
 init_pool_coin_mint_amount: "1000000"
 max_order_amount_ratio: "0.100000000000000000"
 max_reserve_coin_amount: "0"

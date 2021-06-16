@@ -70,6 +70,11 @@ var (
 )
 
 func errorRate(expected, actual sdk.Dec) sdk.Dec {
+	// To prevent divide-by-zero panics, return 1.0(=100%) as the error rate
+	// when the expected value is 0.
+	if expected.IsZero() {
+		return sdk.OneDec()
+	}
 	return actual.Sub(expected).Quo(expected).Abs()
 }
 
