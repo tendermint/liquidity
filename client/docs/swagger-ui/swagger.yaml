@@ -2,9 +2,9 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.2.2
+  version: 2.3.0
 paths:
-  /tendermint/liquidity/v1beta1/params:
+  /cosmos/liquidity/v1beta1/params:
     get:
       summary: Get all parameters of the liquidity module.
       description: Returns all parameters of the liquidity module.
@@ -168,7 +168,7 @@ paths:
         description: Find out more about the params
         url: >-
           https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md
-  /tendermint/liquidity/v1beta1/pools:
+  /cosmos/liquidity/v1beta1/pools:
     get:
       summary: Get existing liquidity pools.
       description: Returns a list of all liquidity pools with pagination result.
@@ -323,7 +323,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/pool_coin_denom/{pool_coin_denom}':
+  '/cosmos/liquidity/v1beta1/pools/pool_coin_denom/{pool_coin_denom}':
     get:
       summary: Get specific liquidity pool corresponding to the pool_coin_denom.
       description: It returns the liquidity pool corresponding to the pool_coin_denom.
@@ -425,7 +425,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/reserve_acc/{reserve_acc}':
+  '/cosmos/liquidity/v1beta1/pools/reserve_acc/{reserve_acc}':
     get:
       summary: Get specific liquidity pool corresponding to the reserve account.
       description: It returns the liquidity pool corresponding to the reserve account.
@@ -527,7 +527,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/{pool_id}':
+  '/cosmos/liquidity/v1beta1/pools/{pool_id}':
     get:
       summary: Get specific liquidity pool.
       description: Returns the liquidity pool that corresponds to the pool_id.
@@ -629,7 +629,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch':
+  '/cosmos/liquidity/v1beta1/pools/{pool_id}/batch':
     get:
       summary: Get the pool's current batch.
       description: Returns the current batch of the pool that corresponds to the pool_id.
@@ -741,7 +741,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/deposits':
+  '/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/deposits':
     get:
       summary: Get all deposit messages in the pool's current batch.
       description: >-
@@ -972,7 +972,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/deposits/{msg_index}':
+  '/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/deposits/{msg_index}':
     get:
       summary: Get a specific deposit message in the pool's current batch.
       description: >-
@@ -1141,7 +1141,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/swaps':
+  '/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/swaps':
     get:
       summary: Get all swap messages in the pool's current batch.
       description: >-
@@ -1491,7 +1491,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/swaps/{msg_index}':
+  '/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/swaps/{msg_index}':
     get:
       summary: Get a specific swap message in the pool's current batch.
       description: >-
@@ -1779,7 +1779,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/withdraws':
+  '/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/withdraws':
     get:
       summary: Get all withdraw messages in the pool's current batch.
       description: >-
@@ -2006,7 +2006,7 @@ paths:
       externalDocs:
         description: Find out more about the query and error codes
         url: 'https://github.com/tendermint/liquidity/blob/develop/doc/client.md'
-  '/tendermint/liquidity/v1beta1/pools/{pool_id}/batch/withdraws/{msg_index}':
+  '/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/withdraws/{msg_index}':
     get:
       summary: Get a specific withdraw message in the pool's current batch.
       description: >-

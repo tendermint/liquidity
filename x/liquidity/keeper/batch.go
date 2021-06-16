@@ -7,9 +7,9 @@ import (
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
-// DeleteAndInitPoolBatch resets batch msg states that were previously executed
+// DeleteAndInitPoolBatches resets batch msg states that were previously executed
 // and deletes msg states that were marked to be deleted.
-func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
+func (k Keeper) DeleteAndInitPoolBatches(ctx sdk.Context) {
 	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		// Re-initialize the executed batch.
 		if poolBatch.Executed {
@@ -55,7 +55,7 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 			k.DeleteAllReadyPoolBatchWithdrawMsgStates(ctx, poolBatch)
 			k.DeleteAllReadyPoolBatchSwapMsgStates(ctx, poolBatch)
 
-			if err := k.InitNextBatch(ctx, poolBatch); err != nil {
+			if err := k.InitNextPoolBatch(ctx, poolBatch); err != nil {
 				panic(err)
 			}
 		}
@@ -63,8 +63,8 @@ func (k Keeper) DeleteAndInitPoolBatch(ctx sdk.Context) {
 	})
 }
 
-// InitNextBatch re-initializes the batch and increases the batch index.
-func (k Keeper) InitNextBatch(ctx sdk.Context, poolBatch types.PoolBatch) error {
+// InitNextPoolBatch re-initializes the batch and increases the batch index.
+func (k Keeper) InitNextPoolBatch(ctx sdk.Context, poolBatch types.PoolBatch) error {
 	if !poolBatch.Executed {
 		return types.ErrBatchNotExecuted
 	}
@@ -78,10 +78,11 @@ func (k Keeper) InitNextBatch(ctx sdk.Context, poolBatch types.PoolBatch) error 
 	return nil
 }
 
-// ExecutePoolBatch executes the accumulated msgs in the batch.
+// ExecutePoolBatches executes the accumulated msgs in the batch.
 // The order is (1)swap, (2)deposit, (3)withdraw.
-func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
+func (k Keeper) ExecutePoolBatches(ctx sdk.Context) {
 	params := k.GetParams(ctx)
+	logger := k.Logger(ctx)
 
 	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		if !poolBatch.Executed && ctx.BlockHeight()%int64(params.UnitBatchHeight) == 0 {
@@ -95,8 +96,14 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 					return false
 				}
 				executedMsgCount++
-				if err := k.DepositLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
-					if err := k.RefundDepositLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
+				if err := k.ExecuteDeposit(ctx, batchMsg, poolBatch); err != nil {
+					logger.Error("deposit failed",
+						"poolID", poolBatch.PoolId,
+						"batchIndex", poolBatch.Index,
+						"msgIndex", batchMsg.MsgIndex,
+						"depositor", batchMsg.Msg.GetDepositor(),
+						"error", err)
+					if err := k.RefundDeposit(ctx, batchMsg, poolBatch); err != nil {
 						panic(err)
 					}
 				}
@@ -108,8 +115,14 @@ func (k Keeper) ExecutePoolBatch(ctx sdk.Context) {
 					return false
 				}
 				executedMsgCount++
-				if err := k.WithdrawLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
-					if err := k.RefundWithdrawLiquidityPool(ctx, batchMsg, poolBatch); err != nil {
+				if err := k.ExecuteWithdrawal(ctx, batchMsg, poolBatch); err != nil {
+					logger.Error("withdraw failed",
+						"poolID", poolBatch.PoolId,
+						"batchIndex", poolBatch.Index,
+						"msgIndex", batchMsg.MsgIndex,
+						"withdrawer", batchMsg.Msg.GetWithdrawer(),
+						"error", err)
+					if err := k.RefundWithdrawal(ctx, batchMsg, poolBatch); err != nil {
 						panic(err)
 					}
 				}
@@ -159,8 +172,8 @@ func (k Keeper) ReleaseEscrowForMultiSend(withdrawer sdk.AccAddress, withdrawCoi
 }
 
 // In order to deal with the batch at the same time, the coins of msgs are deposited in escrow.
-func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepositWithinBatch) (types.DepositMsgState, error) {
-	if err := k.ValidateMsgDepositLiquidityPool(ctx, *msg); err != nil {
+func (k Keeper) DepositWithinBatch(ctx sdk.Context, msg *types.MsgDepositWithinBatch) (types.DepositMsgState, error) {
+	if err := k.ValidateMsgDepositWithinBatch(ctx, *msg); err != nil {
 		return types.DepositMsgState{}, err
 	}
 
@@ -191,8 +204,8 @@ func (k Keeper) DepositLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgDepos
 }
 
 // In order to deal with the batch at the same time, the coins of msgs are deposited in escrow.
-func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWithdrawWithinBatch) (types.WithdrawMsgState, error) {
-	if err := k.ValidateMsgWithdrawLiquidityPool(ctx, *msg); err != nil {
+func (k Keeper) WithdrawWithinBatch(ctx sdk.Context, msg *types.MsgWithdrawWithinBatch) (types.WithdrawMsgState, error) {
+	if err := k.ValidateMsgWithdrawWithinBatch(ctx, *msg); err != nil {
 		return types.WithdrawMsgState{}, err
 	}
 
@@ -223,7 +236,7 @@ func (k Keeper) WithdrawLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgWith
 }
 
 // In order to deal with the batch at the same time, the coins of msgs are deposited in escrow.
-func (k Keeper) SwapLiquidityPoolToBatch(ctx sdk.Context, msg *types.MsgSwapWithinBatch, orderExpirySpanHeight int64) (*types.SwapMsgState, error) {
+func (k Keeper) SwapWithinBatch(ctx sdk.Context, msg *types.MsgSwapWithinBatch, orderExpirySpanHeight int64) (*types.SwapMsgState, error) {
 	if err := k.ValidateMsgSwapWithinBatch(ctx, *msg); err != nil {
 		return nil, err
 	}

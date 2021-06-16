@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -56,7 +57,7 @@ func GenPoolCreationFee(r *rand.Rand) sdk.Coins {
 	count := simulation.RandIntBetween(r, 1, 4)
 	for i := 0; i < count; i++ {
 		randomDenom := simulation.RandStringOfLength(r, simulation.RandIntBetween(r, 4, 6))
-		denoms = append(denoms, randomDenom)
+		denoms = append(denoms, strings.ToLower(randomDenom))
 	}
 
 	sortedDenoms := types.SortDenoms(denoms)

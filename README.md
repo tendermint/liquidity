@@ -193,6 +193,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 {
   "liquidity": {
     "params": {
+      "circuit_breaker_enabled": false,
       "init_pool_coin_mint_amount": "1000000",
       "pool_creation_fee": [
         {
@@ -227,6 +228,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 {
   "liquidity": {
     "params": {
+      "circuit_breaker_enabled": false,
       "init_pool_coin_mint_amount": "1000000",
       "max_order_amount_ratio": "0.100000000000000000",
       "max_reserve_coin_amount": "0",
