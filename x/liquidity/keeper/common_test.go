@@ -10,12 +10,14 @@ import (
 
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
+	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
 // createTestInput Returns a simapp with custom LiquidityKeeper
 // to avoid messing with the hooks.
 func createTestInput() (*app.LiquidityApp, sdk.Context) {
+	keeper.BatchLogicInvariantCheckFlag = true
 	return app.CreateTestInput()
 }
 
