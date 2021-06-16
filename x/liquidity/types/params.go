@@ -61,7 +61,7 @@ var (
 	}
 	DefaultPoolTypes = []PoolType{DefaultPoolType}
 
-	MinOfferCoinAmount = sdk.NewInt(100) // TODO: move into parameters
+	MinOfferCoinAmount = sdk.NewInt(100)
 )
 
 var _ paramstypes.ParamSet = (*Params)(nil)

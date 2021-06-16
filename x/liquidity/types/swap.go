@@ -201,7 +201,6 @@ func (orderBook OrderBook) CalculateMatchStay(currentPrice sdk.Dec) (r BatchResu
 }
 
 // Calculates the batch results with the logic for each direction
-// TODO: return pointer
 func (orderBook OrderBook) CalculateMatch(direction PriceDirection, x, y sdk.Dec) (maxScenario BatchResult, found bool) {
 	currentPrice := x.Quo(y)
 	lastOrderPrice := currentPrice

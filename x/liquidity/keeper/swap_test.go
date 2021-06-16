@@ -51,7 +51,6 @@ func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 }
 
 func TestSwapExecution(t *testing.T) {
-	// TODO: to with simulation, invariants, ransim
 	for seed := int64(0); seed < 50; seed++ {
 		s := rand.NewSource(seed)
 		r := rand.New(s)
@@ -207,20 +206,6 @@ func testSwapEdgeCases(t *testing.T, r *rand.Rand, simapp *app.LiquidityApp, ctx
 
 	// end block, swap execution
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
-}
-
-func TestGetRandomOrders(t *testing.T) {
-	for seed := int64(0); seed < 100; seed++ {
-		r := rand.New(rand.NewSource(seed))
-
-		// get random X, Y amount for create pool
-		X, Y := app.GetRandPoolAmt(r, types.DefaultMinInitDepositAmount)
-		xToY, yToX := app.GetRandomSizeOrders("denomX", "denomY", X, Y, r, 50, 50)
-		_, _ = xToY, yToX // TODO: test against these
-		require.Equal(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2))
-		require.Equal(t, X.ToDec().MulInt64(2), X.MulRaw(2).ToDec())
-		require.NotEqual(t, X.ToDec().MulInt64(2).TruncateInt(), X.MulRaw(2).ToDec())
-	}
 }
 
 func TestBadSwapExecution(t *testing.T) {
