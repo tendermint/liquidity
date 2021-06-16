@@ -3,15 +3,15 @@
 
 # Liquidity Module
 
-The liquidity module serves AMM (Automated Market Makers) style decentralized liquidity providing and coin swap functions.
+The liquidity module serves Automated Market Maker (AMM)-style decentralized liquidity by providing liquidity activities and coin swap functions.
 
 The module enables users to create a liquidity pool, make deposits and withdrawals, and request coin swaps from the liquidity pool.
 
-This module will be used in the [Cosmos Hub](https://hub.cosmos.network/main/hub-overview/overview.html), and it can be used in any other [Cosmos SDK](https://github.com/cosmos/cosmos-sdk) based blockchain projects.
+This module can be used in the [Cosmos Hub](https://hub.cosmos.network/main/hub-overview/overview.html) and any other [Cosmos SDK](https://cosmos.network/)-based blockchain projects.
 
-- The Cosmos Hub AMM should have strong philosophy of inclusiveness of users from different blockchains because its prime utility is inter-blockchain communication.
-- To possess such characteristics, the liquidity module should provide most convenient ways for external users to come in and use the services provided by the Cosmos Hub.
-- The liquidity module should not anticipate specific assets, such as Atom, into the process of user-flow in a forced manner. It is repeatedly proved that unnatural anticipation of native coin at unavoidable parts of process resulting in poor user attraction.
+- The Cosmos Hub AMM applies a strong philosophy of inclusiveness for users from different blockchains with its prime utility of inter-blockchain communication.
+- To achieve heterogeneous blockchain adoption, the liquidity module provides convenient entry points for external users to come in and use the services that are provided by the Cosmos Hub.
+- The liquidity module does not anticipate specific assets, such as ATOM, into the user workflow. Data shows that unnatural anticipation of native coin at unavoidable parts of the process results in poor user attraction.
 
 ## Key features
 
@@ -19,33 +19,27 @@ This module will be used in the [Cosmos Hub](https://hub.cosmos.network/main/hub
 
 **Combination of traditional orderbook-based model and new AMM model**
 
-- Although new AMM model has multiple advantages over orderbook-based model,
-combination of both models will create more enriched utilities for wider potential users.
-- This module redefines the concept of a “swap order” in AMM as a “limit order with short lifetime”
-in an orderbook-based exchange. Then, two concepts from two different models can be
-combined as one united model so that the function can provide both ways to participate
-into the trading and liquidity providing activities.
-- Although our first version of the liquidity module will not provide limit order option, but
-the base structure of the codebase is already anticipating such feature expansion in the
-near future.
-- Advantages of combined model
-    - More freedom on how to provide liquidity : Limit orders
-    - Combination of pool liquidity and limit order liquidity provides users more enriched trading environment
+- With multiple advantages over order book-based models, the liquidity module combines a batch-based order book matching algorithm with AMM to create enriched utilities for more potential users.
+- The liquidity module redefines the concept of a “swap order” in AMM as a “limit order with a short lifetime” in an order book-based exchange. By combining these concepts from two different models as one united model, the function supports both ways to participate in trading and liquidity-providing activities.
+- Limit order options are not supported in the first version of the liquidity module, but the base structure of the codebase anticipates and supports feature expansion.
+- Advantages of the combined model
+    - More freedom on ways to provide liquidity, planned expansion for limit orders
+    - The combination of pool liquidity and limit order liquidity provide users with a more enriched trading environment
 
-For detailed Mechanism, you can find on our recent [Paper](doc/LiquidityModuleLightPaper_EN.pdf)
+For details, see the [Liquidity Module Light Paper](doc/LiquidityModuleLightPaper_EN.pdf).
 
 ## Installation
 
 ### Requirements
 
-| Requirement | Notes            |
-| ----------- | ---------------- |
-| Go version  | Go1.15 or higher |
-| Cosmos-SDK  | v0.42.5          |
+Requirement | Notes
+----------- | -----------------
+Go version  | Go1.15 or higher
+Cosmos SDK  | v0.42.4 or higher
 
-### Get Liquidity Module source code 
+### Get Liquidity Module source code
 
-```bash 
+```bash
 $ git clone https://github.com/tendermint/liquidity.git
 $ cd liquidity
 $ go mod tidy
@@ -53,21 +47,24 @@ $ go mod tidy
 
 ### Build
 
-```bash 
-# You can find the liquidityd binary inside build directory
-$ make build 
+```bash
+# The `liquidityd` binary is in the build directory.
+$ make build
 ```
 
 ### Install
-```bash 
-$ make install 
+
+```bash
+$ make install
 ```
 
 ## Usage of CLI Commands
 
+With the exception of creating the liquidity pool, all commands are implemented to execute on the batch.
+
 ### Transactions
 
-`$ liquidityd tx liquidity --help`     
+`$ liquidityd tx liquidity --help`
 
 ```bash
 Liquidity transaction subcommands
@@ -79,8 +76,8 @@ Usage:
 Available Commands:
   create-pool Create liquidity pool and deposit coins
   deposit     Deposit coins to a liquidity pool
-  swap        Swap offer coin with demand coin from the liquidity pool with the given order price
-  withdraw    Withdraw pool coin from the specified liquidity pool
+  swap        Swap offer coin with demand coin
+  withdraw    Withdraw pool coin
 ```
 
 ### Queries
@@ -112,27 +109,28 @@ Available Commands:
 ## Development
 
 ### Test
-```bash 
+
+```bash
 $ make test-all
 ```
 
-### 1. Setup local testnet using script
+### 1\. Setup local testnet using script
 
 ```bash
-# This will bootstrap a single testnet locally.
-# Note that config, data, and keys are created inside 
-# ./data/localnet folder and RPC, GRPC, REST ports are all open.
+# This script bootstraps a single local testnet.
+# Note that config, data, and keys are created in the ./data/localnet folder and
+# RPC, GRPC, and REST ports are all open.
 $ make localnet
 ```
 
-### 1.1 Broadcast transactions using CLI commands
+### 1.1 Broadcast transactions using CLI command-line interface
 
-Some sample scripts are available in [scripts](https://github.com/tendermint/liquidity/tree/develop/scripts) folder, which will help you to test out the liquidity module interface.
+Sample scripts are provided in [scripts](https://github.com/tendermint/liquidity/tree/develop/scripts) folder to help you to test the liquidity module interface.
 
-### 2. Setup local testnet manually
+### 2. Manually set up a local testnet
 
 ```bash
-# Build 
+# Build
 make install
 
 # Initialize and add keys
@@ -158,10 +156,10 @@ liquidityd start
 # An example of creating liquidity pool 1
 liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -y
 
-# An example of creating liquidity pool 2 
+# An example of creating liquidity pool 2
 liquidityd tx liquidity create-pool 1 10000000stake,10000000uusd --from validator --keyring-backend test --chain-id testing -y
 
-# An example of requesting swap 
+# An example of requesting swap
 liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y
 
 # An example of generating unsigned tx
@@ -176,9 +174,10 @@ cat tx_swap_signed.json
 # Encode the signed tx
 liquidityd tx encode tx_swap_signed.json
 ```
-### 2.2 Broadcaste transactions using REST APIs
 
-An example of broadcasting transactions using REST API (via gRPC-gateway) can be found in this [link](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints). Note that API server should be enabled in `$HOME/.liquidityapp/config/app.toml` to test this.
+### 2.2 Broadcast transactions using REST APIs
+
+For an example of broadcasting transactions using REST API (via gRPC-gateway), see Cosmos SDK [Migrating to New REST Endpoints](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints). Testing requires that the API server is enabled in `$HOME/.liquidityapp/config/app.toml`.
 
 ```bash
 curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"Cp0BCpoBCigvdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcFdpdGhpbkJhdGNoEm4KLWNvc21vczE4cWM2ZGwwNDZ1a3V0MjN3NnF1dndmenBmeWhncDJmeHFkcXAwNhACGAEiEAoEdXVzZBIINTAwMDAwMDAqBXVhdG9tMg0KBHV1c2QSBTc1MDAwOhExOTAwMDAwMDAwMDAwMDAwMBJYClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDsouFptHWGniIBzFrsE26PcfH950qjnf4RaEsd+g2fA0SBAoCCH8YAxIEEMCaDBpAOI3k8fay9TziZbl+eNCqmPEF7tWXua3ad0ldNR6XOgZjKRBP9sQSxCtaRFnqc6Avep9C4Rjt+CHDahRNpZ8u3A==","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
@@ -188,7 +187,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 
 `$ liquidityd export`
 
-### export empty state case
+### Export empty state case
 
 ```json
 {
@@ -223,7 +222,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 }
 ```
 
-### export when some states exist
+### Export when some states exist
 
 ```json
 {
@@ -343,8 +342,9 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 
 ### Protobuf and Swagger
 
-The API documentation for the liquidity module can be found on `http://localhost:1317/swagger-liquidity/` when you successfully boostrap your testnet in your local computer. Note that `swagger` config should be `true` in `$HOME/.liquidityapp/config/app.toml`. 
-You can also reference our [public swagger API documentation](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs). 
+The API documentation for the liquidity module is available on `http://localhost:1317/swagger-liquidity/` after you successfully boostrap a testnet in your local computer.
+
+You must set `swagger` config to `true` in `$HOME/.liquidityapp/config/app.toml`. The public Swagger API docs are also available on [Cosmos SDK Liquidity Module - REST and gRPC Gateway docs](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs).
 
 ```bash
 # Generate `*.pb.go`, `*.pb.gw.go` files from `proto/*.proto`
@@ -353,10 +353,10 @@ $ make proto-gen
 # Generate `swagger.yaml` from `proto/*.proto`
 $ make proto-swagger-gen
 ```
- 
+
 ## Resources
 
-To dive into more about the liquidity module, check out the following resources.
+To learn more about the liquidity module, check out the following resources:
 
  - [Liquidity Module Spec](x/liquidity/spec)
  - [Liquidity Module Lite Paper (English)](doc/LiquidityModuleLightPaper_EN.pdf)
