@@ -4,9 +4,15 @@ We welcome contributions from everyone. The `develop` contains the development v
 
 Please follow standard github best practices: 
 
-- fork the repo
-- branch from the tip of develop
-- make some commits
-- submit a pull request to develop 
+- Fork the repository
+- Make sure your `branch` is from the tip of `develop`
+- Make some commits
+- Submit a pull request to `develop`
 
-See the open issues for things we need help with!
+Rule of thumb:
+
+- Run tests and make sure there is no issue
+- Review code coverage report
+- Review if there is any linting issue
+
+See the [open issues](https://github.com/tendermint/liquidity/issues) for things we need help with!
