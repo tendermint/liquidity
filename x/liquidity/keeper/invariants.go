@@ -56,7 +56,7 @@ func LiquidityPoolsEscrowAmountInvariant(k Keeper) sdk.Invariant {
 // We should approach adding these invariant checks inside actual logics of deposit / withdraw / swap.
 
 var (
-	batchLogicInvariantCheckFlag = true //
+	batchLogicInvariantCheckFlag = false // It is only used at the development stage, and is disabled at the product level.
 	// For coin amounts less than coinAmountThreshold, a high errorRate does not mean
 	// that the calculation logic has errors.
 	// For example, if there were two X coins and three Y coins in the pool, and someone deposits
