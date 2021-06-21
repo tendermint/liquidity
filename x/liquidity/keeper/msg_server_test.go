@@ -52,7 +52,7 @@ func TestMsgCreatePool(t *testing.T) {
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
-	require.Error(t, err, types.ErrPoolAlreadyExists)
+	require.ErrorIs(t, err, types.ErrPoolAlreadyExists)
 }
 
 func TestMsgDepositWithinBatch(t *testing.T) {
@@ -206,7 +206,7 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
-	require.Error(t, err, types.ErrPoolAlreadyExists)
+	require.ErrorIs(t, err, types.ErrPoolAlreadyExists)
 
 	metaData := simapp.LiquidityKeeper.GetPoolMetaData(ctx, pools[0])
 	require.Equal(t, pools[0].Id, metaData.PoolId)

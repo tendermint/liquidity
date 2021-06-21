@@ -37,8 +37,7 @@ func TestValidateGenesis(t *testing.T) {
 			genState := types.DefaultGenesisState()
 			tc.configure(genState)
 			err := types.ValidateGenesis(*genState)
-			require.Error(t, err)
-			require.Equal(t, tc.errString, err.Error())
+			require.EqualError(t, err, tc.errString)
 		})
 	}
 }
@@ -144,7 +143,7 @@ func TestPoolRecord_Validate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			err := tc.poolRecord.Validate()
 			if tc.shouldFail {
-				require.Error(t, err)
+				require.ErrorIs(t, err, types.ErrBadBatchMsgIndex)
 			} else {
 				require.NoError(t, err)
 			}

@@ -57,7 +57,7 @@ func TestCreatePool(t *testing.T) {
 
 	invalidMsg := types.NewMsgCreatePool(addrs[0], 2, depositBalance)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, invalidMsg)
-	require.Error(t, err, types.ErrPoolTypeNotExists)
+	require.ErrorIs(t, err, types.ErrPoolTypeNotExists)
 
 	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
 	require.Equal(t, 1, len(pools))
@@ -71,7 +71,7 @@ func TestCreatePool(t *testing.T) {
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
-	require.Error(t, err, types.ErrPoolAlreadyExists)
+	require.ErrorIs(t, err, types.ErrPoolAlreadyExists)
 }
 
 func TestPoolCreationFee(t *testing.T) {
@@ -401,7 +401,7 @@ func TestReinitializePool(t *testing.T) {
 	offerCoin := sdk.NewCoin(denomA, withdrawerDenomABalance.Amount.QuoRaw(2))
 	swapMsg := types.NewMsgSwapWithinBatch(addrs[0], pool.Id, types.DefaultSwapTypeID, offerCoin, denomB, sdk.MustNewDecFromStr("0.1"), params.SwapFeeRate)
 	_, err = simapp.LiquidityKeeper.SwapWithinBatch(ctx, swapMsg, 0)
-	require.Error(t, err, types.ErrDepletedPool)
+	require.ErrorIs(t, err, types.ErrDepletedPool)
 
 	depositMsg := types.NewMsgDepositWithinBatch(addrs[0], pool.Id, deposit)
 	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, depositMsg)
@@ -544,7 +544,7 @@ func TestGetLiquidityPoolMetadata(t *testing.T) {
 	require.Equal(t, poolCoin, creatorBalance.Amount)
 
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
-	require.Error(t, err, types.ErrPoolAlreadyExists)
+	require.ErrorIs(t, err, types.ErrPoolAlreadyExists)
 
 	metaData := simapp.LiquidityKeeper.GetPoolMetaData(ctx, pools[0])
 	require.Equal(t, pools[0].Id, metaData.PoolId)
