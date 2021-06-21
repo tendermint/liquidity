@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/require"
 
@@ -35,7 +36,7 @@ func TestBadDeposit(t *testing.T) {
 
 	// deposit with empty message
 	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, &types.MsgDepositWithinBatch{})
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrPoolNotExists)
 
 	// deposit coins more than it has
 	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, &types.MsgDepositWithinBatch{
@@ -43,7 +44,7 @@ func TestBadDeposit(t *testing.T) {
 		PoolId:           pool.Id,
 		DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.OneInt()), sdk.NewCoin(DenomY, sdk.OneInt())),
 	})
-	require.Error(t, err)
+	require.ErrorIs(t, err, sdkerrors.ErrInsufficientFunds)
 
 	// forcefully delete current pool batch
 	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
@@ -74,7 +75,7 @@ func TestBadWithdraw(t *testing.T) {
 
 	// withdraw with empty message
 	_, err = simapp.LiquidityKeeper.WithdrawWithinBatch(ctx, &types.MsgWithdrawWithinBatch{})
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrPoolNotExists)
 
 	balance := simapp.BankKeeper.GetBalance(ctx, depositorAddr, pool.PoolCoinDenom)
 
@@ -86,7 +87,7 @@ func TestBadWithdraw(t *testing.T) {
 		PoolId:            pool.Id,
 		PoolCoin:          balance.Add(sdk.NewCoin(pool.PoolCoinDenom, sdk.OneInt())),
 	})
-	require.Error(t, err)
+	require.ErrorIs(t, err, sdkerrors.ErrInsufficientFunds)
 
 	// forcefully delete current pool batch
 	batch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, pool.Id)
@@ -117,7 +118,7 @@ func TestBadSwap(t *testing.T) {
 
 	// swap with empty message
 	_, err = simapp.LiquidityKeeper.SwapWithinBatch(ctx, &types.MsgSwapWithinBatch{}, 0)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrPoolNotExists)
 
 	orderPrice := sdk.OneDec()
 
@@ -132,7 +133,7 @@ func TestBadSwap(t *testing.T) {
 		OfferCoinFee:         types.GetOfferCoinFee(offerCoin, params.SwapFeeRate),
 		OrderPrice:           orderPrice,
 	}, 0)
-	require.Error(t, err)
+	require.ErrorIs(t, err, sdkerrors.ErrInsufficientFunds)
 
 	// when swap fails, user's balance should never change
 	require.NoError(t, simapp.BankKeeper.SetBalance(ctx, depositorAddr, offerCoin))
@@ -145,7 +146,7 @@ func TestBadSwap(t *testing.T) {
 		OfferCoinFee:         types.GetOfferCoinFee(offerCoin, params.SwapFeeRate),
 		OrderPrice:           orderPrice,
 	}, 0)
-	require.Error(t, err)
+	require.ErrorIs(t, err, sdkerrors.ErrInsufficientFunds)
 	balance := simapp.BankKeeper.GetBalance(ctx, depositorAddr, DenomX)
 	require.Equal(t, offerCoin, balance)
 
@@ -1041,7 +1042,7 @@ func TestInitNextBatch(t *testing.T) {
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
 	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.Index)
 	err := simapp.LiquidityKeeper.InitNextPoolBatch(ctx, batch)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrBatchNotExecuted)
 
 	batch.Executed = true
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)

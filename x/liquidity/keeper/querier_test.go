@@ -78,8 +78,9 @@ func TestNewQuerier(t *testing.T) {
 	require.Nil(t, cdc.UnmarshalJSON(bz, &pool))
 
 	bz, err = querier(ctx, []string{"fail"}, queryFailCase)
-	require.Error(t, err)
-	require.Error(t, cdc.UnmarshalJSON(bz, &pool))
+	require.EqualError(t, err, "unknown query path of liquidity module: fail: unknown request")
+	err = cdc.UnmarshalJSON(bz, &pool)
+	require.EqualError(t, err, "UnmarshalJSON cannot decode empty bytes")
 }
 
 func TestQueries(t *testing.T) {
@@ -118,7 +119,7 @@ func TestQueries(t *testing.T) {
 	require.NotNil(t, poolRes.ReserveAccountAddress)
 
 	poolResEmpty, err := getQueriedLiquidityPool(t, ctx, cdc, querier, uint64(3))
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrPoolNotExists)
 	require.Equal(t, uint64(0), poolResEmpty.Id)
 
 	poolsRes, err := getQueriedLiquidityPools(t, ctx, cdc, querier)

@@ -159,17 +159,17 @@ func TestSwapScenario(t *testing.T) {
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
 	genesisNew = simapp.LiquidityKeeper.ExportGenesis(ctx)
 	err = types.ValidateGenesis(*genesisNew)
-	require.Error(t, err, types.ErrBadBatchMsgIndex)
+	require.ErrorIs(t, err, types.ErrBadBatchMsgIndex)
 	batch.WithdrawMsgIndex = 0
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
 	genesisNew = simapp.LiquidityKeeper.ExportGenesis(ctx)
 	err = types.ValidateGenesis(*genesisNew)
-	require.Error(t, err, types.ErrBadBatchMsgIndex)
+	require.ErrorIs(t, err, types.ErrBadBatchMsgIndex)
 	batch.SwapMsgIndex = 20
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
 	genesisNew = simapp.LiquidityKeeper.ExportGenesis(ctx)
 	err = types.ValidateGenesis(*genesisNew)
-	require.Error(t, err, types.ErrBadBatchMsgIndex)
+	require.ErrorIs(t, err, types.ErrBadBatchMsgIndex)
 }
 
 func TestMaxOrderRatio(t *testing.T) {

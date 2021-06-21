@@ -227,8 +227,7 @@ func TestParams_Validate(t *testing.T) {
 			params := types.DefaultParams()
 			tc.configure(&params)
 			err := params.Validate()
-			require.Error(t, err)
-			require.Equal(t, tc.errString, err.Error())
+			require.EqualError(t, err, tc.errString)
 			var err2 error
 			for _, p := range params.ParamSetPairs() {
 				err := p.ValidatorFn(reflect.ValueOf(p.Value).Elem().Interface())
@@ -237,8 +236,7 @@ func TestParams_Validate(t *testing.T) {
 					break
 				}
 			}
-			require.Error(t, err2)
-			require.Equal(t, tc.errString, err2.Error())
+			require.EqualError(t, err2, tc.errString)
 		})
 	}
 }

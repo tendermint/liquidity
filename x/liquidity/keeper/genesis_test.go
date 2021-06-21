@@ -42,13 +42,16 @@ func TestGenesisState(t *testing.T) {
 	paramsDefault := simapp.LiquidityKeeper.GetParams(ctx)
 	genesis := types.DefaultGenesisState()
 
-	params.PoolCreationFee = sdk.Coins{sdk.Coin{Denom: "invalid denom---", Amount: sdk.NewInt(0)}}
-	require.Error(t, params.Validate())
+	invalidDenom := "invalid denom---"
+	invalidDenomErrMsg := fmt.Sprintf("invalid denom: %s", invalidDenom)
+	params.PoolCreationFee = sdk.Coins{sdk.Coin{Denom: invalidDenom, Amount: sdk.NewInt(0)}}
+	require.EqualError(t, params.Validate(), invalidDenomErrMsg)
 
 	params = simapp.LiquidityKeeper.GetParams(ctx)
 	params.SwapFeeRate = sdk.NewDec(-1)
+	negativeSwapFeeErrMsg := fmt.Sprintf("swap fee rate must not be negative: %s", params.SwapFeeRate)
 	genesisState := types.NewGenesisState(params, genesis.PoolRecords)
-	require.Error(t, types.ValidateGenesis(*genesisState))
+	require.EqualError(t, types.ValidateGenesis(*genesisState), negativeSwapFeeErrMsg)
 
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
@@ -92,7 +95,7 @@ func TestGenesisState(t *testing.T) {
 	require.Equal(t, 1, len(newGenesisBrokenPool.PoolRecords))
 
 	err := simapp.LiquidityKeeper.ValidatePoolRecord(ctx, newGenesisBrokenPool.PoolRecords[0])
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrPoolTypeNotExists)
 
 	// not initialized genState of other module (auth, bank, ... ) only liquidity module
 	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)

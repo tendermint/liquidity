@@ -343,7 +343,7 @@ func TestSwapWithDepletedPool(t *testing.T) {
 		ctx,
 		types.NewMsgSwapWithinBatch(addr, pool.Id, types.DefaultSwapTypeID, offerCoin, DenomY, orderPrice, params.SwapFeeRate),
 		0)
-	require.Error(t, err)
+	require.ErrorIs(t, err, types.ErrDepletedPool)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 }
 
