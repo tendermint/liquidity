@@ -21,18 +21,19 @@ func TestParams(t *testing.T) {
 
 	paramsStr := `pool_types:
 - id: 1
-  name: DefaultPoolType
+  name: StandardLiquidityPool
   min_reserve_coin_num: 2
   max_reserve_coin_num: 2
-  description: ""
+  description: Standard liquidity pool with pool price function X/Y, ESPM constraint,
+    and two kinds of reserve coins
 min_init_deposit_amount: "1000000"
 init_pool_coin_mint_amount: "1000000"
 max_reserve_coin_amount: "0"
 pool_creation_fee:
 - denom: stake
-  amount: "100000000"
+  amount: "40000000"
 swap_fee_rate: "0.003000000000000000"
-withdraw_fee_rate: "0.003000000000000000"
+withdraw_fee_rate: "0.000000000000000000"
 max_order_amount_ratio: "0.100000000000000000"
 unit_batch_height: 1
 circuit_breaker_enabled: false

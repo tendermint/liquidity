@@ -50,14 +50,15 @@ var (
 	DefaultInitPoolCoinMintAmount = sdk.NewInt(1000000)
 	DefaultMaxReserveCoinAmount   = sdk.ZeroInt()
 	DefaultSwapFeeRate            = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
-	DefaultWithdrawFeeRate        = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
+	DefaultWithdrawFeeRate        = sdk.ZeroDec()
 	DefaultMaxOrderAmountRatio    = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
-	DefaultPoolCreationFee        = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000)))
+	DefaultPoolCreationFee        = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(40000000)))
 	DefaultPoolType               = PoolType{
 		Id:                1,
-		Name:              "DefaultPoolType",
+		Name:              "StandardLiquidityPool",
 		MinReserveCoinNum: MinReserveCoinNum,
 		MaxReserveCoinNum: MaxReserveCoinNum,
+		Description:       "Standard liquidity pool with pool price function X/Y, ESPM constraint, and two kinds of reserve coins",
 	}
 	DefaultPoolTypes = []PoolType{DefaultPoolType}
 
