@@ -654,17 +654,18 @@ max_order_amount_ratio: "0.100000000000000000"
 max_reserve_coin_amount: "0"
 min_init_deposit_amount: "1000000"
 pool_creation_fee:
-- amount: "100000000"
+- amount: "40000000"
   denom: stake
 pool_types:
-- description: ""
+- description: Standard liquidity pool with pool price function X/Y, ESPM constraint,
+    and two kinds of reserve coins
   id: 1
   max_reserve_coin_num: 2
   min_reserve_coin_num: 2
-  name: DefaultPoolType
+  name: StandardLiquidityPool
 swap_fee_rate: "0.003000000000000000"
 unit_batch_height: 1
-withdraw_fee_rate: "0.003000000000000000"
+withdraw_fee_rate: "0.000000000000000000"
 ```
 
 ## Pool
