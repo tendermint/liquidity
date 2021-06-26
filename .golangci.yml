@@ -54,8 +54,7 @@ issues:
     - text: "ST1016:"
       linters:
         - stylecheck
-    - path: "legacy"
-      text: "SA1019:"
+    - text: "SA1019: codec.LegacyAmino is deprecated"
       linters:
         - staticcheck
     - text: "ifElseChain:"
