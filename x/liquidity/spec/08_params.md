@@ -15,7 +15,7 @@ SwapFeeRate            | string (sdk.Dec)      | "0.003000000000000000"
 WithdrawFeeRate        | string (sdk.Dec)      | "0.000000000000000000"
 MaxOrderAmountRatio    | string (sdk.Dec)      | "0.100000000000000000"
 UnitBatchHeight        | uint32                | 1
-CircuitBreakerEnabled  | CircuitBreakerEnabled | false
+CircuitBreakerEnabled  | bool                  | false
 
 ## PoolTypes
 
