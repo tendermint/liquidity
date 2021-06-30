@@ -362,6 +362,7 @@ To learn more about the liquidity module, check out the following resources:
  - [Liquidity Module Lite Paper (English)](doc/LiquidityModuleLightPaper_EN.pdf)
  - [Liquidity Module Lite Paper (Korean)](doc/LiquidityModuleLightPaper_KO.pdf)
  - [Liquidity Module Lite Paper (Chinese)](doc/LiquidityModuleLightPaper_ZH.pdf)
+ - [Liquidity Module Security Audit Report of Least Authority](doc/Least_Authority_Liquidity_Module_Security_Audit_Report.pdf)
  - [Proposal and milestone](https://github.com/b-harvest/Liquidity-Module-For-the-Hub)
  - [Swagger HTTP API doc](https://app.swaggerhub.com/apis-docs/bharvest/cosmos-sdk_liquidity_module_rest_and_g_rpc_gateway_docs)
  - [godoc](https://pkg.go.dev/github.com/tendermint/liquidity)
