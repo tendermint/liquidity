@@ -13,7 +13,7 @@ import (
 
 // Keeper of the liquidity store
 type Keeper struct {
-	cdc           codec.Marshaler
+	cdc           codec.BinaryCodec
 	storeKey      sdk.StoreKey
 	bankKeeper    types.BankKeeper
 	accountKeeper types.AccountKeeper
@@ -25,7 +25,7 @@ type Keeper struct {
 // - creating new ModuleAccounts for each pool ReserveAccount
 // - sending to and from ModuleAccounts
 // - minting, burning PoolCoins
-func NewKeeper(cdc codec.Marshaler, key sdk.StoreKey, paramSpace paramstypes.Subspace, bankKeeper types.BankKeeper, accountKeeper types.AccountKeeper, distrKeeper types.DistributionKeeper) Keeper {
+func NewKeeper(cdc codec.BinaryCodec, key sdk.StoreKey, paramSpace paramstypes.Subspace, bankKeeper types.BankKeeper, accountKeeper types.AccountKeeper, distrKeeper types.DistributionKeeper) Keeper {
 	// ensure liquidity module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
