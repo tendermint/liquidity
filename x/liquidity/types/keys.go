@@ -46,6 +46,7 @@ func GetPoolKey(poolID uint64) []byte {
 
 // GetPoolByReserveAccIndexKey returns kv indexing key of the pool indexed by reserve account
 func GetPoolByReserveAccIndexKey(reserveAcc sdk.AccAddress) []byte {
+	// TODO: addr length, add migration codes
 	return append(PoolByReserveAccIndexKeyPrefix, reserveAcc.Bytes()...)
 }
 

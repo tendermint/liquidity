@@ -852,8 +852,7 @@ func TestDepositWithCoinsSent(t *testing.T) {
 
 	// Add more coins to deposit.
 	depositCoins := sdk.NewCoins(sdk.NewInt64Coin(DenomX, 3000000), sdk.NewInt64Coin(DenomY, 3000000))
-	err = simapp.BankKeeper.AddCoins(ctx, addr, depositCoins)
-	require.NoError(t, err)
+	app.SaveAccount(simapp, ctx, addr, depositCoins)
 
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, types.NewMsgDepositWithinBatch(addr, pool.Id, depositCoins))
