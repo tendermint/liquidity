@@ -12,7 +12,6 @@ const (
 )
 
 var (
-	//PoolKeyPrefix                  = []byte{0x11}
 	PoolByReserveAccIndexKeyPrefix = []byte{0x12}
 )
 
