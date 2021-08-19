@@ -116,7 +116,6 @@ func (k Keeper) GetPoolByReserveAccIndex(ctx sdk.Context, reserveAcc sdk.AccAddr
 func (k Keeper) SetPoolByReserveAccIndex(ctx sdk.Context, pool types.Pool) {
 	store := ctx.KVStore(k.storeKey)
 	b := k.cdc.MustMarshal(&gogotypes.UInt64Value{Value: pool.Id})
-	// TODO: addr length, add migration codes
 	store.Set(types.GetPoolByReserveAccIndexKey(pool.GetReserveAccount()), b)
 }
 

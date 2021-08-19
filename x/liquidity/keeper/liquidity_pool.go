@@ -49,7 +49,7 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 	}
 
 	poolName := types.PoolName(reserveCoinDenoms, msg.PoolTypeId)
-	reserveAcc := types.GetPoolReserveAcc(poolName)
+	reserveAcc := types.GetPoolReserveAcc(poolName, false)
 	_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
 	if found {
 		return types.ErrPoolAlreadyExists
@@ -104,7 +104,7 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 		//Id: will set on SetPoolAtomic
 		TypeId:                msg.PoolTypeId,
 		ReserveCoinDenoms:     reserveCoinDenoms,
-		ReserveAccountAddress: types.GetPoolReserveAcc(poolName).String(),
+		ReserveAccountAddress: types.GetPoolReserveAcc(poolName, false).String(),
 		PoolCoinDenom:         types.GetPoolCoinDenom(poolName),
 	}
 
@@ -924,7 +924,7 @@ func (k Keeper) ValidatePoolRecord(ctx sdk.Context, record types.PoolRecord) err
 
 // IsPoolCoinDenom returns true if the denom is a valid pool coin denom.
 func (k Keeper) IsPoolCoinDenom(ctx sdk.Context, denom string) bool {
-	reserveAcc, err := types.GetReserveAcc(denom)
+	reserveAcc, err := types.GetReserveAcc(denom, false)
 	if err != nil {
 		return false
 	}

@@ -2,6 +2,7 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
 )
 
 const (
@@ -46,8 +47,7 @@ func GetPoolKey(poolID uint64) []byte {
 
 // GetPoolByReserveAccIndexKey returns kv indexing key of the pool indexed by reserve account
 func GetPoolByReserveAccIndexKey(reserveAcc sdk.AccAddress) []byte {
-	// TODO: addr length, add migration codes
-	return append(PoolByReserveAccIndexKeyPrefix, reserveAcc.Bytes()...)
+	return append(PoolByReserveAccIndexKeyPrefix, address.MustLengthPrefix(reserveAcc.Bytes())...)
 }
 
 // GetPoolBatchIndexKey returns kv indexing key of the latest index value of the pool batch

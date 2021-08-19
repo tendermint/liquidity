@@ -23,7 +23,7 @@ The parameters of the Pool state are:
 
 - Pool: `0x11 | Id -> ProtocolBuffer(Pool)`
 
-- PoolByReserveAccIndex: `0x12 | ReserveAcc -> Id`
+- PoolByReserveAccIndex: `0x12 | ReserveAccLen (1 byte) | ReserveAcc -> ProtocolBuffer(uint64)`
 
 - GlobalLiquidityPoolIdKey: `[]byte("globalLiquidityPoolId")`
 

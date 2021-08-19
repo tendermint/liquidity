@@ -39,7 +39,7 @@ func (pool Pool) Validate() error {
 	if pool.ReserveAccountAddress == "" {
 		return ErrEmptyReserveAccountAddress
 	}
-	if pool.ReserveAccountAddress != GetPoolReserveAcc(pool.Name()).String() {
+	if pool.ReserveAccountAddress != GetPoolReserveAcc(pool.Name(), false).String() {
 		return ErrBadReserveAccountAddress
 	}
 	if pool.PoolCoinDenom == "" {
