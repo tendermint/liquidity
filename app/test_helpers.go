@@ -155,25 +155,18 @@ func SaveAccount(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCo
 	acc := app.AccountKeeper.NewAccountWithAddress(ctx, addr)
 	app.AccountKeeper.SetAccount(ctx, acc)
 	if initCoins.IsAllPositive() {
-		err := AddCoins(app, ctx, addr, initCoins)
+		err := FundAccount(app, ctx, addr, initCoins)
 		if err != nil {
 			panic(err)
 		}
 	}
 }
 
-func AddCoins(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, amounts sdk.Coins) error {
-	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, amounts); err != nil {
-		return err
-	}
-	return app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, amounts)
-}
-
 func SaveAccountWithFee(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, initCoins sdk.Coins, offerCoin sdk.Coin) {
 	SaveAccount(app, ctx, addr, initCoins)
 	params := app.LiquidityKeeper.GetParams(ctx)
 	offerCoinFee := types.GetOfferCoinFee(offerCoin, params.SwapFeeRate)
-	err := AddCoins(app, ctx, addr, sdk.NewCoins(offerCoinFee))
+	err := FundAccount(app, ctx, addr, sdk.NewCoins(offerCoinFee))
 	if err != nil {
 		panic(err)
 	}
