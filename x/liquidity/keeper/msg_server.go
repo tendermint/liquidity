@@ -138,9 +138,8 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 		return nil, types.ErrCircuitBreakerEnabled
 	}
 
-	params := k.GetParams(ctx)
-	if msg.OfferCoinFee.IsZero() {
-		msg.OfferCoinFee = types.GetOfferCoinFee(msg.OfferCoin, params.SwapFeeRate)
+	if err := k.ValidateMsgSwapWithinBatch(ctx, *msg); err != nil {
+		return nil, err
 	}
 
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
