@@ -115,7 +115,9 @@ func AddRandomTestAddr(app *LiquidityApp, ctx sdk.Context, initCoins sdk.Coins) 
 func AddTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, initCoins sdk.Coins) []sdk.AccAddress {
 	testAddrs := createIncrementalAccounts(accNum)
 	for _, addr := range testAddrs {
-		FundAccount(app, ctx, addr, initCoins)
+		if err := FundAccount(app, ctx, addr, initCoins); err != nil {
+			panic(err)
+		}
 	}
 	return testAddrs
 }
@@ -140,22 +142,12 @@ func addTestAddrs(app *LiquidityApp, ctx sdk.Context, accNum int, accAmt sdk.Int
 	initCoins := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt))
 
 	for _, addr := range testAddrs {
-		initAccountWithCoins(app, ctx, addr, initCoins)
+		if err := FundAccount(app, ctx, addr, initCoins); err != nil {
+			panic(err)
+		}
 	}
 
 	return testAddrs
-}
-
-func initAccountWithCoins(app *LiquidityApp, ctx sdk.Context, addr sdk.AccAddress, coins sdk.Coins) {
-	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
-	if err != nil {
-		panic(err)
-	}
-
-	err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, coins)
-	if err != nil {
-		panic(err)
-	}
 }
 
 // SaveAccount saves the provided account into the simapp with balance based on initCoins.
