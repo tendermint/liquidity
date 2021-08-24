@@ -2,7 +2,7 @@ swagger: '2.0'
 info:
   title: Cosmos SDK Liquidity Module - REST and gRPC Gateway docs
   description: 'A REST interface for state queries, transactions'
-  version: 2.3.0
+  version: 2.3.1
 paths:
   /cosmos/liquidity/v1beta1/params:
     get:
@@ -1345,8 +1345,8 @@ paths:
                         offering
 
                         and `offer_coin_fee` must be half of offer coin amount *
-                        current `params.swap_fee_rate` for reservation to pay
-                        fees.
+                        current `params.swap_fee_rate` and ceil for reservation
+                        to pay fees.
 
                         This request is stacked in the batch of the liquidity
                         pool, is not processed 
@@ -1693,8 +1693,8 @@ paths:
                       offering
 
                       and `offer_coin_fee` must be half of offer coin amount *
-                      current `params.swap_fee_rate` for reservation to pay
-                      fees.
+                      current `params.swap_fee_rate` and ceil for reservation to
+                      pay fees.
 
                       This request is stacked in the batch of the liquidity
                       pool, is not processed 
@@ -2502,7 +2502,7 @@ definitions:
       `demand_coin_denom` with the coin and the price you're offering
 
       and `offer_coin_fee` must be half of offer coin amount * current
-      `params.swap_fee_rate` for reservation to pay fees.
+      `params.swap_fee_rate` and ceil for reservation to pay fees.
 
       This request is stacked in the batch of the liquidity pool, is not
       processed 
@@ -3455,7 +3455,7 @@ definitions:
               `demand_coin_denom` with the coin and the price you're offering
 
               and `offer_coin_fee` must be half of offer coin amount * current
-              `params.swap_fee_rate` for reservation to pay fees.
+              `params.swap_fee_rate` and ceil for reservation to pay fees.
 
               This request is stacked in the batch of the liquidity pool, is not
               processed 
@@ -3665,7 +3665,7 @@ definitions:
                 `demand_coin_denom` with the coin and the price you're offering
 
                 and `offer_coin_fee` must be half of offer coin amount * current
-                `params.swap_fee_rate` for reservation to pay fees.
+                `params.swap_fee_rate` and ceil for reservation to pay fees.
 
                 This request is stacked in the batch of the liquidity pool, is
                 not processed 
@@ -4086,7 +4086,7 @@ definitions:
           `demand_coin_denom` with the coin and the price you're offering
 
           and `offer_coin_fee` must be half of offer coin amount * current
-          `params.swap_fee_rate` for reservation to pay fees.
+          `params.swap_fee_rate` and ceil for reservation to pay fees.
 
           This request is stacked in the batch of the liquidity pool, is not
           processed 
