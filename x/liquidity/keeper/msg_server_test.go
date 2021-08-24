@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
@@ -305,6 +306,20 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10001)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(16)),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("999989983denomX,1000009984denomY"),
+		},
+		{
+			"",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
 				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(100)),
 				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(1)),
 				DemandCoinDenom:      DenomY,
@@ -400,23 +415,18 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 
 	for _, tc := range cases {
 		cacheCtx, _ := ctx.CacheContext()
+		cacheCtx = cacheCtx.WithBlockHeight(1)
 		params.SwapFeeRate = tc.swapFeeRate
 		simapp.LiquidityKeeper.SetParams(cacheCtx, params)
 		_, err = simapp.LiquidityKeeper.SwapWithinBatch(cacheCtx, tc.msg, types.CancelOrderLifeSpan)
-
 		if tc.expectedErr == "" {
 			require.NoError(t, err)
-			poolBatch, found := simapp.LiquidityKeeper.GetPoolBatch(cacheCtx, tc.msg.PoolId)
-			require.True(t, found)
-			msgs := simapp.LiquidityKeeper.GetAllPoolBatchSwapMsgStates(cacheCtx, poolBatch)
-			require.Equal(t, 1, len(msgs))
-
-			executedCnt, err := simapp.LiquidityKeeper.SwapExecution(cacheCtx, poolBatch)
-			require.NoError(t, err)
-			require.Equal(t, uint64(1), executedCnt)
+			liquidity.EndBlocker(cacheCtx, simapp.LiquidityKeeper)
 		} else {
 			require.EqualError(t, err, tc.expectedErr)
 		}
+		moduleAccAddress := simapp.AccountKeeper.GetModuleAddress(types.ModuleName)
+		require.True(t, simapp.BankKeeper.GetAllBalances(cacheCtx, moduleAccAddress).IsZero())
 		require.Equal(t, tc.afterBalance, simapp.BankKeeper.GetAllBalances(cacheCtx, user))
 	}
 }

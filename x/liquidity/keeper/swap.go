@@ -85,7 +85,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 	}
 
 	// find order match, calculate pool delta with the total x, y amounts for the invariant check
-	var matchResultXtoY, matchResultYtoX []types.MatchResult
+	var matchResultXtoY, matchResultYtoX []*types.MatchResult
 
 	poolXDelta := sdk.ZeroDec()
 	poolYDelta := sdk.ZeroDec()
@@ -125,7 +125,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 		if _, ok := matchResultMap[match.SwapMsgState.MsgIndex]; ok {
 			return executedMsgCount, fmt.Errorf("duplicate match order")
 		}
-		matchResultMap[match.SwapMsgState.MsgIndex] = match
+		matchResultMap[match.SwapMsgState.MsgIndex] = *match
 	}
 
 	if BatchLogicInvariantCheckFlag {
