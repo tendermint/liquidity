@@ -507,8 +507,13 @@ func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, exe
 						TransactedCoinAmt: offerAmt.Mul(fractionalMatchRatio).Ceil(),
 						SwapMsgState:      matchOrder,
 					}
-					// Fee, Exchanged amount are values that should not be overmeasured, so it is lowered conservatively considering the decimal error.
-					matchResult.OfferCoinFeeAmt = matchResult.SwapMsgState.ReservedOfferCoinFee.Amount.ToDec().Mul(fractionalMatchRatio)
+					if matchResult.OfferCoinAmt.Sub(matchResult.TransactedCoinAmt).LTE(sdk.OneDec()) {
+						// If OfferCoinAmt and TransactedCoinAmt are close, use ReservedOfferCoinFee immediately to avoid decimal errors.
+						matchResult.OfferCoinFeeAmt = matchResult.SwapMsgState.ReservedOfferCoinFee.Amount.ToDec()
+					} else {
+						// Fee, Exchanged amount are values that should not be overmeasured, so it is lowered conservatively considering the decimal error.
+						matchResult.OfferCoinFeeAmt = matchResult.SwapMsgState.ReservedOfferCoinFee.Amount.ToDec().Mul(fractionalMatchRatio).Ceil()
+					}
 					if direction == DirectionXtoY {
 						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Quo(swapPrice)
 						matchResult.ExchangedCoinFeeAmt = matchResult.OfferCoinFeeAmt.Quo(swapPrice)
@@ -568,8 +573,7 @@ func UpdateSwapMsgStates(x, y sdk.Dec, xToY, yToX []*SwapMsgState, matchResultXt
 			poolXDelta = poolXDelta.Sub(match.ExchangedDemandCoinAmt)
 			poolYDelta = poolYDelta.Add(match.TransactedCoinAmt)
 		}
-		if sms.Msg.OfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) ||
-			sms.RemainingOfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) {
+		if sms.RemainingOfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) {
 			// full match
 			sms.ExchangedOfferCoin.Amount = sms.ExchangedOfferCoin.Amount.Add(match.TransactedCoinAmt.TruncateInt())
 			sms.RemainingOfferCoin.Amount = sms.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt.TruncateInt())
