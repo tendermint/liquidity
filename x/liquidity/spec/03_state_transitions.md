@@ -221,8 +221,7 @@ Variables:
 
 ### Swap Fee Payment
 
-To minimize the impact of fee payment process, receive fee half from `OfferCoin`, and the other half with `ExchangedCoin`
-
+Rather than taking fee solely from `OfferCoin`, liquidity module is designed to take fees half from `OfferCoin`, and the other half from `ExchangedCoin`. This smooths out an impact of the fee payment process.
 - **OfferCoin Fee Reservation ( fee before batch process, in OfferCoin )**
     - when user orders 100 Xcoin, the swap message demands
         - `OfferCoin`(in Xcoin) : 100

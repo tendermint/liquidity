@@ -254,6 +254,12 @@ func TestGetOfferCoinFee(t *testing.T) {
 			swapFeeRate:        types.DefaultSwapFeeRate,
 			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(17)),
 		},
+		{
+			name:               "case8",
+			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10000)),
+			swapFeeRate:        sdk.ZeroDec(),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(0)),
+		},
 	}
 
 	for _, tc := range testCases {
