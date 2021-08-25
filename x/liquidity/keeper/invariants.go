@@ -218,7 +218,7 @@ func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdr
 }
 
 // SwapMatchingInvariants checks swap matching results of both X to Y and Y to X cases.
-func SwapMatchingInvariants(xToY, yToX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []*types.MatchResult) {
+func SwapMatchingInvariants(xToY, yToX []*types.SwapMsgState, matchResultXtoY, matchResultYtoX []types.MatchResult) {
 	beforeMatchingXtoYLen := len(xToY)
 	beforeMatchingYtoXLen := len(yToX)
 	afterMatchingXtoYLen := len(matchResultXtoY)
@@ -237,7 +237,7 @@ func SwapMatchingInvariants(xToY, yToX []*types.SwapMsgState, matchResultXtoY, m
 }
 
 // SwapPriceInvariants checks swap price invariants.
-func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []*types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2 sdk.Dec, result types.BatchResult) {
+func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2 sdk.Dec, result types.BatchResult) {
 	invariantCheckX := sdk.ZeroDec()
 	invariantCheckY := sdk.ZeroDec()
 
@@ -283,7 +283,7 @@ func SwapPriceDirectionInvariants(currentPoolPrice sdk.Dec, batchResult types.Ba
 }
 
 // SwapMsgStatesInvariants checks swap match result states invariants.
-func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []*types.MatchResult, matchResultMap map[uint64]types.MatchResult,
+func SwapMsgStatesInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, matchResultMap map[uint64]types.MatchResult,
 	swapMsgStates []*types.SwapMsgState, xToY, yToX []*types.SwapMsgState) {
 	if len(matchResultXtoY)+len(matchResultYtoX) != len(matchResultMap) {
 		panic("invalid length of match result")

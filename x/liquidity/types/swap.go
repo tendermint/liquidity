@@ -432,7 +432,7 @@ func ValidateStateAndExpireOrders(swapMsgStates []*SwapMsgState, currentHeight i
 }
 
 // Check swap price validity using list of match result.
-func CheckSwapPrice(matchResultXtoY, matchResultYtoX []*MatchResult, swapPrice sdk.Dec) bool {
+func CheckSwapPrice(matchResultXtoY, matchResultYtoX []MatchResult, swapPrice sdk.Dec) bool {
 	if len(matchResultXtoY) == 0 && len(matchResultYtoX) == 0 {
 		return true
 	}
@@ -452,7 +452,7 @@ func CheckSwapPrice(matchResultXtoY, matchResultYtoX []*MatchResult, swapPrice s
 
 // Find matched orders and set status for msgs
 func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, executableAmt, swapPrice sdk.Dec, height int64) (
-	matchResults []*MatchResult, poolXDelta, poolYDelta sdk.Dec) {
+	matchResults []MatchResult, poolXDelta, poolYDelta sdk.Dec) {
 	poolXDelta = sdk.ZeroDec()
 	poolYDelta = sdk.ZeroDec()
 
@@ -523,7 +523,7 @@ func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, exe
 					if matchResult.OfferCoinFeeAmt.GT(matchResult.OfferCoinAmt) && matchResult.OfferCoinFeeAmt.GT(sdk.OneDec()) {
 						panic("bad OfferCoinFeeAmt")
 					}
-					matchResults = append(matchResults, &matchResult)
+					matchResults = append(matchResults, matchResult)
 					if direction == DirectionXtoY {
 						poolXDelta = poolXDelta.Add(matchResult.TransactedCoinAmt)
 						poolYDelta = poolYDelta.Sub(matchResult.ExchangedDemandCoinAmt)
@@ -543,7 +543,7 @@ func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, exe
 }
 
 // UpdateSwapMsgStates updates SwapMsgStates using the MatchResults.
-func UpdateSwapMsgStates(x, y sdk.Dec, xToY, yToX []*SwapMsgState, matchResultXtoY, matchResultYtoX []*MatchResult) (
+func UpdateSwapMsgStates(x, y sdk.Dec, xToY, yToX []*SwapMsgState, matchResultXtoY, matchResultYtoX []MatchResult) (
 	[]*SwapMsgState, []*SwapMsgState, sdk.Dec, sdk.Dec, sdk.Dec, sdk.Dec) {
 	sort.SliceStable(xToY, func(i, j int) bool {
 		return xToY[i].Msg.OrderPrice.GT(xToY[j].Msg.OrderPrice)
@@ -598,10 +598,6 @@ func UpdateSwapMsgStates(x, y sdk.Dec, xToY, yToX []*SwapMsgState, matchResultXt
 			}
 			sms.Succeeded = true
 			sms.ToBeDeleted = false
-		}
-		if sms.RemainingOfferCoin.Amount.IsZero() && sms.ReservedOfferCoinFee.Amount.IsPositive() {
-			match.OfferCoinFeeAmt = match.OfferCoinFeeAmt.Add(sms.ReservedOfferCoinFee.Amount.ToDec())
-			sms.ReservedOfferCoinFee.Amount = sdk.ZeroInt()
 		}
 	}
 
