@@ -508,11 +508,10 @@ func FindOrderMatch(direction OrderDirection, swapMsgStates []*SwapMsgState, exe
 						SwapMsgState:      matchOrder,
 					}
 					if matchResult.OfferCoinAmt.Sub(matchResult.TransactedCoinAmt).LTE(sdk.OneDec()) {
-						// If OfferCoinAmt and TransactedCoinAmt are close, use ReservedOfferCoinFee immediately to avoid decimal errors.
+						// Use ReservedOfferCoinFee to avoid decimal errors when OfferCoinAmt and TransactedCoinAmt are almost equal in value.
 						matchResult.OfferCoinFeeAmt = matchResult.SwapMsgState.ReservedOfferCoinFee.Amount.ToDec()
 					} else {
-						// Fee, Exchanged amount are values that should not be overmeasured, so it is lowered conservatively considering the decimal error.
-						matchResult.OfferCoinFeeAmt = matchResult.SwapMsgState.ReservedOfferCoinFee.Amount.ToDec().Mul(fractionalMatchRatio).Ceil()
+						matchResult.OfferCoinFeeAmt = matchResult.SwapMsgState.ReservedOfferCoinFee.Amount.ToDec().Mul(fractionalMatchRatio)
 					}
 					if direction == DirectionXtoY {
 						matchResult.ExchangedDemandCoinAmt = matchResult.TransactedCoinAmt.Quo(swapPrice)
@@ -574,7 +573,7 @@ func UpdateSwapMsgStates(x, y sdk.Dec, xToY, yToX []*SwapMsgState, matchResultXt
 			poolYDelta = poolYDelta.Add(match.TransactedCoinAmt)
 		}
 		if sms.RemainingOfferCoin.Amount.ToDec().Sub(match.TransactedCoinAmt).LTE(sdk.OneDec()) {
-			// full match
+			// when RemainingOfferCoin and TransactedCoinAmt are almost equal in value, corrects the decimal error and processes as a exact match.
 			sms.ExchangedOfferCoin.Amount = sms.ExchangedOfferCoin.Amount.Add(match.TransactedCoinAmt.TruncateInt())
 			sms.RemainingOfferCoin.Amount = sms.RemainingOfferCoin.Amount.Sub(match.TransactedCoinAmt.TruncateInt())
 			sms.ReservedOfferCoinFee.Amount = sms.ReservedOfferCoinFee.Amount.Sub(match.OfferCoinFeeAmt.TruncateInt())
