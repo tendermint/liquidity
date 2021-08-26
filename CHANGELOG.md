@@ -40,8 +40,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### State Machine Breaking
 
 * [\#436](https://github.com/tendermint/liquidity/pull/436) Validation `MsgSwapWithinBatch` and `OfferCoinFee` ceiling
-  * Modifies major verification to be performed during the `MsgSwapWithinBatch` stage of MsgServer and returns errors if the verification fails.
   * When calculating `OfferCoinFee`, the decimal points are rounded up.
+  * Fix reserveOfferCoinFee residual Issue due to decimal error
   
 * [\#433](https://github.com/tendermint/liquidity/pull/433) (sdk) Bump SDK version to [v0.43.0](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.43.0).  
   

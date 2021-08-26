@@ -97,5 +97,5 @@ The MsgWithdrawWithinBatch message performs validity checks. The transaction tha
 - Denoms of `OfferCoin` or `DemandCoin` do not exist in `bank` module
 - The balance of `SwapRequester` does not have enough coins for `OfferCoin`
 - `OrderPrice` <= zero
-- `OfferCoinFee` equals `OfferCoin` _`params.SwapFeeRate`_ `0.5` with truncating Int
+- `OfferCoinFee` equals `OfferCoin` * `params.SwapFeeRate` * `0.5` with ceiling
 - Has sufficient balance `OfferCoinFee` to reserve offer coin fee

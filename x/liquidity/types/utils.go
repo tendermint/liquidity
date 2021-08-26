@@ -83,7 +83,18 @@ func ValidateReserveCoinLimit(maxReserveCoinAmount sdk.Int, depositCoins sdk.Coi
 }
 
 func GetOfferCoinFee(offerCoin sdk.Coin, swapFeeRate sdk.Dec) sdk.Coin {
-	// apply half-ratio swap fee rate
+	if swapFeeRate.IsZero() {
+		return sdk.NewCoin(offerCoin.Denom, sdk.ZeroInt())
+	}
+	// apply half-ratio swap fee rate and ceiling
 	// see https://github.com/tendermint/liquidity/issues/41 for details
-	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(swapFeeRate.QuoInt64(2)).TruncateInt()) // offerCoin.Amount * (swapFeeRate/2)
+	return sdk.NewCoin(offerCoin.Denom, offerCoin.Amount.ToDec().Mul(swapFeeRate.QuoInt64(2)).Ceil().TruncateInt()) // Ceil(offerCoin.Amount * (swapFeeRate/2))
+}
+
+func MustParseCoinsNormalized(coinStr string) sdk.Coins {
+	coins, err := sdk.ParseCoinsNormalized(coinStr)
+	if err != nil {
+		panic(err)
+	}
+	return coins
 }

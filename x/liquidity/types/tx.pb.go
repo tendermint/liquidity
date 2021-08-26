@@ -286,7 +286,7 @@ var xxx_messageInfo_MsgWithdrawWithinBatchResponse proto.InternalMessageInfo
 // `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting a swap offer request to the batch of the liquidity pool.
 // Submit swap offer to the liquidity pool batch with the specified the `pool_id`, `swap_type_id`,
 // `demand_coin_denom` with the coin and the price you're offering
-// and `offer_coin_fee` must be half of offer coin amount * current `params.swap_fee_rate` for reservation to pay fees.
+// and `offer_coin_fee` must be half of offer coin amount * current `params.swap_fee_rate` and ceil for reservation to pay fees.
 // This request is stacked in the batch of the liquidity pool, is not processed
 // immediately, and is processed in the `endblock` at the same time as other requests.
 // You must request the same fields as the pool.
@@ -305,7 +305,7 @@ type MsgSwapWithinBatch struct {
 	OfferCoin types.Coin `protobuf:"bytes,4,opt,name=offer_coin,json=offerCoin,proto3" json:"offer_coin" yaml:"offer_coin"`
 	// denom of demand coin to be exchanged on the swap request, must match the denom in the pool.
 	DemandCoinDenom string `protobuf:"bytes,5,opt,name=demand_coin_denom,json=demandCoinDenom,proto3" json:"demand_coin_denom,omitempty" yaml:"demand_coin_denom"`
-	// half of offer coin amount * params.swap_fee_rate for reservation to pay fees.
+	// half of offer coin amount * params.swap_fee_rate and ceil for reservation to pay fees.
 	OfferCoinFee types.Coin `protobuf:"bytes,6,opt,name=offer_coin_fee,json=offerCoinFee,proto3" json:"offer_coin_fee" yaml:"offer_coin_fee"`
 	// limit order price for the order, the price is the exchange ratio of X/Y
 	// where X is the amount of the first coin and Y is the amount

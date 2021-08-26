@@ -215,3 +215,68 @@ func TestValidateReserveCoinLimit(t *testing.T) {
 		})
 	}
 }
+
+func TestGetOfferCoinFee(t *testing.T) {
+	testDenom := "test"
+	testCases := []struct {
+		name               string
+		offerCoin          sdk.Coin
+		swapFeeRate        sdk.Dec
+		expectOfferCoinFee sdk.Coin
+	}{
+		{
+			name:               "case1",
+			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(1)),
+			swapFeeRate:        types.DefaultSwapFeeRate,
+			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(1)),
+		},
+		{
+			name:               "case2",
+			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10)),
+			swapFeeRate:        types.DefaultSwapFeeRate,
+			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(1)),
+		},
+		{
+			name:               "case3",
+			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(100)),
+			swapFeeRate:        types.DefaultSwapFeeRate,
+			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(1)),
+		},
+		{
+			name:               "case4",
+			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(1000)),
+			swapFeeRate:        types.DefaultSwapFeeRate,
+			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(2)),
+		},
+		{
+			name:               "case5",
+			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10000)),
+			swapFeeRate:        types.DefaultSwapFeeRate,
+			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(15)),
+		},
+		{
+			name:               "case6",
+			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10001)),
+			swapFeeRate:        types.DefaultSwapFeeRate,
+			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(16)),
+		},
+		{
+			name:               "case7",
+			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10700)),
+			swapFeeRate:        types.DefaultSwapFeeRate,
+			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(17)),
+		},
+		{
+			name:               "case8",
+			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10000)),
+			swapFeeRate:        sdk.ZeroDec(),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(0)),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.expectOfferCoinFee, types.GetOfferCoinFee(tc.offerCoin, tc.swapFeeRate))
+		})
+	}
+}

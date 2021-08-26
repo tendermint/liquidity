@@ -658,7 +658,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 			sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(sms.Msg.DemandCoinDenom, receiveAmt))
 			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, offerCoinFeeAmt))
 
-			if sms.RemainingOfferCoin.IsPositive() && sms.OrderExpiryHeight == ctx.BlockHeight() {
+			if sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee).IsPositive() && sms.OrderExpiryHeight == ctx.BlockHeight() {
 				sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
 			}
 
