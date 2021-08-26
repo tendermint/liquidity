@@ -16,10 +16,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	"github.com/cosmos/cosmos-sdk/x/genutil"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -31,6 +33,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
+
+	tmtypes "github.com/tendermint/tendermint/types"
 
 	liquiditytypes "github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -138,6 +142,17 @@ func TestAppImportExport(t *testing.T) {
 	exported, err := app.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err)
 
+	// TEST
+	genDoc := &tmtypes.GenesisDoc{}
+	genDoc.ChainID = "simulation-chain"
+	genDoc.Validators = nil
+	genDoc.AppState = exported.AppState
+
+	err = genutil.ExportGenesisFile(genDoc, "../genesis.json")
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Printf("importing genesis...\n")
 
 	_, newDB, newDir, _, _, err := simapp.SetupSimulation("leveldb-app-sim-2", "Simulation-2")
@@ -148,7 +163,7 @@ func TestAppImportExport(t *testing.T) {
 		require.NoError(t, os.RemoveAll(newDir))
 	}()
 
-	newApp := NewLiquidityApp(logger, db, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, MakeEncodingConfig(), EmptyAppOptions{}, fauxMerkleModeOpt)
+	newApp := NewLiquidityApp(log.NewNopLogger(), newDB, nil, true, map[int64]bool{}, DefaultNodeHome, simapp.FlagPeriodValue, MakeEncodingConfig(), EmptyAppOptions{}, fauxMerkleModeOpt)
 	require.Equal(t, appName, app.Name())
 
 	var genesisState GenesisState
@@ -160,15 +175,30 @@ func TestAppImportExport(t *testing.T) {
 	newApp.mm.InitGenesis(ctxB, app.AppCodec(), genesisState)
 	newApp.StoreConsensusParams(ctxB, exported.ConsensusParams)
 
+	// TEST
+	exported2, err := newApp.ExportAppStateAndValidators(false, []string{})
+	require.NoError(t, err)
+
+	newgenDoc := &tmtypes.GenesisDoc{}
+	newgenDoc.ChainID = "simulation-chain"
+	newgenDoc.Validators = nil
+	newgenDoc.AppState = exported2.AppState
+
+	err = genutil.ExportGenesisFile(newgenDoc, "../genesis-after.json")
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Printf("comparing stores...\n")
 
 	storeKeysPrefixes := []StoreKeysPrefixes{
 		{app.keys[authtypes.StoreKey], newApp.keys[authtypes.StoreKey], [][]byte{}},
 		{app.keys[stakingtypes.StoreKey], newApp.keys[stakingtypes.StoreKey],
 			[][]byte{
-				stakingtypes.UnbondingQueueKey, stakingtypes.RedelegationQueueKey, stakingtypes.ValidatorQueueKey,
-				stakingtypes.HistoricalInfoKey,
-			}}, // ordering may change but it doesn't matter
+				stakingtypes.UnbondingQueueKey, stakingtypes.RedelegationQueueKey,
+				stakingtypes.ValidatorQueueKey, stakingtypes.HistoricalInfoKey,
+			},
+		}, // ordering may change but it doesn't matter
 		{app.keys[slashingtypes.StoreKey], newApp.keys[slashingtypes.StoreKey], [][]byte{}},
 		{app.keys[minttypes.StoreKey], newApp.keys[minttypes.StoreKey], [][]byte{}},
 		{app.keys[distrtypes.StoreKey], newApp.keys[distrtypes.StoreKey], [][]byte{}},
@@ -177,7 +207,19 @@ func TestAppImportExport(t *testing.T) {
 		{app.keys[govtypes.StoreKey], newApp.keys[govtypes.StoreKey], [][]byte{}},
 		{app.keys[evidencetypes.StoreKey], newApp.keys[evidencetypes.StoreKey], [][]byte{}},
 		{app.keys[capabilitytypes.StoreKey], newApp.keys[capabilitytypes.StoreKey], [][]byte{}},
-		{app.keys[liquiditytypes.StoreKey], newApp.keys[liquiditytypes.StoreKey], [][]byte{}},
+		{app.keys[authzkeeper.StoreKey], newApp.keys[authzkeeper.StoreKey], [][]byte{}},
+		{app.keys[liquiditytypes.StoreKey], newApp.keys[liquiditytypes.StoreKey],
+			[][]byte{
+				// liquiditytypes.GlobalLiquidityPoolIDKey,
+				// liquiditytypes.PoolKeyPrefix,
+				liquiditytypes.PoolByReserveAccIndexKeyPrefix,
+				liquiditytypes.PoolBatchIndexKeyPrefix,
+				liquiditytypes.PoolBatchKeyPrefix,
+				// liquiditytypes.PoolBatchDepositMsgStateIndexKeyPrefix,
+				// liquiditytypes.PoolBatchWithdrawMsgStateIndexKeyPrefix,
+				// liquiditytypes.PoolBatchSwapMsgStateIndexKeyPrefix,
+			},
+		},
 	}
 
 	for _, skp := range storeKeysPrefixes {
@@ -188,6 +230,7 @@ func TestAppImportExport(t *testing.T) {
 		require.Equal(t, len(failedKVAs), len(failedKVBs), "unequal sets of key-values to compare")
 
 		fmt.Printf("compared %d different key/value pairs between %s and %s\n", len(failedKVAs), skp.A, skp.B)
+
 		require.Equal(t, len(failedKVAs), 0, simapp.GetSimulationLog(skp.A.Name(), app.SimulationManager().StoreDecoders, failedKVAs, failedKVBs))
 	}
 }
