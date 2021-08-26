@@ -39,7 +39,7 @@ func (pool Pool) Validate() error {
 	if pool.ReserveAccountAddress == "" {
 		return ErrEmptyReserveAccountAddress
 	}
-	if pool.ReserveAccountAddress != GetPoolReserveAcc(pool.Name()).String() {
+	if pool.ReserveAccountAddress != GetPoolReserveAcc(pool.Name(), false).String() {
 		return ErrBadReserveAccountAddress
 	}
 	if pool.PoolCoinDenom == "" {
@@ -65,12 +65,12 @@ func NewPoolBatch(poolID, batchIndex uint64) PoolBatch {
 }
 
 // MustMarshalPool returns the Pool bytes. Panics if fails.
-func MustMarshalPool(cdc codec.BinaryMarshaler, liquidityPool Pool) []byte {
-	return cdc.MustMarshalBinaryBare(&liquidityPool)
+func MustMarshalPool(cdc codec.BinaryCodec, liquidityPool Pool) []byte {
+	return cdc.MustMarshal(&liquidityPool)
 }
 
 // MustUnmarshalPool returns the Pool from bytes. Panics if fails.
-func MustUnmarshalPool(cdc codec.BinaryMarshaler, value []byte) Pool {
+func MustUnmarshalPool(cdc codec.BinaryCodec, value []byte) Pool {
 	liquidityPool, err := UnmarshalPool(cdc, value)
 	if err != nil {
 		panic(err)
@@ -79,8 +79,8 @@ func MustUnmarshalPool(cdc codec.BinaryMarshaler, value []byte) Pool {
 }
 
 // UnmarshalPool returns the Pool from bytes.
-func UnmarshalPool(cdc codec.BinaryMarshaler, value []byte) (liquidityPool Pool, err error) {
-	err = cdc.UnmarshalBinaryBare(value, &liquidityPool)
+func UnmarshalPool(cdc codec.BinaryCodec, value []byte) (liquidityPool Pool, err error) {
+	err = cdc.Unmarshal(value, &liquidityPool)
 	return liquidityPool, err
 }
 
@@ -110,18 +110,18 @@ func (pools Pools) String() (out string) {
 }
 
 // MustMarshalPoolBatch returns the PoolBatch bytes. Panics if fails.
-func MustMarshalPoolBatch(cdc codec.BinaryMarshaler, poolBatch PoolBatch) []byte {
-	return cdc.MustMarshalBinaryBare(&poolBatch)
+func MustMarshalPoolBatch(cdc codec.BinaryCodec, poolBatch PoolBatch) []byte {
+	return cdc.MustMarshal(&poolBatch)
 }
 
 // UnmarshalPoolBatch returns the PoolBatch from bytes.
-func UnmarshalPoolBatch(cdc codec.BinaryMarshaler, value []byte) (poolBatch PoolBatch, err error) {
-	err = cdc.UnmarshalBinaryBare(value, &poolBatch)
+func UnmarshalPoolBatch(cdc codec.BinaryCodec, value []byte) (poolBatch PoolBatch, err error) {
+	err = cdc.Unmarshal(value, &poolBatch)
 	return poolBatch, err
 }
 
 // MustUnmarshalPoolBatch returns the PoolBatch from bytes. Panics if fails.
-func MustUnmarshalPoolBatch(cdc codec.BinaryMarshaler, value []byte) PoolBatch {
+func MustUnmarshalPoolBatch(cdc codec.BinaryCodec, value []byte) PoolBatch {
 	poolBatch, err := UnmarshalPoolBatch(cdc, value)
 	if err != nil {
 		panic(err)
@@ -130,18 +130,18 @@ func MustUnmarshalPoolBatch(cdc codec.BinaryMarshaler, value []byte) PoolBatch {
 }
 
 // MustMarshalDepositMsgState returns the DepositMsgState bytes. Panics if fails.
-func MustMarshalDepositMsgState(cdc codec.BinaryMarshaler, msg DepositMsgState) []byte {
-	return cdc.MustMarshalBinaryBare(&msg)
+func MustMarshalDepositMsgState(cdc codec.BinaryCodec, msg DepositMsgState) []byte {
+	return cdc.MustMarshal(&msg)
 }
 
 // UnmarshalDepositMsgState returns the DepositMsgState from bytes.
-func UnmarshalDepositMsgState(cdc codec.BinaryMarshaler, value []byte) (msg DepositMsgState, err error) {
-	err = cdc.UnmarshalBinaryBare(value, &msg)
+func UnmarshalDepositMsgState(cdc codec.BinaryCodec, value []byte) (msg DepositMsgState, err error) {
+	err = cdc.Unmarshal(value, &msg)
 	return msg, err
 }
 
 // MustUnmarshalDepositMsgState returns the DepositMsgState from bytes. Panics if fails.
-func MustUnmarshalDepositMsgState(cdc codec.BinaryMarshaler, value []byte) DepositMsgState {
+func MustUnmarshalDepositMsgState(cdc codec.BinaryCodec, value []byte) DepositMsgState {
 	msg, err := UnmarshalDepositMsgState(cdc, value)
 	if err != nil {
 		panic(err)
@@ -150,18 +150,18 @@ func MustUnmarshalDepositMsgState(cdc codec.BinaryMarshaler, value []byte) Depos
 }
 
 // MustMarshalWithdrawMsgState returns the WithdrawMsgState bytes. Panics if fails.
-func MustMarshalWithdrawMsgState(cdc codec.BinaryMarshaler, msg WithdrawMsgState) []byte {
-	return cdc.MustMarshalBinaryBare(&msg)
+func MustMarshalWithdrawMsgState(cdc codec.BinaryCodec, msg WithdrawMsgState) []byte {
+	return cdc.MustMarshal(&msg)
 }
 
 // UnmarshalWithdrawMsgState returns the WithdrawMsgState from bytes.
-func UnmarshalWithdrawMsgState(cdc codec.BinaryMarshaler, value []byte) (msg WithdrawMsgState, err error) {
-	err = cdc.UnmarshalBinaryBare(value, &msg)
+func UnmarshalWithdrawMsgState(cdc codec.BinaryCodec, value []byte) (msg WithdrawMsgState, err error) {
+	err = cdc.Unmarshal(value, &msg)
 	return msg, err
 }
 
 // MustUnmarshalWithdrawMsgState returns the WithdrawMsgState from bytes. Panics if fails.
-func MustUnmarshalWithdrawMsgState(cdc codec.BinaryMarshaler, value []byte) WithdrawMsgState {
+func MustUnmarshalWithdrawMsgState(cdc codec.BinaryCodec, value []byte) WithdrawMsgState {
 	msg, err := UnmarshalWithdrawMsgState(cdc, value)
 	if err != nil {
 		panic(err)
@@ -170,18 +170,18 @@ func MustUnmarshalWithdrawMsgState(cdc codec.BinaryMarshaler, value []byte) With
 }
 
 // MustMarshalSwapMsgState returns the SwapMsgState bytes. Panics if fails.
-func MustMarshalSwapMsgState(cdc codec.BinaryMarshaler, msg SwapMsgState) []byte {
-	return cdc.MustMarshalBinaryBare(&msg)
+func MustMarshalSwapMsgState(cdc codec.BinaryCodec, msg SwapMsgState) []byte {
+	return cdc.MustMarshal(&msg)
 }
 
 // UnmarshalSwapMsgState returns the UnmarshalSwapMsgState from bytes.
-func UnmarshalSwapMsgState(cdc codec.BinaryMarshaler, value []byte) (msg SwapMsgState, err error) {
-	err = cdc.UnmarshalBinaryBare(value, &msg)
+func UnmarshalSwapMsgState(cdc codec.BinaryCodec, value []byte) (msg SwapMsgState, err error) {
+	err = cdc.Unmarshal(value, &msg)
 	return msg, err
 }
 
 // MustUnmarshalSwapMsgState returns the SwapMsgState from bytes. Panics if fails.
-func MustUnmarshalSwapMsgState(cdc codec.BinaryMarshaler, value []byte) SwapMsgState {
+func MustUnmarshalSwapMsgState(cdc codec.BinaryCodec, value []byte) SwapMsgState {
 	msg, err := UnmarshalSwapMsgState(cdc, value)
 	if err != nil {
 		panic(err)

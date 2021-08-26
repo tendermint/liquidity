@@ -66,7 +66,7 @@ func (k Keeper) GetAllPools(ctx sdk.Context) (pools []types.Pool) {
 func (k Keeper) GetNextPoolIDWithUpdate(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
 	poolID := k.GetNextPoolID(ctx)
-	bz := k.cdc.MustMarshalBinaryBare(&gogotypes.UInt64Value{Value: poolID + 1})
+	bz := k.cdc.MustMarshal(&gogotypes.UInt64Value{Value: poolID + 1})
 	store.Set(types.GlobalLiquidityPoolIDKey, bz)
 	return poolID
 }
@@ -83,7 +83,7 @@ func (k Keeper) GetNextPoolID(ctx sdk.Context) uint64 {
 	} else {
 		val := gogotypes.UInt64Value{}
 
-		err := k.cdc.UnmarshalBinaryBare(bz, &val)
+		err := k.cdc.Unmarshal(bz, &val)
 		if err != nil {
 			panic(err)
 		}
@@ -104,7 +104,7 @@ func (k Keeper) GetPoolByReserveAccIndex(ctx sdk.Context, reserveAcc sdk.AccAddr
 	}
 
 	val := gogotypes.UInt64Value{}
-	err := k.cdc.UnmarshalBinaryBare(value, &val)
+	err := k.cdc.Unmarshal(value, &val)
 	if err != nil {
 		return pool, false
 	}
@@ -115,7 +115,7 @@ func (k Keeper) GetPoolByReserveAccIndex(ctx sdk.Context, reserveAcc sdk.AccAddr
 // SetPoolByReserveAccIndex sets Index by ReserveAcc for pool duplication check
 func (k Keeper) SetPoolByReserveAccIndex(ctx sdk.Context, pool types.Pool) {
 	store := ctx.KVStore(k.storeKey)
-	b := k.cdc.MustMarshalBinaryBare(&gogotypes.UInt64Value{Value: pool.Id})
+	b := k.cdc.MustMarshal(&gogotypes.UInt64Value{Value: pool.Id})
 	store.Set(types.GetPoolByReserveAccIndexKey(pool.GetReserveAccount()), b)
 }
 

@@ -177,7 +177,7 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 				s.Require().Error(err)
 			} else {
 				s.Require().NoError(err, out.String())
-				s.Require().NoError(clientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
 
 				txResp := tc.respType.(*sdk.TxResponse)
 				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
@@ -262,7 +262,7 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 				s.Require().Error(err)
 			} else {
 				s.Require().NoError(err, out.String())
-				s.Require().NoError(clientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
 
 				txResp := tc.respType.(*sdk.TxResponse)
 				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
@@ -347,7 +347,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 				s.Require().Error(err)
 			} else {
 				s.Require().NoError(err, out.String())
-				s.Require().NoError(clientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
 
 				txResp := tc.respType.(*sdk.TxResponse)
 				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
@@ -460,7 +460,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 				s.Require().Error(err)
 			} else {
 				s.Require().NoError(err, out.String())
-				s.Require().NoError(clientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
 
 				txResp := tc.respType.(*sdk.TxResponse)
 				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
@@ -630,7 +630,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 				s.Require().Error(err)
 			} else {
 				var resp liquiditytypes.QueryLiquidityPoolResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
+				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
 				s.Require().Equal(uint64(1), resp.GetPool().Id)
 				s.Require().Equal(uint32(1), resp.GetPool().TypeId)
@@ -685,7 +685,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
 				s.Require().Error(err)
 			} else {
 				var resps liquiditytypes.QueryLiquidityPoolsResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resps)
+				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resps)
 				s.Require().NoError(err)
 
 				for _, pool := range resps.GetPools() {
@@ -757,7 +757,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 				s.Require().Error(err)
 			} else {
 				var resp liquiditytypes.QueryLiquidityPoolBatchResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
+				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
 				s.Require().Equal(uint64(1), resp.GetBatch().PoolId)
 				s.Require().Equal(false, resp.GetBatch().Executed)
@@ -840,7 +840,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 				s.Require().Error(err)
 			} else {
 				var resp liquiditytypes.QueryPoolBatchDepositMsgResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
+				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
 				s.Require().Equal(val.Address.String(), resp.GetDeposit().Msg.DepositorAddress)
 				s.Require().Equal(true, resp.GetDeposit().Executed)
@@ -923,7 +923,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 				s.Require().Error(err)
 			} else {
 				var resps liquiditytypes.QueryPoolBatchDepositMsgsResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resps)
+				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resps)
 				s.Require().NoError(err)
 
 				for _, deposit := range resps.GetDeposits() {
@@ -1011,7 +1011,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 				s.Require().Error(err)
 			} else {
 				var resp liquiditytypes.QueryPoolBatchWithdrawMsgResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
+				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
 				s.Require().Equal(val.Address.String(), resp.GetWithdraw().Msg.WithdrawerAddress)
 				s.Require().Equal(poolCoinDenom, resp.GetWithdraw().Msg.PoolCoin.Denom)
@@ -1094,7 +1094,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 				s.Require().Error(err)
 			} else {
 				var resps liquiditytypes.QueryPoolBatchWithdrawMsgsResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resps)
+				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resps)
 				s.Require().NoError(err)
 
 				for _, withdraw := range resps.GetWithdraws() {
@@ -1189,7 +1189,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 				s.Require().Error(err)
 			} else {
 				var resp liquiditytypes.QueryPoolBatchSwapMsgResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resp)
+				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
 				s.Require().Equal(val.Address.String(), resp.GetSwap().Msg.SwapRequesterAddress)
 				s.Require().Equal(true, resp.GetSwap().Executed)
@@ -1278,7 +1278,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
 				s.Require().Error(err)
 			} else {
 				var resps liquiditytypes.QueryPoolBatchSwapMsgsResponse
-				err = val.ClientCtx.JSONMarshaler.UnmarshalJSON(out.Bytes(), &resps)
+				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resps)
 				s.Require().NoError(err)
 
 				for _, swap := range resps.GetSwaps() {
@@ -1324,7 +1324,7 @@ func (s *IntegrationTestSuite) TestInitGenesis() {
 			interfaceRegistry := types.NewInterfaceRegistry()
 			marshaler := codec.NewProtoCodec(interfaceRegistry)
 			clientCtx := client.Context{}.
-				WithJSONMarshaler(marshaler).
+				WithCodec(marshaler).
 				WithHomeDir(home)
 
 			ctx := context.Background()

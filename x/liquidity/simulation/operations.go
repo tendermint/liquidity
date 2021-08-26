@@ -25,7 +25,7 @@ const (
 
 // WeightedOperations returns all the operations from the module with their respective weights.
 func WeightedOperations(
-	appParams simtypes.AppParams, cdc codec.JSONMarshaler, ak types.AccountKeeper,
+	appParams simtypes.AppParams, cdc codec.JSONCodec, ak types.AccountKeeper,
 	bk types.BankKeeper, k keeper.Keeper,
 ) simulation.WeightedOperations {
 
@@ -112,7 +112,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 		poolName := types.PoolName(reserveCoinDenoms, types.DefaultPoolTypeID)
-		reserveAcc := types.GetPoolReserveAcc(poolName)
+		reserveAcc := types.GetPoolReserveAcc(poolName, false)
 
 		// ensure the liquidity pool doesn't exist
 		_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
@@ -168,7 +168,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
+		return simtypes.NewOperationMsg(msg, true, "", nil), nil, nil
 	}
 }
 
@@ -244,7 +244,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
+		return simtypes.NewOperationMsg(msg, true, "", nil), nil, nil
 	}
 }
 
@@ -311,7 +311,7 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
+		return simtypes.NewOperationMsg(msg, true, "", nil), nil, nil
 	}
 }
 
@@ -381,6 +381,6 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
+		return simtypes.NewOperationMsg(msg, true, "", nil), nil, nil
 	}
 }

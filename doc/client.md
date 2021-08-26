@@ -61,7 +61,7 @@ curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes
 Example `create-pool` tx command:
 
 ```bash
-liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -y
+liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -b block -o json -y
 ```
 
 JSON Structure:
@@ -222,7 +222,7 @@ Result
 Example `deposit` tx command: 
 
 ```bash
-liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from validator --keyring-backend test --chain-id testing -y
+liquidityd tx liquidity deposit 1 100000000uatom,5000000000uusd --from validator --keyring-backend test --chain-id testing -y -b block
 ```
 
 JSON Structure:
@@ -351,7 +351,7 @@ Result:
 Example `withdraw` tx command:
 
 ```bash
-liquidityd tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from validator --chain-id testing --keyring-backend test -y
+liquidityd tx liquidity withdraw 1 10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295 --from validator --chain-id testing --keyring-backend test -b block -o json -y
 ```
 
 JSON Structure
@@ -477,7 +477,7 @@ Result:
 Example `swap` tx command:
 
 ```bash
-liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y
+liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -b block -o json -y
 ```
 
 JSON Structure:

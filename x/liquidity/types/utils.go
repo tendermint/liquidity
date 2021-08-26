@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/tendermint/tendermint/crypto"
 )
 
@@ -25,7 +26,13 @@ func SortDenoms(denoms []string) []string {
 }
 
 // GetPoolReserveAcc returns the address of the pool's reserve account.
-func GetPoolReserveAcc(poolName string) sdk.AccAddress {
+func GetPoolReserveAcc(poolName string, len32 bool) sdk.AccAddress {
+	if len32 {
+		// The rules are temporarily added for testing on 32-length bytes addresses of ADR-28 and are subject to change.
+		poolCoinDenom := GetPoolCoinDenom(poolName)
+		poolCoinDenom = strings.TrimPrefix(poolCoinDenom, PoolCoinDenomPrefix)
+		return sdk.AccAddress(address.Module(ModuleName, []byte(poolCoinDenom)))
+	}
 	return sdk.AccAddress(crypto.AddressHash([]byte(poolName)))
 }
 
@@ -36,7 +43,7 @@ func GetPoolCoinDenom(poolName string) string {
 }
 
 // GetReserveAcc extracts and returns reserve account from pool coin denom.
-func GetReserveAcc(poolCoinDenom string) (sdk.AccAddress, error) {
+func GetReserveAcc(poolCoinDenom string, len32 bool) (sdk.AccAddress, error) {
 	if err := sdk.ValidateDenom(poolCoinDenom); err != nil {
 		return nil, err
 	}
@@ -46,6 +53,10 @@ func GetReserveAcc(poolCoinDenom string) (sdk.AccAddress, error) {
 	poolCoinDenom = strings.TrimPrefix(poolCoinDenom, PoolCoinDenomPrefix)
 	if len(poolCoinDenom) != 64 {
 		return nil, ErrInvalidDenom
+	}
+	if len32 {
+		// The rules are temporarily added for testing on 32-length bytes addresses of ADR-28 and are subject to change.
+		return sdk.AccAddress(address.Module(ModuleName, []byte(poolCoinDenom))), nil
 	}
 	return sdk.AccAddressFromHex(poolCoinDenom[:40])
 }

@@ -35,7 +35,7 @@ For details, see the [Liquidity Module Light Paper](doc/LiquidityModuleLightPape
 Requirement | Notes
 ----------- | -----------------
 Go version  | Go1.15 or higher
-Cosmos SDK  | v0.42.4 or higher
+Cosmos SDK  | v0.43.0 or higher
 
 ### Get Liquidity Module source code
 
@@ -133,46 +133,51 @@ Sample scripts are provided in [scripts](https://github.com/tendermint/liquidity
 # Build
 make install
 
+# Set Binary name of the app
+# The basic simapp binary of the liquidity module is liquidityd, but set it differently depending on the situation such as gaiad.
+BINARY=liquidityd
+
 # Initialize and add keys
-liquidityd init testing --chain-id testing
-liquidityd keys add validator --keyring-backend test
-liquidityd keys add user1 --keyring-backend test
+$BINARY init testing --chain-id testing
+$BINARY keys add validator --keyring-backend test
+$BINARY keys add user1 --keyring-backend test
 
 # Add genesis accounts and provide coins to the accounts
-liquidityd add-genesis-account $(liquidityd keys show validator --keyring-backend test -a) 10000000000stake,10000000000uatom,500000000000uusd
-liquidityd add-genesis-account $(liquidityd keys show user1 --keyring-backend test -a) 10000000000stake,10000000000uatom,500000000000uusd
+$BINARY add-genesis-account $($BINARY keys show validator --keyring-backend test -a) 10000000000stake,10000000000uatom,500000000000uusd
+$BINARY add-genesis-account $($BINARY keys show user1 --keyring-backend test -a) 10000000000stake,10000000000uatom,500000000000uusd
 
 # Create gentx and collect
-liquidityd gentx validator 1000000000stake --chain-id testing --keyring-backend test
-liquidityd collect-gentxs
+$BINARY gentx validator 1000000000stake --chain-id testing --keyring-backend test
+$BINARY collect-gentxs
 
 # Start
-liquidityd start
+$BINARY start
 ```
 
 ### 2.1 Broadcast transactions using CLI commands
 
 ```bash
 # An example of creating liquidity pool 1
-liquidityd tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -y
+$BINARY tx liquidity create-pool 1 1000000000uatom,50000000000uusd --from user1 --keyring-backend test --chain-id testing -b block -o json -y
 
 # An example of creating liquidity pool 2
-liquidityd tx liquidity create-pool 1 10000000stake,10000000uusd --from validator --keyring-backend test --chain-id testing -y
+$BINARY tx liquidity create-pool 1 10000000stake,10000000uusd --from validator --keyring-backend test --chain-id testing -b block -o json -y
 
 # An example of requesting swap
-liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -y
+$BINARY tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --chain-id testing --keyring-backend test -b block -o json -y
 
 # An example of generating unsigned tx
-validator=$(liquidityd keys show validator --keyring-backend test -a)
-liquidityd tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from $validator --chain-id testing --generate-only > tx_swap.json
+validator=$($BINARY keys show validator --keyring-backend test -a)
+$BINARY tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from $validator --chain-id testing --generate-only > tx_swap.json
 cat tx_swap.json
 
 # Sign the unsigned tx
-liquidityd tx sign tx_swap.json --from validator --chain-id testing --keyring-backend test -y > tx_swap_signed.json
+$BINARY tx sign tx_swap.json --from validator --chain-id testing --keyring-backend test -y > tx_swap_signed.json
 cat tx_swap_signed.json
 
 # Encode the signed tx
-liquidityd tx encode tx_swap_signed.json
+$BINARY tx encode tx_swap_signed.json
+tx_bytes=$($BINARY tx encode tx_swap_signed.json)
 ```
 
 ### 2.2 Broadcast transactions using REST APIs
@@ -180,12 +185,12 @@ liquidityd tx encode tx_swap_signed.json
 For an example of broadcasting transactions using REST API (via gRPC-gateway), see Cosmos SDK [Migrating to New REST Endpoints](https://github.com/cosmos/cosmos-sdk/blob/master/docs/migrations/rest.md#migrating-to-new-rest-endpoints). Testing requires that the API server is enabled in `$HOME/.liquidityapp/config/app.toml`.
 
 ```bash
-curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"Cp0BCpoBCigvdGVuZGVybWludC5saXF1aWRpdHkuTXNnU3dhcFdpdGhpbkJhdGNoEm4KLWNvc21vczE4cWM2ZGwwNDZ1a3V0MjN3NnF1dndmenBmeWhncDJmeHFkcXAwNhACGAEiEAoEdXVzZBIINTAwMDAwMDAqBXVhdG9tMg0KBHV1c2QSBTc1MDAwOhExOTAwMDAwMDAwMDAwMDAwMBJYClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDsouFptHWGniIBzFrsE26PcfH950qjnf4RaEsd+g2fA0SBAoCCH8YAxIEEMCaDBpAOI3k8fay9TziZbl+eNCqmPEF7tWXua3ad0ldNR6XOgZjKRBP9sQSxCtaRFnqc6Avep9C4Rjt+CHDahRNpZ8u3A==","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
+curl --header "Content-Type: application/json" --request POST --data '{"tx_bytes":"'"$tx_bytes"'","mode":1}' localhost:1317/cosmos/tx/v1beta1/txs
 ```
 
 ### 2.3 Export Genesis State
 
-`$ liquidityd export`
+`$ $BINARY export`
 
 ### Export empty state case
 
