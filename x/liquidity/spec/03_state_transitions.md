@@ -221,12 +221,25 @@ Variables:
 
 ### Swap Fee Payment
 
-- Swap fees are calculated after the swap price is calculated.
+Rather than taking fee solely from `OfferCoin`, liquidity module is designed to take fees half from `OfferCoin`, and the other half from `ExchangedCoin`. This smooths out an impact of the fee payment process.
+- **OfferCoin Fee Reservation ( fee before batch process, in OfferCoin )**
+    - when user orders 100 Xcoin, the swap message demands
+        - `OfferCoin`(in Xcoin) : 100
+        - `ReservedOfferCoinFeeAmount`(in Xcoin) = `OfferCoin`*(`SwapFeeRate`/2)
+    - user needs to have at least 100+100*(`SwapFeeRate`/2) amount of Xcoin to successfully commit this swap message
+        - the message fails when user's balance is below this amount
+- **Actual Fee Payment**
+    - if 10 Xcoin is executed
+        - **OfferCoin Fee Payment from Reserved OfferCoin Fee**
+            - `OfferCoinFeeAmount`(in Xcoin) = (10/100)*`ReservedOfferCoinFeeAmount`
+            - `ReservedOfferCoinFeeAmount` is reduced from this fee payment
+        - **ExchangedCoin Fee Payment ( fee after batch process, in ExchangedCoin )**
+            - `ExchangedCoinFeeAmount`(in Ycoin) = `OfferCoinFeeAmount` / `SwapPrice`
+                - this is exactly equal value compared to advance fee payment assuming the current SwapPrice, to minimize the pool price impact from fee payment process
+
 - Swap fees are proportional to the coins received from matched swap orders.
-
-  - `SwapFee` = `ReceivedMatchedCoin` * `SwapFeeRate`
-
-- Swap fees are sent to the liquidity pool
+- Swap fees are sent to the liquidity pool.
+- The decimal points of the swap fees are rounded up.
 
 ## Cancel unexecuted swap orders with expired CancelHeight
 

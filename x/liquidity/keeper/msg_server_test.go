@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/tendermint/liquidity/app"
+	"github.com/tendermint/liquidity/x/liquidity"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
@@ -218,4 +219,214 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 	totalSupply := sdk.NewCoin(pools[0].PoolCoinDenom, simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pools[0]))
 	require.Equal(t, totalSupply, metaData.PoolCoinTotalSupply)
 	require.Equal(t, creatorBalance, metaData.PoolCoinTotalSupply)
+}
+
+func TestMsgSwapWithinBatch(t *testing.T) {
+	simapp, ctx := app.CreateTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1_000_000_000)), sdk.NewCoin(DenomY, sdk.NewInt(1_000_000_000)))
+	depositorAddr := app.AddRandomTestAddr(simapp, ctx, depositCoins.Add(params.PoolCreationFee...))
+	user := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1_000_000_000)), sdk.NewCoin(DenomY, sdk.NewInt(1_000_000_000))))
+
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, &types.MsgCreatePool{
+		PoolCreatorAddress: depositorAddr.String(),
+		PoolTypeId:         types.DefaultPoolTypeID,
+		DepositCoins:       depositCoins,
+	})
+	require.NoError(t, err)
+
+	cases := []struct {
+		expectedErr  string // empty means no error expected
+		swapFeeRate  sdk.Dec
+		msg          *types.MsgSwapWithinBatch
+		afterBalance sdk.Coins
+	}{
+		{
+			"",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
+				OfferCoinFee:         types.GetOfferCoinFee(sdk.NewCoin(DenomX, sdk.NewInt(10000)), params.SwapFeeRate),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("999989985denomX,1000009984denomY"),
+		},
+		{
+			// bad offer coin denom
+			"bad offer coin fee",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
+				OfferCoinFee:         sdk.NewCoin(DenomY, sdk.NewInt(15)),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
+		},
+		{
+			"bad offer coin fee",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(14)),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
+		},
+		{
+			"bad offer coin fee",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(16)),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
+		},
+		{
+			"",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10001)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(16)),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("999989983denomX,1000009984denomY"),
+		},
+		{
+			"",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(100)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(1)),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("999999899denomX,1000000098denomY"),
+		},
+		{
+			"bad offer coin fee",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(100)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(0)),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
+		},
+		{
+			"",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(1000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(2)),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("999998998denomX,1000000997denomY"),
+		},
+		{
+			"bad offer coin fee",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(1000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(1)),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
+		},
+		{
+			"",
+			sdk.ZeroDec(),
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(1000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.ZeroInt()),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("999999000denomX,1000000999denomY"),
+		},
+		{
+			"does not match the reserve coin of the pool",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
+				OfferCoinFee:         types.GetOfferCoinFee(sdk.NewCoin(DenomX, sdk.NewInt(10000)), params.SwapFeeRate),
+				DemandCoinDenom:      DenomA,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
+		},
+		{
+			"can not exceed max order ratio of reserve coins that can be ordered at a order",
+			types.DefaultSwapFeeRate,
+			&types.MsgSwapWithinBatch{
+				SwapRequesterAddress: user.String(),
+				PoolId:               pool.Id,
+				SwapTypeId:           pool.TypeId,
+				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(100_000_001)),
+				OfferCoinFee:         types.GetOfferCoinFee(sdk.NewCoin(DenomX, sdk.NewInt(100_000_001)), params.SwapFeeRate),
+				DemandCoinDenom:      DenomY,
+				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+			},
+			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
+		},
+	}
+
+	for _, tc := range cases {
+		cacheCtx, _ := ctx.CacheContext()
+		cacheCtx = cacheCtx.WithBlockHeight(1)
+		params.SwapFeeRate = tc.swapFeeRate
+		simapp.LiquidityKeeper.SetParams(cacheCtx, params)
+		_, err = simapp.LiquidityKeeper.SwapWithinBatch(cacheCtx, tc.msg, types.CancelOrderLifeSpan)
+		if tc.expectedErr == "" {
+			require.NoError(t, err)
+			liquidity.EndBlocker(cacheCtx, simapp.LiquidityKeeper)
+		} else {
+			require.EqualError(t, err, tc.expectedErr)
+		}
+		moduleAccAddress := simapp.AccountKeeper.GetModuleAddress(types.ModuleName)
+		require.True(t, simapp.BankKeeper.GetAllBalances(cacheCtx, moduleAccAddress).IsZero())
+		require.Equal(t, tc.afterBalance, simapp.BankKeeper.GetAllBalances(cacheCtx, user))
+	}
 }
