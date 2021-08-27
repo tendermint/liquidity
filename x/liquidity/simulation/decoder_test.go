@@ -24,6 +24,9 @@ func TestDecodeLiquidityStore(t *testing.T) {
 		Pairs: []kv.Pair{
 			{Key: types.PoolKeyPrefix, Value: cdc.MustMarshal(&liquidityPool)},
 			{Key: types.PoolBatchKeyPrefix, Value: cdc.MustMarshal(&liquidityPoolBatch)},
+			{Key: types.PoolBatchDepositMsgStateIndexKeyPrefix, Value: cdc.MustMarshal(&liquidityPoolBatch)},
+			{Key: types.PoolBatchWithdrawMsgStateIndexKeyPrefix, Value: cdc.MustMarshal(&liquidityPoolBatch)},
+			{Key: types.PoolBatchSwapMsgStateIndexKeyPrefix, Value: cdc.MustMarshal(&liquidityPoolBatch)},
 			{Key: []byte{0x99}, Value: []byte{0x99}},
 		},
 	}
@@ -34,6 +37,9 @@ func TestDecodeLiquidityStore(t *testing.T) {
 	}{
 		{"Pool", fmt.Sprintf("%v\n%v", liquidityPool, liquidityPool)},
 		{"PoolBatch", fmt.Sprintf("%v\n%v", liquidityPoolBatch, liquidityPoolBatch)},
+		{"Deposit PoolBatch", fmt.Sprintf("%v\n%v", liquidityPoolBatch, liquidityPoolBatch)},
+		{"Withdraw PoolBatch", fmt.Sprintf("%v\n%v", liquidityPoolBatch, liquidityPoolBatch)},
+		{"Swap PoolBatch", fmt.Sprintf("%v\n%v", liquidityPoolBatch, liquidityPoolBatch)},
 		{"other", ""},
 	}
 	for i, tt := range tests {
