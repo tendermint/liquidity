@@ -29,10 +29,20 @@ func NewDecodeStore(cdc codec.Codec) func(kvA, kvB kv.Pair) string {
 			cdc.MustUnmarshal(kvA.Value, &lpbB)
 			return fmt.Sprintf("%v\n%v", lpbA, lpbB)
 
-		case bytes.Equal(kvA.Key[:1], types.PoolBatchDepositMsgStateIndexKeyPrefix),
-			bytes.Equal(kvA.Key[:1], types.PoolBatchWithdrawMsgStateIndexKeyPrefix),
-			bytes.Equal(kvA.Key[:1], types.PoolBatchSwapMsgStateIndexKeyPrefix):
-			var lpbA, lpbB types.PoolBatch
+		case bytes.Equal(kvA.Key[:1], types.PoolBatchDepositMsgStateIndexKeyPrefix):
+			var lpbA, lpbB types.DepositMsgState
+			cdc.MustUnmarshal(kvA.Value, &lpbA)
+			cdc.MustUnmarshal(kvA.Value, &lpbB)
+			return fmt.Sprintf("%v\n%v", lpbA, lpbB)
+
+		case bytes.Equal(kvA.Key[:1], types.PoolBatchWithdrawMsgStateIndexKeyPrefix):
+			var lpbA, lpbB types.WithdrawMsgState
+			cdc.MustUnmarshal(kvA.Value, &lpbA)
+			cdc.MustUnmarshal(kvA.Value, &lpbB)
+			return fmt.Sprintf("%v\n%v", lpbA, lpbB)
+
+		case bytes.Equal(kvA.Key[:1], types.PoolBatchSwapMsgStateIndexKeyPrefix):
+			var lpbA, lpbB types.SwapMsgState
 			cdc.MustUnmarshal(kvA.Value, &lpbA)
 			cdc.MustUnmarshal(kvA.Value, &lpbB)
 			return fmt.Sprintf("%v\n%v", lpbA, lpbB)
