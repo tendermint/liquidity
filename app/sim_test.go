@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -142,9 +143,13 @@ func TestAppImportExport(t *testing.T) {
 	exported, err := app.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err)
 
-	// TEST
+	//
+	// TEST: export genesis file
+	//
+	now := time.Now()
 	genDoc := &tmtypes.GenesisDoc{}
 	genDoc.ChainID = "simulation-chain"
+	genDoc.GenesisTime = now
 	genDoc.Validators = nil
 	genDoc.AppState = exported.AppState
 
@@ -152,6 +157,7 @@ func TestAppImportExport(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	//
 
 	fmt.Printf("importing genesis...\n")
 
@@ -175,19 +181,23 @@ func TestAppImportExport(t *testing.T) {
 	newApp.mm.InitGenesis(ctxB, app.AppCodec(), genesisState)
 	newApp.StoreConsensusParams(ctxB, exported.ConsensusParams)
 
-	// TEST
+	//
+	// TEST: export genesis file
+	//
 	exported2, err := newApp.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err)
 
 	newgenDoc := &tmtypes.GenesisDoc{}
 	newgenDoc.ChainID = "simulation-chain"
+	newgenDoc.GenesisTime = now
 	newgenDoc.Validators = nil
 	newgenDoc.AppState = exported2.AppState
 
-	err = genutil.ExportGenesisFile(newgenDoc, "../genesis-after.json")
+	err = genutil.ExportGenesisFile(newgenDoc, "../genesis-new.json")
 	if err != nil {
 		panic(err)
 	}
+	//
 
 	fmt.Printf("comparing stores...\n")
 
@@ -210,11 +220,11 @@ func TestAppImportExport(t *testing.T) {
 		{app.keys[authzkeeper.StoreKey], newApp.keys[authzkeeper.StoreKey], [][]byte{}},
 		{app.keys[liquiditytypes.StoreKey], newApp.keys[liquiditytypes.StoreKey],
 			[][]byte{
-				// liquiditytypes.GlobalLiquidityPoolIDKey,
+				liquiditytypes.GlobalLiquidityPoolIDKey,
 				// liquiditytypes.PoolKeyPrefix,
 				liquiditytypes.PoolByReserveAccIndexKeyPrefix,
 				liquiditytypes.PoolBatchIndexKeyPrefix,
-				liquiditytypes.PoolBatchKeyPrefix,
+				// liquiditytypes.PoolBatchKeyPrefix,
 				// liquiditytypes.PoolBatchDepositMsgStateIndexKeyPrefix,
 				// liquiditytypes.PoolBatchWithdrawMsgStateIndexKeyPrefix,
 				// liquiditytypes.PoolBatchSwapMsgStateIndexKeyPrefix,
