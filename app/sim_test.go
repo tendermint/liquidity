@@ -221,13 +221,13 @@ func TestAppImportExport(t *testing.T) {
 		{app.keys[liquiditytypes.StoreKey], newApp.keys[liquiditytypes.StoreKey],
 			[][]byte{
 				liquiditytypes.GlobalLiquidityPoolIDKey,
-				// liquiditytypes.PoolKeyPrefix,
-				liquiditytypes.PoolByReserveAccIndexKeyPrefix,
 				liquiditytypes.PoolBatchIndexKeyPrefix,
+				// liquiditytypes.PoolKeyPrefix,
+				// liquiditytypes.PoolByReserveAccIndexKeyPrefix,
 				// liquiditytypes.PoolBatchKeyPrefix,
-				// liquiditytypes.PoolBatchDepositMsgStateIndexKeyPrefix,
-				// liquiditytypes.PoolBatchWithdrawMsgStateIndexKeyPrefix,
-				// liquiditytypes.PoolBatchSwapMsgStateIndexKeyPrefix,
+				liquiditytypes.PoolBatchDepositMsgStateIndexKeyPrefix,
+				liquiditytypes.PoolBatchWithdrawMsgStateIndexKeyPrefix,
+				liquiditytypes.PoolBatchSwapMsgStateIndexKeyPrefix,
 			},
 		},
 	}
