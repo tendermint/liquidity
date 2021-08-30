@@ -22,3 +22,15 @@ func MigratePrefixAddress(store sdk.KVStore, prefixBz []byte) {
 		oldStore.Delete(oldStoreIter.Key())
 	}
 }
+
+// DeleteDeprecatedPrefix is a helper function that deletes all keys which started the prefix
+func DeleteDeprecatedPrefix(store sdk.KVStore, prefixBz []byte) {
+	oldStore := prefix.NewStore(store, prefixBz)
+
+	oldStoreIter := oldStore.Iterator(nil, nil)
+	defer oldStoreIter.Close()
+
+	for ; oldStoreIter.Valid(); oldStoreIter.Next() {
+		oldStore.Delete(oldStoreIter.Key())
+	}
+}

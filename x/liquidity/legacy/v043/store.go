@@ -15,8 +15,11 @@ func MigrateStore(ctx sdk.Context, storeKey sdk.StoreKey) error {
 
 	// old key format v042:
 	// PoolByReserveAccIndex: `0x12 | ReserveAcc -> ProtocolBuffer(uint64)`
+	// PoolBatchIndex: `0x21 | PoolId -> ProtocolBuffer(uint64)`
 	// new key format v043:
 	// PoolByReserveAccIndex: `0x12 | ReserveAccLen (1 byte) | ReserveAcc -> ProtocolBuffer(uint64)`
+	// PoolBatchIndex: deprecated
 	MigratePrefixAddress(store, v042liquidity.PoolByReserveAccIndexKeyPrefix)
+	DeleteDeprecatedPrefix(store, v042liquidity.PoolBatchIndexKeyPrefix)
 	return nil
 }

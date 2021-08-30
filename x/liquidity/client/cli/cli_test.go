@@ -55,9 +55,7 @@ type IntegrationTestSuite struct {
 func (s *IntegrationTestSuite) SetupTest() {
 	s.T().Log("setting up integration test suite")
 
-	db := tmdb.NewMemDB()
-
-	cfg := liquiditytestutil.NewConfig(db)
+	cfg := liquiditytestutil.NewConfig()
 	cfg.NumValidators = 1
 
 	var liquidityGenState liquiditytypes.GenesisState

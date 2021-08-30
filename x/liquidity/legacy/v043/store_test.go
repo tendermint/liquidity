@@ -45,6 +45,16 @@ func TestStoreMigration(t *testing.T) {
 			v042liquidity.GetPoolByReserveAccIndexKey(reserveAcc2),
 			types.GetPoolByReserveAccIndexKey(reserveAcc2),
 		},
+		{
+			"poolBatchIndexKeyPrefix1",
+			v042liquidity.GetPoolBatchIndexKey(1),
+			nil,
+		},
+		{
+			"poolBatchIndexKeyPrefix2",
+			v042liquidity.GetPoolBatchIndexKey(2),
+			nil,
+		},
 	}
 
 	// Set all the old keys to the store
@@ -63,7 +73,9 @@ func TestStoreMigration(t *testing.T) {
 			if !bytes.Equal(tc.oldKey, tc.newKey) {
 				require.Nil(t, store.Get(tc.oldKey))
 			}
-			require.Equal(t, value, store.Get(tc.newKey))
+			if tc.newKey != nil {
+				require.Equal(t, value, store.Get(tc.newKey))
+			}
 		})
 	}
 }

@@ -23,20 +23,20 @@ import (
 
 // NewConfig returns config that defines the necessary testing requirements
 // used to bootstrap and start an in-process local testing network.
-func NewConfig(dbm *dbm.MemDB) network.Config {
+func NewConfig() network.Config {
 	encCfg := simapp.MakeTestEncodingConfig()
 
 	cfg := network.DefaultConfig()
-	cfg.AppConstructor = NewAppConstructor(encCfg, dbm)                    // the ABCI application constructor
+	cfg.AppConstructor = NewAppConstructor(encCfg)                         // the ABCI application constructor
 	cfg.GenesisState = liquidityapp.ModuleBasics.DefaultGenesis(cfg.Codec) // liquidity genesis state to provide
 	return cfg
 }
 
 // NewAppConstructor returns a new network AppConstructor.
-func NewAppConstructor(encodingCfg params.EncodingConfig, db *dbm.MemDB) network.AppConstructor {
+func NewAppConstructor(encodingCfg params.EncodingConfig) network.AppConstructor {
 	return func(val network.Validator) servertypes.Application {
 		return liquidityapp.NewLiquidityApp(
-			val.Ctx.Logger, db, nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
+			val.Ctx.Logger, dbm.NewMemDB(), nil, true, make(map[int64]bool), val.Ctx.Config.RootDir, 0,
 			liquidityapp.MakeEncodingConfig(),
 			simapp.EmptyAppOptions{},
 			baseapp.SetPruning(storetypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),

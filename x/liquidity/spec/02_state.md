@@ -114,8 +114,6 @@ type SwapMsgState struct {
 
 The parameters of the PoolBatch, DepositMsgState, WithdrawMsgState, and SwapMsgState states are:
 
-- PoolBatchIndex: `0x21 | PoolId -> uint64`
-
 - PoolBatch: `0x22 | PoolId -> ProtocolBuffer(PoolBatch)`
 
 - PoolBatchDepositMsgStates: `0x31 | PoolId | MsgIndex -> ProtocolBuffer(DepositMsgState)`
