@@ -168,11 +168,11 @@ $BINARY tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from validator --
 
 # An example of generating unsigned tx
 validator=$($BINARY keys show validator --keyring-backend test -a)
-$BINARY tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from $validator --chain-id testing --generate-only > tx_swap.json
+$BINARY tx liquidity swap 1 1 50000000uusd uatom 0.019 0.003 --from $validator --chain-id testing --generate-only &> tx_swap.json
 cat tx_swap.json
 
 # Sign the unsigned tx
-$BINARY tx sign tx_swap.json --from validator --chain-id testing --keyring-backend test -y > tx_swap_signed.json
+$BINARY tx sign tx_swap.json --from validator --chain-id testing --keyring-backend test -y &> tx_swap_signed.json
 cat tx_swap_signed.json
 
 # Encode the signed tx

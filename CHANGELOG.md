@@ -45,8 +45,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 * [\#436](https://github.com/tendermint/liquidity/pull/436) Validation `MsgSwapWithinBatch` and `OfferCoinFee` ceiling
   * When calculating `OfferCoinFee`, the decimal points are rounded up.
-    - before (v1.2.x):  `MsgSwapWithinBatch.OfferCoinFee` should be `OfferCoin` * `params.SwapFeeRate` with Truncate or 0
-    - after (v1.3.x):  `MsgSwapWithinBatch.OfferCoinFee` should be `OfferCoin` * `params.SwapFeeRate` with Ceil
+    - before (v1.2.x):  `MsgSwapWithinBatch.OfferCoinFee` should be `OfferCoin` * `params.SwapFeeRate/2` with Truncate or 0
+    - after (v1.3.x):  `MsgSwapWithinBatch.OfferCoinFee` should be `OfferCoin` * `params.SwapFeeRate/2` with Ceil
   * Fix reserveOfferCoinFee residual Issue due to decimal error
   
 * [\#438](https://github.com/tendermint/liquidity/pull/438) Fix PoolBatch index, beginHeight issues and genesis logic
