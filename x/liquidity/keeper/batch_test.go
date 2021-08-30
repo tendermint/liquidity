@@ -317,7 +317,7 @@ func TestCreateDepositWithdrawWithinBatch(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(1), batch.Index)
+	require.Equal(t, uint64(2), batch.Index)
 
 	// withdraw
 	withdrawerBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[1], pools[0].ReserveCoinDenoms[0])
@@ -362,7 +362,7 @@ func TestCreateDepositWithdrawWithinBatch(t *testing.T) {
 	require.True(t, withdrawMsgs[0].Executed)
 	require.True(t, withdrawMsgs[0].Succeeded)
 	require.True(t, withdrawMsgs[0].ToBeDeleted)
-	require.Equal(t, uint64(1), batch.Index)
+	require.Equal(t, uint64(2), batch.Index)
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -376,7 +376,7 @@ func TestCreateDepositWithdrawWithinBatch(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(2), batch.Index)
+	require.Equal(t, uint64(3), batch.Index)
 	require.False(t, batch.Executed)
 }
 
@@ -494,7 +494,7 @@ func TestCreateDepositWithdrawWithinBatch2(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(1), batch.Index)
+	require.Equal(t, uint64(2), batch.Index)
 
 	// withdraw
 	withdrawerBalanceX := simapp.BankKeeper.GetBalance(ctx, addrs[1], pools[0].ReserveCoinDenoms[0])
@@ -539,7 +539,7 @@ func TestCreateDepositWithdrawWithinBatch2(t *testing.T) {
 	require.True(t, withdrawMsgs[0].Executed)
 	require.True(t, withdrawMsgs[0].Succeeded)
 	require.True(t, withdrawMsgs[0].ToBeDeleted)
-	require.Equal(t, uint64(1), batch.Index)
+	require.Equal(t, uint64(2), batch.Index)
 
 	// next block
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
@@ -553,7 +553,7 @@ func TestCreateDepositWithdrawWithinBatch2(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(2), batch.Index)
+	require.Equal(t, uint64(3), batch.Index)
 	require.False(t, batch.Executed)
 }
 
@@ -607,7 +607,7 @@ func TestLiquidityScenario(t *testing.T) {
 
 	batch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, batch.PoolId)
 	require.True(t, found)
-	require.Equal(t, uint64(2), batch.Index)
+	require.Equal(t, uint64(3), batch.Index)
 	require.False(t, batch.Executed)
 }
 
@@ -1040,7 +1040,6 @@ func TestInitNextBatch(t *testing.T) {
 	batch := types.NewPoolBatch(pool.Id, 1)
 
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
-	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.Index)
 	err := simapp.LiquidityKeeper.InitNextPoolBatch(ctx, batch)
 	require.ErrorIs(t, err, types.ErrBatchNotExecuted)
 

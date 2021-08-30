@@ -71,7 +71,7 @@ JSON Structure:
   "body": {
     "messages": [
       {
-        "@type": "/tendermint.liquidity.MsgCreatePool",
+        "@type": "/tendermint.liquidity.v1beta1.MsgCreatePool",
         "pool_creator_address": "cosmos1s6cjfm4djg95jkzsfe490yfc9k6wazx6culyft",
         "pool_type_id": 1,
         "deposit_coins": [
@@ -120,6 +120,32 @@ Result
       "log": "",
       "events": [
         {
+          "type": "coin_received",
+          "attributes": [
+            {
+              "key": "receiver",
+              "value": "cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl"
+            },
+            {
+              "key": "amount",
+              "value": "40000000stake"
+            }
+          ]
+        },
+        {
+          "type": "coin_spent",
+          "attributes": [
+            {
+              "key": "spender",
+              "value": "cosmos1s6cjfm4djg95jkzsfe490yfc9k6wazx6culyft"
+            },
+            {
+              "key": "amount",
+              "value": "40000000stake"
+            }
+          ]
+        },
+        {
           "type": "create_pool",
           "attributes": [
             {
@@ -153,15 +179,7 @@ Result
           "attributes": [
             {
               "key": "action",
-              "value": "create_pool"
-            },
-            {
-              "key": "sender",
-              "value": "cosmos1s6cjfm4djg95jkzsfe490yfc9k6wazx6culyft"
-            },
-            {
-              "key": "sender",
-              "value": "cosmos1tx68a8k9yz54z06qfve9l2zxvgsz4ka3hr8962"
+              "value": "/tendermint.liquidity.v1beta1.MsgCreatePool"
             },
             {
               "key": "sender",
@@ -178,22 +196,6 @@ Result
           "attributes": [
             {
               "key": "recipient",
-              "value": "cosmos1jmhkafh94jpgakr735r70t32sxq9wzkayzs9we"
-            },
-            {
-              "key": "amount",
-              "value": "1000000000uatom,50000000000uusd"
-            },
-            {
-              "key": "recipient",
-              "value": "cosmos1s6cjfm4djg95jkzsfe490yfc9k6wazx6culyft"
-            },
-            {
-              "key": "amount",
-              "value": "1000000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295"
-            },
-            {
-              "key": "recipient",
               "value": "cosmos1jv65s3grqf6v6jl3dp4t6c9t9rk99cd88lyufl"
             },
             {
@@ -202,7 +204,7 @@ Result
             },
             {
               "key": "amount",
-              "value": "100000000stake"
+              "value": "40000000stake"
             }
           ]
         }
@@ -232,7 +234,7 @@ JSON Structure:
   "body": {
     "messages": [
       {
-        "@type": "/tendermint.liquidity.MsgDepositWithinBatch",
+        "@type": "/tendermint.liquidity.v1beta1.MsgDepositWithinBatch",
         "depositor_address": "cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3",
         "pool_id": "1",
         "deposit_coins": [
@@ -281,6 +283,32 @@ Result:
       "log": "",
       "events": [
         {
+          "type": "coin_received",
+          "attributes": [
+            {
+              "key": "receiver",
+              "value": "cosmos1tx68a8k9yz54z06qfve9l2zxvgsz4ka3hr8962"
+            },
+            {
+              "key": "amount",
+              "value": "100000000uatom,5000000000uusd"
+            }
+          ]
+        },
+        {
+          "type": "coin_spent",
+          "attributes": [
+            {
+              "key": "spender",
+              "value": "cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3"
+            },
+            {
+              "key": "amount",
+              "value": "100000000uatom,5000000000uusd"
+            }
+          ]
+        },
+        {
           "type": "deposit_within_batch",
           "attributes": [
             {
@@ -306,7 +334,7 @@ Result:
           "attributes": [
             {
               "key": "action",
-              "value": "deposit_within_batch"
+              "value": "/tendermint.liquidity.v1beta1.MsgDepositWithinBatch"
             },
             {
               "key": "sender",
@@ -404,11 +432,37 @@ Result:
       "log": "",
       "events": [
         {
+          "type": "coin_received",
+          "attributes": [
+            {
+              "key": "receiver",
+              "value": "cosmos1tx68a8k9yz54z06qfve9l2zxvgsz4ka3hr8962"
+            },
+            {
+              "key": "amount",
+              "value": "10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295"
+            }
+          ]
+        },
+        {
+          "type": "coin_spent",
+          "attributes": [
+            {
+              "key": "spender",
+              "value": "cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3"
+            },
+            {
+              "key": "amount",
+              "value": "10000pool96EF6EA6E5AC828ED87E8D07E7AE2A8180570ADD212117B2DA6F0B75D17A6295"
+            }
+          ]
+        },
+        {
           "type": "message",
           "attributes": [
             {
               "key": "action",
-              "value": "withdraw_within_batch"
+              "value": "/tendermint.liquidity.v1beta1.MsgWithdrawWithinBatch"
             },
             {
               "key": "sender",
@@ -537,15 +591,37 @@ Result:
       "log": "",
       "events": [
         {
+          "type": "coin_received",
+          "attributes": [
+            {
+              "key": "receiver",
+              "value": "cosmos1tx68a8k9yz54z06qfve9l2zxvgsz4ka3hr8962"
+            },
+            {
+              "key": "amount",
+              "value": "50075000uusd"
+            }
+          ]
+        },
+        {
+          "type": "coin_spent",
+          "attributes": [
+            {
+              "key": "spender",
+              "value": "cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3"
+            },
+            {
+              "key": "amount",
+              "value": "50075000uusd"
+            }
+          ]
+        },
+        {
           "type": "message",
           "attributes": [
             {
               "key": "action",
-              "value": "swap_within_batch"
-            },
-            {
-              "key": "sender",
-              "value": "cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3"
+              "value": "/tendermint.liquidity.v1beta1.MsgSwapWithinBatch"
             },
             {
               "key": "sender",
@@ -611,19 +687,7 @@ Result:
             },
             {
               "key": "amount",
-              "value": "50000000uusd"
-            },
-            {
-              "key": "recipient",
-              "value": "cosmos1tx68a8k9yz54z06qfve9l2zxvgsz4ka3hr8962"
-            },
-            {
-              "key": "sender",
-              "value": "cosmos1h6ht09xx0ue0fqmezk7msgqcc9k20a5x5ynvc3"
-            },
-            {
-              "key": "amount",
-              "value": "75000uusd"
+              "value": "50075000uusd"
             }
           ]
         }

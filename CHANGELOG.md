@@ -37,13 +37,22 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+## [v1.3.0](https://github.com/tendermint/liquidity/releases/tag/v1.3.0) - 2021-08-31
+
 ### State Machine Breaking
+
+* [\#433](https://github.com/tendermint/liquidity/pull/433) (sdk) Bump SDK version to [v0.43.0](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.43.0).
 
 * [\#436](https://github.com/tendermint/liquidity/pull/436) Validation `MsgSwapWithinBatch` and `OfferCoinFee` ceiling
   * When calculating `OfferCoinFee`, the decimal points are rounded up.
+    - before (v1.2.x):  `MsgSwapWithinBatch.OfferCoinFee` should be `OfferCoin` * `params.SwapFeeRate/2` with Truncate or 0
+    - after (v1.3.x):  `MsgSwapWithinBatch.OfferCoinFee` should be `OfferCoin` * `params.SwapFeeRate/2` with Ceil
   * Fix reserveOfferCoinFee residual Issue due to decimal error
   
-* [\#433](https://github.com/tendermint/liquidity/pull/433) (sdk) Bump SDK version to [v0.43.0](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.43.0).  
+* [\#438](https://github.com/tendermint/liquidity/pull/438) Fix PoolBatch index, beginHeight issues and genesis logic
+  * Remove `PoolBatchIndex`
+  * Fix `PoolBatch.Index` duplicated bug
+  * Fix `PoolBatch.BeginHeight` consistency issue on genesis init logic  
   
 ## [v1.2.9](https://github.com/tendermint/liquidity/releases/tag/v1.2.9) - 2021-06-26
  * Liquidity module version 1 for Gravity-DEX

@@ -552,8 +552,9 @@ func (k Keeper) GetPoolRecord(ctx sdk.Context, pool types.Pool) (types.PoolRecor
 // SetPoolRecord stores liquidity pool states
 func (k Keeper) SetPoolRecord(ctx sdk.Context, record types.PoolRecord) types.PoolRecord {
 	k.SetPoolAtomic(ctx, record.Pool)
-	k.GetNextPoolBatchIndexWithUpdate(ctx, record.Pool.Id)
-	record.PoolBatch.BeginHeight = ctx.BlockHeight()
+	if record.PoolBatch.BeginHeight > ctx.BlockHeight() {
+		record.PoolBatch.BeginHeight = 0
+	}
 	k.SetPoolBatch(ctx, record.PoolBatch)
 	k.SetPoolBatchDepositMsgStates(ctx, record.Pool.Id, record.DepositMsgStates)
 	k.SetPoolBatchWithdrawMsgStates(ctx, record.Pool.Id, record.WithdrawMsgStates)

@@ -71,7 +71,7 @@ func (s *IntegrationTestSuite) SetupTest() {
 	cfg.StakingTokens = sdk.NewInt(100_000_000_000) // stake denom
 
 	s.cfg = cfg
-	s.network = network.New(s.T(), cfg)
+	s.network = network.New(s.T(), s.cfg)
 	s.db = db
 
 	_, err = s.network.WaitForHeight(1)
