@@ -50,8 +50,11 @@ func TestGenesisState(t *testing.T) {
 	orderAddrs := addrs[1:2]
 	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, false)
 	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, false)
-	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, false)
 	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, true)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, true)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
 	genesisExported := liquidity.ExportGenesis(ctx, simapp.LiquidityKeeper)
 	bankGenesisExported := simapp.BankKeeper.ExportGenesis(ctx)

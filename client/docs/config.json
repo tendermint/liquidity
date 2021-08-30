@@ -3,7 +3,7 @@
   "info": {
     "title": "Cosmos SDK Liquidity Module - REST and gRPC Gateway docs",
     "description": "A REST interface for state queries, transactions",
-    "version": "2.3.0"
+    "version": "2.3.1"
   },
   "apis": [
     {

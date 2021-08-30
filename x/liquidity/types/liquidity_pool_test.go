@@ -64,7 +64,7 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	pool.ReserveAccountAddress = "badaddress"
 	require.Equal(t, types.ErrBadReserveAccountAddress, pool.Validate())
 
-	pool.ReserveAccountAddress = types.GetPoolReserveAcc(pool.Name()).String()
+	pool.ReserveAccountAddress = types.GetPoolReserveAcc(pool.Name(), false).String()
 	add2, err := sdk.AccAddressFromBech32(pool.ReserveAccountAddress)
 	require.NoError(t, err)
 	require.Equal(t, add2, pool.GetReserveAccount())
@@ -96,7 +96,6 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	simapp.LiquidityKeeper.SetPool(ctx, pool)
 	batch := types.NewPoolBatch(pool.Id, 1)
 	simapp.LiquidityKeeper.SetPoolBatch(ctx, batch)
-	simapp.LiquidityKeeper.SetPoolBatchIndex(ctx, batch.PoolId, batch.Index)
 	batchByte := types.MustMarshalPoolBatch(cdc, batch)
 	require.Equal(t, batch, types.MustUnmarshalPoolBatch(cdc, batchByte))
 

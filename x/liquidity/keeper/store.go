@@ -66,7 +66,7 @@ func (k Keeper) GetAllPools(ctx sdk.Context) (pools []types.Pool) {
 func (k Keeper) GetNextPoolIDWithUpdate(ctx sdk.Context) uint64 {
 	store := ctx.KVStore(k.storeKey)
 	poolID := k.GetNextPoolID(ctx)
-	bz := k.cdc.MustMarshalBinaryBare(&gogotypes.UInt64Value{Value: poolID + 1})
+	bz := k.cdc.MustMarshal(&gogotypes.UInt64Value{Value: poolID + 1})
 	store.Set(types.GlobalLiquidityPoolIDKey, bz)
 	return poolID
 }
@@ -83,7 +83,7 @@ func (k Keeper) GetNextPoolID(ctx sdk.Context) uint64 {
 	} else {
 		val := gogotypes.UInt64Value{}
 
-		err := k.cdc.UnmarshalBinaryBare(bz, &val)
+		err := k.cdc.Unmarshal(bz, &val)
 		if err != nil {
 			panic(err)
 		}
@@ -104,7 +104,7 @@ func (k Keeper) GetPoolByReserveAccIndex(ctx sdk.Context, reserveAcc sdk.AccAddr
 	}
 
 	val := gogotypes.UInt64Value{}
-	err := k.cdc.UnmarshalBinaryBare(value, &val)
+	err := k.cdc.Unmarshal(value, &val)
 	if err != nil {
 		return pool, false
 	}
@@ -115,7 +115,7 @@ func (k Keeper) GetPoolByReserveAccIndex(ctx sdk.Context, reserveAcc sdk.AccAddr
 // SetPoolByReserveAccIndex sets Index by ReserveAcc for pool duplication check
 func (k Keeper) SetPoolByReserveAccIndex(ctx sdk.Context, pool types.Pool) {
 	store := ctx.KVStore(k.storeKey)
-	b := k.cdc.MustMarshalBinaryBare(&gogotypes.UInt64Value{Value: pool.Id})
+	b := k.cdc.MustMarshal(&gogotypes.UInt64Value{Value: pool.Id})
 	store.Set(types.GetPoolByReserveAccIndexKey(pool.GetReserveAccount()), b)
 }
 
@@ -125,25 +125,6 @@ func (k Keeper) SetPoolAtomic(ctx sdk.Context, pool types.Pool) types.Pool {
 	k.SetPool(ctx, pool)
 	k.SetPoolByReserveAccIndex(ctx, pool)
 	return pool
-}
-
-// GetPoolBatchIndex returns the pool's latest batch index
-func (k Keeper) GetPoolBatchIndex(ctx sdk.Context, poolID uint64) uint64 {
-	store := ctx.KVStore(k.storeKey)
-	key := types.GetPoolBatchIndexKey(poolID)
-
-	bz := store.Get(key)
-	if bz == nil {
-		return 0
-	}
-	return sdk.BigEndianToUint64(bz)
-}
-
-// SetPoolBatchIndex sets index for pool batch, it should be increase after batch executed
-func (k Keeper) SetPoolBatchIndex(ctx sdk.Context, poolID, batchIndex uint64) {
-	store := ctx.KVStore(k.storeKey)
-	b := sdk.Uint64ToBigEndian(batchIndex)
-	store.Set(types.GetPoolBatchIndexKey(poolID), b)
 }
 
 // GetPoolBatch returns a specific pool batch
@@ -159,14 +140,6 @@ func (k Keeper) GetPoolBatch(ctx sdk.Context, poolID uint64) (poolBatch types.Po
 	poolBatch = types.MustUnmarshalPoolBatch(k.cdc, value)
 
 	return poolBatch, true
-}
-
-// GetNextPoolBatchIndexWithUpdate returns next batch index, with set index increased
-func (k Keeper) GetNextPoolBatchIndexWithUpdate(ctx sdk.Context, poolID uint64) (batchIndex uint64) {
-	batchIndex = k.GetPoolBatchIndex(ctx, poolID)
-	batchIndex++
-	k.SetPoolBatchIndex(ctx, poolID, batchIndex)
-	return
 }
 
 // GetAllPoolBatches returns all batches of the all existed liquidity pools

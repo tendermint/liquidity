@@ -46,7 +46,7 @@ func (k Querier) LiquidityPoolByPoolCoinDenom(c context.Context, req *types.Quer
 		return nil, status.Errorf(codes.InvalidArgument, "empty request")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	reserveAcc, err := types.GetReserveAcc(req.PoolCoinDenom)
+	reserveAcc, err := types.GetReserveAcc(req.PoolCoinDenom, false)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "liquidity pool with pool coin denom %s doesn't exist", req.PoolCoinDenom)
 	}

@@ -105,16 +105,34 @@ func TestGenesisState(t *testing.T) {
 	require.Panics(t, func() {
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-	require.NoError(t, simapp2.BankKeeper.SetBalances(ctx2, pool.GetReserveAccount(), reserveCoins))
 	require.Panics(t, func() {
+		app.SaveAccount(simapp2, ctx, pool.GetReserveAccount(), reserveCoins)
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-	require.NoError(t, simapp2.BankKeeper.SetBalances(ctx2, addrs[0], sdk.Coins{poolCoinBalanceCreator}))
 	require.Panics(t, func() {
+		app.SaveAccount(simapp2, ctx, addrs[0], sdk.Coins{poolCoinBalanceCreator})
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
-	require.NoError(t, simapp2.BankKeeper.SetBalances(ctx2, addrs[1], sdk.Coins{poolCoinBalance}))
 	require.Panics(t, func() {
+		app.SaveAccount(simapp2, ctx2, addrs[1], sdk.Coins{poolCoinBalance})
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
+	})
+
+	simapp3 := app.Setup(false)
+	ctx3 := simapp3.BaseApp.NewContext(false, tmproto.Header{}).WithBlockHeight(ctx.BlockHeight())
+	require.Panics(t, func() {
+		simapp3.LiquidityKeeper.InitGenesis(ctx3, *newGenesis)
+	})
+	require.Panics(t, func() {
+		app.SaveAccount(simapp3, ctx, pool.GetReserveAccount(), reserveCoins)
+		simapp3.LiquidityKeeper.InitGenesis(ctx3, *newGenesis)
+	})
+	require.Panics(t, func() {
+		app.SaveAccount(simapp3, ctx, addrs[0], sdk.Coins{poolCoinBalanceCreator})
+		simapp3.LiquidityKeeper.InitGenesis(ctx3, *newGenesis)
+	})
+	require.Panics(t, func() {
+		app.SaveAccount(simapp3, ctx3, addrs[1], sdk.Coins{poolCoinBalance})
+		simapp3.LiquidityKeeper.InitGenesis(ctx3, *newGenesis)
 	})
 }

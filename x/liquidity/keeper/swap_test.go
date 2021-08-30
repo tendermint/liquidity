@@ -309,7 +309,7 @@ func TestRefundEscrow(t *testing.T) {
 			offerAmtWithFee := offerAmt.Quo(sdk.OneDec().Add(params.SwapFeeRate.QuoInt64(2))).TruncateInt()                          // offerAmt / (1 + swapFeeRate/2)
 			orderPrice := poolPrice.Mul(sdk.NewDecFromIntWithPrec(app.GetRandRange(r, 1, 1_000_000_000_000_000_000), sdk.Precision)) // poolPrice * (0, 1)
 
-			require.NoError(t, simapp.BankKeeper.SetBalance(ctx, addr, sdk.NewCoin(DenomY, offerAmt.Ceil().TruncateInt())))
+			app.SaveAccount(simapp, ctx, addr, sdk.NewCoins(sdk.NewCoin(DenomY, offerAmt.Ceil().TruncateInt())))
 
 			liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 

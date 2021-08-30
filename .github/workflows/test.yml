@@ -90,15 +90,41 @@ jobs:
         with:
           file: ./coverage.txt
 
-  test-simulation:
+  test-sim-nondeterminism:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2.1.3
         with:
-          go-version: 1.15
+          go-version: 1.16
       - name: Display go version
         run: go version
       - name: Testing simulation
         run: make test-sim-nondeterminism
+
+  test-sim-after-import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2.1.3
+        with:
+          go-version: 1.16
+      - name: Display go version
+        run: go version
+      - name: Testing simulation
+        run: make test-sim-after-import
+
+  test-sim-import-export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2.1.3
+        with:
+          go-version: 1.16
+      - name: Display go version
+        run: go version
+      - name: Testing simulation
+        run: make test-sim-import-export
