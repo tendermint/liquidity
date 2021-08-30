@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -23,7 +22,6 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	"github.com/cosmos/cosmos-sdk/x/genutil"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -35,8 +33,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
-
-	tmtypes "github.com/tendermint/tendermint/types"
 
 	liquiditytypes "github.com/tendermint/liquidity/x/liquidity/types"
 )
@@ -144,22 +140,6 @@ func TestAppImportExport(t *testing.T) {
 	exported, err := app.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err)
 
-	//
-	// TEST: export genesis file
-	//
-	now := time.Now()
-	genDoc := &tmtypes.GenesisDoc{}
-	genDoc.ChainID = "simulation-chain"
-	genDoc.GenesisTime = now
-	genDoc.Validators = nil
-	genDoc.AppState = exported.AppState
-
-	err = genutil.ExportGenesisFile(genDoc, "../genesis.json")
-	if err != nil {
-		panic(err)
-	}
-	//
-
 	fmt.Printf("importing genesis...\n")
 
 	_, newDB, newDir, _, _, err := simapp.SetupSimulation("leveldb-app-sim-2", "Simulation-2")
@@ -181,24 +161,6 @@ func TestAppImportExport(t *testing.T) {
 	ctxB := newApp.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 	newApp.mm.InitGenesis(ctxB, app.AppCodec(), genesisState)
 	newApp.StoreConsensusParams(ctxB, exported.ConsensusParams)
-
-	//
-	// TEST: export genesis file
-	//
-	exported2, err := newApp.ExportAppStateAndValidators(false, []string{})
-	require.NoError(t, err)
-
-	newgenDoc := &tmtypes.GenesisDoc{}
-	newgenDoc.ChainID = "simulation-chain"
-	newgenDoc.GenesisTime = now
-	newgenDoc.Validators = nil
-	newgenDoc.AppState = exported2.AppState
-
-	err = genutil.ExportGenesisFile(newgenDoc, "../genesis-new.json")
-	if err != nil {
-		panic(err)
-	}
-	//
 
 	fmt.Printf("comparing stores...\n")
 

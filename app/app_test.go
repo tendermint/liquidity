@@ -50,7 +50,7 @@ func TestSimAppExportAndBlockedAddrs(t *testing.T) {
 		)
 	}
 
-	genesisState := NewDefaultGenesisState(encCfg.Marshaler)
+	genesisState := NewDefaultGenesisState()
 	stateBytes, err := json.MarshalIndent(genesisState, "", "  ")
 	require.NoError(t, err)
 
@@ -247,7 +247,7 @@ func TestUpgradeStateOnGenesis(t *testing.T) {
 	encCfg := MakeEncodingConfig()
 	db := dbm.NewMemDB()
 	app := NewLiquidityApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, map[int64]bool{}, DefaultNodeHome, 0, encCfg, EmptyAppOptions{})
-	genesisState := NewDefaultGenesisState(encCfg.Marshaler)
+	genesisState := NewDefaultGenesisState()
 	stateBytes, err := json.MarshalIndent(genesisState, "", "  ")
 	require.NoError(t, err)
 
