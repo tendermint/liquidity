@@ -37,6 +37,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+## [v1.4.0](https://github.com/tendermint/liquidity/releases/tag/v1.4.0) - 2021.09.07
+
+* [\#440](https://github.com/tendermint/liquidity/pull/440) (sdk) Bump SDK version to [v0.44.0](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.44.0)
+
 ## [v1.3.0](https://github.com/tendermint/liquidity/releases/tag/v1.3.0) - 2021-08-31
 
 ### State Machine Breaking
