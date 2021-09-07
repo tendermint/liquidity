@@ -206,7 +206,7 @@ Ranged Liquidity is a new way to provide liquidity for automated market making. 
 ### 3.2.2. Finding "a" and "b"
 
 - swap dx→Y : all Y is traded from dx swap
-    - constant product : <img src="https://render.githubusercontent.com/render/math?math=k = (X+a)*(Y+b) = (X+dx+a)*(b) → dx = (a*Y+X*Y)/b"> → <img src="https://render.githubusercontent.com/render/math?math=dx = (a*Y+X*Y)/b">
+    - constant product : <img src="https://render.githubusercontent.com/render/math?math=k = (X+a)*(Y+b) = (X+dx+a)*(b)"> → <img src="https://render.githubusercontent.com/render/math?math=dx = (a*Y+X*Y)/b">
     - swap price : <img src="https://render.githubusercontent.com/render/math?math=dx/Y = ((a*Y+X*Y)/b)/Y = L"> —— (3)
 - swap dy→X : all X is traded from dy swap
     - constant product : <img src="https://render.githubusercontent.com/render/math?math=k = (X+a)*(Y+b) = (a)*(Y+dy+b)"> → <img src="https://render.githubusercontent.com/render/math?math=dy = (b*X+X*Y)/a">
@@ -250,8 +250,7 @@ Ranged Liquidity is a new way to provide liquidity for automated market making. 
     - <img src="https://render.githubusercontent.com/render/math?math=(X+a)/(Y+b) = (X+dx+a')/(Y+dy+b')">
         - <img src="https://render.githubusercontent.com/render/math?math=(X+a)/(Y+b) = (X+M*X/(P-M))/(Y+P*X/(L*(P-M)))">
         - <img src="https://render.githubusercontent.com/render/math?math=(X+dx+a')/(Y+dy+b') = (X+dx+M*(X+dx)/(P-M))/(Y+dy+P*(X+dx)/(L*(P-M)))">
-
-        → <img src="https://render.githubusercontent.com/render/math?math=dx/dy = X/Y">
+        - <img src="https://render.githubusercontent.com/render/math?math=dx/dy = X/Y">
 
 ### 3.3.3. Swap
 
@@ -259,15 +258,13 @@ Ranged Liquidity is a new way to provide liquidity for automated market making. 
     - finding dy when P is given ( usable Y liquidity at given price P )
         - constant product : <img src="https://render.githubusercontent.com/render/math?math=(X+a)*(Y+b) = (X+a+P*dy)*(Y+b-dy)"> —— (10)
         - solving (10) for dy yields
-
-            → <img src="https://render.githubusercontent.com/render/math?math=dy = (Y+b)-(X+a)/P">
+            - <img src="https://render.githubusercontent.com/render/math?math=dy = (Y+b)-(X+a)/P">
 
 - price decreasing case : swap dy→dx at swap price P
     - finding dx when P is given ( usable X liquidity at given price P )
         - constant product : <img src="https://render.githubusercontent.com/render/math?math=(X+a)*(Y+b) = (X+a-dx)*(Y+b+dx/P)"> —— (11)
         - solving (11) for dx yields
-
-            → <img src="https://render.githubusercontent.com/render/math?math=dx = (X+a)-P*(Y+b)">
+            - <img src="https://render.githubusercontent.com/render/math?math=dx = (X+a)-P*(Y+b)">
 
 ## 3.4. Allocation of Pool Liquidity on Order Book
 
@@ -275,31 +272,20 @@ Ranged Liquidity is a new way to provide liquidity for automated market making. 
     - calculating liquidity of each tick provided by pool
         - Y liquidity of tick price P (price of tick is higher than current pool price)
             - total Y liquidity provided by pool from current price to P (From 3.3.3)
-
-                → <img src="https://render.githubusercontent.com/render/math?math=dy = (Y+b)-(X+a)/P"> —— (12)
-
+                - <img src="https://render.githubusercontent.com/render/math?math=dy = (Y+b)-(X+a)/P"> —— (12)
             - total Y liquidity provided by pool from current price to P'(price 1 tick lower than P)
-
-                → <img src="https://render.githubusercontent.com/render/math?math=dy' = (Y+b)-(X+a)/P'"> —— (13)
-
+                - <img src="https://render.githubusercontent.com/render/math?math=dy' = (Y+b)-(X+a)/P'"> —— (13)
             - subtracting (13) from (12)
-
-                → Y liquidity of tick price P = <img src="https://render.githubusercontent.com/render/math?math=(X+a)/P' - (X+a)/P">
-
+                - Y liquidity of tick price P = <img src="https://render.githubusercontent.com/render/math?math=(X+a)/P' - (X+a)/P">
             - If P approaches L, from (5), (6) and (12), dy approaches Y. It means that the pool provides Y liquidity only until predetermined maximum pool price.
         - X liquidity of tick price P (price of tick is lower than current pool price)
             - total X liquidity provided by pool from current price to P (From 3.3.3)
-
-                → <img src="https://render.githubusercontent.com/render/math?math=dx = (X+a)-P*(Y+b)"> —— (14)
+                - <img src="https://render.githubusercontent.com/render/math?math=dx = (X+a)-P*(Y+b)"> —— (14)
 
             - total Y liquidity provided by pool from current price to P'(price 1 tick higher than P)
-
-                → <img src="https://render.githubusercontent.com/render/math?math=dx' = (X+a)-P'*(Y+b)"> —— (15)
-
+                - <img src="https://render.githubusercontent.com/render/math?math=dx' = (X+a)-P'*(Y+b)"> —— (15)
             - subtracting (15) from (14)
-
-                → X liquidity of tick price P = <img src="https://render.githubusercontent.com/render/math?math=P'*(Y+b) - P*(Y+b) = (P'-P)*(Y+b)">
-
+                - X liquidity of tick price P = <img src="https://render.githubusercontent.com/render/math?math=P'*(Y+b) - P*(Y+b) = (P'-P)*(Y+b)">
             - If P approaches M, from (5), (6) and (14), dx approaches X. It means that the pool provides X liquidity only until predetermined minimum pool price.
 
 # 4. Fees
