@@ -318,7 +318,7 @@ In Gravity DEX V2.0, with multiple pools with different swap fee rates, combined
     - pool swap fee is migrated to adjusted quote price
     - concept of pool swap fee disappears : pool does not need to collect swap fee anymore
     - fee rate concept should be replaced by "QuoteSpread"
-        - <img src="https://render.githubusercontent.com/render/math?math=QuoteSpread = (HBP-LAP)/((HBP+LAP)/2)">
+        - <img src="https://render.githubusercontent.com/render/math?math=QuoteSpread = (HBP-LAP)/((HBP + LAP)/2)">
         - HBP : highest bid price from the pool quotes
         - LAP : lowest ask price from the pool quotes
         - QuoteSpread should be divided by 2 to replace FeeRate
