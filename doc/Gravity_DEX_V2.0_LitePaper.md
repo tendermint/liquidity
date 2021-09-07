@@ -195,8 +195,8 @@ Ranged Liquidity is a new way to provide liquidity for automated market making. 
 ### 3.2.1. Design
 
 - shifting constant product curve to left(a) & downward(b)
-    - constant product : <img src="https://render.githubusercontent.com/render/math?math=(X+a)*(Y+b) = k"> —— (1)
-    - pool price : <img src="https://render.githubusercontent.com/render/math?math=P = (X+a)/(Y+b)"> —— (2)
+    - constant product : <img src="https://render.githubusercontent.com/render/math?math=(X%2Ba)*(Y%2Bb) = k"> —— (1)
+    - pool price : <img src="https://render.githubusercontent.com/render/math?math=P = (X%2Ba)/(Y%2Bb)"> —— (2)
 - ranged pool definition
     - coin pair : X and Y
     - price range : range of the pool price P
@@ -206,14 +206,14 @@ Ranged Liquidity is a new way to provide liquidity for automated market making. 
 ### 3.2.2. Finding "a" and "b"
 
 - swap dx→Y : all Y is traded from dx swap
-    - constant product : <img src="https://render.githubusercontent.com/render/math?math=k = (X+a)*(Y+b) = (X+dx+a)*(b)"> → <img src="https://render.githubusercontent.com/render/math?math=dx = (a*Y+X*Y)/b">
-    - swap price : <img src="https://render.githubusercontent.com/render/math?math=dx/Y = ((a*Y+X*Y)/b)/Y = L"> —— (3)
+    - constant product : <img src="https://render.githubusercontent.com/render/math?math=k = (X%2Ba)*(Y%2Bb) = (X%2Bdx%2Ba)*(b)"> → <img src="https://render.githubusercontent.com/render/math?math=dx = (a*Y%2BX*Y)/b">
+    - swap price : <img src="https://render.githubusercontent.com/render/math?math=dx/Y = ((a*Y%2BX*Y)/b)/Y = L"> —— (3)
 - swap dy→X : all X is traded from dy swap
-    - constant product : <img src="https://render.githubusercontent.com/render/math?math=k = (X+a)*(Y+b) = (a)*(Y+dy+b)"> → <img src="https://render.githubusercontent.com/render/math?math=dy = (b*X+X*Y)/a">
-    - swap price : <img src="https://render.githubusercontent.com/render/math?math=X/dy = X/((b*X+X*Y)/a) = M"> —— (4)
+    - constant product : <img src="https://render.githubusercontent.com/render/math?math=k = (X%2Ba)*(Y%2Bb) = (a)*(Y%2Bdy%2Bb)"> → <img src="https://render.githubusercontent.com/render/math?math=dy = (b*X%2BX*Y)/a">
+    - swap price : <img src="https://render.githubusercontent.com/render/math?math=X/dy = X/((b*X%2BX*Y)/a) = M"> —— (4)
 - from (3) and (4)
-    - <img src="https://render.githubusercontent.com/render/math?math=a = (M*X+L*M*Y)/(L-M)"> —— (5)
-    - <img src="https://render.githubusercontent.com/render/math?math=b = (X+M*Y)/(L-M)"> —— (6)
+    - <img src="https://render.githubusercontent.com/render/math?math=a = (M*X%2BL*M*Y)/(L-M)"> —— (5)
+    - <img src="https://render.githubusercontent.com/render/math?math=b = (X%2BM*Y)/(L-M)"> —— (6)
 
 ## 3.3. State Changes
 
@@ -231,7 +231,7 @@ Ranged Liquidity is a new way to provide liquidity for automated market making. 
         - a, b
 - finding calculation targets
     - from (2)
-        - <img src="https://render.githubusercontent.com/render/math?math=P = (X+a)/(Y+b) = (X+(M*X+L*M*Y)/(L-M))/(Y+(X+M*Y)/(L-M))"> —— (7)
+        - <img src="https://render.githubusercontent.com/render/math?math=P = (X%2Ba)/(Y%2Bb) = (X%2B(M*X%2BL*M*Y)/(L-M))/(Y%2B(X%2BM*Y)/(L-M))"> —— (7)
     - solve (7) for Y
         - <img src="https://render.githubusercontent.com/render/math?math=Y = X*(L-P)/(L*P-L*M)"> —— (8)
         - <img src="https://render.githubusercontent.com/render/math?math=X = Y*(L*P-L*M)/(L-P)">
@@ -245,26 +245,26 @@ Ranged Liquidity is a new way to provide liquidity for automated market making. 
     - (dx, dy) is deposit amount
         - dx, dy can be negative (withdrawal)
     - price should not change after deposit/withdraw:
-        - <img src="https://render.githubusercontent.com/render/math?math=P(X,Y) = P(X+dx,Y+dy)"> —— (9)
+        - <img src="https://render.githubusercontent.com/render/math?math=P(X,Y) = P(X%2Bdx,Y%2Bdy)"> —— (9)
 - a and b are depend on pool's status
-    - <img src="https://render.githubusercontent.com/render/math?math=(X+a)/(Y+b) = (X+dx+a')/(Y+dy+b')">
-        - <img src="https://render.githubusercontent.com/render/math?math=(X+a)/(Y+b) = (X+M*X/(P-M))/(Y+P*X/(L*(P-M)))">
-        - <img src="https://render.githubusercontent.com/render/math?math=(X+dx+a')/(Y+dy+b') = (X+dx+M*(X+dx)/(P-M))/(Y+dy+P*(X+dx)/(L*(P-M)))">
+    - <img src="https://render.githubusercontent.com/render/math?math=(X%2Ba)/(Y%2Bb) = (X%2Bdx%2Ba')/(Y%2Bdy%2Bb')">
+        - <img src="https://render.githubusercontent.com/render/math?math=(X%2Ba)/(Y%2Bb) = (X%2BM*X/(P-M))/(Y%2BP*X/(L*(P-M)))">
+        - <img src="https://render.githubusercontent.com/render/math?math=(X%2Bdx%2Ba')/(Y%2Bdy%2Bb') = (X%2Bdx%2BM*(X%2Bdx)/(P-M))/(Y%2Bdy%2BP*(X%2Bdx)/(L*(P-M)))">
         - <img src="https://render.githubusercontent.com/render/math?math=dx/dy = X/Y">
 
 ### 3.3.3. Swap
 
 - price increasing case : swap dx→dy at swap price P
     - finding dy when P is given ( usable Y liquidity at given price P )
-        - constant product : <img src="https://render.githubusercontent.com/render/math?math=(X+a)*(Y+b) = (X+a+P*dy)*(Y+b-dy)"> —— (10)
+        - constant product : <img src="https://render.githubusercontent.com/render/math?math=(X%2Ba)*(Y%2Bb) = (X%2Ba%2BP*dy)*(Y%2Bb-dy)"> —— (10)
         - solving (10) for dy yields
-            - <img src="https://render.githubusercontent.com/render/math?math=dy = (Y+b)-(X+a)/P">
+            - <img src="https://render.githubusercontent.com/render/math?math=dy = (Y%2Bb)-(X%2Ba)/P">
 
 - price decreasing case : swap dy→dx at swap price P
     - finding dx when P is given ( usable X liquidity at given price P )
-        - constant product : <img src="https://render.githubusercontent.com/render/math?math=(X+a)*(Y+b) = (X+a-dx)*(Y+b+dx/P)"> —— (11)
+        - constant product : <img src="https://render.githubusercontent.com/render/math?math=(X%2Ba)*(Y%2Bb) = (X%2Ba-dx)*(Y%2Bb%2Bdx/P)"> —— (11)
         - solving (11) for dx yields
-            - <img src="https://render.githubusercontent.com/render/math?math=dx = (X+a)-P*(Y+b)">
+            - <img src="https://render.githubusercontent.com/render/math?math=dx = (X%2Ba)-P*(Y%2Bb)">
 
 ## 3.4. Allocation of Pool Liquidity on Order Book
 
@@ -272,20 +272,20 @@ Ranged Liquidity is a new way to provide liquidity for automated market making. 
     - calculating liquidity of each tick provided by pool
         - Y liquidity of tick price P (price of tick is higher than current pool price)
             - total Y liquidity provided by pool from current price to P (From 3.3.3)
-                - <img src="https://render.githubusercontent.com/render/math?math=dy = (Y+b)-(X+a)/P"> —— (12)
+                - <img src="https://render.githubusercontent.com/render/math?math=dy = (Y%2Bb)-(X%2Ba)/P"> —— (12)
             - total Y liquidity provided by pool from current price to P'(price 1 tick lower than P)
-                - <img src="https://render.githubusercontent.com/render/math?math=dy' = (Y+b)-(X+a)/P'"> —— (13)
+                - <img src="https://render.githubusercontent.com/render/math?math=dy' = (Y%2Bb)-(X%2Ba)/P'"> —— (13)
             - subtracting (13) from (12)
-                - Y liquidity of tick price P = <img src="https://render.githubusercontent.com/render/math?math=(X+a)/P' - (X+a)/P">
+                - Y liquidity of tick price P = <img src="https://render.githubusercontent.com/render/math?math=(X%2Ba)/P' - (X%2Ba)/P">
             - If P approaches L, from (5), (6) and (12), dy approaches Y. It means that the pool provides Y liquidity only until predetermined maximum pool price.
         - X liquidity of tick price P (price of tick is lower than current pool price)
             - total X liquidity provided by pool from current price to P (From 3.3.3)
-                - <img src="https://render.githubusercontent.com/render/math?math=dx = (X+a)-P*(Y+b)"> —— (14)
+                - <img src="https://render.githubusercontent.com/render/math?math=dx = (X%2Ba)-P*(Y%2Bb)"> —— (14)
 
             - total Y liquidity provided by pool from current price to P'(price 1 tick higher than P)
-                - <img src="https://render.githubusercontent.com/render/math?math=dx' = (X+a)-P'*(Y+b)"> —— (15)
+                - <img src="https://render.githubusercontent.com/render/math?math=dx' = (X%2Ba)-P'*(Y%2Bb)"> —— (15)
             - subtracting (15) from (14)
-                - X liquidity of tick price P = <img src="https://render.githubusercontent.com/render/math?math=P'*(Y+b) - P*(Y+b) = (P'-P)*(Y+b)">
+                - X liquidity of tick price P = <img src="https://render.githubusercontent.com/render/math?math=P'*(Y%2Bb) - P*(Y%2Bb) = (P'-P)*(Y%2Bb)">
             - If P approaches M, from (5), (6) and (14), dx approaches X. It means that the pool provides X liquidity only until predetermined minimum pool price.
 
 # 4. Fees
@@ -307,18 +307,18 @@ In Gravity DEX V2.0, with multiple pools with different swap fee rates, combined
         - -1, if pool is buying
     - <img src="https://render.githubusercontent.com/render/math?math=FeeRate"> : swap fee rate of the pool
 - effective swap price calculation
-    - <img src="https://render.githubusercontent.com/render/math?math=EffectiveSwapPrice(i) = QuotePrice(i)*(1+Direction(i)*FeeRate)">
+    - <img src="https://render.githubusercontent.com/render/math?math=EffectiveSwapPrice(i) = QuotePrice(i)*(1%2BDirection(i)*FeeRate)">
 
 **Adjusted quote price**
 
 - include swap fee inside effective quote price
-    - <img src="https://render.githubusercontent.com/render/math?math=AdjQuotePrice(i) = QuotePrice(i)*(1+Direction(i)*FeeRate)">
+    - <img src="https://render.githubusercontent.com/render/math?math=AdjQuotePrice(i) = QuotePrice(i)*(1%2BDirection(i)*FeeRate)">
     - <img src="https://render.githubusercontent.com/render/math?math=EffectiveSwapPrice(i) = AdjQuotePrice(i)">
 - migrate pool swap fee into adjusted quote price
     - pool swap fee is migrated to adjusted quote price
     - concept of pool swap fee disappears : pool does not need to collect swap fee anymore
     - fee rate concept should be replaced by "QuoteSpread"
-        - <img src="https://render.githubusercontent.com/render/math?math=QuoteSpread = (HBP-LAP)/((HBP + LAP)/2)">
+        - <img src="https://render.githubusercontent.com/render/math?math=QuoteSpread = (HBP-LAP)/((HBP %2B LAP)/2)">
         - HBP : highest bid price from the pool quotes
         - LAP : lowest ask price from the pool quotes
         - QuoteSpread should be divided by 2 to replace FeeRate
