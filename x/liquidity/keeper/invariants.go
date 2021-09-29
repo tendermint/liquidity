@@ -78,6 +78,7 @@ func errorRate(expected, actual sdk.Dec) sdk.Dec {
 	return actual.Sub(expected).Quo(expected).Abs()
 }
 
+// TODO: update
 // MintingPoolCoinsInvariant checks the correct ratio of minting amount of pool coins.
 func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB, refundedCoinA, refundedCoinB sdk.Int) {
 	if !refundedCoinA.IsZero() {
@@ -107,6 +108,7 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 	}
 }
 
+// TODO: update
 // DepositInvariant checks after deposit amounts.
 func DepositInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA, depositCoinB, afterReserveCoinA, afterReserveCoinB, refundedCoinA, refundedCoinB sdk.Int) {
 	depositCoinA = depositCoinA.Sub(refundedCoinA)

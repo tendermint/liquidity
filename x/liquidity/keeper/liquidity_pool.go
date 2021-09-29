@@ -268,53 +268,103 @@ func (k Keeper) ExecuteDeposit(ctx sdk.Context, msg types.DepositMsgState, batch
 		depositCoinAmountB = depositCoinA.Amount.ToDec().QuoTruncate(lastReserveRatio).TruncateInt()
 		acceptedCoins = sdk.NewCoins(depositCoinA, sdk.NewCoin(depositCoinB.Denom, depositCoinAmountB))
 
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
+		//inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
+		//outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 
 		refundedCoinB = depositCoinB.Amount.Sub(depositCoinAmountB)
 
 		if refundedCoinB.IsPositive() {
 			refundedCoins = sdk.NewCoins(sdk.NewCoin(depositCoinB.Denom, refundedCoinB))
-			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
-			outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
+			//inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
+			//outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
 		}
 	} else if depositCoinA.Amount.GT(depositableCoinAmountA) {
 		depositCoinAmountA = depositCoinB.Amount.ToDec().MulTruncate(lastReserveRatio).TruncateInt()
 		acceptedCoins = sdk.NewCoins(depositCoinB, sdk.NewCoin(depositCoinA.Denom, depositCoinAmountA))
 
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
+		//inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
+		//outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 
 		refundedCoinA = depositCoinA.Amount.Sub(depositCoinAmountA)
 
 		if refundedCoinA.IsPositive() {
 			refundedCoins = sdk.NewCoins(sdk.NewCoin(depositCoinA.Denom, refundedCoinA))
-			inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
-			outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
+			//inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
+			//outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
 		}
 	} else {
 		acceptedCoins = sdk.NewCoins(depositCoinA, depositCoinB)
-		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
-		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
+		//inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
+		//outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
 	}
 
 	// calculate pool token mint amount
 	poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool)
-	poolCoinAmt := sdk.MinInt(
-		poolCoinTotalSupply.ToDec().MulTruncate(depositCoinAmountA.ToDec()).QuoTruncate(reserveCoins[0].Amount.ToDec()).TruncateInt(),
-		poolCoinTotalSupply.ToDec().MulTruncate(depositCoinAmountB.ToDec()).QuoTruncate(reserveCoins[1].Amount.ToDec()).TruncateInt())
-	mintPoolCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt)
+	poolCoinAmt := sdk.MinDec(
+		poolCoinTotalSupply.ToDec().MulTruncate(depositCoinAmountA.ToDec()).QuoTruncate(reserveCoins[0].Amount.ToDec()),
+		poolCoinTotalSupply.ToDec().MulTruncate(depositCoinAmountB.ToDec()).QuoTruncate(reserveCoins[1].Amount.ToDec()))
+	poolCoinDecimalDiff := poolCoinAmt.Sub(poolCoinAmt.TruncateDec())
+	if poolCoinDecimalDiff.IsPositive() {
+		// TODO: remove debug message
+		fmt.Println("poolCoinDecimalDiff", poolCoinDecimalDiff)
+		fmt.Println("acceptedCoins", acceptedCoins)
+		fmt.Println("refundedCoins", refundedCoins)
+		mintedRate := poolCoinAmt.TruncateDec().QuoTruncate(poolCoinTotalSupply.ToDec())
+		fmt.Println("mintedRate", mintedRate)
+		fmt.Println("lastReserveCoinA", lastReserveCoinA)
+		fmt.Println("lastReserveCoinB", lastReserveCoinB)
+		fmt.Println("lastReserveRatio", lastReserveRatio)
+		// TODO: using Mul? or MulTruncate?
+		truncatedCoinA := lastReserveCoinA.ToDec().Mul(mintedRate)
+		truncatedCoinB := lastReserveCoinB.ToDec().Mul(mintedRate)
+		fmt.Println("truncatedCoinA", truncatedCoinA)
+		fmt.Println("truncatedCoinB", truncatedCoinB)
+		acceptedCoins = sdk.NewCoins(sdk.NewCoin(depositCoinA.Denom, truncatedCoinA.TruncateInt()), sdk.NewCoin(depositCoinB.Denom, truncatedCoinB.TruncateInt()))
+		if depositCoins.IsAllGTE(acceptedCoins) {
+			refundedCoins = depositCoins.Sub(acceptedCoins)
+		} else {
+			// TODO: check not occur
+		}
+	}
+	mintPoolCoin := sdk.NewCoin(pool.PoolCoinDenom, poolCoinAmt.TruncateInt())
 	mintPoolCoins := sdk.NewCoins(mintPoolCoin)
+
+	// TODO: remove debug message
+	fmt.Println(poolCoinTotalSupply.ToDec().MulTruncate(depositCoinAmountA.ToDec()).QuoTruncate(reserveCoins[0].Amount.ToDec()))
+	fmt.Println(poolCoinTotalSupply.ToDec().MulTruncate(depositCoinAmountB.ToDec()).QuoTruncate(reserveCoins[1].Amount.ToDec()))
+
+	// TODO: check mintPoolCoin is valid, not zero cause decimal
+	if err := mintPoolCoins.Validate(); err != nil {
+		// TODO: add error code for decimal
+		return err
+	}
 
 	// mint pool token to the depositor
 	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoins); err != nil {
 		return err
 	}
 
-	inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, mintPoolCoins))
-	outputs = append(outputs, banktypes.NewOutput(depositor, mintPoolCoins))
+	if refundedCoins.IsAllPositive() {
+		// refund truncated deposit coins
+		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, refundedCoins))
+		outputs = append(outputs, banktypes.NewOutput(depositor, refundedCoins))
+	}
+
+	if acceptedCoins.IsAllPositive() {
+		// send accepted deposit coins
+		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, acceptedCoins))
+		outputs = append(outputs, banktypes.NewOutput(reserveAcc, acceptedCoins))
+
+		// send minted pool coins
+		inputs = append(inputs, banktypes.NewInput(batchEscrowAcc, mintPoolCoins))
+		outputs = append(outputs, banktypes.NewOutput(depositor, mintPoolCoins))
+	}
 
 	// execute multi-send
+	// TODO: remove debug message
+	fmt.Println(inputs)
+	fmt.Println(outputs)
+	fmt.Println(refundedCoins)
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		return err
 	}
@@ -323,16 +373,17 @@ func (k Keeper) ExecuteDeposit(ctx sdk.Context, msg types.DepositMsgState, batch
 	msg.ToBeDeleted = true
 	k.SetPoolBatchDepositMsgState(ctx, msg.Msg.PoolId, msg)
 
-	if BatchLogicInvariantCheckFlag {
-		afterReserveCoins := k.GetReserveCoins(ctx, pool)
-		afterReserveCoinA := afterReserveCoins[0].Amount
-		afterReserveCoinB := afterReserveCoins[1].Amount
-
-		MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin.Amount, depositCoinA.Amount, depositCoinB.Amount,
-			lastReserveCoinA, lastReserveCoinB, refundedCoinA, refundedCoinB)
-		DepositInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA.Amount, depositCoinB.Amount,
-			afterReserveCoinA, afterReserveCoinB, refundedCoinA, refundedCoinB)
-	}
+	//if BatchLogicInvariantCheckFlag {
+	//	afterReserveCoins := k.GetReserveCoins(ctx, pool)
+	//	afterReserveCoinA := afterReserveCoins[0].Amount
+	//	afterReserveCoinB := afterReserveCoins[1].Amount
+	//
+	//	// TODO: update A, B coins
+	//	MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin.Amount, depositCoinA.Amount, depositCoinB.Amount,
+	//		lastReserveCoinA, lastReserveCoinB, refundedCoinA, refundedCoinB)
+	//	DepositInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA.Amount, depositCoinB.Amount,
+	//		afterReserveCoinA, afterReserveCoinB, refundedCoinA, refundedCoinB)
+	//}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

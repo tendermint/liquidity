@@ -173,6 +173,68 @@ func TestExecuteDeposit(t *testing.T) {
 	require.Equal(t, poolCoin.Sub(poolCoinBefore), depositorBalance.Amount)
 }
 
+func TestExecuteDepositTruncation(t *testing.T) {
+	simapp, ctx := createTestInput()
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	poolTypeID := types.DefaultPoolTypeID
+	addrs := app.AddTestAddrs(simapp, ctx, 4, params.PoolCreationFee)
+
+	denomA := "uETH"
+	denomB := "uUSD"
+	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+	initDeposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(10000000*1000000)), sdk.NewCoin(denomB, sdk.NewInt(200000000*1000000)))
+	app.SaveAccount(simapp, ctx, addrs[0], initDeposit)
+	app.SaveAccount(simapp, ctx, addrs[1], initDeposit)
+
+	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
+	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	depositBalance := sdk.NewCoins(depositA, depositB)
+
+	require.Equal(t, initDeposit, depositBalance)
+
+	depositA = simapp.BankKeeper.GetBalance(ctx, addrs[1], denomA)
+	depositB = simapp.BankKeeper.GetBalance(ctx, addrs[1], denomB)
+	depositBalance = sdk.NewCoins(depositA, depositB)
+
+	require.Equal(t, initDeposit, depositBalance)
+
+	createMsg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
+
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, createMsg)
+	require.NoError(t, err)
+
+	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
+	pool := pools[0]
+
+	poolCoinBefore := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(19*1000000)), sdk.NewCoin(denomB, sdk.NewInt(400*1000000)))
+	depositMsg := types.NewMsgDepositWithinBatch(addrs[1], pool.Id, deposit)
+	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, depositMsg)
+	require.NoError(t, err)
+
+	poolBatch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, depositMsg.PoolId)
+	require.True(t, found)
+	msgs := simapp.LiquidityKeeper.GetAllPoolBatchDepositMsgs(ctx, poolBatch)
+	require.Equal(t, 1, len(msgs))
+
+	err = simapp.LiquidityKeeper.ExecuteDeposit(ctx, msgs[0], poolBatch)
+	require.NoError(t, err)
+
+	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
+	depositorBalancePoolCoin := simapp.BankKeeper.GetBalance(ctx, addrs[1], pool.PoolCoinDenom)
+	depositorBalanceDenomA := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomA)
+	depositorBalanceDenomB := simapp.BankKeeper.GetBalance(ctx, addrs[1], denomB)
+	require.Equal(t, depositBalance.AmountOf(denomA).Sub(sdk.NewInt(10*1000000)), depositorBalanceDenomA.Amount)
+	require.Equal(t, depositBalance.AmountOf(denomB).Sub(sdk.NewInt(200*1000000)), depositorBalanceDenomB.Amount)
+	require.Equal(t, depositorBalancePoolCoin.Amount, sdk.OneInt())
+	require.Equal(t, poolCoin.Sub(poolCoinBefore), depositorBalancePoolCoin.Amount)
+}
+
+
 func TestReserveCoinLimit(t *testing.T) {
 	simapp, ctx := createTestInput()
 	params := types.DefaultParams()
