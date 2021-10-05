@@ -234,6 +234,81 @@ func TestExecuteDepositTruncation(t *testing.T) {
 	require.Equal(t, poolCoin.Sub(poolCoinBefore), depositorBalancePoolCoin.Amount)
 }
 
+func TestDepositDecimalTruncation(t *testing.T) {
+	simapp, ctx := createTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	params.WithdrawFeeRate = sdk.ZeroDec()
+
+	// Suppose that atom price is $40.
+	denomA := "uatom"
+	denomB := "uusd"
+
+	addrs := app.AddTestAddrs(simapp, ctx, 2, sdk.NewCoins())
+	creator, depositor := addrs[0], addrs[1]
+
+	// Create a pool with initial value of $10M.
+	depositCoins := sdk.NewCoins(sdk.NewInt64Coin(denomA, 125000*1000000), sdk.NewInt64Coin(denomB, 5000000*1000000))
+	err := app.FundAccount(simapp, ctx, creator, depositCoins.Add(params.PoolCreationFee...))
+	require.NoError(t, err)
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creator, types.DefaultPoolTypeID, depositCoins))
+	require.NoError(t, err)
+
+	// Deposit 19$.
+	depositCoins = sdk.NewCoins(sdk.NewInt64Coin(denomA, 0.2375*1000000), sdk.NewInt64Coin(denomB, 9.5*1000000))
+	err = app.FundAccount(simapp, ctx, depositor, depositCoins)
+	require.NoError(t, err)
+	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, types.NewMsgDepositWithinBatch(depositor, pool.Id, depositCoins))
+	require.NoError(t, err)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	depositorPoolCoin := simapp.BankKeeper.GetBalance(ctx, depositor, pool.PoolCoinDenom)
+	require.True(sdk.IntEq(t, sdk.OneInt(), depositorPoolCoin.Amount))
+	require.True(t, simapp.BankKeeper.GetBalance(ctx, depositor, denomA).Amount.IsPositive())
+	require.True(t, simapp.BankKeeper.GetBalance(ctx, depositor, denomB).Amount.IsPositive())
+
+	// Withdraw.
+	_, err = simapp.LiquidityKeeper.WithdrawWithinBatch(ctx, types.NewMsgWithdrawWithinBatch(depositor, pool.Id, depositorPoolCoin))
+	require.NoError(t, err)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	depositorCoinsDelta := depositCoins.Sub(simapp.BankKeeper.GetAllBalances(ctx, depositor))
+	require.True(t, depositorCoinsDelta.IsZero())
+}
+
+func TestDepositDecimalTruncation2(t *testing.T) {
+	simapp, ctx := createTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	params.WithdrawFeeRate = sdk.ZeroDec()
+
+	// Suppose that atom price is $40.
+	denomA := "uatom"
+	denomB := "uusd"
+
+	addrs := app.AddTestAddrs(simapp, ctx, 2, sdk.NewCoins())
+	creator, depositor := addrs[0], addrs[1]
+
+	// Create a pool with initial value of $10M.
+	depositCoins := sdk.NewCoins(sdk.NewInt64Coin(denomA, 125000*1000000), sdk.NewInt64Coin(denomB, 5000000*1000000))
+	err := app.FundAccount(simapp, ctx, creator, depositCoins.Add(params.PoolCreationFee...))
+	require.NoError(t, err)
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creator, types.DefaultPoolTypeID, depositCoins))
+	require.NoError(t, err)
+
+	// Deposit 9$.
+	depositCoins = sdk.NewCoins(sdk.NewInt64Coin(denomA, 0.1125*1000000), sdk.NewInt64Coin(denomB, 4.5*1000000))
+	err = app.FundAccount(simapp, ctx, depositor, depositCoins)
+	require.NoError(t, err)
+	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, types.NewMsgDepositWithinBatch(depositor, pool.Id, depositCoins))
+	require.NoError(t, err)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+
+	depositorPoolCoin := simapp.BankKeeper.GetBalance(ctx, depositor, pool.PoolCoinDenom)
+	require.True(sdk.IntEq(t, sdk.ZeroInt(), depositorPoolCoin.Amount))
+	require.True(t, simapp.BankKeeper.GetAllBalances(ctx, depositor).IsEqual(depositCoins))
+}
 
 func TestReserveCoinLimit(t *testing.T) {
 	simapp, ctx := createTestInput()
