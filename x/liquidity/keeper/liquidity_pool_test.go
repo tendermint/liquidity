@@ -259,8 +259,10 @@ func TestDepositDecimalTruncation(t *testing.T) {
 	require.NoError(t, err)
 	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, types.NewMsgDepositWithinBatch(depositor, pool.Id, depositCoins))
 	require.NoError(t, err)
-	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	depositMsgStates := simapp.LiquidityKeeper.GetAllDepositMsgStates(ctx)
+	require.Len(t, depositMsgStates, 0)
 
 	depositorPoolCoin := simapp.BankKeeper.GetBalance(ctx, depositor, pool.PoolCoinDenom)
 	require.True(sdk.IntEq(t, sdk.OneInt(), depositorPoolCoin.Amount))
@@ -270,8 +272,10 @@ func TestDepositDecimalTruncation(t *testing.T) {
 	// Withdraw.
 	_, err = simapp.LiquidityKeeper.WithdrawWithinBatch(ctx, types.NewMsgWithdrawWithinBatch(depositor, pool.Id, depositorPoolCoin))
 	require.NoError(t, err)
-	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	withdrawMsgStates := simapp.LiquidityKeeper.GetAllWithdrawMsgStates(ctx)
+	require.Len(t, withdrawMsgStates, 0)
 
 	depositorCoinsDelta := depositCoins.Sub(simapp.BankKeeper.GetAllBalances(ctx, depositor))
 	require.True(t, depositorCoinsDelta.IsZero())
@@ -302,12 +306,20 @@ func TestDepositDecimalTruncation2(t *testing.T) {
 	require.NoError(t, err)
 	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, types.NewMsgDepositWithinBatch(depositor, pool.Id, depositCoins))
 	require.NoError(t, err)
-	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
 	depositorPoolCoin := simapp.BankKeeper.GetBalance(ctx, depositor, pool.PoolCoinDenom)
 	require.True(sdk.IntEq(t, sdk.ZeroInt(), depositorPoolCoin.Amount))
 	require.True(t, simapp.BankKeeper.GetAllBalances(ctx, depositor).IsEqual(depositCoins))
+	depositMsgStates := simapp.LiquidityKeeper.GetAllDepositMsgStates(ctx)
+	require.Len(t, depositMsgStates, 1)
+	require.True(t, depositMsgStates[0].Executed)
+	require.False(t, depositMsgStates[0].Succeeded)
+	require.True(t, depositMsgStates[0].ToBeDeleted)
+
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	depositMsgStates = simapp.LiquidityKeeper.GetAllDepositMsgStates(ctx)
+	require.Len(t, depositMsgStates, 0)
 }
 
 func TestReserveCoinLimit(t *testing.T) {

@@ -252,8 +252,8 @@ func (k Keeper) ExecuteDeposit(ctx sdk.Context, msg types.DepositMsgState, batch
 	)
 	mintRate := poolCoinMintAmt.TruncateDec().QuoTruncate(poolCoinTotalSupply.ToDec())
 	acceptedCoins := sdk.NewCoins(
-		sdk.NewCoin(depositCoins[0].Denom, lastReserveCoinA.Amount.ToDec().Mul(mintRate).TruncateInt()),
-		sdk.NewCoin(depositCoins[1].Denom, lastReserveCoinB.Amount.ToDec().Mul(mintRate).TruncateInt()),
+		sdk.NewCoin(depositCoins[0].Denom, lastReserveCoinA.Amount.ToDec().MulTruncate(mintRate).TruncateInt()),
+		sdk.NewCoin(depositCoins[1].Denom, lastReserveCoinB.Amount.ToDec().MulTruncate(mintRate).TruncateInt()),
 	)
 	refundedCoins := depositCoins.Sub(acceptedCoins)
 	refundedCoinA := sdk.NewCoin(depositCoinA.Denom, refundedCoins.AmountOf(depositCoinA.Denom))
@@ -263,7 +263,7 @@ func (k Keeper) ExecuteDeposit(ctx sdk.Context, msg types.DepositMsgState, batch
 	mintPoolCoins := sdk.NewCoins(mintPoolCoin)
 
 	if mintPoolCoins.IsZero() || acceptedCoins.IsZero() {
-		return fmt.Errorf("no minted coins") // TODO: use proper error type
+		return fmt.Errorf("pool coin truncated, no accepted coin, refund")
 	}
 
 	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintPoolCoins); err != nil {
