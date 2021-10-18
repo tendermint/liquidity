@@ -35,6 +35,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## v1.4.x - 2021.10.xx
+
+* [\#455](https://github.com/tendermint/liquidity/pull/455) (sdk) Bump SDK version to [v0.44.2](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.44.2)
+* [\#446](https://github.com/tendermint/liquidity/pull/446) Fix: Pool Coin Decimal Truncation During Deposit
+
 ## [Unreleased]
 
 ## [v1.4.0](https://github.com/tendermint/liquidity/releases/tag/v1.4.0) - 2021.09.07

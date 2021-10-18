@@ -94,10 +94,15 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 	expectedMintPoolCoinAmtBasedA := depositCoinARatio.MulInt(poolCoinTotalSupply).TruncateInt()
 	expectedMintPoolCoinAmtBasedB := depositCoinBRatio.MulInt(poolCoinTotalSupply).TruncateInt()
 
-	// NewPoolCoinAmount / LastPoolCoinSupply <= AfterRefundedDepositCoinA / LastReserveCoinA
-	// NewPoolCoinAmount / LastPoolCoinSupply <= AfterRefundedDepositCoinA / LastReserveCoinB
-	if depositCoinARatio.LT(poolCoinRatio) || depositCoinBRatio.LT(poolCoinRatio) {
-		panic("invariant check fails due to incorrect ratio of pool coins")
+	// NewPoolCoinAmount / LastPoolCoinSupply == AfterRefundedDepositCoinA / LastReserveCoinA
+	// NewPoolCoinAmount / LastPoolCoinSupply == AfterRefundedDepositCoinA / LastReserveCoinB
+	if depositCoinA.GTE(coinAmountThreshold) && depositCoinB.GTE(coinAmountThreshold) &&
+		lastReserveCoinA.GTE(coinAmountThreshold) && lastReserveCoinB.GTE(coinAmountThreshold) &&
+		mintPoolCoin.GTE(coinAmountThreshold) && poolCoinTotalSupply.GTE(coinAmountThreshold) {
+		if errorRate(depositCoinARatio, poolCoinRatio).GT(errorRateThreshold) ||
+			errorRate(depositCoinBRatio, poolCoinRatio).GT(errorRateThreshold) {
+			panic("invariant check fails due to incorrect ratio of pool coins")
+		}
 	}
 
 	if mintPoolCoin.GTE(coinAmountThreshold) &&

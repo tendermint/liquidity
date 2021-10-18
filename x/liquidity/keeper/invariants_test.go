@@ -21,6 +21,62 @@ func TestWithdrawRatioInvariant(t *testing.T) {
 	})
 }
 
+func TestMintingPoolCoinsInvariant(t *testing.T) {
+	for _, tc := range []struct {
+		poolCoinSupply  int64
+		mintingPoolCoin int64
+		reserveA        int64
+		depositA        int64
+		refundedA       int64
+		reserveB        int64
+		depositB        int64
+		refundedB       int64
+		expectPanic     bool
+	}{
+		{
+			10000, 1000,
+			100000, 10000, 0,
+			100000, 10000, 0,
+			false,
+		},
+		{
+			10000, 1000,
+			100000, 10000, 5000,
+			100000, 10000, 300,
+			true,
+		},
+		{
+			3000000, 100,
+			100000000, 4000, 667,
+			200000000, 8000, 1334,
+			false,
+		},
+		{
+			3000000, 100,
+			100000000, 4000, 0,
+			200000000, 8000, 1334,
+			true,
+		},
+	} {
+		f := require.NotPanics
+		if tc.expectPanic {
+			f = require.Panics
+		}
+		f(t, func() {
+			keeper.MintingPoolCoinsInvariant(
+				sdk.NewInt(tc.poolCoinSupply),
+				sdk.NewInt(tc.mintingPoolCoin),
+				sdk.NewInt(tc.depositA),
+				sdk.NewInt(tc.depositB),
+				sdk.NewInt(tc.reserveA),
+				sdk.NewInt(tc.reserveB),
+				sdk.NewInt(tc.refundedA),
+				sdk.NewInt(tc.refundedB),
+			)
+		})
+	}
+}
+
 func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	simapp, ctx := app.CreateTestInput()
 
