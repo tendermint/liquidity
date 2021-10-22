@@ -74,6 +74,28 @@ func TestCreatePool(t *testing.T) {
 	require.ErrorIs(t, err, types.ErrPoolAlreadyExists)
 }
 
+func TestCreatePoolInsufficientAmount(t *testing.T) {
+	simapp, ctx := createTestInput()
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+
+	depositCoins := sdk.NewCoins(sdk.NewInt64Coin(DenomX, 1000), sdk.NewInt64Coin(DenomY, 1000))
+	creator := app.AddRandomTestAddr(simapp, ctx, depositCoins.Add(params.PoolCreationFee...))
+
+	// Depositing coins that are less than params.MinInitDepositAmount.
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, types.NewMsgCreatePool(creator, types.DefaultPoolTypeID, depositCoins))
+	require.ErrorIs(t, err, types.ErrLessThanMinInitDeposit)
+
+	fakeDepositCoins := depositCoins.Add(
+		sdk.NewCoin(DenomX, params.MinInitDepositAmount),
+		sdk.NewCoin(DenomY, params.MinInitDepositAmount),
+	)
+	// Depositing coins that are greater than the depositor has.
+	_, err = simapp.LiquidityKeeper.CreatePool(
+		ctx, types.NewMsgCreatePool(creator, types.DefaultPoolTypeID, fakeDepositCoins),
+	)
+	require.ErrorIs(t, err, types.ErrInsufficientBalance)
+}
+
 func TestPoolCreationFee(t *testing.T) {
 	simapp, ctx := createTestInput()
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
