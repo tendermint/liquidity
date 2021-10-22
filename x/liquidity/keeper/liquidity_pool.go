@@ -770,19 +770,10 @@ func (k Keeper) ValidateMsgWithdrawWithinBatch(ctx sdk.Context, msg types.MsgWit
 }
 
 // ValidateMsgSwapWithinBatch validates MsgSwapWithinBatch.
-func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWithinBatch) error {
-	pool, found := k.GetPool(ctx, msg.PoolId)
-	if !found {
-		return types.ErrPoolNotExists
-	}
-
+func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWithinBatch, pool types.Pool) error {
 	denomA, denomB := types.AlphabeticalDenomPair(msg.OfferCoin.Denom, msg.DemandCoinDenom)
 	if denomA != pool.ReserveCoinDenoms[0] || denomB != pool.ReserveCoinDenoms[1] {
 		return types.ErrNotMatchedReserveCoin
-	}
-
-	if k.IsDepletedPool(ctx, pool) {
-		return types.ErrDepletedPool
 	}
 
 	params := k.GetParams(ctx)

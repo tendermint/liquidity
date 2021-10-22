@@ -22,6 +22,10 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 		return 0, types.ErrPoolNotExists
 	}
 
+	if k.IsDepletedPool(ctx, pool) {
+		return 0, types.ErrDepletedPool
+	}
+
 	currentHeight := ctx.BlockHeight()
 	// set executed states of all messages to true
 	executedMsgCount := uint64(0)
