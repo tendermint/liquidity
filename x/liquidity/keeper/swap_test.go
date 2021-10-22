@@ -347,29 +347,6 @@ func TestSwapWithDepletedPool(t *testing.T) {
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 }
 
-//func TestSwapOverflowCase(t *testing.T) {
-//	simapp, ctx, pool, creatorAddr, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
-//	require.NoError(t, err)
-//	params := simapp.LiquidityKeeper.GetParams(ctx)
-//
-//	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-//	pc := simapp.BankKeeper.GetBalance(ctx, creatorAddr, pool.PoolCoinDenom)
-//	_, err = simapp.LiquidityKeeper.WithdrawWithinBatch(ctx, types.NewMsgWithdrawWithinBatch(creatorAddr, pool.Id, pc))
-//	require.NoError(t, err)
-//	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
-//
-//	addr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewInt64Coin(DenomX, 100000)))
-//	offerCoin := sdk.NewInt64Coin(DenomX, 10000)
-//	orderPrice := sdk.MustNewDecFromStr("1.0")
-//	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
-//	_, err = simapp.LiquidityKeeper.SwapWithinBatch(
-//		ctx,
-//		types.NewMsgSwapWithinBatch(addr, pool.Id, types.DefaultSwapTypeID, offerCoin, DenomY, orderPrice, params.SwapFeeRate),
-//		0)
-//	require.ErrorIs(t, err, types.ErrDepletedPool)
-//	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
-//}
-
 func createPool(simapp *app.LiquidityApp, ctx sdk.Context, X, Y sdk.Int, denomX, denomY string) (types.Pool, error) {
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
