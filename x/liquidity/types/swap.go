@@ -166,6 +166,9 @@ func (orderBook OrderBook) Validate(currentPrice sdk.Dec) bool {
 			minSellOrderPrice = order.Price
 		}
 	}
+	if !currentPrice.IsPositive() {
+		return false
+	}
 	if maxBuyOrderPrice.GT(minSellOrderPrice) ||
 		maxBuyOrderPrice.Quo(currentPrice).GT(sdk.MustNewDecFromStr("1.10")) ||
 		minSellOrderPrice.Quo(currentPrice).LT(sdk.MustNewDecFromStr("0.90")) {
@@ -324,7 +327,6 @@ func (orderBook OrderBook) PriceDirection(currentPrice sdk.Dec) PriceDirection {
 			sellAmtUnderCurrentPrice = sellAmtUnderCurrentPrice.Add(order.SellOfferAmt.ToDec())
 		}
 	}
-
 	if buyAmtOverCurrentPrice.GT(currentPrice.Mul(sellAmtUnderCurrentPrice.Add(sellAmtAtCurrentPrice))) {
 		return Increasing
 	} else if currentPrice.Mul(sellAmtUnderCurrentPrice).GT(buyAmtOverCurrentPrice.Add(buyAmtAtCurrentPrice)) {

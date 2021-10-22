@@ -46,4 +46,5 @@ var (
 	ErrExceededReserveCoinLimit     = sdkerrors.Register(ModuleName, 38, "can not exceed reserve coin limit amount")
 	ErrDepletedPool                 = sdkerrors.Register(ModuleName, 39, "the pool is depleted of reserve coin, reinitializing is required by deposit")
 	ErrCircuitBreakerEnabled        = sdkerrors.Register(ModuleName, 40, "circuit breaker is triggered")
+	ErrOverflowAmount               = sdkerrors.Register(ModuleName, 41, "invalid amount that can cause overflow")
 )

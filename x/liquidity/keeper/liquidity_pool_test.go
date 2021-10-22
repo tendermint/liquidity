@@ -11,6 +11,7 @@ import (
 
 	"github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
+	"github.com/tendermint/liquidity/x/liquidity/keeper"
 	"github.com/tendermint/liquidity/x/liquidity/types"
 )
 
@@ -1104,4 +1105,114 @@ func TestDepositWithCoinsSent(t *testing.T) {
 	require.True(sdk.IntEq(t, sdk.NewInt(1000000), balances.AmountOf(DenomX)))
 	require.True(sdk.IntEq(t, sdk.NewInt(0), balances.AmountOf(DenomY)))
 	require.True(sdk.IntEq(t, sdk.NewInt(1000000), balances.AmountOf(pool.PoolCoinDenom)))
+}
+
+func TestPoolEdgeCases(t *testing.T) {
+	simapp, ctx := createTestInput()
+	params := types.DefaultParams()
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+	keeper.BatchLogicInvariantCheckFlag = false
+
+	poolTypeID := types.DefaultPoolTypeID
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
+
+	denomA := "uETH"
+	denomB := "uUSD"
+	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+	// Check Equal Denom Case
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID,
+		sdk.Coins{
+			sdk.NewCoin(denomA, sdk.NewInt(1000000)),
+			sdk.NewCoin(denomA, sdk.NewInt(1000000))})
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
+	require.ErrorIs(t, err, types.ErrEqualDenom)
+
+	// Check overflow case on deposit
+	deposit := sdk.NewCoins(
+		sdk.NewCoin(denomA, sdk.NewInt(1_000_000)),
+		sdk.NewCoin(denomB, sdk.NewInt(2_000_000_000_000*1_000_000).MulRaw(1_000_000)))
+	hugeCoins := sdk.NewCoins(
+		sdk.NewCoin(denomA, sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000)),
+		sdk.NewCoin(denomB, sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000)))
+	app.SaveAccount(simapp, ctx, addrs[0], deposit.Add(hugeCoins...))
+
+	msg = types.NewMsgCreatePool(addrs[0], poolTypeID, deposit)
+	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
+	require.NoError(t, err)
+	pools := simapp.LiquidityKeeper.GetAllPools(ctx)
+	poolCoin := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pools[0])
+
+	depositorBalance := simapp.BankKeeper.GetAllBalances(ctx, addrs[0])
+	depositMsg := types.NewMsgDepositWithinBatch(addrs[0], pools[0].Id, hugeCoins)
+	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, depositMsg)
+	require.NoError(t, err)
+
+	poolBatch, found := simapp.LiquidityKeeper.GetPoolBatch(ctx, depositMsg.PoolId)
+	require.True(t, found)
+	msgs := simapp.LiquidityKeeper.GetAllPoolBatchDepositMsgs(ctx, poolBatch)
+	require.Equal(t, 1, len(msgs))
+	err = simapp.LiquidityKeeper.ExecuteDeposit(ctx, msgs[0], poolBatch)
+	require.ErrorIs(t, err, types.ErrOverflowAmount)
+	err = simapp.LiquidityKeeper.RefundDeposit(ctx, msgs[0], poolBatch)
+	require.NoError(t, err)
+
+	poolCoinAfter := simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pools[0])
+	depositorPoolCoinBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pools[0].PoolCoinDenom)
+	require.Equal(t, poolCoin, poolCoinAfter)
+	require.Equal(t, poolCoinAfter, depositorPoolCoinBalance.Amount)
+	require.Equal(t, depositorBalance.AmountOf(pools[0].PoolCoinDenom), depositorPoolCoinBalance.Amount)
+
+	hugeCoins = sdk.NewCoins(
+		sdk.NewCoin(denomA, sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000)),
+		sdk.NewCoin(denomB, sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000)))
+	depositMsg = types.NewMsgDepositWithinBatch(addrs[0], pools[0].Id, hugeCoins)
+	_, err = simapp.LiquidityKeeper.DepositWithinBatch(ctx, depositMsg)
+	require.NoError(t, err)
+	msgs = simapp.LiquidityKeeper.GetAllPoolBatchDepositMsgs(ctx, poolBatch)
+	require.Equal(t, 2, len(msgs))
+	err = simapp.LiquidityKeeper.ExecuteDeposit(ctx, msgs[1], poolBatch)
+	require.NoError(t, err)
+
+	// Check overflow case on withdraw
+	depositorPoolCoinBalance = simapp.BankKeeper.GetBalance(ctx, addrs[0], pools[0].PoolCoinDenom)
+	_, err = simapp.LiquidityKeeper.WithdrawWithinBatch(ctx, types.NewMsgWithdrawWithinBatch(addrs[0], pools[0].Id, depositorPoolCoinBalance.SubAmount(sdk.NewInt(1))))
+	require.NoError(t, err)
+
+	poolBatch, found = simapp.LiquidityKeeper.GetPoolBatch(ctx, depositMsg.PoolId)
+	require.True(t, found)
+	withdrawMsgs := simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, poolBatch)
+	require.Equal(t, 1, len(withdrawMsgs))
+	err = simapp.LiquidityKeeper.ExecuteWithdrawal(ctx, withdrawMsgs[0], poolBatch)
+	require.ErrorIs(t, err, types.ErrOverflowAmount)
+	err = simapp.LiquidityKeeper.RefundWithdrawal(ctx, withdrawMsgs[0], poolBatch)
+	require.NoError(t, err)
+
+	// Check overflow, division by zero case on swap
+	swapUserBalanceBefore := simapp.BankKeeper.GetAllBalances(ctx, addrs[0])
+	offerCoinA := sdk.NewCoin(denomA, sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000_000))
+	orderPriceA := sdk.MustNewDecFromStr("110000000000000000000000000000000000000000000000000000000000.000000000000000001")
+	offerCoinB := sdk.NewCoin(denomB, sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000))
+	orderPriceB := sdk.MustNewDecFromStr("0.000000000000000001")
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	_, err = simapp.LiquidityKeeper.SwapWithinBatch(
+		ctx,
+		types.NewMsgSwapWithinBatch(addrs[0], pools[0].Id, types.DefaultSwapTypeID, offerCoinA, denomB, orderPriceA, params.SwapFeeRate),
+		0)
+	require.ErrorIs(t, err, types.ErrOverflowAmount)
+	_, err = simapp.LiquidityKeeper.SwapWithinBatch(
+		ctx,
+		types.NewMsgSwapWithinBatch(addrs[0], pools[0].Id, types.DefaultSwapTypeID, offerCoinB, denomA, orderPriceB, params.SwapFeeRate),
+		0)
+	require.NoError(t, err)
+	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
+	swapUserBalanceAfter := simapp.BankKeeper.GetAllBalances(ctx, addrs[0])
+	require.Equal(t, swapUserBalanceBefore, swapUserBalanceAfter)
+	depositMsgs := simapp.LiquidityKeeper.GetAllPoolBatchDepositMsgs(ctx, poolBatch)
+	require.Equal(t, 0, len(depositMsgs))
+	withdrawMsgs = simapp.LiquidityKeeper.GetAllPoolBatchWithdrawMsgStates(ctx, poolBatch)
+	require.Equal(t, 0, len(withdrawMsgs))
+	swapMsgs := simapp.LiquidityKeeper.GetAllPoolBatchSwapMsgStates(ctx, poolBatch)
+	require.Equal(t, 0, len(swapMsgs))
 }
