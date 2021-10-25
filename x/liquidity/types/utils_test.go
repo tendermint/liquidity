@@ -280,3 +280,61 @@ func TestGetOfferCoinFee(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckOverflow(t *testing.T) {
+	testCases := []struct {
+		name      string
+		a         sdk.Int
+		b         sdk.Int
+		expectErr error
+	}{
+		{
+			name:      "valid case",
+			a:         sdk.NewInt(10000),
+			b:         sdk.NewInt(100),
+			expectErr: nil,
+		},
+		{
+			name:      "overflow case",
+			a:         sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000),
+			b:         sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000),
+			expectErr: types.ErrOverflowAmount,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := types.CheckOverflow(tc.a, tc.b)
+			require.ErrorIs(t, err, tc.expectErr)
+		})
+	}
+}
+
+func TestCheckOverflowWithDec(t *testing.T) {
+	testCases := []struct {
+		name      string
+		a         sdk.Dec
+		b         sdk.Dec
+		expectErr error
+	}{
+		{
+			name:      "valid case",
+			a:         sdk.MustNewDecFromStr("1.0"),
+			b:         sdk.MustNewDecFromStr("0.0000001"),
+			expectErr: nil,
+		},
+		{
+			name:      "overflow case",
+			a:         sdk.MustNewDecFromStr("100000000000000000000000000000000000000000000000000000000000.0").MulInt64(10),
+			b:         sdk.MustNewDecFromStr("0.000000000000000001"),
+			expectErr: types.ErrOverflowAmount,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := types.CheckOverflowWithDec(tc.a, tc.b)
+			require.ErrorIs(t, err, tc.expectErr)
+		})
+	}
+}

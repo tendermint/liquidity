@@ -156,6 +156,9 @@ func (orderBook OrderBook) Match(x, y sdk.Dec) (BatchResult, bool) {
 
 // Check orderbook validity naively
 func (orderBook OrderBook) Validate(currentPrice sdk.Dec) bool {
+	if !currentPrice.IsPositive() {
+		return false
+	}
 	maxBuyOrderPrice := sdk.ZeroDec()
 	minSellOrderPrice := sdk.NewDec(1000000000000)
 	for _, order := range orderBook {
@@ -324,7 +327,6 @@ func (orderBook OrderBook) PriceDirection(currentPrice sdk.Dec) PriceDirection {
 			sellAmtUnderCurrentPrice = sellAmtUnderCurrentPrice.Add(order.SellOfferAmt.ToDec())
 		}
 	}
-
 	if buyAmtOverCurrentPrice.GT(currentPrice.Mul(sellAmtUnderCurrentPrice.Add(sellAmtAtCurrentPrice))) {
 		return Increasing
 	} else if currentPrice.Mul(sellAmtUnderCurrentPrice).GT(buyAmtOverCurrentPrice.Add(buyAmtAtCurrentPrice)) {

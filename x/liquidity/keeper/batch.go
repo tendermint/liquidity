@@ -236,7 +236,14 @@ func (k Keeper) WithdrawWithinBatch(ctx sdk.Context, msg *types.MsgWithdrawWithi
 
 // In order to deal with the batch at the same time, the coins of msgs are deposited in escrow.
 func (k Keeper) SwapWithinBatch(ctx sdk.Context, msg *types.MsgSwapWithinBatch, orderExpirySpanHeight int64) (*types.SwapMsgState, error) {
-	if err := k.ValidateMsgSwapWithinBatch(ctx, *msg); err != nil {
+	pool, found := k.GetPool(ctx, msg.PoolId)
+	if !found {
+		return nil, types.ErrPoolNotExists
+	}
+	if k.IsDepletedPool(ctx, pool) {
+		return nil, types.ErrDepletedPool
+	}
+	if err := k.ValidateMsgSwapWithinBatch(ctx, *msg, pool); err != nil {
 		return nil, err
 	}
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
