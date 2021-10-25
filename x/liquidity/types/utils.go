@@ -106,6 +106,8 @@ func CheckOverflow(a, b sdk.Int) (err error) {
 		}
 	}()
 	a.Mul(b)
+	a.Quo(b)
+	b.Quo(a)
 	return nil
 }
 

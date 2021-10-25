@@ -550,44 +550,57 @@ func TestMakeOrderMapEdgeCase(t *testing.T) {
 }
 
 func TestOrderbookValidate(t *testing.T) {
-	currentPrice := sdk.MustNewDecFromStr("1.0")
 	for _, testCase := range []struct {
-		buyPrice  string
-		sellPrice string
-		valid     bool
+		currentPrice string
+		buyPrice     string
+		sellPrice    string
+		valid        bool
 	}{
 		{
-			buyPrice:  "0.99",
-			sellPrice: "1.01",
-			valid:     true,
+			currentPrice: "1.0",
+			buyPrice:     "0.99",
+			sellPrice:    "1.01",
+			valid:        true,
 		},
 		{
 			// maxBuyOrderPrice > minSellOrderPrice
-			buyPrice:  "1.01",
-			sellPrice: "0.99",
-			valid:     false,
+			currentPrice: "1.0",
+			buyPrice:     "1.01",
+			sellPrice:    "0.99",
+			valid:        false,
 		},
 		{
-			buyPrice:  "1.1",
-			sellPrice: "1.2",
-			valid:     true,
+			currentPrice: "1.0",
+			buyPrice:     "1.1",
+			sellPrice:    "1.2",
+			valid:        true,
 		},
 		{
 			// maxBuyOrderPrice/currentPrice > 1.10
-			buyPrice:  "1.11",
-			sellPrice: "1.2",
-			valid:     false,
+			currentPrice: "1.0",
+			buyPrice:     "1.11",
+			sellPrice:    "1.2",
+			valid:        false,
 		},
 		{
-			buyPrice:  "0.8",
-			sellPrice: "0.9",
-			valid:     true,
+			currentPrice: "1.0",
+			buyPrice:     "0.8",
+			sellPrice:    "0.9",
+			valid:        true,
 		},
 		{
 			// minSellOrderPrice/currentPrice < 0.90
-			buyPrice:  "0.8",
-			sellPrice: "0.89",
-			valid:     false,
+			currentPrice: "1.0",
+			buyPrice:     "0.8",
+			sellPrice:    "0.89",
+			valid:        false,
+		},
+		{
+			// not positive price
+			currentPrice: "0.0",
+			buyPrice:     "0.00000000001",
+			sellPrice:    "0.000000000011",
+			valid:        false,
 		},
 	} {
 		buyPrice := sdk.MustNewDecFromStr(testCase.buyPrice)
@@ -605,7 +618,7 @@ func TestOrderbookValidate(t *testing.T) {
 			},
 		}
 		orderBook := orderMap.SortOrderBook()
-		require.Equal(t, testCase.valid, orderBook.Validate(currentPrice))
+		require.Equal(t, testCase.valid, orderBook.Validate(sdk.MustNewDecFromStr(testCase.currentPrice)))
 	}
 }
 
