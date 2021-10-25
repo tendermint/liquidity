@@ -98,3 +98,27 @@ func MustParseCoinsNormalized(coinStr string) sdk.Coins {
 	}
 	return coins
 }
+
+func CheckOverflow(a, b sdk.Int) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = ErrOverflowAmount
+		}
+	}()
+	a.Mul(b)
+	a.Quo(b)
+	b.Quo(a)
+	return nil
+}
+
+func CheckOverflowWithDec(a, b sdk.Dec) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = ErrOverflowAmount
+		}
+	}()
+	a.Mul(b)
+	a.Quo(b)
+	b.Quo(a)
+	return nil
+}

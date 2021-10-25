@@ -22,6 +22,10 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 		return 0, types.ErrPoolNotExists
 	}
 
+	if k.IsDepletedPool(ctx, pool) {
+		return 0, types.ErrDepletedPool
+	}
+
 	currentHeight := ctx.BlockHeight()
 	// set executed states of all messages to true
 	executedMsgCount := uint64(0)
@@ -32,7 +36,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 		if currentHeight > sms.OrderExpiryHeight {
 			sms.ToBeDeleted = true
 		}
-		if err := k.ValidateMsgSwapWithinBatch(ctx, *sms.Msg); err != nil {
+		if err := k.ValidateMsgSwapWithinBatch(ctx, *sms.Msg, pool); err != nil {
 			sms.ToBeDeleted = true
 		}
 		if !sms.ToBeDeleted {
@@ -79,7 +83,7 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 	// check orderbook validity and compute batchResult(direction, swapPrice, ..)
 	result, found := orderBook.Match(X, Y)
 
-	if !found {
+	if !found || X.Quo(Y).IsZero() {
 		err := k.RefundSwaps(ctx, pool, swapMsgStates)
 		return executedMsgCount, err
 	}
