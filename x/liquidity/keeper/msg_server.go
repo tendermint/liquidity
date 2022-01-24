@@ -98,10 +98,6 @@ func (k msgServer) DepositWithinBatch(goCtx context.Context, msg *types.MsgDepos
 func (k msgServer) WithdrawWithinBatch(goCtx context.Context, msg *types.MsgWithdrawWithinBatch) (*types.MsgWithdrawWithinBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if k.GetCircuitBreakerEnabled(ctx) {
-		return nil, types.ErrCircuitBreakerEnabled
-	}
-
 	poolBatch, found := k.GetPoolBatch(ctx, msg.PoolId)
 	if !found {
 		return nil, types.ErrPoolBatchNotExists
