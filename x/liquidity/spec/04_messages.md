@@ -20,6 +20,7 @@ type MsgCreatePool struct {
 
 Validity checks are performed for MsgCreatePool messages. The transaction that is triggered with `MsgCreatePool` fails if:
 
+- if `params.CircuitBreakerEnabled` is true
 - `PoolCreator` address does not exist
 - `PoolTypeId` does not exist in parameters
 - A duplicate `LiquidityPool` with same `PoolTypeId` and `ReserveCoinDenoms` exists
@@ -43,6 +44,7 @@ type MsgDepositWithinBatch struct {
 
 The MsgDepositWithinBatch message performs validity checks. The transaction that is triggered with the `MsgDepositWithinBatch` message fails if:
 
+- if `params.CircuitBreakerEnabled` is true
 - `Depositor` address does not exist
 - `PoolId` does not exist
 - The denoms of `DepositCoins` are not composed of existing `ReserveCoinDenoms` of the specified `LiquidityPool`
@@ -89,8 +91,9 @@ type MsgSwapWithinBatch struct {
 
 ## Validity checks
 
-The MsgWithdrawWithinBatch message performs validity checks. The transaction that is triggered with the `MsgSwapWithinBatch` message fails if:
+The MsgSwapWithinBatch message performs validity checks. The transaction that is triggered with the `MsgSwapWithinBatch` message fails if:
 
+- if `params.CircuitBreakerEnabled` is true
 - `SwapRequester` address does not exist
 - `PoolId` does not exist
 - `SwapTypeId` does not exist
