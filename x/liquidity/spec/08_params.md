@@ -74,7 +74,7 @@ The smallest unit batch size for every liquidity pool.
 
 ## CircuitBreakerEnabled
 
-The intention of circuit breaker is to have a contingency plan for a running network which maintains network liveness. This parameter enables or disables all transaction message types in liquidity module.
+The intention of circuit breaker is to have a contingency plan for a running network which maintains network liveness. This parameter enables or disables `MsgCreatePool`, `MsgDepositWithinBatch` and `MsgSwapWithinBatch` message types in liquidity module.
 # Constant Variables
 
 Key                 | Type   | Constant Value

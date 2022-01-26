@@ -4,10 +4,12 @@ package cli_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/spf13/viper"
@@ -19,12 +21,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltest "github.com/cosmos/cosmos-sdk/x/genutil/client/testutil"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	paramscutils "github.com/cosmos/cosmos-sdk/x/params/client/utils"
 
 	lapp "github.com/tendermint/liquidity/app"
 	"github.com/tendermint/liquidity/x/liquidity"
@@ -69,6 +74,14 @@ func (s *IntegrationTestSuite) SetupTest() {
 	cfg.GenesisState[liquiditytypes.ModuleName] = cfg.Codec.MustMarshalJSON(&liquidityGenState)
 	cfg.AccountTokens = sdk.NewInt(100_000_000_000) // node0token denom
 	cfg.StakingTokens = sdk.NewInt(100_000_000_000) // stake denom
+
+	genesisStateGov := govtypes.DefaultGenesisState()
+	genesisStateGov.DepositParams = govtypes.NewDepositParams(sdk.NewCoins(sdk.NewCoin(cfg.BondDenom, govtypes.DefaultMinDepositTokens)), time.Duration(15)*time.Second)
+	genesisStateGov.VotingParams = govtypes.NewVotingParams(time.Duration(5) * time.Second)
+	genesisStateGov.TallyParams.Quorum = sdk.MustNewDecFromStr("0.01")
+	bz, err := cfg.Codec.MarshalJSON(genesisStateGov)
+	s.Require().NoError(err)
+	cfg.GenesisState["gov"] = bz
 
 	s.cfg = cfg
 	s.network = network.New(s.T(), s.cfg)
@@ -1198,6 +1211,171 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 			}
 		})
 	}
+}
+
+func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
+	val := s.network.Validators[0]
+
+	// use two different tokens that are minted to the test account
+	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
+	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
+	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
+
+	// liquidity pool should be created prior to test this integration test
+	_, err := liquiditytestutil.MsgCreatePoolExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
+		sdk.NewCoins(X, Y).String(),
+	)
+	s.Require().NoError(err)
+
+	err = s.network.WaitForNextBlock()
+	s.Require().NoError(err)
+
+	// swap coins from the pool
+	offerCoin := sdk.NewCoin(denomY, sdk.NewInt(50_000_000))
+	output, err := liquiditytestutil.MsgSwapWithinBatchExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", uint32(1)),
+		fmt.Sprintf("%d", liquiditytypes.DefaultSwapTypeID),
+		offerCoin.String(),
+		denomX,
+		fmt.Sprintf("%.3f", 0.019),
+		fmt.Sprintf("%.3f", 0.003),
+	)
+	var txRes sdk.TxResponse
+	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
+	s.Require().Equal(txRes.Code, uint32(0))
+	s.Require().NoError(err)
+
+	circuitBreakerEnabled := true
+	circuitBreakerEnabledStr, err := json.Marshal(&circuitBreakerEnabled)
+	if err != nil {
+		panic(err)
+	}
+
+	paramChange := paramscutils.ParamChangeProposalJSON{
+		Title:       "enable-circuit-breaker",
+		Description: "enable circuit breaker",
+		Changes: []paramscutils.ParamChangeJSON{{
+			Subspace: liquiditytypes.ModuleName,
+			Key:      "CircuitBreakerEnabled",
+			Value:    circuitBreakerEnabledStr,
+		},
+		},
+		Deposit: sdk.NewCoin(s.cfg.BondDenom, govtypes.DefaultMinDepositTokens).String(),
+	}
+	paramChangeProp, err := json.Marshal(&paramChange)
+	if err != nil {
+		panic(err)
+	}
+
+	//create a param change proposal with deposit
+	_, err = liquiditytestutil.MsgParamChangeProposalExec(
+		val.ClientCtx,
+		val.Address.String(),
+		testutil.WriteToNewTempFile(s.T(), string(paramChangeProp)).Name(),
+	)
+	err = s.network.WaitForNextBlock()
+	s.Require().NoError(err)
+
+	_, err = liquiditytestutil.MsgVote(val.ClientCtx, val.Address.String(), "1", "yes")
+	s.Require().NoError(err)
+	err = s.network.WaitForNextBlock()
+	s.Require().NoError(err)
+
+	// check if circuit breaker is enabled
+	expectedOutput := `{"pool_types":[{"id":1,"name":"StandardLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":"Standard liquidity pool with pool price function X/Y, ESPM constraint, and two kinds of reserve coins"}],"min_init_deposit_amount":"1000000","init_pool_coin_mint_amount":"1000000","max_reserve_coin_amount":"0","pool_creation_fee":[{"denom":"stake","amount":"40000000"}],"swap_fee_rate":"0.003000000000000000","withdraw_fee_rate":"0.000000000000000000","max_order_amount_ratio":"0.100000000000000000","unit_batch_height":1,"circuit_breaker_enabled":true}`
+	out, err := clitestutil.ExecTestCLICmd(val.ClientCtx, cli.GetCmdQueryParams(), []string{fmt.Sprintf("--%s=json", tmcli.OutputFlag)})
+	s.Require().NoError(err)
+	s.Require().Equal(expectedOutput, strings.TrimSpace(out.String()))
+
+	// fail swap coins because of circuit breaker
+	output, err = liquiditytestutil.MsgSwapWithinBatchExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", uint32(1)),
+		fmt.Sprintf("%d", liquiditytypes.DefaultSwapTypeID),
+		offerCoin.String(),
+		denomX,
+		fmt.Sprintf("%.3f", 0.019),
+		fmt.Sprintf("%.3f", 0.003),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
+	s.Require().Equal(txRes.Code, uint32(40))
+	s.Require().Equal(txRes.RawLog, "failed to execute message; message index: 0: circuit breaker is triggered")
+
+	// fail create new pool because of circuit breaker
+	output, err = liquiditytestutil.MsgCreatePoolExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
+		sdk.NewCoins(X, Y).String(),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
+	s.Require().Equal(txRes.Code, uint32(40))
+	s.Require().Equal(txRes.RawLog, "failed to execute message; message index: 0: circuit breaker is triggered")
+
+	// fail create new deposit because of circuit breaker
+	_, err = liquiditytestutil.MsgDepositWithinBatchExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
+		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
+	s.Require().Equal(txRes.Code, uint32(40))
+	s.Require().Equal(txRes.RawLog, "failed to execute message; message index: 0: circuit breaker is triggered")
+
+	// success withdraw pool coin from the pool even though circuit breaker is true
+	poolCoinDenom := "poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D"
+	output, err = liquiditytestutil.MsgWithdrawWithinBatchExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", uint32(1)),
+		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, sdk.NewInt(500000))).String(),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
+	s.Require().Equal(txRes.Code, uint32(0))
+
+	output, err = liquiditytestutil.MsgWithdrawWithinBatchExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", uint32(1)),
+		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, sdk.NewInt(499999))).String(),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
+	s.Require().Equal(txRes.Code, uint32(0))
+
+	// withdraw last pool coin
+	output, err = liquiditytestutil.MsgWithdrawWithinBatchExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", uint32(1)),
+		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, sdk.NewInt(1))).String(),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
+	s.Require().Equal(txRes.Code, uint32(0))
+
+	// fail withdraw because of the pool is depleted
+	output, err = liquiditytestutil.MsgWithdrawWithinBatchExec(
+		val.ClientCtx,
+		val.Address.String(),
+		fmt.Sprintf("%d", uint32(1)),
+		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, sdk.NewInt(1))).String(),
+	)
+	s.Require().NoError(err)
+	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
+	s.Require().Equal(txRes.Code, uint32(39))
+	s.Require().Equal(txRes.RawLog, "failed to execute message; message index: 0: the pool is depleted of reserve coin, reinitializing is required by deposit")
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
