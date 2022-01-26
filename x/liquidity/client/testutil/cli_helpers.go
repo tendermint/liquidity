@@ -14,6 +14,8 @@ import (
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govcli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
+	paramscli "github.com/cosmos/cosmos-sdk/x/params/client/cli"
 
 	liquidityapp "github.com/tendermint/liquidity/app"
 	liquiditycli "github.com/tendermint/liquidity/x/liquidity/client/cli"
@@ -113,4 +115,31 @@ func MsgSwapWithinBatchExec(clientCtx client.Context, from, poolID, swapTypeID,
 	args = append(args, commonArgs...)
 
 	return clitestutil.ExecTestCLICmd(clientCtx, liquiditycli.NewSwapWithinBatchCmd(), args)
+}
+
+// MsgParamChangeProposalExec creates a transaction for submitting param change proposal
+func MsgParamChangeProposalExec(clientCtx client.Context, from string, file string) (testutil.BufferWriter, error) {
+
+	args := append([]string{
+		file,
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
+	}, commonArgs...)
+
+	paramChangeCmd := paramscli.NewSubmitParamChangeProposalTxCmd()
+	flags.AddTxFlagsToCmd(paramChangeCmd)
+
+	return clitestutil.ExecTestCLICmd(clientCtx, paramChangeCmd, args)
+}
+
+// MsgVote votes for a proposal
+func MsgVote(clientCtx client.Context, from, id, vote string, extraArgs ...string) (testutil.BufferWriter, error) {
+	args := append([]string{
+		id,
+		vote,
+		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
+	}, commonArgs...)
+
+	args = append(args, extraArgs...)
+
+	return clitestutil.ExecTestCLICmd(clientCtx, govcli.NewCmdWeightedVote(), args)
 }
