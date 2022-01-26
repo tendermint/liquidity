@@ -37,8 +37,9 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
-## [v1.4.3](https://github.com/tendermint/liquidity/releases) - 2022.01.26
+## [v1.4.4](https://github.com/tendermint/liquidity/releases) - 2022.01.26
 
+* [\#469](https://github.com/tendermint/liquidity/pull/469) build: bump cosmos-sdk to v0.44.5
 * [\#466](https://github.com/tendermint/liquidity/pull/466) fix: exclude circuit breaking logic for MsgWithdrawWithinBatch
 
 ## [v1.4.2](https://github.com/tendermint/liquidity/releases/tag/v1.4.2) - 2021.11.11
