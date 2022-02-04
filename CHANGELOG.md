@@ -37,7 +37,11 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
-## [v1.4.5](https://github.com/tendermint/liquidity/releases) - 2022.01.30
+## [v1.4.6](https://github.com/tendermint/liquidity/releases) - 2022.02
+
+* [\#473](https://github.com/tendermint/liquidity/pull/473) build: bump cosmos-sdk to v0.45.1
+
+## [v1.4.5](https://github.com/tendermint/liquidity/releases/tag/v1.4.5) - 2022.02.03
 
 * [\#471](https://github.com/tendermint/liquidity/pull/471) build: bump cosmos-sdk to v0.45.0
 
