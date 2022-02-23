@@ -33,22 +33,27 @@ Types of changes (Stanzas):
 Ref: https://keepachangelog.com/en/1.0.0/
 -->
 
+<!-- markdown-link-check-disable -->
+
 # Changelog
 
 ## [Unreleased]
 
-## [v1.4.6](https://github.com/tendermint/liquidity/releases) - 2022.02
+## [v1.5.0](https://github.com/tendermint/liquidity/releases/tag/v1.5.0) - 2022.02.23
 
-* [\#473](https://github.com/tendermint/liquidity/pull/473) build: bump cosmos-sdk to v0.45.1
+### State Machine Breaking
+* [\#466](https://github.com/tendermint/liquidity/pull/466) fix: exclude circuit breaking logic for MsgWithdrawWithinBatch
+* [\#473](https://github.com/tendermint/liquidity/pull/473) (sdk) Bump SDK version to [v0.45.1](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.45.1)
 
-## [v1.4.5](https://github.com/tendermint/liquidity/releases/tag/v1.4.5) - 2022.02.03
+## [v1.4.6](https://github.com/tendermint/liquidity/releases/tag/v1.4.6) - 2022.02.23
 
-* [\#471](https://github.com/tendermint/liquidity/pull/471) build: bump cosmos-sdk to v0.45.0
+* [\#475](https://github.com/tendermint/liquidity/pull/475) (sdk) Bump SDK version to [v0.44.6](https://github.com/cosmos/cosmos-sdk/releases/tag/v0.44.6)
+
+## [v1.4.5](https://github.com/tendermint/liquidity/releases/tag/v1.4.5) - 2022.01.30
+* Unusable release
 
 ## [v1.4.4](https://github.com/tendermint/liquidity/releases/tag/v1.4.4) - 2022.01.26
-
-* [\#469](https://github.com/tendermint/liquidity/pull/469) build: bump cosmos-sdk to v0.44.5
-* [\#466](https://github.com/tendermint/liquidity/pull/466) fix: exclude circuit breaking logic for MsgWithdrawWithinBatch
+* Unusable release
 
 ## [v1.4.2](https://github.com/tendermint/liquidity/releases/tag/v1.4.2) - 2021.11.11
 
